@@ -9,31 +9,35 @@ Research-first brainstorming. Every phase begins with autonomous search — neve
 
 ## Entry
 
-Always start by asking a clarification question to understand the user's background and intent before launching into research.
+Before launching into research, ask **one** clarification question to understand what the user actually wants to explore. Focus on narrowing the research question — not on background or logistics.
 
 ```dot
 digraph {
     "Paper / link?" [shape=diamond];
     "Vague interest?" [shape=diamond];
     "Extract topic" [shape=box];
-    "Ask clarifying question\n(background, goal, scope)" [shape=box];
+    "Ask one clarifying question\n(what exactly to explore)" [shape=box];
     "Phase 1: Survey" [shape=box];
     "Phase 3: Crystallize" [shape=box];
 
     "Paper / link?" -> "Extract topic" [label="yes"];
     "Paper / link?" -> "Vague interest?" [label="no"];
-    "Extract topic" -> "Ask clarifying question\n(background, goal, scope)";
-    "Ask clarifying question\n(background, goal, scope)" -> "Phase 1: Survey";
-    "Vague interest?" -> "Ask clarifying question\n(background, goal, scope)" [label="yes"];
+    "Extract topic" -> "Ask one clarifying question\n(what exactly to explore)";
+    "Ask one clarifying question\n(what exactly to explore)" -> "Phase 1: Survey";
+    "Vague interest?" -> "Ask one clarifying question\n(what exactly to explore)" [label="yes"];
     "Vague interest?" -> "Phase 3: Crystallize" [label="no, well-formed question"];
 }
 ```
 
-**Clarification questions (pick the most relevant one):**
-- "What's your background in this area? (helps calibrate the survey depth)"
-- "Are you looking to start a new project, or extend existing work?"
-- "Is there a specific angle or application you have in mind?"
-- "What's your timeline — exploratory or deadline-driven?"
+**Clarification principles:**
+- **One question at a time.** Never ask multiple questions in one message.
+- **Prefer multiple choice** when you can infer 2-3 plausible directions — easier for the user to pick than open-ended.
+- **Focus on the actual research question:** what exactly do they want to understand, solve, or build?
+
+**Example clarification questions (pick the most relevant one):**
+- "I see a few angles here: (a) improving X's efficiency, (b) applying X to domain Y, (c) theoretical foundations of X. Which is closest to what you're thinking?"
+- "This paper proposes [method]. Are you interested in extending it, finding alternatives, or applying it to a different problem?"
+- "What would success look like — a new algorithm, a theoretical result, or an empirical study?"
 
 ## Process
 
