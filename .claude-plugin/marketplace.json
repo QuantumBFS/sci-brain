@@ -1,0 +1,14 @@
+{
+  "name": "sci-brainstorm",
+  "owner": {
+    "name": "Jin-Guo Liu"
+  },
+  "plugins": [
+    {
+      "name": "sci-brainstorm",
+      "description": "Scientific research brainstorming: literature survey, cross-field discovery, Socratic crystallization, adversarial stress-testing",
+      "version": "0.1.0",
+      "source": "./"
+    }
+  ]
+}
