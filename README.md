@@ -6,9 +6,11 @@ This brainstorming style is from [Lei Wang](https://github.com/wangleiphy) and [
 
 ## Workflow
 
+![Flowchart](images/flowchart.svg)
+
 1. **Survey** — autonomous literature search (arxiv, Semantic Scholar, PubMed, etc.)
-2. **Expand** — cross-field and adjacent subfield exploration
-3. **Crystallize** — Socratic questioning to sharpen the research angle
+2. **Expand** — cross-field and adjacent subfield exploration via 4 parallel subagents
+3. **Crystallize** — Socratic questioning to sharpen the research angle (Polya's *How to Solve It*)
 4. **Stress-test** — adversarial challenge with evidence on novelty, rigor, and impact
 5. **Refine** — produce a structured research direction document
 
