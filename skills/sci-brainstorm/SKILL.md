@@ -9,23 +9,31 @@ Research-first brainstorming. Every phase begins with autonomous search — neve
 
 ## Entry
 
+Always start by asking a clarification question to understand the user's background and intent before launching into research.
+
 ```dot
 digraph {
     "Paper / link?" [shape=diamond];
     "Vague interest?" [shape=diamond];
     "Extract topic" [shape=box];
-    "Ask one clarifying\nquestion" [shape=box];
+    "Ask clarifying question\n(background, goal, scope)" [shape=box];
     "Phase 1: Survey" [shape=box];
     "Phase 3: Crystallize" [shape=box];
 
     "Paper / link?" -> "Extract topic" [label="yes"];
     "Paper / link?" -> "Vague interest?" [label="no"];
-    "Extract topic" -> "Phase 1: Survey";
-    "Vague interest?" -> "Ask one clarifying\nquestion" [label="yes"];
+    "Extract topic" -> "Ask clarifying question\n(background, goal, scope)";
+    "Ask clarifying question\n(background, goal, scope)" -> "Phase 1: Survey";
+    "Vague interest?" -> "Ask clarifying question\n(background, goal, scope)" [label="yes"];
     "Vague interest?" -> "Phase 3: Crystallize" [label="no, well-formed question"];
-    "Ask one clarifying\nquestion" -> "Phase 1: Survey";
 }
 ```
+
+**Clarification questions (pick the most relevant one):**
+- "What's your background in this area? (helps calibrate the survey depth)"
+- "Are you looking to start a new project, or extend existing work?"
+- "Is there a specific angle or application you have in mind?"
+- "What's your timeline — exploratory or deadline-driven?"
 
 ## Process
 
@@ -67,10 +75,14 @@ Map the landscape before any discussion.
 3. **Semantic Scholar MCP** — top 5 papers: pull citation graphs, identify clusters and seminal works
 4. **WebSearch** — blog posts, talks, open problem lists
 
+**Collect articles:** Download key paper PDFs to `articles-phase-1/`. For each paper, save with filename `<first-author>-<year>-<short-title>.pdf`.
+
 **Synthesize and answer the landscape question:**
 - What is the basic landscape of this field? (key papers clustered by sub-theme, active groups, citation graph shape)
 - What are the key open problems in this field?
 - What are the key bottlenecks preventing progress on those problems?
+
+**Generate survey report:** Save to `articles-phase-1/SURVEY.md` — a structured review covering: field overview, key themes with paper clusters, active research groups, open questions, and citation graph analysis.
 
 **Ask:** "What surprises you here? What did you already know?" — answer calibrates Phase 2.
 
@@ -82,7 +94,13 @@ Push beyond the user's known territory.
 
 **Strategy B — Cross-vocabulary:** Extract the **structural problem** (abstract away jargon, e.g., "compressing a high-dimensional transformation" not "LLM attention compression"). **paper-search-mcp** across all databases + **WebSearch** non-academic contexts + **Semantic Scholar MCP** to trace cross-field hits to their home community.
 
-**Present:** adjacent subfield findings, cross-field matches (same structure, different vocabulary). Ask: "Which connections feel worth exploring?" User picks 1-2 → raw material for Phase 3.
+**Collect articles:** Download newly found paper PDFs to `articles-phase-2/`.
+
+**Present:** adjacent subfield findings, cross-field matches (same structure, different vocabulary).
+
+**Generate expansion report:** Save to `articles-phase-2/EXPANSION.md` — summarizing adjacent subfield findings, cross-field matches, and how structural parallels connect to the original topic.
+
+Ask: "Which connections feel worth exploring?" User picks 1-2 → raw material for Phase 3.
 
 ### Phase 3 — Crystallize (Socratic)
 
@@ -121,6 +139,8 @@ Try to kill the idea with evidence. Whatever survives is worth pursuing.
 **Posture shift:** Announce — "Now I'm going to challenge this. My job is to find reasons this doesn't work."
 
 **Autonomous research (adversarial):** Search for prior art via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty claim, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers).
+
+**Collect articles:** Download prior art and counter-evidence PDFs to `articles-phase-4/`.
 
 **Challenge on three axes:**
 
