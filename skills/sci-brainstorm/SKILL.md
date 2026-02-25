@@ -90,21 +90,39 @@ Map the landscape before any discussion.
 
 **Ask:** "What surprises you here? What did you already know?" — answer calibrates Phase 2.
 
-### Phase 2 — Expand (automated)
+### Phase 2 — Expand (parallel exploration)
 
-Push beyond the user's known territory.
+Push beyond the user's known territory using parallel subagents, each with a different exploration strategy.
 
-**Strategy A — Adjacent subfield:** From Phase 1 clusters, pick the one user knows least about. **arxiv MCP** deep search + **Semantic Scholar MCP** citation chains outward.
+**Step 1 — Launch 4 subagents in parallel.** Each subagent receives the Phase 1 survey results and the user's stated interest, then searches independently:
 
-**Strategy B — Cross-vocabulary:** Extract the **structural problem** (abstract away jargon, e.g., "compressing a high-dimensional transformation" not "LLM attention compression"). **paper-search-mcp** across all databases + **WebSearch** non-academic contexts + **Semantic Scholar MCP** to trace cross-field hits to their home community.
+| Subagent | Strategy | Search instructions |
+|----------|----------|-------------------|
+| **Adjacent** | Explore the Phase 1 cluster the user knows least about | arxiv deep search + Semantic Scholar citation chains outward from that cluster |
+| **Cross-vocabulary** | Abstract away jargon to the structural problem (e.g., "compressing a high-dimensional transformation" not "LLM attention compression"), then search other fields | paper-search-mcp across all databases + WebSearch non-academic contexts + Semantic Scholar cross-field citation tracing |
+| **Cross-method** | Same problem, different computational or experimental approaches | arxiv + WebSearch for alternative methods, tools, or formalisms applied to similar problems |
+| **Historical** | Trace the problem's lineage — who tried before, what failed, why | Semantic Scholar citation chains backward + WebSearch for old attempts, negative results, and what has changed since |
 
-**Collect articles:** Download newly found paper PDFs to `articles-phase-2/`.
+Each subagent produces: **top 3 findings**, each with paper title/URL, one-sentence relevance summary, and a surprise rating (low/medium/high — how unexpected relative to the user's stated knowledge).
 
-**Present:** adjacent subfield findings, cross-field matches (same structure, different vocabulary).
+Each subagent downloads found paper PDFs to `articles-phase-2/`.
 
-**Generate expansion report:** Save to `articles-phase-2/EXPANSION.md` — summarizing adjacent subfield findings, cross-field matches, and how structural parallels connect to the original topic.
+**Step 2 — Synthesize into ranked comparison table.**
 
-Ask: "Which connections feel worth exploring?" User picks 1-2 → raw material for Phase 3.
+Merge all subagent reports, rank by surprise rating:
+
+| # | Finding | Strategy | Surprise | Why it matters |
+|---|---------|----------|----------|---------------|
+| 1 | ... | Cross-vocabulary | High | Same structure in biology |
+| 2 | ... | Historical | High | Failed in 2015, new tool changes this |
+| 3 | ... | Adjacent | Medium | Active group at X working on variant |
+| ... | | | | |
+
+**Generate expansion report:** Save full table and subagent reports to `articles-phase-2/EXPANSION.md`.
+
+**Step 3 — Ask user to pick.**
+
+"Here are the most surprising connections I found. Which 1-2 do you want to explore further?" User picks → raw material for Phase 3.
 
 ### Phase 3 — Crystallize (Socratic)
 
