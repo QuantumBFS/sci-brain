@@ -10,7 +10,7 @@
 ### 1. Clone sci-brainstorm
 
 ```bash
-git clone https://github.com/GiggleLiu/sci-brainstorm.git ~/.config/opencode/sci-brainstorm
+git clone https://github.com/QuantumBFS/sci-brainstorm.git ~/.config/opencode/sci-brainstorm
 ```
 
 ### 2. Symlink Skills

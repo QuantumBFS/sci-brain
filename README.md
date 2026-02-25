@@ -19,7 +19,7 @@ Installation differs by platform. Claude Code has a built-in plugin marketplace.
 ### Claude Code (via Plugin Marketplace)
 
 ```
-/plugin marketplace add GiggleLiu/sci-brainstorm
+/plugin marketplace add QuantumBFS/sci-brainstorm
 /plugin install sci-brainstorm@sci-brainstorm
 ```
 
@@ -30,7 +30,7 @@ Then use `/sci-brainstorm` in any session.
 Tell Codex:
 
 ```
-Fetch and follow instructions from https://raw.githubusercontent.com/GiggleLiu/sci-brainstorm/refs/heads/main/.codex/INSTALL.md
+Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brainstorm/refs/heads/main/.codex/INSTALL.md
 ```
 
 **Detailed docs:** [.codex/INSTALL.md](.codex/INSTALL.md)
@@ -40,7 +40,7 @@ Fetch and follow instructions from https://raw.githubusercontent.com/GiggleLiu/s
 Tell OpenCode:
 
 ```
-Fetch and follow instructions from https://raw.githubusercontent.com/GiggleLiu/sci-brainstorm/refs/heads/main/.opencode/INSTALL.md
+Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brainstorm/refs/heads/main/.opencode/INSTALL.md
 ```
 
 **Detailed docs:** [.opencode/INSTALL.md](.opencode/INSTALL.md)

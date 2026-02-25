@@ -10,7 +10,7 @@ Enable the sci-brainstorm skill in Codex via native skill discovery. Just clone 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/GiggleLiu/sci-brainstorm.git ~/.codex/sci-brainstorm
+   git clone https://github.com/QuantumBFS/sci-brainstorm.git ~/.codex/sci-brainstorm
    ```
 
 2. **Create the skills symlink:**
