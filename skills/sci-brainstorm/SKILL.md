@@ -52,6 +52,7 @@ digraph sci_brainstorm {
     "User states interest" [shape=box];
     "Phase 1: Survey" [shape=box];
     "Phase 2: Expand" [shape=box];
+    "Go deeper?" [shape=diamond];
     "Phase 3: Crystallize\n(Socratic)" [shape=box];
     "Phase 4: Stress-test\n(Adversarial)" [shape=box];
     "Idea survives?" [shape=diamond];
@@ -60,7 +61,9 @@ digraph sci_brainstorm {
 
     "User states interest" -> "Phase 1: Survey";
     "Phase 1: Survey" -> "Phase 2: Expand";
-    "Phase 2: Expand" -> "Phase 3: Crystallize\n(Socratic)";
+    "Phase 2: Expand" -> "Go deeper?";
+    "Go deeper?" -> "Phase 1: Survey" [label="yes, narrow topic\nto chosen direction"];
+    "Go deeper?" -> "Phase 3: Crystallize\n(Socratic)" [label="no, ready to\ncrystallize"];
     "Phase 3: Crystallize\n(Socratic)" -> "Phase 4: Stress-test\n(Adversarial)";
     "Phase 4: Stress-test\n(Adversarial)" -> "Idea survives?";
     "Idea survives?" -> "Phase 3: Crystallize\n(Socratic)" [label="no, pivot"];
@@ -122,7 +125,11 @@ Merge all subagent reports, rank by surprise rating:
 
 **Step 3 — Ask user to pick.**
 
-"Here are the most surprising connections I found. Which 1-2 do you want to explore further?" User picks → raw material for Phase 3.
+"Here are the most surprising connections I found. Which 1-2 do you want to explore further?"
+
+**After user picks, ask:** "Do you want to go deeper into this direction (new survey cycle), or are you ready to crystallize a research question?"
+- **Go deeper** → loop back to Phase 1 with the chosen direction as the new topic. Narrower scope, deeper search. Articles go to `articles-phase-1b/`, `articles-phase-1c/`, etc.
+- **Ready** → proceed to Phase 3 with the chosen connections as raw material.
 
 ### Phase 3 — Crystallize (Socratic)
 
