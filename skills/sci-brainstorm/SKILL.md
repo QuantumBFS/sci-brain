@@ -1,11 +1,11 @@
 ---
 name: sci-brainstorm
-description: Use when exploring a research idea, starting from a paper, concept, or question — conducts deep literature survey via arxiv and web search, discovers cross-field connections, then challenges the idea through Socratic and adversarial discussion
+description: Use when exploring a research idea, starting from a paper, concept, or question — conducts iterative literature survey, verified brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research direction document
 ---
 
 # Scientific Research Brainstorming
 
-Research-first brainstorming. Every phase begins with autonomous search — never ask the human what the literature says; go find out. Staged posture: Socratic while the idea is forming, adversarial once it has shape. Produces a research direction document.
+Research-first brainstorming. Every step begins with autonomous search — never ask the human what the literature says; go find out. Iterative loop: survey the field, verify findings, brainstorm ideas, critique them, then let the user decide whether to go deeper or write the proposal. Produces a research direction document.
 
 ## Entry
 
@@ -17,15 +17,14 @@ digraph {
     "Vague interest?" [shape=diamond];
     "Extract topic" [shape=box];
     "Ask one clarifying question\n(what exactly to explore)" [shape=box];
-    "Phase 1: Survey" [shape=box];
-    "Phase 3: Crystallize" [shape=box];
+    "Step 1: Survey" [shape=box];
 
     "Paper / link?" -> "Extract topic" [label="yes"];
     "Paper / link?" -> "Vague interest?" [label="no"];
     "Extract topic" -> "Ask one clarifying question\n(what exactly to explore)";
-    "Ask one clarifying question\n(what exactly to explore)" -> "Phase 1: Survey";
+    "Ask one clarifying question\n(what exactly to explore)" -> "Step 1: Survey";
     "Vague interest?" -> "Ask one clarifying question\n(what exactly to explore)" [label="yes"];
-    "Vague interest?" -> "Phase 3: Crystallize" [label="no, well-formed question"];
+    "Vague interest?" -> "Step 1: Survey" [label="no, well-formed question"];
 }
 ```
 
@@ -41,159 +40,167 @@ digraph {
 
 ## Process
 
-Run phases sequentially. Search autonomously at the start of each phase. Show findings before asking questions.
+Run the loop iteratively. Each iteration runs all 6 steps. The AI adapts survey strategies per iteration based on knowledge gaps. The loop repeats until the user picks a direction and exits to Refine.
 
 **One question at a time.** Never ask multiple questions in one message.
-
-**Announce posture shifts.** Tell the human when switching from Socratic to adversarial.
 
 ```dot
 digraph sci_brainstorm {
     "User states interest" [shape=box];
-    "Phase 1: Survey" [shape=box];
-    "Phase 2: Expand" [shape=box];
-    "Go deeper?" [shape=diamond];
-    "Phase 3: Crystallize\n(Socratic)" [shape=box];
-    "Phase 4: Stress-test\n(Adversarial)" [shape=box];
-    "Idea survives?" [shape=diamond];
-    "Phase 5: Refine" [shape=box];
+    "Step 1: Survey" [shape=box];
+    "Step 2: Verify" [shape=box];
+    "Step 3: Brainstorm" [shape=box];
+    "Step 4: Critique" [shape=box];
+    "Step 5: AI Judge" [shape=box];
+    "Step 6: User Judge" [shape=diamond];
+    "Refine" [shape=box];
     "Research Direction Doc" [shape=doublecircle];
 
-    "User states interest" -> "Phase 1: Survey";
-    "Phase 1: Survey" -> "Phase 2: Expand";
-    "Phase 2: Expand" -> "Go deeper?";
-    "Go deeper?" -> "Phase 1: Survey" [label="yes, narrow topic\nto chosen direction"];
-    "Go deeper?" -> "Phase 3: Crystallize\n(Socratic)" [label="no, ready to\ncrystallize"];
-    "Phase 3: Crystallize\n(Socratic)" -> "Phase 4: Stress-test\n(Adversarial)";
-    "Phase 4: Stress-test\n(Adversarial)" -> "Idea survives?";
-    "Idea survives?" -> "Phase 3: Crystallize\n(Socratic)" [label="no, pivot"];
-    "Idea survives?" -> "Phase 5: Refine" [label="yes"];
-    "Phase 5: Refine" -> "Research Direction Doc";
+    "User states interest" -> "Step 1: Survey";
+    "Step 1: Survey" -> "Step 2: Verify";
+    "Step 2: Verify" -> "Step 3: Brainstorm";
+    "Step 3: Brainstorm" -> "Step 4: Critique";
+    "Step 4: Critique" -> "Step 5: AI Judge";
+    "Step 5: AI Judge" -> "Step 6: User Judge";
+    "Step 6: User Judge" -> "Step 1: Survey" [label="go deeper /\nnew angle"];
+    "Step 6: User Judge" -> "Refine" [label="write proposal"];
+    "Refine" -> "Research Direction Doc";
 }
 ```
 
-### Phase 1 — Survey (automated)
+### Step 1 — Survey (parallel exploration)
 
-Map the landscape before any discussion.
+Map the landscape before any discussion. Launch N subagents in parallel. The AI selects exploration strategies dynamically based on what is known vs. unknown. First iteration is broad; later iterations focus on gaps identified in previous iterations.
 
-**Autonomous research:**
-1. **arxiv MCP** — search topic, pull 10-15 recent papers (last 2-3 years), read abstracts
+**Strategy menu (AI picks from these based on iteration context):**
+
+| # | Strategy | When to use |
+|---|----------|-------------|
+| 1 | **Landscape mapping** | First iteration default — broad field overview |
+| 2 | **Adjacent subfield** | Deep-dive into a neighboring cluster identified in prior iteration |
+| 3 | **Cross-vocabulary** | Abstract away jargon, search other fields for the same structural problem |
+| 4 | **Cross-method** | Same problem, different computational or experimental approaches |
+| 5 | **Historical lineage** | Who tried before, what failed, what changed since |
+| 6 | **Negative results** | Search for papers showing what does not work |
+| 7 | **Benchmarks and datasets** | What evaluation infrastructure exists |
+
+**Autonomous research per subagent:**
+1. **arxiv MCP** — search topic, pull recent papers, read abstracts
 2. **paper-search-mcp** — same query across PubMed, bioRxiv, CrossRef for non-CS hits
-3. **Semantic Scholar MCP** — top 5 papers: pull citation graphs, identify clusters and seminal works
+3. **Semantic Scholar MCP** — pull citation graphs, identify clusters and seminal works
 4. **WebSearch** — blog posts, talks, open problem lists
 
-**Collect articles:** Download key paper PDFs to `articles-phase-1/`. For each paper, save with filename `<first-author>-<year>-<short-title>.pdf`.
+**Collect articles:** Download key paper PDFs to `articles/iteration-N/survey/`. For each paper, save with filename `<first-author>-<year>-<short-title>.pdf`.
 
-**Synthesize and answer the landscape question:**
-- What is the basic landscape of this field? (key papers clustered by sub-theme, active groups, citation graph shape)
-- What are the key open problems in this field?
-- What are the key bottlenecks preventing progress on those problems?
+Each subagent produces a structured report with inline citations covering:
+- **Field landscape** — what was found, key papers clustered by sub-theme, active research groups, citation graph shape
+- **Key open problems** — what are the important unsolved questions in this area?
+- **Key bottlenecks** — what specific obstacles prevent progress on those problems?
 
-**Generate survey report:** Save to `articles-phase-1/SURVEY.md` — a structured review covering: field overview, key themes with paper clusters, active research groups, open questions, and citation graph analysis.
+**Ask:** "What surprises you here? What did you already know?" — answer calibrates brainstorming.
 
-**Ask:** "What surprises you here? What did you already know?" — answer calibrates Phase 2.
+### Step 2 — Verify (fact-check)
 
-### Phase 2 — Expand (parallel exploration)
+Never brainstorm on unverified foundations. Launch reviewer subagents — one per survey report from Step 1.
 
-Push beyond the user's known territory using parallel subagents, each with a different exploration strategy.
+**Each reviewer:**
+- Checks that cited papers exist (search for them by title/author)
+- Verifies claims match cited abstracts
+- Flags unsupported assertions
+- Rates confidence per claim: high / medium / low
 
-**Step 1 — Launch 4 subagents in parallel.** Each subagent receives the Phase 1 survey results and the user's stated interest, then searches independently:
+**Output:** Annotated reports with confidence ratings. Main agent synthesizes a **verified survey summary** — only high-confidence claims feed into brainstorming. Medium-confidence claims are flagged. Low-confidence claims are dropped with explanation.
 
-| Subagent | Strategy | Search instructions |
-|----------|----------|-------------------|
-| **Adjacent** | Explore the Phase 1 cluster the user knows least about | arxiv deep search + Semantic Scholar citation chains outward from that cluster |
-| **Cross-vocabulary** | Abstract away jargon to the structural problem (e.g., "compressing a high-dimensional transformation" not "LLM attention compression"), then search other fields | paper-search-mcp across all databases + WebSearch non-academic contexts + Semantic Scholar cross-field citation tracing |
-| **Cross-method** | Same problem, different computational or experimental approaches | arxiv + WebSearch for alternative methods, tools, or formalisms applied to similar problems |
-| **Historical** | Trace the problem's lineage — who tried before, what failed, why | Semantic Scholar citation chains backward + WebSearch for old attempts, negative results, and what has changed since |
+### Step 3 — Brainstorm (parallel ideation)
 
-Each subagent produces: **top 3 findings**, each with paper title/URL, one-sentence relevance summary, and a surprise rating (low/medium/high — how unexpected relative to the user's stated knowledge).
+Generate concrete research ideas using fixed creative lenses. Launch subagents, each receiving the verified survey summary from Step 2.
 
-Each subagent downloads found paper PDFs to `articles-phase-2/`.
+**Autonomous research per subagent:** Each brainstorm subagent searches to ground its ideas in real work, not just recombine the survey.
+- **arxiv MCP** + **Semantic Scholar MCP** — find specific methods, tools, or results relevant to the lens
+- **paper-search-mcp** — cross-database search for the lens-specific angle
+- **WebSearch** — recent blog posts, talks, open-source tools, benchmarks that inform feasibility
 
-**Step 2 — Synthesize into ranked comparison table.**
+**Creative lenses (one subagent per lens):**
 
-Merge all subagent reports, rank by surprise rating:
+| Lens | Strategy | Search focus |
+|------|----------|-------------|
+| **Combiner** | Combine two distant findings into a novel approach | Search for prior attempts at this combination |
+| **Inverter** | Invert a key assumption — what if the opposite is true? | Search for evidence supporting the inverted assumption |
+| **Transplanter** | Apply a method from field A to problem B | Search field A for concrete methods and their results |
+| **Bottleneck-breaker** | Directly attack the identified bottleneck | Search for recent tools, techniques, or compute advances that could break it |
 
-| # | Finding | Strategy | Surprise | Why it matters |
-|---|---------|----------|----------|---------------|
-| 1 | ... | Cross-vocabulary | High | Same structure in biology |
-| 2 | ... | Historical | High | Failed in 2015, new tool changes this |
-| 3 | ... | Adjacent | Medium | Active group at X working on variant |
-| ... | | | | |
+**Each subagent produces:**
+- A concrete idea (1 paragraph)
+- Why it might work, with citations from the subagent's own search
+- What would be needed to test it
 
-**Generate expansion report:** Save full table and subagent reports to `articles-phase-2/EXPANSION.md`.
-
-**Step 3 — Ask user to pick.**
-
-"Here are the most surprising connections I found. Which 1-2 do you want to explore further?"
-
-**After user picks, ask:** "Do you want to go deeper into this direction (new survey cycle), or are you ready to crystallize a research question?"
-- **Go deeper** → loop back to Phase 1 with the chosen direction as the new topic. Narrower scope, deeper search. Articles go to `articles-phase-1b/`, `articles-phase-1c/`, etc.
-- **Ready** → proceed to Phase 3 with the chosen connections as raw material.
-
-### Phase 3 — Crystallize (Socratic)
-
-Help user articulate a specific research angle. Posture: **Socratic** — only questions, no judgments.
-
-**Targeted search:** **Semantic Scholar MCP** — check if angle has been explored. **arxiv MCP** — find closest existing work.
-
-**Socratic questions (one at a time, adapt to context):**
+**Sharpening criteria — each idea must address:**
 
 *Polya's "Understanding the Problem":*
-- "What specifically is new about combining [X] with [Y]?"
-- "What is the unknown? What are the data? What are the conditions?"
-- "Can you restate the problem in your own words?"
-- "Can you draw a figure or diagram of the problem?"
+- What specifically is new about this combination or approach?
+- What is the unknown? What are the data? What are the conditions?
 
-*Strategic positioning:*
-- "Why can you solve this bottleneck? What unique advantage do you have?"
-- "Why hasn't this been solved before? What changed recently (new data, methods, compute, theory) that makes it tractable now?"
+*Strategic positioning (Lei Wang):*
+- Why can this bottleneck be solved now? What unique advantage exists?
+- Why hasn't this been done before? What changed recently (new data, methods, compute, theory)?
 
 *Polya's "Devising a Plan":*
-- "Have you seen a related problem before? Do you know a related problem with a known solution?"
-- "Can you solve a simpler, analogous version of this problem first?"
-- "Can you decompose the problem? Can you solve a part of it?"
-- "What's the minimal experiment that would tell you this works?"
+- Have you seen a related problem before? Do you know a related problem with a known solution?
+- Can you solve a simpler, analogous version first?
+- Can you decompose the problem? Can you solve a part of it?
+- What's the minimal experiment that would tell you this works?
 
-*Outcome and venue:*
-- "What would a successful result look like?"
-- "Who would care? Which venue?"
+Save brainstorm reports to `articles/iteration-N/brainstorm/`.
 
-**Exit criterion:** User states idea in one sentence with clear novelty claim.
+### Step 4 — Critique (adversarial review)
 
-### Phase 4 — Stress-test (Adversarial)
+Try to kill each idea with evidence. Whatever survives is worth considering.
 
-Try to kill the idea with evidence. Whatever survives is worth pursuing.
+**Each brainstorm idea is paired with a devil's advocate subagent that:**
+- Searches for prior art (has this been tried?) via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty claim, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
+- Identifies the weakest assumption
+- Estimates feasibility (what would it actually take?)
+- Rates on three axes:
 
-**Posture shift:** Announce — "Now I'm going to challenge this. My job is to find reasons this doesn't work."
+| Axis | Challenge |
+|------|-----------|
+| **Novelty** | "I found [paper X] very similar. How is this different?" |
+| **Rigor** | "State the core claim as a testable hypothesis." |
+| **Impact** | "If this works perfectly, what improvement? Enough for [venue]?" |
 
-**Autonomous research (adversarial):** Search for prior art via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty claim, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers).
+**Output:** Each idea has a report + counter-report pair. Save to `articles/iteration-N/critique/`.
 
-**Collect articles:** Download prior art and counter-evidence PDFs to `articles-phase-4/`.
+### Step 5 — AI Judge (synthesis and ranking)
 
-**Challenge on three axes:**
+Read all report/counter-report pairs from Step 4 and make hard calls.
 
-| Axis | Challenge | Evidence Source |
-|------|-----------|----------------|
-| Novelty | "I found [paper X] very similar. How is yours different?" | Semantic Scholar + arxiv |
-| Rigor | "State the core claim as a theorem or testable hypothesis." | Socratic (no tool) |
-| Impact | "If this works perfectly, what improvement? Enough for [venue]?" | WebSearch |
+**Actions:**
+- **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died
+- **Rank** survivors by: novelty, impact, viability
+- **Present** a ranked table to the user
 
-**Define success/failure criteria (ask the user):**
+| # | Idea | Novelty | Impact | Viability | Key risk | Status |
+|---|------|---------|--------|-----------|----------|--------|
+| 1 | ... | High | High | Medium | Needs X | Alive |
+| 2 | ... | High | Medium | High | Prior art Y | Alive |
+| 3 | ... | Medium | High | Low | Killed by Z | Dead |
 
-| Signal | Meaning |
-|--------|---------|
-| "What would it look like if this problem is truly solved?" | Success — define the finish line |
-| "What would indicate the problem isn't solved yet, but your approach still has hope?" | Partial progress — worth continuing |
-| "What would indicate your approach fundamentally doesn't work, and you should pivot?" | Failure — cut losses early |
+Save synthesis to `articles/iteration-N/SUMMARY.md`.
 
-**Outcomes:**
-- Survives → Phase 5
-- Dies → "Here's what killed it: [evidence]. Here's what's still interesting: [salvageable]. Want to pivot?" → loop to Phase 3
+### Step 6 — User Judge (human decision)
 
-### Phase 5 — Refine (collaborative)
+Present the ranked results. Ask **one question:**
 
-Produce a structured research direction document.
+"Which direction interests you?"
+- **(a)** Pick one and write the proposal → exit loop, proceed to Refine
+- **(b)** Pick one and go deeper → loop back to Step 1 with narrowed scope
+- **(c)** None of these, explore differently → loop back to Step 1 with new angle from user
+
+Analyze the user's feedback to understand their reasoning before proceeding.
+
+### Refine (exit from loop)
+
+Produce a structured research direction document incorporating all accumulated survey findings, ideas, and critique from loop iterations.
 
 **Autonomous research (gap-filling):**
 - **Semantic Scholar MCP** — full reference list
@@ -206,15 +213,16 @@ Structure (draft each section, show, get feedback):
 - **Field Landscape** — basic picture of the field and its key problems
 - **Key Bottleneck** — the specific bottleneck this work addresses
 - **Research Question** — one sentence
-- **Novelty Claim** — what's new (survived stress-test)
+- **Novelty Claim** — what's new (survived critique in Step 4)
 - **Why Now, Why You** — what changed to make this tractable; unique advantage
-- **Key References** — from survey + expansion
-- **Cross-field Connections** — unexpected links from Phase 2
+- **Key References** — from survey iterations
+- **Cross-field Connections** — unexpected links from cross-vocabulary / transplanter strategies
 - **Proposed Approach** — method outline (Polya: what is the plan?)
-- **Minimum Viable Experiment** — from Phase 3 (Polya: can you solve a part of it?)
-- **Success Criteria** — what does "solved" look like?
-- **Warning Signs** — when to continue vs. when to pivot (from Phase 4)
-- **Open Risks** — unresolved from stress-test
+- **Minimum Viable Experiment** — (Polya: can you solve a part of it?)
+- **Success Signal** — what would it look like if this problem is truly solved?
+- **Hope Signal** — what would indicate the problem isn't solved yet, but the approach still has hope?
+- **Pivot Signal** — what would indicate this approach fundamentally doesn't work, and it's time to abandon or change direction?
+- **Open Risks** — unresolved from critique
 - **Target Venue**
 
 *Polya's "Looking Back":* After drafting, review — can the result be derived differently? Can it be used for some other problem? Can you see the result at a glance?
@@ -223,15 +231,17 @@ Structure (draft each section, show, get feedback):
 
 | Situation | Handling |
 |-----------|---------|
-| User already has a well-formed research question | Skip to Phase 3 |
-| Survey reveals idea is already published | Present prior art, ask if user sees a different angle |
-| No cross-field connections found | Proceed with within-field survey |
+| User already has a well-formed research question | Skip Entry, start loop at Step 1 |
+| Survey reveals idea is already published | Present prior art in Step 2 verification, ask if user sees a different angle |
+| No cross-field connections found | Proceed with within-field survey; Transplanter lens may still find methods from other fields |
 | MCP tool unavailable | Fall back to WebSearch only |
-| User disagrees with adversarial challenge | Present evidence, let user decide |
+| User disagrees with critique | Present evidence, let user decide — user always has final say at Step 6 |
+| All ideas killed in Step 5 | Report what was learned, suggest new angles, loop back to Step 1 with adjusted strategies |
 
 ## Guardrails
 
 - Never fabricate citations — only present what tools actually found.
 - Never assert novelty judgments — present evidence, let user evaluate.
-- Always preserve pivot path — show what's salvageable when stress-test kills an idea.
+- Always verify before brainstorming — Step 2 must complete before Step 3 starts. Never brainstorm on unverified claims.
+- Always preserve pivot path — show what's salvageable when critique kills an idea.
 - Cite sources inline — every literature claim includes paper title or URL.

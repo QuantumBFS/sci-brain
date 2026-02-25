@@ -1,18 +1,12 @@
 # sci-brainstorm
 
-A structured scientific research brainstorming workflow for AI coding assistants. Conducts deep literature surveys, discovers cross-field connections, then challenges ideas through Socratic and adversarial discussion.
+A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey, verification, brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research direction document.
 
-This brainstorming style is from [Lei Wang](https://github.com/wangleiphy) and [Jin-Guo Liu](https://github.com/GiggleLiu), incorporating strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
+This brainstorming style is initiated by [Lei Wang](https://github.com/wangleiphy) and [Jin-Guo Liu](https://github.com/GiggleLiu), incorporating strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
 
 ## Workflow
 
 ![Flowchart](images/flowchart.svg)
-
-1. **Survey** — autonomous literature search (arxiv, Semantic Scholar, PubMed, etc.)
-2. **Expand** — cross-field and adjacent subfield exploration via 4 parallel subagents
-3. **Crystallize** — Socratic questioning to sharpen the research angle (Polya's *How to Solve It*)
-4. **Stress-test** — adversarial challenge with evidence on novelty, rigor, and impact
-5. **Refine** — produce a structured research direction document
 
 ## Installation
 
