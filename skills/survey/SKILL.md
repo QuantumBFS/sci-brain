@@ -1,47 +1,122 @@
 ---
 name: survey
-description: Use when running a literature survey for a research topic — launches parallel subagents with different exploration strategies, collects abstracts, fetches key PDFs based on user interest, and produces a focused survey report
+description: Use when building a literature survey — either indexing a personal paper collection (Zotero, PDF folder, Google Scholar) into a survey registry, or surveying a research topic via parallel exploration strategies
 ---
 
-## Step 1 — Survey (parallel exploration)
+Identify available tools. If arxiv MCP is missing, print a warning to the user.
 
-Map the landscape before any discussion. Launch N subagents in parallel. The AI selects exploration strategies dynamically based on what is known vs. unknown. First iteration is broad; later iterations focus on gaps identified in previous iterations.
+**Two modes — auto-detect or ask:**
+
+If the user already provided a research topic or question, go directly to **Mode B**. Otherwise ask:
+
+> "What kind of survey?"
+> - **(a)** Index my papers — build a survey registry from your Zotero library, a PDF folder, or your Google Scholar profile
+> - **(b)** Survey a topic — explore a research question using parallel search strategies
+
+---
+
+## Mode A — Personal survey registry
+
+Turn an existing paper collection into a structured survey registry. The output is the same registry format as Mode B — so personal and topic registries can be merged later.
+
+**Step 1 — Locate the source.** Ask which source to index:
+
+> "Where are your papers?"
+> - **(a)** Zotero library
+> - **(b)** A PDF folder (give me the path)
+> - **(c)** Google Scholar profile (give me the URL)
+
+**Step 2 — Index the collection.**
+
+**Zotero:**
+1. Locate `zotero.sqlite` at standard paths (`~/Zotero/`, `~/Library/Application Support/Zotero/`). If not found, ask for the path.
+2. Query all items:
+
+```bash
+sqlite3 ~/Zotero/zotero.sqlite "
+  SELECT i.itemID, v_title.value AS title, v_abstract.value AS abstract
+  FROM items i
+  JOIN itemData id_t ON i.itemID = id_t.itemID
+  JOIN itemDataValues v_title ON id_t.valueID = v_title.valueID
+  JOIN fields f_t ON id_t.fieldID = f_t.fieldID AND f_t.fieldName = 'title'
+  LEFT JOIN itemData id_a ON i.itemID = id_a.itemID
+  LEFT JOIN fields f_a ON id_a.fieldID = f_a.fieldID AND f_a.fieldName = 'abstractNote'
+  LEFT JOIN itemDataValues v_abstract ON id_a.valueID = v_abstract.valueID
+  LIMIT 200;
+"
+```
+
+3. For papers missing abstracts or DOIs, find the PDF via:
+
+```bash
+sqlite3 ~/Zotero/zotero.sqlite "
+  SELECT ia.parentItemID, ia.key, ia.contentType
+  FROM itemAttachments ia
+  WHERE ia.parentItemID IN (ITEM_IDS)
+    AND ia.contentType = 'application/pdf';
+"
+```
+
+PDFs are at `~/Zotero/storage/<key>/<filename>.pdf`. Read them to extract the abstract.
+
+**PDF folder:**
+1. List all PDFs in the given path.
+2. Read each PDF — extract title, authors, year, abstract, DOI/URL from the content.
+3. For bulk keyword search: `pdfgrep -r -i "KEYWORD" <folder>` (install via `brew install pdfgrep` if missing).
+
+**Google Scholar:**
+1. Fetch the profile page.
+2. Extract paper titles, years, citation counts.
+3. For each paper, search for the DOI and abstract via WebSearch.
+
+**Step 3 — Produce the registry.** Output the same two-file format as Mode B:
+
+- `summary.md` — all papers listed by topic cluster, with BibTeX cite keys as indices
+- `references.bib` — BibTeX entries with `abstract` and `doi`/`url` for every entry
+
+Save to a location the user specifies, or default to `articles/personal-registry/`.
+
+---
+
+## Mode B — Topic survey
+
+Survey a research topic and produce a focused registry.
+
+**Step 0 — Clarify.** Ask one question to narrow the research topic. Give 2-4 choice options.
+
+**Step 1 — Web search.** Launch N subagents in parallel, each with a different exploration strategy. Every subagent uses **WebSearch only** at this stage — fast and broad.
 
 **Strategy menu (AI picks from these based on iteration context):**
 
-Each subagent uses only its **primary sources** — not all sources. This keeps each subagent fast (2-4 tool calls, not 10+).
+| # | Strategy | When to use |
+|---|----------|-------------|
+| 1 | **Landscape mapping** | First iteration default — broad field overview |
+| 2 | **Adjacent subfield** | Deep-dive into a neighboring cluster identified in prior iteration |
+| 3 | **Cross-vocabulary** | Abstract away jargon, search other fields for the same structural problem |
+| 4 | **Cross-method** | Same problem, different computational or experimental approaches |
+| 5 | **Historical lineage** | Who tried before, what failed, what changed since |
+| 6 | **Negative results** | Search for papers showing what does not work |
+| 7 | **Benchmarks and datasets** | What evaluation infrastructure exists |
 
-| # | Strategy | When to use | Primary sources |
-|---|----------|-------------|-----------------|
-| 1 | **Landscape mapping** | First iteration default — broad field overview | Semantic Scholar (citation graph) + arxiv |
-| 2 | **Adjacent subfield** | Deep-dive into a neighboring cluster identified in prior iteration | arxiv + Semantic Scholar |
-| 3 | **Cross-vocabulary** | Abstract away jargon, search other fields for the same structural problem | WebSearch + paper-search-mcp |
-| 4 | **Cross-method** | Same problem, different computational or experimental approaches | paper-search-mcp + arxiv |
-| 5 | **Historical lineage** | Who tried before, what failed, what changed since | Semantic Scholar (citation chains) |
-| 6 | **Negative results** | Search for papers showing what does not work | arxiv + WebSearch |
-| 7 | **Benchmarks and datasets** | What evaluation infrastructure exists | WebSearch + arxiv |
+Each subagent produces a short **findings report** — key papers found, grouped by sub-theme, with titles and one-line descriptions. No BibTeX yet.
 
-**Available sources** (subagents pick from these — not all of them):
+**Step 2 — User picks directions.** Main agent consolidates all findings reports and presents them as numbered options. "Which directions interest you? Pick one or more." The user can select multiple.
 
-- **User's Zotero library** (local-first) — search the user's own paper collection. See the Zotero lookup procedure in the main `sci-brainstorm` skill. Only available if the user granted access in Step 0 (options a/c). If the user chose (d) skip or (b) Scholar only, do not use Zotero in any survey subagent.
-- **arxiv MCP** — search topic, read abstracts
-- **paper-search-mcp** — PubMed, bioRxiv, CrossRef for non-CS hits
-- **Semantic Scholar MCP** — citation graphs, clusters, seminal works
-- **WebSearch** — blog posts, talks, open problem lists
+**Step 3 — Build registry.** For the selected directions only, generate the full BibTeX. If a reference lacks DOI/URL or abstract, try one of:
 
-**Abstracts first, PDFs later.** At survey stage, subagents record paper identifiers (DOI, arxiv ID) so they can be fetched later during critique when specific claims need verification.
+- **arxiv MCP** — search for the paper, get abstract and arxiv ID
+- **paper-search-mcp** — PubMed, bioRxiv, CrossRef
+- **Semantic Scholar MCP** — citation metadata, abstract, DOI
 
-Each subagent produces a **summary report** saved to `articles/iteration-N/survey/strategy-<name>.md`. The report contains:
+Output the **survey registry** — a folder `articles/survey/<topic>/` containing:
 
-- **Field landscape** — what was found, key papers clustered by sub-theme with publication years, active research groups, citation graph shape, temporal trends (when did activity peak? is this area heating up or cooling down?)
-- **Key open problems** — what are the important unsolved questions in this area?
-- **Key bottlenecks** — what specific obstacles prevent progress on those problems?
-- **References** — paper identifiers (DOI, arxiv ID, title, authors, year) and BibTeX entries. No full PDFs at this stage — just enough metadata to fetch them later if needed during critique.
+**1. `summary.md`** — references listed as indices categorized by topic, using BibTeX cite keys (e.g., `[AuthorYear]`). Include:
 
-**Main agent reads the summaries** — not individual search results. The summaries are the interface between subagents and the main agent. If a claim seems questionable, the main agent can re-search or fetch an abstract, but this is the exception, not the default.
+- **Field landscape** — key papers clustered by sub-theme with publication years, active groups, temporal trends
+- **Key open problems** — unsolved questions
+- **Key bottlenecks** — obstacles preventing progress
 
-**Ask:** "Which directions interest you? Pick one or more." List all major findings as numbered options. The user can select multiple.
+**2. `references.bib`** — BibTeX for all references. Every entry **must** contain:
 
-**Fetch key PDFs:** After the user picks, download full PDFs for the key references related to the selected directions (typically 3-8 papers). Use the paper identifiers (DOI, arxiv ID) collected during survey. Save to `articles/iteration-N/survey/<first-author>-<year>-<short-title>.pdf`. Read them to extract methods, results, and details that abstracts miss — this deeper understanding feeds into brainstorming.
-
-**Survey synthesis:** Based on the user's picks and the full-paper reads, the main agent writes a single focused **survey report** in markdown — consolidating the relevant findings into one coherent narrative with inline citations. Save to `articles/iteration-N/SURVEY-REPORT.md`.
+- `abstract` — the paper's abstract
+- `doi` or `url` — at least one identifier for retrieval
