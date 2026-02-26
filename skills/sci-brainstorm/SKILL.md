@@ -173,7 +173,7 @@ By the end, the human should have at least one idea that is concrete enough to e
 | **Bottleneck-breaker** | Directly attack the identified bottleneck | Search for recent tools, techniques, or compute advances that could break it |
 
 **Each subagent produces:**
-0-3 Concrete ideas, each with a paragraph summary, explain why it is interesting or practically important, and why it might work, refer to the relevant survey findings
+0-2 Concrete ideas, each with a paragraph summary, explain why it is interesting or practically important, and why it might work, refer to the relevant survey findings
 
 **Step 2b — Merge and present all ideas:**
 
