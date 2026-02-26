@@ -1,3 +1,8 @@
+---
+name: critique
+description: Use when critiquing brainstorm ideas — runs adversarial devil's advocate review with source verification, then AI judge ranks and kills ideas, then user decides whether to loop or write proposal
+---
+
 ## Step 3 — Critique (adversarial review + source verification)
 
 Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever survives is worth considering. This is also where source claims get fact-checked.
@@ -44,6 +49,7 @@ Save synthesis to `articles/iteration-N/SUMMARY.md`.
 Present the ranked results. Ask **one question:**
 
 "Which direction interests you?"
+
 - **(a)** Pick one and write the proposal → exit loop, proceed to Refine
 - **(b)** Pick one and go deeper → loop back to Step 1 with narrowed scope
 - **(c)** None of these, explore differently → loop back to Step 1 with new angle from user

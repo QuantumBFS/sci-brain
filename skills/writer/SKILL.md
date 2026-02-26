@@ -1,3 +1,8 @@
+---
+name: writer
+description: Use when writing the final brainstorm report after the user picks a research direction — produces a structured document with reasoning trail, chosen direction, and BibTeX references
+---
+
 ## Refine (exit from loop)
 
 Produce a **brainstorm report** — not just a plan, but a full record of the reasoning and justifications from the brainstorming process. Include what was explored, what was tried and killed, and why the surviving direction was chosen.

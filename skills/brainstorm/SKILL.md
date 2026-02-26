@@ -1,3 +1,8 @@
+---
+name: brainstorm
+description: Use when brainstorming research ideas from a survey report — runs a harsh-but-constructive human interview in parallel with AI creative lenses (Combiner, Inverter, Transplanter, Bottleneck-breaker), then merges all ideas
+---
+
 ## Step 2 — Brainstorm (human first, then AI)
 
 Human and AI brainstorm independently and in parallel — neither side sees the other's ideas, so there is no anchoring in either direction. All ideas enter critique on equal footing.

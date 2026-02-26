@@ -83,12 +83,12 @@ digraph sci_brainstorm {
 }
 ```
 
-**Before starting each step, read the corresponding file for detailed instructions:**
+**Before starting each step, invoke the corresponding skill for detailed instructions:**
 
-- **Step 1 (Survey):** read `survey.md`
-- **Step 2 (Brainstorm):** read `brainstorm.md`
-- **Steps 3-5 (Critique → AI Judge → User Judge → Loop Handoff):** read `critique.md`
-- **Refine:** read `writer.md`
+- **Step 1 (Survey):** invoke `survey`
+- **Step 2 (Brainstorm):** invoke `brainstorm`
+- **Steps 3-5 (Critique → AI Judge → User Judge → Loop Handoff):** invoke `critique`
+- **Refine:** invoke `writer`
 
 ## Zotero Lookup
 

@@ -1,3 +1,8 @@
+---
+name: survey
+description: Use when running a literature survey for a research topic — launches parallel subagents with different exploration strategies, collects abstracts, fetches key PDFs based on user interest, and produces a focused survey report
+---
+
 ## Step 1 — Survey (parallel exploration)
 
 Map the landscape before any discussion. Launch N subagents in parallel. The AI selects exploration strategies dynamically based on what is known vs. unknown. First iteration is broad; later iterations focus on gaps identified in previous iterations.
@@ -18,13 +23,13 @@ Each subagent uses only its **primary sources** — not all sources. This keeps 
 
 **Available sources** (subagents pick from these — not all of them):
 
-- **User's Zotero library** (local-first) — search the user's own paper collection. See [Zotero lookup](SKILL.md#zotero-lookup). Only available if the user granted access in Step 0 (options a/c). If the user chose (d) skip or (b) Scholar only, do not use Zotero in any survey subagent.
+- **User's Zotero library** (local-first) — search the user's own paper collection. See the Zotero lookup procedure in the main `sci-brainstorm` skill. Only available if the user granted access in Step 0 (options a/c). If the user chose (d) skip or (b) Scholar only, do not use Zotero in any survey subagent.
 - **arxiv MCP** — search topic, read abstracts
 - **paper-search-mcp** — PubMed, bioRxiv, CrossRef for non-CS hits
 - **Semantic Scholar MCP** — citation graphs, clusters, seminal works
 - **WebSearch** — blog posts, talks, open problem lists
 
-**Abstracts first, PDFs later.** At survey stage, subagents record paper identifiers (DOI, arxiv ID) so they can be fetched later during critique (Step 3) when specific claims need verification.
+**Abstracts first, PDFs later.** At survey stage, subagents record paper identifiers (DOI, arxiv ID) so they can be fetched later during critique when specific claims need verification.
 
 Each subagent produces a **summary report** saved to `articles/iteration-N/survey/strategy-<name>.md`. The report contains:
 
