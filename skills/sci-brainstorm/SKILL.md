@@ -1,6 +1,6 @@
 ---
 name: sci-brainstorm
-description: Use when exploring a research idea, starting from a paper, concept, or question — conducts iterative literature survey, verified brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research plan
+description: Use when exploring a research idea, starting from a paper, concept, or question — conducts iterative literature survey, brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research plan
 ---
 
 # Scientific Research Brainstorming
@@ -8,7 +8,7 @@ description: Use when exploring a research idea, starting from a paper, concept,
 
 Research-first brainstorming adapted from the **FIDS framework** (Feel → Imagine → Do → Share).
 
-Iterative loop: survey the field, verify findings, brainstorm ideas, critique them, then let the user decide whether to go deeper or write the proposal. Produces a research plan.
+Iterative loop: survey the field, brainstorm ideas, critique them (including source verification), then let the user decide whether to go deeper or write the proposal. Produces a research plan.
 
 ## Entry
 
@@ -58,7 +58,7 @@ digraph {
 
 ## Process
 
-Run the loop iteratively. Each iteration runs all 6 steps. The AI adapts survey strategies per iteration based on knowledge gaps. The loop repeats until the user picks a direction and exits to Refine.
+Run the loop iteratively. Each iteration runs all 5 steps. The AI adapts survey strategies per iteration based on knowledge gaps. The loop repeats until the user picks a direction and exits to Refine.
 
 **One question at a time.** Never ask multiple questions in one message.
 
@@ -66,22 +66,20 @@ Run the loop iteratively. Each iteration runs all 6 steps. The AI adapts survey 
 digraph sci_brainstorm {
     "User states interest" [shape=box];
     "Step 1: Survey" [shape=box];
-    "Step 2: Verify" [shape=box];
-    "Step 3: Brainstorm" [shape=box];
-    "Step 4: Critique" [shape=box];
-    "Step 5: AI Judge" [shape=box];
-    "Step 6: User Judge" [shape=diamond];
+    "Step 2: Brainstorm" [shape=box];
+    "Step 3: Critique" [shape=box];
+    "Step 4: AI Judge" [shape=box];
+    "Step 5: User Judge" [shape=diamond];
     "Refine" [shape=box];
     "Brainstorm Report" [shape=doublecircle];
 
     "User states interest" -> "Step 1: Survey";
-    "Step 1: Survey" -> "Step 2: Verify";
-    "Step 2: Verify" -> "Step 3: Brainstorm";
-    "Step 3: Brainstorm" -> "Step 4: Critique";
-    "Step 4: Critique" -> "Step 5: AI Judge";
-    "Step 5: AI Judge" -> "Step 6: User Judge";
-    "Step 6: User Judge" -> "Step 1: Survey" [label="go deeper /\nnew angle"];
-    "Step 6: User Judge" -> "Refine" [label="write proposal"];
+    "Step 1: Survey" -> "Step 2: Brainstorm";
+    "Step 2: Brainstorm" -> "Step 3: Critique";
+    "Step 3: Critique" -> "Step 4: AI Judge";
+    "Step 4: AI Judge" -> "Step 5: User Judge";
+    "Step 5: User Judge" -> "Step 1: Survey" [label="go deeper /\nnew angle"];
+    "Step 5: User Judge" -> "Refine" [label="write proposal"];
     "Refine" -> "Brainstorm Report";
 }
 ```
@@ -111,41 +109,47 @@ Map the landscape before any discussion. Launch N subagents in parallel. The AI 
 
 **Collect articles:** Download key paper PDFs to `articles/iteration-N/survey/`. For each paper, save with filename `<first-author>-<year>-<short-title>.pdf`.
 
-Each subagent produces a structured report with bib citations covering:
-- **Field landscape** — what was found, key papers clustered by sub-theme, active research groups, citation graph shape
+Each subagent produces a **summary report** saved to `articles/iteration-N/survey/strategy-<name>.md`. The report contains:
+
+- **Field landscape** — what was found, key papers clustered by sub-theme with publication years, active research groups, citation graph shape, temporal trends (when did activity peak? is this area heating up or cooling down?)
 - **Key open problems** — what are the important unsolved questions in this area?
 - **Key bottlenecks** — what specific obstacles prevent progress on those problems?
+- **References** — pointers to the downloaded PDFs and BibTeX entries (the full papers live in `articles/iteration-N/survey/`, the summary just points to them)
 
-**Ask:** "What surprises you here? What did you already know?" — answer calibrates brainstorming.
+**Main agent reads the summaries** — not the full papers. The summaries are the interface between subagents and the main agent. If a claim in a summary seems questionable or the main agent needs more detail, it can read the referenced PDF directly, but this is the exception, not the default.
 
-### Step 2 — Verify (fact-check)
+**Ask:** "What interests you the most?" List all major findings to pick from.
 
-Never brainstorm on unverified foundations. Launch reviewer subagents — one per survey report from Step 1.
+**Survey synthesis:** Based on the user's pick, the main agent writes a single focused **survey report** in markdown — consolidating the relevant findings from the subagent summaries into one coherent narrative with inline citations. Save to `articles/iteration-N/SURVEY-REPORT.md`.
 
-**Each reviewer:**
-- Checks that cited papers exist (search for them by title/author)
-- Verifies claims match cited abstracts
-- Flags unsupported assertions
-- Rates confidence per claim: high / medium / low
+### Step 2 — Brainstorm (human first, then AI)
 
-**Output:** Annotated reports with confidence ratings. Main agent synthesizes a **verified survey summary** — only high-confidence claims feed into brainstorming. Medium-confidence claims are flagged. Low-confidence claims are dropped with explanation.
+Human and AI brainstorm independently and in parallel — neither side sees the other's ideas, so there is no anchoring in either direction. All ideas enter critique on equal footing.
 
-### Step 3 — Brainstorm (human first, then AI)
+**Step 2a — Human brainstorm + AI brainstorm (launched simultaneously):**
 
-The human brainstorms first — before seeing AI ideas — so they aren't anchored by what the AI generates. Then the AI runs its lenses in parallel. All ideas (human + AI) enter critique on equal footing.
+Present the survey report, then start the human brainstorm conversation while launching AI subagents in the background.
 
-**Step 3a — Human brainstorm (ask first, before launching AI subagents):**
+**AI subagents run in parallel with the human conversation.** Each receives only the survey report from Step 1 — **not** the human's ideas. This keeps both sides independent.
 
-Present the verified survey summary, then ask **one question:**
+**Human brainstorm conversation:**
 
-> "Based on what we've found, what ideas come to mind? Think boldly — any approach worth exploring, even if it seems risky. The critique stage will stress-test everything, so there's no cost to being ambitious."
+Start with an open question:
 
-- Wait for the user's response before proceeding.
-- If the user has nothing to add, proceed to Step 3b immediately.
+> "Based on what we've found, what directions interest you? Even a vague hunch is fine — we'll sharpen it together."
 
-**Step 3b — AI brainstorm (parallel ideation):**
+Then follow up with **more than 5 questions** (one at a time) to push the human's thinking from vague to concrete, from weak to strong. Stop early only if the human says stop. One question at a time.
 
-Launch subagents with fixed creative lenses, each receiving the verified survey summary from Step 2 **and the user's ideas** (so the AI can build on them without duplicating).
+**Questioning strategy:**
+- **Pick up on interest** — when the human mentions something, dig into it. "You mentioned X — what specifically about that excites you?"
+- **Connect to survey** — link the human's ideas back to specific findings. "That connects to [paper Y] which found [Z]. Does that change your thinking?"
+- **Add pressure** — constructively challenge vague ideas. "That's a direction, but what would the actual experiment look like? What would you measure?"
+- **Help pivot** — if an idea seems weak, don't kill it — redirect it. "What if instead of [weak version], you tried [stronger version] inspired by [survey finding]?"
+- **Sharpen** — push from "it would be cool to..." toward "the specific claim is... and you'd test it by..."
+- **Surface assumptions** — "What has to be true for this to work? Which of those assumptions worries you most?"
+- **Unstick with survey findings** — if the human is stuck or says "I don't know," throw a specific finding from the survey to spark thinking. "The survey found that [method X] failed because [Y] — does that suggest an angle? What if [Y] were no longer true?" Never let the conversation stall — feed information to provoke a reaction.
+
+**Tone: like a harsh but constructive interview.** Don't be polite — be direct. Push back on hand-waving. Demand specifics. If the human says "maybe we could use deep learning," respond with "For what exactly? What's the input, what's the output, and why would that beat [existing method from survey]?" The goal is not to discourage but to force clarity — vague ideas that survive this grilling become strong ideas. By the end, the human should have at least one idea that is concrete enough to enter critique.
 
 **Autonomous research per subagent:** Each brainstorm subagent searches to ground its ideas in real work, not just recombine the survey.
 - **arxiv MCP** + **Semantic Scholar MCP** — find specific methods, tools, or results relevant to the lens
@@ -166,7 +170,7 @@ Launch subagents with fixed creative lenses, each receiving the verified survey 
 - Why it might work, with BibTeX citations from the subagent's own search
 - What would be needed to test it
 
-**Step 3c — Merge and present all ideas:**
+**Step 2b — Merge and present all ideas:**
 
 Combine human ideas + AI ideas into a single numbered list. Present to the user before moving to critique.
 
@@ -188,27 +192,31 @@ Combine human ideas + AI ideas into a single numbered list. Present to the user 
 
 Save brainstorm reports to `articles/iteration-N/brainstorm/`.
 
-### Step 4 — Critique (adversarial review)
+### Step 3 — Critique (adversarial review + source verification)
 
-Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever survives is worth considering.
+Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever survives is worth considering. This is also where source claims get fact-checked.
 
 **Each brainstorm idea (AI or human) is paired with a devil's advocate subagent that:**
 - Searches for prior art (has this been tried?) via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty claim, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
+- **Verifies source claims** — checks that cited papers exist, that claims match cited abstracts, and flags unsupported assertions
 - Identifies the weakest assumption
 - Estimates feasibility (what would it actually take?)
-- Rates on three axes:
+- Rates on four axes:
 
 | Axis | Challenge |
 |------|-----------|
+| **Source reliability** | "Does [cited paper X] actually claim what's stated? Are citations real and do they support the idea?" |
 | **Novelty** | "I found [paper X] very similar. How is this different?" |
 | **Rigor** | "State the core claim as a testable hypothesis." |
 | **Impact** | "If this works perfectly, what improvement? Enough for [venue]?" |
 
+**Evidence-backed critique:** Every critique claim must be supported by a search. If the devil's advocate says "this has been tried before," it must find the paper. If it says "this won't scale," it must find evidence or a concrete argument for why. No unsupported opinions — critique without evidence is just noise. When a critique point is questionable or uncertain, the subagent must search for supporting evidence before including it in the report.
+
 **Output:** Each idea has a report + counter-report pair. Save to `articles/iteration-N/critique/`.
 
-### Step 5 — AI Judge (synthesis and ranking)
+### Step 4 — AI Judge (synthesis and ranking)
 
-Read all report/counter-report pairs from Step 4 and make hard calls.
+Read all report/counter-report pairs from Step 3 and make hard calls.
 
 **Actions:**
 - **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died
@@ -223,7 +231,7 @@ Read all report/counter-report pairs from Step 4 and make hard calls.
 
 Save synthesis to `articles/iteration-N/SUMMARY.md`.
 
-### Step 6 — User Judge (human decision)
+### Step 5 — User Judge (human decision)
 
 Present the ranked results. Ask **one question:**
 
@@ -233,6 +241,19 @@ Present the ranked results. Ask **one question:**
 - **(c)** None of these, explore differently → loop back to Step 1 with new angle from user
 
 Analyze the user's feedback to understand their reasoning before proceeding.
+
+### Loop Handoff (between iterations)
+
+When the user chooses to go deeper or explore a new angle (options b/c), run this before starting the next iteration:
+
+**1. Save iteration summary** to `articles/iteration-N/ITERATION-SUMMARY.md`:
+- Research question as understood at this point
+- Key findings from the survey (with file references to saved reports)
+- Ideas generated — which survived, which were killed and why
+- User feedback and chosen direction
+- What to explore next and why
+
+**2. Compact the conversation** if context window usage is above 50%: summarize the conversation so far, then use `/compact` to free context for the next iteration. The saved files in `articles/iteration-N/` serve as the durable record — the AI should re-read them as needed in the next iteration rather than relying on conversation history.
 
 ### Refine (exit from loop)
 
@@ -259,12 +280,12 @@ Structure (draft each section, show, get feedback):
 - **Key Bottleneck** — the specific bottleneck this work addresses
 - **Survey Trail** — what strategies were used per iteration, what was discovered, what shifted our understanding
 - **Ideas Explored** — all ideas generated (human + AI), with the reasoning behind each
-- **Ideas Killed** — which ideas were eliminated, the evidence and critique that killed them (epitaphs from Step 5)
+- **Ideas Killed** — which ideas were eliminated, the evidence and critique that killed them (epitaphs from Step 4)
 - **Ideas Survived** — which ideas survived critique and why
 
 *Part 2 — The chosen direction:*
 - **Research Question** — one sentence
-- **Novelty Claim** — what's new (survived critique in Step 4)
+- **Novelty Claim** — what's new (survived critique in Step 3)
 - **Why Now, Why You** — what changed to make this tractable; unique advantage
 - **Cross-field Connections** — unexpected links from cross-vocabulary / transplanter strategies
 - **Proposed Approach** — method outline (Polya: what is the plan?)
@@ -343,17 +364,17 @@ Do not ask more than once per session.
 | Situation | Handling |
 |-----------|---------|
 | User already has a well-formed research question | Skip Entry, start loop at Step 1 |
-| Survey reveals idea is already published | Present prior art in Step 2 verification, ask if user sees a different angle |
+| Survey reveals idea is already published | Present prior art in survey synthesis, ask if user sees a different angle |
 | No cross-field connections found | Proceed with within-field survey; Transplanter lens may still find methods from other fields |
 | Zotero not installed | Skip local library search, proceed with external sources only |
 | MCP tool unavailable | Fall back to WebSearch only |
-| User disagrees with critique | Present evidence, let user decide — user always has final say at Step 6 |
-| All ideas killed in Step 5 | Report what was learned, suggest new angles, loop back to Step 1 with adjusted strategies |
+| User disagrees with critique | Present evidence, let user decide — user always has final say at Step 5 |
+| All ideas killed in Step 4 | Report what was learned, suggest new angles, loop back to Step 1 with adjusted strategies |
 
 ## Guardrails
 
 - Never fabricate citations — only present what tools actually found.
 - Never assert novelty judgments — present evidence, let user evaluate.
-- Always verify before brainstorming — Step 2 must complete before Step 3 starts. Never brainstorm on unverified claims.
+- Source verification happens during critique (Step 3), not before brainstorming — survey sources are reliable, but brainstorm claims must be checked.
 - Always preserve pivot path — show what's salvageable when critique kills an idea.
 - Cite sources with bibtex — every literature claim includes paper title or URL.

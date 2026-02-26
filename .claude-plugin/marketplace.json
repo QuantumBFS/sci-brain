@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "sci-brainstorm",
-      "description": "Scientific research brainstorming: literature survey, cross-field discovery, Socratic crystallization, adversarial stress-testing",
+      "description": "Scientific research brainstorming loop: survey, verify, brainstorm, critique, rank, and refine with user guidance",
       "version": "0.1.0",
       "source": "./"
     }

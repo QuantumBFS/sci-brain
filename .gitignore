@@ -13,6 +13,9 @@ Thumbs.db
 .env
 .env.local
 
-docs/plans
+# Local agent settings
 .claude/settings.local.json
+
+# Generated image artifact
 images/flowchart.png
+articles/

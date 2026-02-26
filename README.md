@@ -2,11 +2,12 @@
 
 A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey, verification, brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research plan.
 
-This brainstorming style is initiated by [Lei Wang](https://github.com/wangleiphy) and [Jin-Guo Liu](https://github.com/GiggleLiu), incorporating strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
+This brainstorming style incorporates strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
 
 ## Workflow
 
 ![Flowchart](images/flowchart.svg)
+Source: [images/flowchart.typ](images/flowchart.typ)
 
 ## Installation
 
@@ -43,11 +44,28 @@ Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/
 
 ### Updating
 
+Pull latest changes from the install location you used:
+
 ```bash
-cd ~/.sci-brainstorm && git pull
+# Codex
+cd ~/.codex/sci-brainstorm && git pull
+
+# OpenCode
+cd ~/.config/opencode/sci-brainstorm && git pull
 ```
 
 Skills update instantly through the symlinks.
+
+For Claude Code marketplace installs, use the plugin marketplace update workflow.
+
+### Regenerating the flowchart
+
+Requires [Typst](https://typst.app/):
+
+```bash
+typst compile images/flowchart.typ images/flowchart.svg
+typst compile images/flowchart.typ images/flowchart.png
+```
 
 ## Optional: Strategies to Improve the Brainstorm
 
@@ -100,6 +118,10 @@ articles/
   YYYY-MM-DD-<topic>-brainstorm-report.{md,typ,tex}   # Refine — format chosen by user
   YYYY-MM-DD-<topic>-references.bib                   # BibTeX references
 ```
+
+## Contributors
+**Initiator**: [Lei Wang](https://github.com/wangleiphy) and [Jin-Guo Liu](https://github.com/GiggleLiu)
+**Reviewers**: empty
 
 ## License
 

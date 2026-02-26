@@ -23,14 +23,17 @@
   let s = 12pt,
   let sm = 10pt,
 
-  // Row 0 (left to right): Entry → Survey → Verify
+  // Row 0 (left to right): Idea → Background → Clarify → Survey
   node((0, 0), box(width: w, align(center, text(fill: bk, size: s)[*User states idea*])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <idea>),
 
-  node((1, 0), box(width: w, align(center, text(fill: bk, size: s)[*Clarify*\ multiple choice Q])),
+  node((1, 0), box(width: w, align(center, text(fill: bk, size: s)[*Step 0: Background*\ #text(size: sm)[Zotero / Scholar lookup]])),
+    fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <background>),
+
+  node((2, 0), box(width: w, align(center, text(fill: bk, size: s)[*Clarify*\ multiple choice Q])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <clarify>),
 
-  node((2, 0), box(width: w, align(left, text(fill: bk, size: s)[
+  node((3, 0), box(width: w, align(left, text(fill: bk, size: s)[
     *Step 1: Survey*\
     #text(size: sm)[#sym.bullet Landscape #sym.bullet Adjacent\
     #sym.bullet Cross-vocabulary\
@@ -40,32 +43,32 @@
   ])),
     fill: survey-fill, stroke: 1pt + survey-stroke, corner-radius: 4pt, inset: 5pt, name: <survey>),
 
-  node((3, 0), box(width: w, align(center, text(fill: bk, size: s)[*Step 2: Verify*\ fact-check citations])),
-    fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <verify>),
-
   // Row 1 (right to left): Brainstorm → Critique → AI Judge → User Judge
   node((3, 1), box(width: w, align(left, text(fill: bk, size: s)[
-    *Step 3: Brainstorm*\
-    #text(size: sm)[#sym.bullet Combiner #sym.bullet Inverter\
-    #sym.bullet Transplanter\
-    #sym.bullet Bottleneck-breaker\
-    #sym.bullet *Human ideas*]
+    *Step 2: Brainstorm*\
+    #text(size: sm)[2a. Human + AI in parallel:\
+    #h(6pt)#sym.bullet Human ideas\
+    #h(6pt)#sym.bullet Combiner #sym.bullet Inverter\
+    #h(6pt)#sym.bullet Transplanter\
+    #h(6pt)#sym.bullet Bottleneck-breaker\
+    2b. Merge & present]
   ])),
     fill: brainstorm-fill, stroke: 1pt + brainstorm-stroke, corner-radius: 4pt, inset: 5pt, name: <brainstorm>),
 
   node((2, 1), box(width: w, align(left, text(fill: bk, size: s)[
-    *Step 4: Critique*\
-    #text(size: sm)[#sym.bullet Prior art #sym.bullet Novelty\
+    *Step 3: Critique*\
+    #text(size: sm)[#sym.bullet Source verification\
+    #sym.bullet Prior art #sym.bullet Novelty\
     #sym.bullet Rigor #sym.bullet Impact\
     #sym.bullet Weakest assumption\
     #sym.bullet Feasibility]
   ])),
     fill: critique-fill, stroke: 1pt + critique-stroke, corner-radius: 4pt, inset: 5pt, name: <critique>),
 
-  node((1, 1), box(width: w, align(center, text(fill: bk, size: s)[*Step 5: AI Judge*\ kill, rank, present])),
+  node((1, 1), box(width: w, align(center, text(fill: bk, size: s)[*Step 4: AI Judge*\ kill, rank, present])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <aijudge>),
 
-  node((0, 1), box(width: w, align(center, text(fill: bk, size: s)[*Step 6: User Judge*\ #text(size: sm)[proposal / deeper / new angle]])),
+  node((0, 1), box(width: w, align(center, text(fill: bk, size: s)[*Step 5: User Judge*\ #text(size: sm)[proposal / deeper / new angle]])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <userjudge>),
 
   // Row 2: Refine → Doc
@@ -76,12 +79,12 @@
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <doc>),
 
   // Row 0 forward (left to right)
-  edge(<idea>, <clarify>, "-|>", stroke: 1pt + arrow),
+  edge(<idea>, <background>, "-|>", stroke: 1pt + arrow),
+  edge(<background>, <clarify>, "-|>", stroke: 1pt + arrow),
   edge(<clarify>, <survey>, "-|>", stroke: 1pt + arrow),
-  edge(<survey>, <verify>, "-|>", stroke: 1pt + arrow),
 
-  // Corner: verify down to brainstorm
-  edge(<verify>, <brainstorm>, "-|>", stroke: 1pt + arrow),
+  // Corner: survey down to brainstorm
+  edge(<survey>, <brainstorm>, "-|>", stroke: 1pt + arrow),
 
   // Row 1 forward (right to left)
   edge(<brainstorm>, <critique>, "-|>", stroke: 1pt + arrow),
