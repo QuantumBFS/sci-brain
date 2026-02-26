@@ -48,7 +48,8 @@
     *Step 3: Brainstorm*\
     #text(size: sm)[#sym.bullet Combiner #sym.bullet Inverter\
     #sym.bullet Transplanter\
-    #sym.bullet Bottleneck-breaker]
+    #sym.bullet Bottleneck-breaker\
+    #sym.bullet *Human ideas*]
   ])),
     fill: brainstorm-fill, stroke: 1pt + brainstorm-stroke, corner-radius: 4pt, inset: 5pt, name: <brainstorm>),
 
@@ -68,10 +69,10 @@
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <userjudge>),
 
   // Row 2: Refine → Doc
-  node((0, 2), box(width: w, align(center, text(fill: bk, size: s)[*Refine*\ direction document])),
+  node((0, 2), box(width: w, align(center, text(fill: bk, size: s)[*Refine*\ research plan])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <refine>),
 
-  node((1, 2), box(width: w, align(center, text(fill: bk, size: s)[*Research Direction Doc*])),
+  node((1, 2), box(width: w, align(center, text(fill: bk, size: s)[*Research Plan*])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <doc>),
 
   // Row 0 forward (left to right)
