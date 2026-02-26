@@ -97,8 +97,8 @@ articles/
     SUMMARY.md       # Step 5 — ranked ideas table, epitaphs for killed ideas
   iteration-2/
     ...
-  YYYY-MM-DD-<topic>-brainstorm-report.md   # Refine — full brainstorm report
-  YYYY-MM-DD-<topic>-references.bib         # BibTeX references
+  YYYY-MM-DD-<topic>-brainstorm-report.{md,typ,tex}   # Refine — format chosen by user
+  YYYY-MM-DD-<topic>-references.bib                   # BibTeX references
 ```
 
 ## License

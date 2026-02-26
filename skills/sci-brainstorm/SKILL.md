@@ -243,7 +243,14 @@ Produce a **brainstorm report** — not just a plan, but a full record of the re
 - **arxiv MCP** — methodology papers for planned approach
 - **WebSearch** — code repos, datasets, benchmarks
 
-**Output:** Save to `articles/YYYY-MM-DD-<topic>-brainstorm-report.md`
+**Output format:** Check `CLAUDE.md`/`AGENTS.md` for a configured report format. If not configured, ask the user:
+
+> "What format for the brainstorm report?"
+> - **(a)** Typst (`.typ`) — recommended, native BibTeX support, compiles to PDF
+> - **(b)** LaTeX (`.tex`) — full BibTeX support, traditional academic format
+> - **(c)** Markdown (`.md`) — note: limited BibTeX support, citations will be inline text rather than rendered references
+
+Save to `articles/YYYY-MM-DD-<topic>-brainstorm-report.{md,typ,tex}` (with matching `references.bib`).
 
 Structure (draft each section, show, get feedback):
 
