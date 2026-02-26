@@ -90,37 +90,41 @@ Map the landscape before any discussion. Launch N subagents in parallel. The AI 
 
 **Strategy menu (AI picks from these based on iteration context):**
 
-| # | Strategy | When to use |
-|---|----------|-------------|
-| 1 | **Landscape mapping** | First iteration default — broad field overview |
-| 2 | **Adjacent subfield** | Deep-dive into a neighboring cluster identified in prior iteration |
-| 3 | **Cross-vocabulary** | Abstract away jargon, search other fields for the same structural problem |
-| 4 | **Cross-method** | Same problem, different computational or experimental approaches |
-| 5 | **Historical lineage** | Who tried before, what failed, what changed since |
-| 6 | **Negative results** | Search for papers showing what does not work |
-| 7 | **Benchmarks and datasets** | What evaluation infrastructure exists |
+Each subagent uses only its **primary sources** — not all sources. This keeps each subagent fast (2-4 tool calls, not 10+).
 
-**Autonomous research per subagent:**
-1. **User's Zotero library** (local-first) — search the user's own paper collection before external sources. See [Zotero lookup](#zotero-lookup) below.
-2. **arxiv MCP** — search topic, pull recent papers, read abstracts
-3. **paper-search-mcp** — same query across PubMed, bioRxiv, CrossRef for non-CS hits
-4. **Semantic Scholar MCP** — pull citation graphs, identify clusters and seminal works
-5. **WebSearch** — blog posts, talks, open problem lists
+| # | Strategy | When to use | Primary sources |
+|---|----------|-------------|-----------------|
+| 1 | **Landscape mapping** | First iteration default — broad field overview | Semantic Scholar (citation graph) + arxiv |
+| 2 | **Adjacent subfield** | Deep-dive into a neighboring cluster identified in prior iteration | arxiv + Semantic Scholar |
+| 3 | **Cross-vocabulary** | Abstract away jargon, search other fields for the same structural problem | WebSearch + paper-search-mcp |
+| 4 | **Cross-method** | Same problem, different computational or experimental approaches | paper-search-mcp + arxiv |
+| 5 | **Historical lineage** | Who tried before, what failed, what changed since | Semantic Scholar (citation chains) |
+| 6 | **Negative results** | Search for papers showing what does not work | arxiv + WebSearch |
+| 7 | **Benchmarks and datasets** | What evaluation infrastructure exists | WebSearch + arxiv |
 
-**Collect articles:** Download key paper PDFs to `articles/iteration-N/survey/`. For each paper, save with filename `<first-author>-<year>-<short-title>.pdf`.
+**Available sources** (subagents pick from these — not all of them):
+- **User's Zotero library** (local-first) — search the user's own paper collection. See [Zotero lookup](#zotero-lookup). Only available if the user granted access in Step 0 (options a/c). If the user chose (d) skip or (b) Scholar only, do not use Zotero in any survey subagent.
+- **arxiv MCP** — search topic, read abstracts
+- **paper-search-mcp** — PubMed, bioRxiv, CrossRef for non-CS hits
+- **Semantic Scholar MCP** — citation graphs, clusters, seminal works
+- **WebSearch** — blog posts, talks, open problem lists
+
+**Abstracts first, PDFs later.** At survey stage, subagents record paper identifiers (DOI, arxiv ID) so they can be fetched later during critique (Step 3) when specific claims need verification.
 
 Each subagent produces a **summary report** saved to `articles/iteration-N/survey/strategy-<name>.md`. The report contains:
 
 - **Field landscape** — what was found, key papers clustered by sub-theme with publication years, active research groups, citation graph shape, temporal trends (when did activity peak? is this area heating up or cooling down?)
 - **Key open problems** — what are the important unsolved questions in this area?
 - **Key bottlenecks** — what specific obstacles prevent progress on those problems?
-- **References** — pointers to the downloaded PDFs and BibTeX entries (the full papers live in `articles/iteration-N/survey/`, the summary just points to them)
+- **References** — paper identifiers (DOI, arxiv ID, title, authors, year) and BibTeX entries. No full PDFs at this stage — just enough metadata to fetch them later if needed during critique.
 
-**Main agent reads the summaries** — not the full papers. The summaries are the interface between subagents and the main agent. If a claim in a summary seems questionable or the main agent needs more detail, it can read the referenced PDF directly, but this is the exception, not the default.
+**Main agent reads the summaries** — not individual search results. The summaries are the interface between subagents and the main agent. If a claim seems questionable, the main agent can re-search or fetch an abstract, but this is the exception, not the default.
 
-**Ask:** "What interests you the most?" List all major findings to pick from.
+**Ask:** "Which directions interest you? Pick one or more." List all major findings as numbered options. The user can select multiple.
 
-**Survey synthesis:** Based on the user's pick, the main agent writes a single focused **survey report** in markdown — consolidating the relevant findings from the subagent summaries into one coherent narrative with inline citations. Save to `articles/iteration-N/SURVEY-REPORT.md`.
+**Fetch key PDFs:** After the user picks, download full PDFs for the key references related to the selected directions (typically 3-8 papers). Use the paper identifiers (DOI, arxiv ID) collected during survey. Save to `articles/iteration-N/survey/<first-author>-<year>-<short-title>.pdf`. Read them to extract methods, results, and details that abstracts miss — this deeper understanding feeds into brainstorming.
+
+**Survey synthesis:** Based on the user's picks and the full-paper reads, the main agent writes a single focused **survey report** in markdown — consolidating the relevant findings into one coherent narrative with inline citations. Save to `articles/iteration-N/SURVEY-REPORT.md`.
 
 ### Step 2 — Brainstorm (human first, then AI)
 
@@ -136,24 +140,26 @@ Present the survey report, then start the human brainstorm conversation while la
 
 A harsh but constructive interview. Push the human from vague to concrete, from weak to strong. Be direct — demand specifics, push back on hand-waving. Stop only when the human says stop.
 
+**Formatting:** Prefix every brainstorm question with `>>>` so it stands out in the CLI. Example: `>>> What specifically is new here?`
+
 **Phase 1 — Open.** Get the human talking:
 
-> "Based on what we've found, what directions interest you? Even a vague hunch is fine — we'll sharpen it together."
+> `>>> Based on what we've found, what directions interest you? Even a vague hunch is fine — we'll sharpen it together.`
 
 **Phase 2 — Explore.** Dig into whatever the human gravitates toward. Connect their instincts to the survey:
-- "You mentioned X — what specifically about that excites you?"
-- "That connects to [paper Y] which found [Z] — does that change your thinking?"
-- If stuck, throw survey findings to provoke a reaction: "The survey found [method X] failed because [Y] — does that suggest an angle?"
+- `>>> You mentioned X — what specifically about that excites you?`
+- `>>> That connects to [paper Y] which found [Z] — does that change your thinking?`
+- If stuck, throw survey findings to provoke a reaction: `>>> The survey found [method X] failed because [Y] — does that suggest an angle?`
 
 **Phase 3 — Sharpen.** Once a direction emerges, pressure-test it. Use Polya and Lei Wang criteria to force clarity:
-- *What's new?* — "What specifically is new here? What is the unknown, the data, the conditions?" (Polya)
-- *Why now?* — "Why can this be solved now? What changed — new data, methods, compute, theory?" (Lei Wang)
-- *Why you?* — "Why hasn't anyone done this before? What's your unique advantage?" (Lei Wang)
-- *What's the plan?* — "Do you know a related problem with a known solution? Can you adapt it?" (Polya)
-- *What's the test?* — "What's the minimal experiment? What would you measure?" (Polya)
-- *What could go wrong?* — "What has to be true for this to work? Which assumption worries you most?"
+- *What's new?* — `>>> What specifically is new here? What is the unknown, the data, the conditions?` (Polya)
+- *Why now?* — `>>> Why can this be solved now? What changed — new data, methods, compute, theory?` (Lei Wang)
+- *Why you?* — `>>> Why hasn't anyone done this before? What's your unique advantage?` (Lei Wang)
+- *What's the plan?* — `>>> Do you know a related problem with a known solution? Can you adapt it?` (Polya)
+- *What's the test?* — `>>> What's the minimal experiment? What would you measure?` (Polya)
+- *What could go wrong?* — `>>> What has to be true for this to work? Which assumption worries you most?`
 
-**Phase 4 — Pivot if needed.** If an idea is weak, don't kill it — redirect: "What if instead of [weak version], you tried [stronger version] inspired by [survey finding]?"
+**Phase 4 — Pivot if needed.** If an idea is weak, don't kill it — redirect: `>>> What if instead of [weak version], you tried [stronger version] inspired by [survey finding]?`
 
 By the end, the human should have at least one idea that is concrete enough to enter critique.
 
@@ -181,7 +187,7 @@ Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever
 
 **Each brainstorm idea (AI or human) is paired with a devil's advocate subagent that:**
 - Searches for prior art (has this been tried?) via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty claim, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
-- **Verifies key references** — for each idea, identify the small number of references that the idea's validity depends on (not every citation — just the load-bearing ones). Check that these papers exist, that the cited claims match the actual abstracts, and flag any misrepresentations
+- **Verifies key references** — for each idea, identify the small number of references that the idea's validity depends on (not every citation — just the load-bearing ones). Fetch the full PDF if needed (survey only collected abstracts). Check that these papers exist, that the cited claims match the actual content, and flag any misrepresentations
 - Identifies the weakest assumption
 - Estimates feasibility (what would it actually take?)
 - Rates on four axes:
