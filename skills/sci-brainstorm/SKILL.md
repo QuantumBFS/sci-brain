@@ -132,24 +132,30 @@ Present the survey report, then start the human brainstorm conversation while la
 
 **AI subagents run in parallel with the human conversation.** Each receives only the survey report from Step 1 — **not** the human's ideas. This keeps both sides independent.
 
-**Human brainstorm conversation:**
+**Human brainstorm conversation (5+ questions, one at a time):**
 
-Start with an open question:
+A harsh but constructive interview. Push the human from vague to concrete, from weak to strong. Be direct — demand specifics, push back on hand-waving. Stop only when the human says stop.
+
+**Phase 1 — Open.** Get the human talking:
 
 > "Based on what we've found, what directions interest you? Even a vague hunch is fine — we'll sharpen it together."
 
-Then follow up with **more than 5 questions** (one at a time) to push the human's thinking from vague to concrete, from weak to strong. Stop early only if the human says stop. One question at a time.
+**Phase 2 — Explore.** Dig into whatever the human gravitates toward. Connect their instincts to the survey:
+- "You mentioned X — what specifically about that excites you?"
+- "That connects to [paper Y] which found [Z] — does that change your thinking?"
+- If stuck, throw survey findings to provoke a reaction: "The survey found [method X] failed because [Y] — does that suggest an angle?"
 
-**Questioning strategy:**
-- **Pick up on interest** — when the human mentions something, dig into it. "You mentioned X — what specifically about that excites you?"
-- **Connect to survey** — link the human's ideas back to specific findings. "That connects to [paper Y] which found [Z]. Does that change your thinking?"
-- **Add pressure** — constructively challenge vague ideas. "That's a direction, but what would the actual experiment look like? What would you measure?"
-- **Help pivot** — if an idea seems weak, don't kill it — redirect it. "What if instead of [weak version], you tried [stronger version] inspired by [survey finding]?"
-- **Sharpen** — push from "it would be cool to..." toward "the specific claim is... and you'd test it by..."
-- **Surface assumptions** — "What has to be true for this to work? Which of those assumptions worries you most?"
-- **Unstick with survey findings** — if the human is stuck or says "I don't know," throw a specific finding from the survey to spark thinking. "The survey found that [method X] failed because [Y] — does that suggest an angle? What if [Y] were no longer true?" Never let the conversation stall — feed information to provoke a reaction.
+**Phase 3 — Sharpen.** Once a direction emerges, pressure-test it. Use Polya and Lei Wang criteria to force clarity:
+- *What's new?* — "What specifically is new here? What is the unknown, the data, the conditions?" (Polya)
+- *Why now?* — "Why can this be solved now? What changed — new data, methods, compute, theory?" (Lei Wang)
+- *Why you?* — "Why hasn't anyone done this before? What's your unique advantage?" (Lei Wang)
+- *What's the plan?* — "Do you know a related problem with a known solution? Can you adapt it?" (Polya)
+- *What's the test?* — "What's the minimal experiment? What would you measure?" (Polya)
+- *What could go wrong?* — "What has to be true for this to work? Which assumption worries you most?"
 
-**Tone: like a harsh but constructive interview.** Don't be polite — be direct. Push back on hand-waving. Demand specifics. If the human says "maybe we could use deep learning," respond with "For what exactly? What's the input, what's the output, and why would that beat [existing method from survey]?" The goal is not to discourage but to force clarity — vague ideas that survive this grilling become strong ideas. By the end, the human should have at least one idea that is concrete enough to enter critique.
+**Phase 4 — Pivot if needed.** If an idea is weak, don't kill it — redirect: "What if instead of [weak version], you tried [stronger version] inspired by [survey finding]?"
+
+By the end, the human should have at least one idea that is concrete enough to enter critique.
 
 **Autonomous research per subagent:** Each brainstorm subagent searches to ground its ideas in real work, not just recombine the survey.
 - **arxiv MCP** + **Semantic Scholar MCP** — find specific methods, tools, or results relevant to the lens
@@ -172,23 +178,7 @@ Then follow up with **more than 5 questions** (one at a time) to push the human'
 
 **Step 2b — Merge and present all ideas:**
 
-Combine human ideas + AI ideas into a single numbered list. Present to the user before moving to critique.
-
-**Sharpening criteria — each idea (human or AI) must address:**
-
-*Polya's "Understanding the Problem":*
-- What specifically is new about this combination or approach?
-- What is the unknown? What are the data? What are the conditions?
-
-*Strategic positioning (Lei Wang):*
-- Why can this bottleneck be solved now? What unique advantage exists?
-- Why hasn't this been done before? What changed recently (new data, methods, compute, theory)?
-
-*Polya's "Devising a Plan":*
-- Have you seen a related problem before? Do you know a related problem with a known solution?
-- Can you solve a simpler, analogous version first?
-- Can you decompose the problem? Can you solve a part of it?
-- What's the minimal experiment that would tell you this works?
+Combine human ideas + AI ideas into a single numbered list. Apply the sharpening criteria (Polya + Lei Wang, from the questioning strategy above) to each AI idea as well — fill in any gaps. Present to the user before moving to critique.
 
 Save brainstorm reports to `articles/iteration-N/brainstorm/`.
 
@@ -198,14 +188,14 @@ Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever
 
 **Each brainstorm idea (AI or human) is paired with a devil's advocate subagent that:**
 - Searches for prior art (has this been tried?) via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty claim, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
-- **Verifies source claims** — checks that cited papers exist, that claims match cited abstracts, and flags unsupported assertions
+- **Verifies key references** — for each idea, identify the small number of references that the idea's validity depends on (not every citation — just the load-bearing ones). Check that these papers exist, that the cited claims match the actual abstracts, and flag any misrepresentations
 - Identifies the weakest assumption
 - Estimates feasibility (what would it actually take?)
 - Rates on four axes:
 
 | Axis | Challenge |
 |------|-----------|
-| **Source reliability** | "Does [cited paper X] actually claim what's stated? Are citations real and do they support the idea?" |
+| **Source reliability** | "Which references does this idea stand or fall on? Do those key papers actually claim what's stated?" |
 | **Novelty** | "I found [paper X] very similar. How is this different?" |
 | **Rigor** | "State the core claim as a testable hypothesis." |
 | **Impact** | "If this works perfectly, what improvement? Enough for [venue]?" |
