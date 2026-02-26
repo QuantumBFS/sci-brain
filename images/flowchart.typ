@@ -69,10 +69,10 @@
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <userjudge>),
 
   // Row 2: Refine → Doc
-  node((0, 2), box(width: w, align(center, text(fill: bk, size: s)[*Refine*\ research plan])),
+  node((0, 2), box(width: w, align(center, text(fill: bk, size: s)[*Refine*\ brainstorm report])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <refine>),
 
-  node((1, 2), box(width: w, align(center, text(fill: bk, size: s)[*Research Plan*])),
+  node((1, 2), box(width: w, align(center, text(fill: bk, size: s)[*Brainstorm Report*\ + BibTeX])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <doc>),
 
   // Row 0 forward (left to right)

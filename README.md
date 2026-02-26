@@ -86,7 +86,7 @@ This lets the AI search your local paper collection during survey — before hit
 
 ## Output
 
-Each loop iteration saves intermediate artifacts. The final document is produced when the user exits the loop.
+Each loop iteration saves intermediate artifacts. The final brainstorm report includes the full reasoning trail — what was explored, what was killed and why, and the surviving direction with justifications. All citations are in BibTeX format.
 
 ```
 articles/
@@ -97,8 +97,8 @@ articles/
     SUMMARY.md       # Step 5 — ranked ideas table, epitaphs for killed ideas
   iteration-2/
     ...
-docs/plans/
-  YYYY-MM-DD-<topic>-research-plan.md   # Refine — final output
+  YYYY-MM-DD-<topic>-brainstorm-report.md   # Refine — full brainstorm report
+  YYYY-MM-DD-<topic>-references.bib         # BibTeX references
 ```
 
 ## License

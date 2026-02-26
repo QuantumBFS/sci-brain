@@ -12,7 +12,27 @@ Iterative loop: survey the field, verify findings, brainstorm ideas, critique th
 
 ## Entry
 
-Before launching into research, ask **one** clarification question to understand what the user actually wants to explore. Focus on narrowing the research question.
+### Step 0 — Get to know the researcher
+
+Before anything else, ask permission to learn about the user's research background. This helps calibrate the entire session.
+
+> "Before we start — can I learn a bit about your research background? I can:
+> - **(a)** Search your local Zotero library for papers you've collected
+> - **(b)** Browse your Google Scholar profile for your publications
+> - **(c)** Both
+> - **(d)** Skip — just start brainstorming"
+
+**Based on the user's choice:**
+- **(a)** Run the [Zotero lookup](#zotero-lookup) procedure. Summarize what you find: "You have N papers, mostly in [topics]. Recent focus seems to be [X]."
+- **(b)** Fetch the Google Scholar profile (from `CLAUDE.md` or ask for the URL). Summarize: "You've published on [topics], recent work on [X], h-index Y."
+- **(c)** Do both.
+- **(d)** Skip. If Zotero is not auto-detected and no Scholar link is configured, print the fallback message (see [Zotero Lookup](#zotero-lookup)) and proceed.
+
+This runs once per session, not per loop iteration.
+
+### Clarify the research question
+
+Then ask **one** clarification question to understand what the user actually wants to explore. Focus on narrowing the research question.
 
 ```dot
 digraph {
@@ -52,7 +72,7 @@ digraph sci_brainstorm {
     "Step 5: AI Judge" [shape=box];
     "Step 6: User Judge" [shape=diamond];
     "Refine" [shape=box];
-    "Research Plan" [shape=doublecircle];
+    "Brainstorm Report" [shape=doublecircle];
 
     "User states interest" -> "Step 1: Survey";
     "Step 1: Survey" -> "Step 2: Verify";
@@ -62,7 +82,7 @@ digraph sci_brainstorm {
     "Step 5: AI Judge" -> "Step 6: User Judge";
     "Step 6: User Judge" -> "Step 1: Survey" [label="go deeper /\nnew angle"];
     "Step 6: User Judge" -> "Refine" [label="write proposal"];
-    "Refine" -> "Research Plan";
+    "Refine" -> "Brainstorm Report";
 }
 ```
 
@@ -87,12 +107,11 @@ Map the landscape before any discussion. Launch N subagents in parallel. The AI 
 2. **arxiv MCP** — search topic, pull recent papers, read abstracts
 3. **paper-search-mcp** — same query across PubMed, bioRxiv, CrossRef for non-CS hits
 4. **Semantic Scholar MCP** — pull citation graphs, identify clusters and seminal works
-5. **Google Scholar profile** — if the user provided a Scholar link in `CLAUDE.md`/`AGENTS.md`, fetch it to understand their publication history, co-author network, and h-index context
-6. **WebSearch** — blog posts, talks, open problem lists
+5. **WebSearch** — blog posts, talks, open problem lists
 
 **Collect articles:** Download key paper PDFs to `articles/iteration-N/survey/`. For each paper, save with filename `<first-author>-<year>-<short-title>.pdf`.
 
-Each subagent produces a structured report with inline citations covering:
+Each subagent produces a structured report with bib citations covering:
 - **Field landscape** — what was found, key papers clustered by sub-theme, active research groups, citation graph shape
 - **Key open problems** — what are the important unsolved questions in this area?
 - **Key bottlenecks** — what specific obstacles prevent progress on those problems?
@@ -144,7 +163,7 @@ Launch subagents with fixed creative lenses, each receiving the verified survey 
 
 **Each subagent produces:**
 - A concrete idea (1 paragraph)
-- Why it might work, with citations from the subagent's own search
+- Why it might work, with BibTeX citations from the subagent's own search
 - What would be needed to test it
 
 **Step 3c — Merge and present all ideas:**
@@ -217,22 +236,29 @@ Analyze the user's feedback to understand their reasoning before proceeding.
 
 ### Refine (exit from loop)
 
-Produce a structured research plan incorporating all accumulated survey findings, ideas, and critique from loop iterations.
+Produce a **brainstorm report** — not just a plan, but a full record of the reasoning and justifications from the brainstorming process. Include what was explored, what was tried and killed, and why the surviving direction was chosen.
 
 **Autonomous research (gap-filling):**
 - **Semantic Scholar MCP** — full reference list
 - **arxiv MCP** — methodology papers for planned approach
 - **WebSearch** — code repos, datasets, benchmarks
 
-**Output:** Save to `docs/plans/YYYY-MM-DD-<topic>-research-plan.md`
+**Output:** Save to `articles/YYYY-MM-DD-<topic>-brainstorm-report.md`
 
 Structure (draft each section, show, get feedback):
+
+*Part 1 — What we explored (reasoning trail):*
 - **Field Landscape** — basic picture of the field and its key problems
 - **Key Bottleneck** — the specific bottleneck this work addresses
+- **Survey Trail** — what strategies were used per iteration, what was discovered, what shifted our understanding
+- **Ideas Explored** — all ideas generated (human + AI), with the reasoning behind each
+- **Ideas Killed** — which ideas were eliminated, the evidence and critique that killed them (epitaphs from Step 5)
+- **Ideas Survived** — which ideas survived critique and why
+
+*Part 2 — The chosen direction:*
 - **Research Question** — one sentence
 - **Novelty Claim** — what's new (survived critique in Step 4)
 - **Why Now, Why You** — what changed to make this tractable; unique advantage
-- **Key References** — from survey iterations
 - **Cross-field Connections** — unexpected links from cross-vocabulary / transplanter strategies
 - **Proposed Approach** — method outline (Polya: what is the plan?)
 - **Minimum Viable Experiment** — (Polya: can you solve a part of it?)
@@ -241,6 +267,10 @@ Structure (draft each section, show, get feedback):
 - **Pivot Signal** — what would indicate this approach fundamentally doesn't work, and it's time to abandon or change direction?
 - **Open Risks** — unresolved from critique
 - **Target Venue**
+
+*Part 3 — References:*
+- **Key References** — full BibTeX entries from all survey iterations
+- **BibTeX file** — save as `articles/YYYY-MM-DD-<topic>-references.bib`
 
 *Polya's "Looking Back":* After drafting, review — can the result be derived differently? Can it be used for some other problem? Can you see the result at a glance?
 
@@ -319,4 +349,4 @@ Do not ask more than once per session.
 - Never assert novelty judgments — present evidence, let user evaluate.
 - Always verify before brainstorming — Step 2 must complete before Step 3 starts. Never brainstorm on unverified claims.
 - Always preserve pivot path — show what's salvageable when critique kills an idea.
-- Cite sources inline — every literature claim includes paper title or URL.
+- Cite sources with bibtex — every literature claim includes paper title or URL.
