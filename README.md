@@ -1,6 +1,6 @@
 # sci-brainstorm
 
-A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey, verification, brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research plan.
+A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey, brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research plan.
 
 This brainstorming style incorporates strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
 
@@ -106,13 +106,26 @@ This lets the AI search your local paper collection during survey — before hit
 
 Each loop iteration saves intermediate artifacts. The final brainstorm report includes the full reasoning trail — what was explored, what was killed and why, and the surviving direction with justifications. All citations are in BibTeX format.
 
+**Survey registry** (user chooses global or project-scoped at session start):
+
+```
+# Global (shared across projects)
+~/.claude/survey/<topic>/          # Claude Code
+~/.codex/survey/<topic>/           # Codex
+~/.config/opencode/survey/<topic>/ # OpenCode
+
+# Project-scoped
+.claude/survey/<topic>/
+```
+
+**Per-session working files** (always project-scoped):
+
 ```
 articles/
   iteration-1/
-    survey/          # Step 1 — paper PDFs + survey reports
-    brainstorm/      # Step 3 — idea reports per lens
-    critique/        # Step 4 — report + counter-report pairs
-    SUMMARY.md       # Step 5 — ranked ideas table, epitaphs for killed ideas
+    brainstorm/      # Step 2 — idea reports per lens
+    critique/        # Step 3 — report + counter-report pairs
+    SUMMARY.md       # Step 4 — ranked ideas table, epitaphs for killed ideas
   iteration-2/
     ...
   YYYY-MM-DD-<topic>-brainstorm-report.{md,typ,tex}   # Refine — format chosen by user

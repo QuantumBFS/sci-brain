@@ -112,4 +112,4 @@ digraph sci_brainstorm {
 - Never assert novelty judgments — present evidence, let user evaluate.
 - Source verification happens during critique (Step 3), not before brainstorming — survey sources are reliable, but brainstorm claims must be checked.
 - Always preserve pivot path — show what's salvageable when critique kills an idea.
-- Cite sources with bibtex — every literature claim includes paper title or URL.
+- Cite sources with BibTeX — every literature claim includes paper title or URL.

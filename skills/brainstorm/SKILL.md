@@ -1,48 +1,19 @@
 ---
 name: brainstorm
-description: Use when brainstorming research ideas from a survey report — runs a harsh-but-constructive human interview in parallel with AI creative lenses (Combiner, Inverter, Transplanter, Bottleneck-breaker), then merges all ideas
+description: Use when brainstorming research ideas from a survey report — runs a concurrent conversation where the main agent suggests directions while background agents analyze and develop ideas
 ---
 
-## Step 2 — Brainstorm (human first, then AI)
+## Step 2 — Brainstorm
 
-Human and AI brainstorm independently and in parallel — neither side sees the other's ideas, so there is no anchoring in either direction. All ideas enter critique on equal footing.
+A concurrent conversation: the main agent brainstorms with the human while background agents do real-time research. The human provides creative direction; the AI does the analytical heavy lifting.
 
-**Step 2a — Human brainstorm + AI brainstorm (launched simultaneously):**
+**Phase 1 — Open.**
 
-Present the survey report, then start the human brainstorm conversation while launching AI subagents in the background.
+Present the survey highlights and suggest 2-3 promising directions from the findings. Then ask:
 
-**AI subagents run in parallel with the human conversation.** Each receives only the survey report from Step 1 — **not** the human's ideas. This keeps both sides independent.
+> `>>> Based on what we found, what directions interest you? Even a vague hunch is fine.`
 
-**Human brainstorm conversation (5+ questions, one at a time):**
-
-A harsh but constructive interview. Push the human from vague to concrete, from weak to strong. Be direct — demand specifics, push back on hand-waving. Stop only when the human says stop.
-
-**Formatting:** Prefix every brainstorm question with `>>>` so it stands out in the CLI. Example: `>>> What specifically is new here?`
-
-**Phase 1 — Open.** Get the human talking:
-
-> `>>> Based on what we've found, what directions interest you? Even a vague hunch is fine — we'll sharpen it together.`
-
-**Phase 2 — Explore.** Dig into whatever the human gravitates toward. Connect their instincts to the survey:
-
-- `>>> You mentioned X — what specifically about that excites you?`
-- `>>> That connects to [paper Y] which found [Z] — does that change your thinking?`
-- If stuck, throw survey findings to provoke a reaction: `>>> The survey found [method X] failed because [Y] — does that suggest an angle?`
-
-**Phase 3 — Sharpen.** Once a direction emerges, pressure-test it. Use Polya and Lei Wang criteria to force clarity:
-
-- *What's new?* — `>>> What specifically is new here? What is the unknown, the data, the conditions?` (Polya)
-- *Why now?* — `>>> Why can this be solved now? What changed — new data, methods, compute, theory?` (Lei Wang)
-- *Why you?* — `>>> Why hasn't anyone done this before? What's your unique advantage?` (Lei Wang)
-- *What's the plan?* — `>>> Do you know a related problem with a known solution? Can you adapt it?` (Polya)
-- *What's the test?* — `>>> What's the minimal experiment? What would you measure?` (Polya)
-- *What could go wrong?* — `>>> What has to be true for this to work? Which assumption worries you most?`
-
-**Phase 4 — Pivot if needed.** If an idea is weak, don't kill it — redirect: `>>> What if instead of [weak version], you tried [stronger version] inspired by [survey finding]?`
-
-By the end, the human should have at least one idea that is concrete enough to enter critique.
-
-**Creative lenses (one subagent per lens):**
+At the same time, launch the **creative lenses** as background subagents (they only need the survey, not the human's input):
 
 | Lens | Strategy | Search focus |
 |------|----------|-------------|
@@ -51,11 +22,40 @@ By the end, the human should have at least one idea that is concrete enough to e
 | **Transplanter** | Apply a method from field A to problem B | Search field A for concrete methods and their results |
 | **Bottleneck-breaker** | Directly attack the identified bottleneck | Search for recent tools, techniques, or compute advances that could break it |
 
-**Each subagent produces:**
-0-2 Concrete ideas, each with a paragraph summary, explain why it is interesting or practically important, and why it might work, refer to the relevant survey findings
+Each lens produces 0-2 concrete ideas with a paragraph summary explaining why it is interesting and why it might work, grounded in survey findings.
 
-**Step 2b — Merge and present all ideas:**
+**Phase 2 — Concurrent conversation.**
 
-Combine human ideas + AI ideas into a single numbered list. Apply the sharpening criteria (Polya + Lei Wang, from the questioning strategy above) to each AI idea as well — fill in any gaps. Present to the user before moving to critique.
+As soon as the human mentions a direction:
+
+1. **Launch background subagents** to analyze what the human said:
+   - Check novelty against the survey (has this been tried?)
+   - Search for related methods and recent advances
+   - Identify what would make this tractable now
+   - Find potential risks or prior failures
+
+2. **Main agent keeps the conversation going** — don't wait for background results. Instead of drilling the human with questions, **actively suggest directions**:
+   - Connect human instincts to survey findings: "That connects to [paper X] which found [Y] — could that method apply here?"
+   - Propose angles: "The survey showed [bottleneck Z] is the main obstacle. What if we attacked it with [method from field A]?"
+   - Challenge gently when needed: "That's interesting, but [paper X] tried something similar and hit [problem]. What would be different this time?"
+
+3. **When background results arrive**, integrate them naturally:
+   - "I just checked — [paper] tried something similar but [key difference]. That actually supports your angle because [reason]."
+   - "Novelty check: I couldn't find prior work combining [X] and [Y] — that's genuinely new territory."
+   - "One risk: [paper] showed that [assumption] breaks down when [condition]. Worth keeping in mind."
+
+The conversation continues until the human settles on 1-3 directions or says they're done. The main agent should be an active collaborator — suggesting, connecting, challenging — not an interviewer drilling questions.
+
+**Phase 3 — Develop and present.**
+
+Once the human is done, collect all ideas (human-seeded, AI-suggested during conversation, and creative lens outputs). Run subagents to fill in **Polya criteria** for each idea:
+
+- **What's new?** — verify novelty claim against survey
+- **Why now?** — identify recent enablers (new data, methods, compute, theory)
+- **Methodology** — outline approach, connect to known methods
+- **Minimal experiment** — smallest test that validates the core claim
+- **Key risk** — weakest assumption
+
+Present all developed ideas as a single numbered list. Each idea should have its Polya analysis filled in so the human can compare them on substance, not just vibes.
 
 Save brainstorm reports to `articles/iteration-N/brainstorm/`.

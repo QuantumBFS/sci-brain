@@ -1,6 +1,6 @@
 {
   "name": "sci-brainstorm",
-  "description": "Scientific research brainstorming loop: survey, verify, brainstorm, critique, rank, and refine with user guidance",
+  "description": "Scientific research brainstorming loop: survey, brainstorm, critique, rank, and refine with user guidance",
   "version": "0.1.0",
   "author": {
     "name": "Jin-Guo Liu"

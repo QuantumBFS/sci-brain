@@ -7,11 +7,7 @@ description: Use when writing the final brainstorm report after the user picks a
 
 Produce a **brainstorm report** — not just a plan, but a full record of the reasoning and justifications from the brainstorming process. Include what was explored, what was tried and killed, and why the surviving direction was chosen.
 
-**Autonomous research (gap-filling):**
-
-- **Semantic Scholar MCP** — full reference list
-- **arxiv MCP** — methodology papers for planned approach
-- **WebSearch** — code repos, datasets, benchmarks
+**Autonomous research (gap-filling):** Before writing, search for any gaps in the reference list — missing methodology papers for the planned approach, code repos, datasets, or benchmarks. Use available MCP servers (Semantic Scholar, arxiv, paper-search) or WebSearch.
 
 **Output format:** Check `CLAUDE.md`/`AGENTS.md` for a configured report format. If not configured, ask the user:
 

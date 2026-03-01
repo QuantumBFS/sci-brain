@@ -52,7 +52,7 @@ PDFs are at `~/Zotero/storage/<key>/<filename>.pdf`. Read them to extract the ab
 
 1. List all PDFs in the given path.
 2. Read each PDF — extract title, authors, year, abstract, DOI/URL from the content.
-3. For bulk keyword search: `pdfgrep -r -i "KEYWORD" <folder>` (install via `brew install pdfgrep` if missing).
+3. For bulk keyword search: `pdfgrep -r -i "KEYWORD" <folder>` (install via package manager if missing, e.g., `apt install pdfgrep` or `brew install pdfgrep`).
 
 **Google Scholar:**
 

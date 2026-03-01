@@ -22,7 +22,7 @@ Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever
 | **Rigor** | "State the core claim as a testable hypothesis." |
 | **Impact** | "If this works perfectly, what improvement? Enough for [venue]?" |
 
-**Evidence-backed critique:** Every critique claim must be supported by a search. If the devil's advocate says "this has been tried before," it must find the paper. If it says "this won't scale," it must find evidence or a concrete argument for why. No unsupported opinions — critique without evidence is just noise. When a critique point is questionable or uncertain, the subagent must search for supporting evidence before including it in the report.
+**Evidence-backed critique:** Every critique claim must be supported by a search or a concrete argument. No unsupported opinions — critique without evidence is just noise.
 
 **Output:** Each idea has a report + counter-report pair. Save to `articles/iteration-N/critique/`.
 
@@ -68,4 +68,4 @@ When the user chooses to go deeper or explore a new angle (options b/c), run thi
 - User feedback and chosen direction
 - What to explore next and why
 
-**2. Compact the conversation** if context window usage is above 50%: summarize the conversation so far, then use `/compact` to free context for the next iteration. The saved files in `articles/iteration-N/` serve as the durable record — the AI should re-read them as needed in the next iteration rather than relying on conversation history.
+**2. Compact the conversation** if it is getting long: summarize the conversation so far, then compact or trim context to free space for the next iteration (e.g., `/compact` in Claude Code). The saved files in `articles/iteration-N/` serve as the durable record — re-read them as needed in the next iteration rather than relying on conversation history.
