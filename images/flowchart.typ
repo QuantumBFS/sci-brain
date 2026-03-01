@@ -15,13 +15,15 @@
   let survey-stroke = rgb("#0284c7"),
   let ideas-fill = rgb("#f3e8ff"),
   let ideas-stroke = rgb("#7c3aed"),
+  let critique-fill = rgb("#fef3c7"),
+  let critique-stroke = rgb("#d97706"),
   let arrow = black,
   let loop-color = rgb("#4a5568"),
   let w = 140pt,
   let s = 12pt,
   let sm = 10pt,
 
-  // Row 0 (left to right): Idea → Background → Clarify → Survey
+  // Row 0: User idea → Background → Clarify → Survey
   node((0, 0), box(width: w, align(center, text(fill: bk, size: s)[*User states idea*])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <idea>),
 
@@ -41,41 +43,84 @@
   ])),
     fill: survey-fill, stroke: 1pt + survey-stroke, corner-radius: 4pt, inset: 5pt, name: <survey>),
 
-  // Row 1: Ideas (expanded, spans columns 1-3)
-  node((1.5, 1), box(width: 320pt, align(left, text(fill: bk, size: s)[
-    *Ideas*\
+  // Row 1: Ideator (left) and Critique (right)
+  node((0.5, 1), box(width: 180pt, align(left, text(fill: bk, size: s)[
+    *Ideator* #text(size: sm)[(persistent)]\
     #text(size: sm)[
-      *Ideator* (background): proposals, lenses, Polya development\
-      *Critic* (background): novelty check, source verification, formal review\
-      *Main agent*: mediates conversation with user\
-      #sym.arrow.r AI Judge: kill, rank, present\
-      #sym.arrow.r User Judge: proposal / deeper / new angle
+      Creative lenses:\
+      Combiner · Inverter · Transplanter\
+      Bottleneck-breaker · Restater · Scoper\
+      #sym.arrow.r proposes ideas
     ]
   ])),
-    fill: ideas-fill, stroke: 1pt + ideas-stroke, corner-radius: 4pt, inset: 5pt, name: <ideas>),
+    fill: ideas-fill, stroke: 1pt + ideas-stroke, corner-radius: 4pt, inset: 5pt, name: <ideator>),
 
-  // Row 2: Refine → Doc
-  node((0, 2), box(width: w, align(center, text(fill: bk, size: s)[*Refine*\ ideas report])),
-    fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <refine>),
+  node((2.5, 1), box(width: 180pt, align(left, text(fill: bk, size: s)[
+    *Main agent* #text(size: sm)[(mediator)]\
+    #text(size: sm)[
+      Diagnose weakness → pick critique lens\
+      Ideator-routed: Feasibility, Impact,\
+      #h(1em)Success criteria, Signs of progress\
+      Main-routed: Prior art, Assumption,\
+      #h(1em)Failure mode, Timing, Completeness
+    ]
+  ])),
+    fill: critique-fill, stroke: 1pt + critique-stroke, corner-radius: 4pt, inset: 5pt, name: <critique>),
 
-  node((1, 2), box(width: w, align(center, text(fill: bk, size: s)[*Ideas Report*\ + BibTeX])),
+  // Row 2: User in the middle
+  node((1.5, 2), box(width: 200pt, align(center, text(fill: bk, size: s)[
+    *User*\
+    #text(size: sm)[selects ideas, picks questions, steers direction]
+  ])),
+    fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <user>),
+
+  // Row 3: Formal critique → Rank → User Judge
+  node((0.5, 3), box(width: 180pt, align(center, text(fill: bk, size: s)[*Formal critique*\ #text(size: sm)[adversarial review, kill or rank]])),
+    fill: critique-fill, stroke: 1pt + critique-stroke, corner-radius: 4pt, inset: 5pt, name: <formal>),
+
+  node((2.5, 3), box(width: 180pt, align(center, text(fill: bk, size: s)[*User Judge*\ #text(size: sm)[write report / go deeper / new angle]])),
+    fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <judge>),
+
+  // Row 4: Ideas Report
+  node((1.5, 4), box(width: 200pt, align(center, text(fill: bk, size: s)[*Ideas Report*\ #text(size: sm)[+ BibTeX references]])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <doc>),
 
-  // Row 0 forward (left to right)
+  // === Edges ===
+
+  // Row 0 forward
   edge(<idea>, <background>, "-|>", stroke: 1pt + arrow),
   edge(<background>, <clarify>, "-|>", stroke: 1pt + arrow),
   edge(<clarify>, <survey>, "-|>", stroke: 1pt + arrow),
 
-  // Survey down to Ideas
-  edge(<survey>, <ideas>, "-|>", stroke: 1pt + arrow),
+  // Survey down to Ideator
+  edge(<survey>, <ideator>, "-|>", stroke: 1pt + arrow),
 
-  // Exit: Ideas down to Refine
-  edge(<ideas>, <refine>, "-|>", stroke: 1pt + arrow,
-    label: text(fill: bk, size: sm)[write proposal], label-side: left),
-  edge(<refine>, <doc>, "-|>", stroke: 1pt + arrow),
+  // Ideator → Critique (presents ideas)
+  edge(<ideator>, <critique>, "-|>", stroke: 1pt + arrow,
+    label: text(fill: bk, size: sm)[ideas], label-side: left),
 
-  // Loop: Ideas back up to Survey
-  edge(<ideas>, <survey>, "-|>", bend: 0deg,
+  // Critique → User (questions)
+  edge(<critique>, <user>, "-|>", stroke: 1pt + arrow,
+    label: text(fill: bk, size: sm)[questions], label-side: right),
+
+  // User → Ideator (feedback, only user content)
+  edge(<user>, <ideator>, "-|>", stroke: 1pt + arrow,
+    label: text(fill: bk, size: sm)[feedback], label-side: left),
+
+  // User → Formal critique (evaluate)
+  edge(<user>, <formal>, "-|>", stroke: 1pt + arrow,
+    label: text(fill: bk, size: sm)[evaluate], label-side: left),
+
+  // Formal → Judge
+  edge(<formal>, <judge>, "-|>", stroke: 1pt + arrow,
+    label: text(fill: bk, size: sm)[ranked table], label-side: left),
+
+  // Judge → Doc (write report)
+  edge(<judge>, <doc>, "-|>", stroke: 1pt + arrow,
+    label: text(fill: bk, size: sm)[write report], label-side: right),
+
+  // Judge loop back to Survey (go deeper / new angle)
+  edge(<judge>, <survey>, "-|>", bend: 0deg,
     stroke: (paint: loop-color, thickness: 1pt, dash: "dashed"),
     label: text(fill: loop-color, size: sm, weight: "medium")[go deeper / new angle], label-side: center),
 )

@@ -11,7 +11,7 @@ sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, 
 Four skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
 
 - **survey** — Parallel literature search via 7 strategies, builds a registry (`summary.md` + `references.bib`) with verified BibTeX
-- **ideas** — Three-agent concurrent ideation (Main mediator + persistent Ideator + persistent Critic), adversarial review, kill/rank, user decides
+- **ideas** — Two-agent ideation (Main mediator + persistent Ideator), Polya-style critique with question routing, adversarial review, kill/rank, user decides
 - **writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail from ideation
 - **researchstyle** — Indexes a personal paper collection (Zotero/PDF folder/Google Scholar) into the same registry format
 
@@ -19,13 +19,20 @@ Four skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + i
 
 **Workflow pipeline:** Survey → Ideas → Writer (each skill can run independently or chain)
 
-**Ideas skill uses a 4-party protocol:**
-- Main agent (foreground mediator, never generates ideas or critique)
-- Ideator (persistent subagent, resumed via agent ID across turns)
-- Critic (persistent subagent, resumed via agent ID across turns)
-- Human user (reacts to ideas, addresses or ignores critique)
+**Ideas skill uses a 3-party protocol:**
+- Main agent (foreground mediator — presents ideas, diagnoses weaknesses, raises critique questions; never generates ideas)
+- Ideator (persistent subagent, resumed via agent ID — generates ideas via creative lenses, receives only user feedback)
+- Human user (selects ideas, picks questions, steers direction)
 
-**Turn rhythm:** Ideator proposes → User reacts → Critic challenges → User responds → loop
+**Information boundary:** The main agent relays only user-originated content to the Ideator. The main agent's own elaboration (on factual/analytical questions) is shown only to the user.
+
+**Creative lenses** (Ideator): Combiner, Inverter, Transplanter, Bottleneck-breaker, Restater, Scoper
+
+**Critique lenses** (presented to user via AskUserQuestion, diagnosed by weakness pattern):
+- Ideator-routed (creative): Feasibility, Success criteria, Impact, Signs of progress
+- Main-agent-routed (factual): Prior art, Assumption, Failure mode, Timing, Completeness
+
+**Turn rhythm:** Ideator proposes → Main agent presents + diagnoses + offers questions → User picks → Route by type → loop
 
 **Survey registry format** (reused across survey, ideas, researchstyle, writer):
 ```

@@ -1,6 +1,6 @@
 # sci-brain
 
-A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey and ideation (with built-in adversarial critique) in a loop until the user picks a direction, then produces a research plan.
+A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey and ideation (with Polya-style critique and question routing) in a loop until the user picks a direction, then produces a research plan.
 
 This brainstorming style incorporates strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
 
@@ -8,6 +8,48 @@ This brainstorming style incorporates strategic research questioning and problem
 
 ![Flowchart](images/flowchart.svg)
 Source: [images/flowchart.typ](images/flowchart.typ)
+
+### Skills
+
+| Skill | Purpose |
+|-------|---------|
+| **survey** | Parallel literature search via 7 strategies, builds a registry with verified BibTeX |
+| **ideas** | Two-agent ideation with Polya-style critique, adversarial review, kill/rank |
+| **writer** | Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail |
+| **researchstyle** | Indexes a personal paper collection (Zotero/PDF folder/Google Scholar) into the registry format |
+
+### How Ideas Works
+
+The ideas skill runs a **3-party conversation** — the Ideator generates, the main agent critiques, and the user steers:
+
+1. **Ideator** (persistent subagent) proposes ideas, optionally through creative lenses:
+
+| Lens | Strategy |
+|------|----------|
+| Combiner | Merge two distant findings into a novel approach |
+| Inverter | Flip a key assumption — what if the opposite is true? |
+| Transplanter | Apply a method from field A to problem B |
+| Bottleneck-breaker | Directly attack the identified bottleneck |
+| Restater | Reframe the problem statement itself |
+| Scoper | Zoom in (specialize) or zoom out (generalize — Polya's Inventor's paradox) |
+
+2. **Main agent** diagnoses each idea's weakness, then offers targeted critique questions:
+
+| Weakness pattern | Questions to offer |
+|------------------|--------------------|
+| Unclear how to validate | Feasibility, Success criteria |
+| Feels familiar | Prior art, Timing |
+| Rests on a shaky claim | Assumption, Failure mode |
+| Vague goal | Impact, Success criteria |
+| Long path, no checkpoints | Signs of progress |
+| Narrow framing | Restater/Scoper via "Elaborate" |
+| Missing survey data | Completeness |
+
+Questions are routed by type: creative questions (Feasibility, Impact, Success criteria, Signs of progress) go to the Ideator; factual questions (Prior art, Assumption, Failure mode, Timing, Completeness) are answered by the main agent. The main agent's elaboration is shown only to the user — never relayed to the Ideator.
+
+3. **User** selects ideas to explore and questions to dig into. Only user feedback reaches the Ideator.
+
+After the conversation, a formal adversarial review kills or ranks ideas, then the user picks a direction.
 
 ## Installation
 
