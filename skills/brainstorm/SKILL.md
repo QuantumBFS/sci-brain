@@ -7,6 +7,18 @@ description: Use when brainstorming research ideas from a survey report — runs
 
 A concurrent conversation: the main agent brainstorms with the human while background agents do real-time research. The human provides creative direction; the AI does the analytical heavy lifting.
 
+**Phase 0 — Load context.**
+
+**Survey registries:** Check for existing survey registries in both global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If registries exist, list them and ask the user which ones to load:
+
+> "I found these survey registries. Which ones should I use for brainstorming? Pick one or more."
+
+Read the selected `summary.md` and `references.bib` files to ground the brainstorm in prior survey work. If no registries exist, skip this.
+
+**Personal registry:** Check for an existing personal registry at the global registry path (e.g., `~/.claude/survey/personal/`). Also check `CLAUDE.md`/`AGENTS.md` for a configured registry path. If found, read `summary.md` to understand the user's research background and calibrate suggestions. If not found, offer:
+
+> "I can build a personal registry from your Zotero/PDF folder/Google Scholar to calibrate suggestions. Want to do that now, or skip?"
+
 **Phase 1 — Open.**
 
 Present the survey highlights and suggest 2-3 promising directions from the findings. Then ask:

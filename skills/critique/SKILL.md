@@ -24,6 +24,11 @@ Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever
 
 **Evidence-backed critique:** Every critique claim must be supported by a search or a concrete argument. No unsupported opinions — critique without evidence is just noise.
 
+**Guardrails:**
+- Never fabricate citations — only present what tools actually found.
+- Never assert novelty judgments — present evidence, let user evaluate.
+- Always preserve pivot path — show what's salvageable when critique kills an idea.
+
 **Output:** Each idea has a report + counter-report pair. Save to `articles/iteration-N/critique/`.
 
 ## Step 4 — AI Judge (synthesis and ranking)
@@ -32,7 +37,7 @@ Read all report/counter-report pairs from Step 3 and make hard calls.
 
 **Actions:**
 
-- **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died
+- **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died. If all ideas are killed, report what was learned, suggest new angles, and ask the user whether to loop back to survey with adjusted strategies
 - **Rank** survivors by: novelty, impact, viability
 - **Present** a ranked table to the user
 

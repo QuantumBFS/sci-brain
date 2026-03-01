@@ -51,6 +51,8 @@ Each subagent produces a short **findings report** — key papers found, grouped
 
 If all API methods fail (e.g., network restrictions), BibTeX may be constructed from WebSearch results but **must** flag unverified fields with a comment `% unverified`.
 
+If the survey reveals the idea is already published, present the prior art and ask the user if they see a different angle before proceeding.
+
 Output the **survey registry** — a folder `<registry-root>/<topic>/` (where `<registry-root>` is the global or project path chosen in Step 0) containing:
 
 **1. `summary.md`** — references listed as indices categorized by topic, using BibTeX cite keys (e.g., `[AuthorYear]`). Include:

@@ -60,7 +60,7 @@ PDFs are at `~/Zotero/storage/<key>/<filename>.pdf`. Read them to extract the ab
 2. Extract paper titles, years, citation counts.
 3. For each paper, search for the DOI and abstract via WebSearch.
 
-**Step 3 — Produce the registry.** Output a folder at a location the user specifies, or default to `articles/personal-registry/`, containing:
+**Step 3 — Produce the registry.** Output to the global registry path at `<global-registry-root>/personal/` (e.g., `~/.claude/survey/personal/`), containing:
 
 **1. `summary.md`** — all papers listed by topic cluster, with BibTeX cite keys (e.g., `[AuthorYear]`) as indices.
 
