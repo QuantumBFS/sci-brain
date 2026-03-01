@@ -68,16 +68,16 @@ The Ideator is persistent — resumed with its agent ID on each turn, accumulati
    - Proposes concrete approaches and combinations
    - Asks probing questions that open new angles
 
-2. **Present ideas with Polya-style critical questions.** The main agent presents the Ideator's ideas and immediately raises critical questions for the user to consider. These are challenges the main agent generates itself (not a separate agent), framed as thinking prompts:
+2. **Present ideas, then let the user pick critical questions.** The main agent presents the Ideator's ideas, then uses `AskUserQuestion` (multiSelect) to offer 3-4 idea-specific Polya-style critical questions for the user to choose from. The user selects which questions they want to dig into (or writes their own via "Other"). Example question bank (adapt to the specific ideas — never use these verbatim):
    - "This is not a new problem — why hasn't it been addressed?"
    - "Has this been tried before? [cite relevant survey entry if applicable]"
    - "What's the weakest assumption here?"
    - "If this works perfectly, what's the actual improvement — 1% or 10x?"
    - "What would need to be true for this to fail?"
 
-   The questions should be specific to the ideas presented, not generic. Reference survey entries where relevant.
+   Generate questions specific to the ideas presented — reference survey entries where relevant. The user's selections (and any custom question) determine which challenges the main agent elaborates on and relays to the Ideator.
 
-3. **User responds** — engages with questions, steers direction, or ignores challenges. Main agent encourages deeper input and relays everything back to the Ideator.
+3. **Main agent elaborates on selected questions** — provide a substantive response to each question the user picked, grounded in the survey. Then relay the user's selections and any custom question back to the Ideator.
 
 4. **Loop to 1** with full accumulated context.
 

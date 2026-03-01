@@ -1,4 +1,4 @@
-# sci-brainstorm
+# sci-brain
 
 A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey and ideation (with built-in adversarial critique) in a loop until the user picks a direction, then produces a research plan.
 
@@ -16,18 +16,18 @@ Installation differs by platform. Claude Code has a built-in plugin marketplace.
 ### Claude Code (via Plugin Marketplace)
 
 ```
-/plugin marketplace add QuantumBFS/sci-brainstorm
-/plugin install sci-brainstorm@sci-brainstorm
+/plugin marketplace add QuantumBFS/sci-brain
+/plugin install sci-brain@sci-brain
 ```
 
-Then use `/sci-brainstorm` in any session.
+Then use `/sci-brain` in any session.
 
 ### Codex
 
 Tell Codex:
 
 ```
-Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brainstorm/refs/heads/main/.codex/INSTALL.md
+Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brain/refs/heads/main/.codex/INSTALL.md
 ```
 
 **Detailed docs:** [.codex/INSTALL.md](.codex/INSTALL.md)
@@ -37,7 +37,7 @@ Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/
 Tell OpenCode:
 
 ```
-Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brainstorm/refs/heads/main/.opencode/INSTALL.md
+Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brain/refs/heads/main/.opencode/INSTALL.md
 ```
 
 **Detailed docs:** [.opencode/INSTALL.md](.opencode/INSTALL.md)
@@ -48,10 +48,10 @@ Pull latest changes from the install location you used:
 
 ```bash
 # Codex
-cd ~/.codex/sci-brainstorm && git pull
+cd ~/.codex/sci-brain && git pull
 
 # OpenCode
-cd ~/.config/opencode/sci-brainstorm && git pull
+cd ~/.config/opencode/sci-brain && git pull
 ```
 
 Skills update instantly through the symlinks.

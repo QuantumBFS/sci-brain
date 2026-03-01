@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-sci-brainstorm is a skill-based plugin for AI coding assistants (Claude Code, Codex, OpenCode) that provides a structured scientific research brainstorming workflow. It is not a traditional code project — it consists of skill definition files (SKILL.md) that define agent interaction protocols.
+sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, OpenCode) that provides a structured scientific research brainstorming workflow. It is not a traditional code project — it consists of skill definition files (SKILL.md) that define agent interaction protocols.
 
 ## Skills
 
@@ -45,9 +45,9 @@ typst compile images/flowchart.typ images/flowchart.png
 
 ## Installation
 
-- **Claude Code:** `/plugin marketplace add QuantumBFS/sci-brainstorm`
-- **Codex:** Clone → symlink to `~/.agents/skills/sci-brainstorm` (see `.codex/INSTALL.md`)
-- **OpenCode:** Clone → symlink to `~/.config/opencode/skills/sci-brainstorm` (see `.opencode/INSTALL.md`)
+- **Claude Code:** `/plugin marketplace add QuantumBFS/sci-brain`
+- **Codex:** Clone → symlink to `~/.agents/skills/sci-brain` (see `.codex/INSTALL.md`)
+- **OpenCode:** Clone → symlink to `~/.config/opencode/skills/sci-brain` (see `.opencode/INSTALL.md`)
 
 ## Key Files
 

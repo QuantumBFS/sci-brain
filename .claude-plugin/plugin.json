@@ -1,12 +1,12 @@
 {
-  "name": "sci-brainstorm",
+  "name": "sci-brain",
   "description": "Scientific research brainstorming loop: survey, ideate, critique, rank, and refine with user guidance",
   "version": "0.1.0",
   "author": {
     "name": "Jin-Guo Liu"
   },
-  "homepage": "https://github.com/QuantumBFS/sci-brainstorm",
-  "repository": "https://github.com/QuantumBFS/sci-brainstorm",
+  "homepage": "https://github.com/QuantumBFS/sci-brain",
+  "repository": "https://github.com/QuantumBFS/sci-brain",
   "license": "MIT",
   "keywords": ["science", "research", "ideation", "literature-review", "skills"]
 }

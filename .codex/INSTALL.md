@@ -1,6 +1,6 @@
-# Installing sci-brainstorm for Codex
+# Installing sci-brain for Codex
 
-Enable the sci-brainstorm skill in Codex via native skill discovery. Just clone and symlink.
+Enable the sci-brain skill in Codex via native skill discovery. Just clone and symlink.
 
 ## Prerequisites
 
@@ -10,13 +10,13 @@ Enable the sci-brainstorm skill in Codex via native skill discovery. Just clone 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/QuantumBFS/sci-brainstorm.git ~/.codex/sci-brainstorm
+   git clone https://github.com/QuantumBFS/sci-brain.git ~/.codex/sci-brain
    ```
 
 2. **Create the skills symlink:**
    ```bash
    mkdir -p ~/.agents/skills
-   ln -s ~/.codex/sci-brainstorm/skills/sci-brainstorm ~/.agents/skills/sci-brainstorm
+   ln -s ~/.codex/sci-brain/skills/sci-brain ~/.agents/skills/sci-brain
    ```
 
 3. **Restart Codex** (quit and relaunch the CLI) to discover the skill.
@@ -24,15 +24,15 @@ Enable the sci-brainstorm skill in Codex via native skill discovery. Just clone 
 ## Verify
 
 ```bash
-ls -la ~/.agents/skills/sci-brainstorm
+ls -la ~/.agents/skills/sci-brain
 ```
 
-You should see a symlink pointing to the sci-brainstorm skills directory.
+You should see a symlink pointing to the sci-brain skills directory.
 
 ## Updating
 
 ```bash
-cd ~/.codex/sci-brainstorm && git pull
+cd ~/.codex/sci-brain && git pull
 ```
 
 Skills update instantly through the symlink.
@@ -40,7 +40,7 @@ Skills update instantly through the symlink.
 ## Uninstalling
 
 ```bash
-rm ~/.agents/skills/sci-brainstorm
+rm ~/.agents/skills/sci-brain
 ```
 
-Optionally delete the clone: `rm -rf ~/.codex/sci-brainstorm`.
+Optionally delete the clone: `rm -rf ~/.codex/sci-brain`.

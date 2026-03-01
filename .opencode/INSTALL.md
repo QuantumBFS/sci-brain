@@ -1,4 +1,4 @@
-# Installing sci-brainstorm for OpenCode
+# Installing sci-brain for OpenCode
 
 ## Prerequisites
 
@@ -7,10 +7,10 @@
 
 ## Installation Steps
 
-### 1. Clone sci-brainstorm
+### 1. Clone sci-brain
 
 ```bash
-git clone https://github.com/QuantumBFS/sci-brainstorm.git ~/.config/opencode/sci-brainstorm
+git clone https://github.com/QuantumBFS/sci-brain.git ~/.config/opencode/sci-brain
 ```
 
 ### 2. Symlink Skills
@@ -19,7 +19,7 @@ Create a symlink so OpenCode's native skill tool discovers the skill:
 
 ```bash
 mkdir -p ~/.config/opencode/skills
-ln -s ~/.config/opencode/sci-brainstorm/skills/sci-brainstorm ~/.config/opencode/skills/sci-brainstorm
+ln -s ~/.config/opencode/sci-brain/skills/sci-brain ~/.config/opencode/skills/sci-brain
 ```
 
 ### 3. Restart OpenCode
@@ -33,7 +33,7 @@ Restart OpenCode. The skill will be available via the native skill tool.
 Use OpenCode's native `skill` tool to load the skill:
 
 ```
-use skill tool to load sci-brainstorm
+use skill tool to load sci-brain
 ```
 
 ### Project Skills
@@ -43,13 +43,13 @@ You can also place the skill in `.opencode/skills/` within your project for proj
 ## Updating
 
 ```bash
-cd ~/.config/opencode/sci-brainstorm && git pull
+cd ~/.config/opencode/sci-brain && git pull
 ```
 
 ## Uninstalling
 
 ```bash
-rm ~/.config/opencode/skills/sci-brainstorm
+rm ~/.config/opencode/skills/sci-brain
 ```
 
-Optionally delete the clone: `rm -rf ~/.config/opencode/sci-brainstorm`.
+Optionally delete the clone: `rm -rf ~/.config/opencode/sci-brain`.
