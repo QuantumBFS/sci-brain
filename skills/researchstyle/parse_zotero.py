@@ -124,6 +124,53 @@ def query_authors(db_path: Path) -> dict:
     return authors
 
 
+def query_collections(db_path: Path) -> dict:
+    """Extract collection names for each item, building hierarchical paths."""
+    conn = sqlite3.connect(str(db_path))
+    cur = conn.cursor()
+
+    # Build collection hierarchy: id -> (name, parentID)
+    cur.execute("SELECT collectionID, collectionName, parentCollectionID FROM collections")
+    coll_info = {}
+    for cid, name, parent in cur.fetchall():
+        coll_info[cid] = (name, parent)
+
+    def coll_path(cid):
+        parts = []
+        while cid and cid in coll_info:
+            name, parent = coll_info[cid]
+            parts.append(name)
+            cid = parent
+        return " / ".join(reversed(parts))
+
+    # Map items to their collection paths
+    cur.execute("SELECT itemID, collectionID FROM collectionItems")
+    item_colls = defaultdict(list)
+    for item_id, coll_id in cur.fetchall():
+        path = coll_path(coll_id)
+        if path:
+            item_colls[item_id].append(path)
+    conn.close()
+    return dict(item_colls)
+
+
+def query_tags(db_path: Path) -> dict:
+    """Extract tags for each item."""
+    conn = sqlite3.connect(str(db_path))
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT it.itemID, GROUP_CONCAT(t.name, '; ')
+        FROM itemTags it
+        JOIN tags t ON it.tagID = t.tagID
+        GROUP BY it.itemID
+    """)
+    tags = {}
+    for row in cur.fetchall():
+        tags[row[0]] = row[1] or ""
+    conn.close()
+    return tags
+
+
 def make_cite_key(authors: str, year: str, title: str) -> str:
     """Generate an AuthorYear cite key from the first author's last name."""
     if authors:
@@ -147,8 +194,8 @@ def assign_cite_keys(items: dict) -> None:
             item["cite_key"] = base
 
 
-def classify(title: str, abstract: str) -> str:
-    """Classify a paper into a topic by keyword matching."""
+def classify_by_regex(title: str, abstract: str) -> str:
+    """Classify a paper into a topic by keyword matching (fallback)."""
     text = (title + " " + abstract).lower()
     for pattern, category in TOPIC_PATTERNS:
         if re.search(pattern, text):
@@ -156,11 +203,33 @@ def classify(title: str, abstract: str) -> str:
     return "Other"
 
 
+def classify(item: dict) -> str:
+    """Classify using collections > tags > regex fallback.
+
+    Priority:
+      1. Zotero collection path (deepest collection name used as topic)
+      2. First non-automatic Zotero tag
+      3. Regex keyword matching on title + abstract
+    """
+    # 1. Collections — use the leaf (deepest) collection name
+    if item.get("collections"):
+        # Pick the first collection; use the leaf name as topic
+        path = item["collections"][0]
+        return path.split(" / ")[-1]
+    # 2. Tags — use the first tag as topic
+    if item.get("tags"):
+        first_tag = item["tags"].split(";")[0].strip()
+        if first_tag:
+            return first_tag
+    # 3. Regex fallback
+    return classify_by_regex(item["title"], item["abstract"])
+
+
 def write_summary(items: dict, output_dir: Path) -> None:
     """Write summary.md grouped by topic."""
     topic_items = defaultdict(list)
     for item in items.values():
-        topic_items[classify(item["title"], item["abstract"])].append(item)
+        topic_items[classify(item)].append(item)
 
     sorted_topics = sorted(topic_items, key=lambda c: -len(topic_items[c]))
 
@@ -255,11 +324,41 @@ def main():
             if item_id in items:
                 items[item_id]["authors"] = author_str
         print(f"  Found authors for {len(authors)} items")
+
+        print("Querying collections...")
+        collections = query_collections(tmp_db)
+        for item_id, coll_list in collections.items():
+            if item_id in items:
+                items[item_id]["collections"] = coll_list
+        n_with_colls = sum(1 for i in items.values() if i.get("collections"))
+        print(f"  {n_with_colls} items in collections")
+
+        print("Querying tags...")
+        tags = query_tags(tmp_db)
+        for item_id, tag_str in tags.items():
+            if item_id in items:
+                items[item_id]["tags"] = tag_str
+        n_with_tags = sum(1 for i in items.values() if i.get("tags"))
+        print(f"  {n_with_tags} items with tags")
     finally:
         tmp_db.unlink(missing_ok=True)
 
     print("Assigning cite keys...")
     assign_cite_keys(items)
+
+    # Report classification sources
+    src_counts = defaultdict(int)
+    for item in items.values():
+        if item.get("collections"):
+            src_counts["collection"] += 1
+        elif item.get("tags"):
+            src_counts["tag"] += 1
+        else:
+            src_counts["regex"] += 1
+    print("Classification sources:")
+    for src in ("collection", "tag", "regex"):
+        if src_counts[src]:
+            print(f"  {src}: {src_counts[src]} items")
 
     print("Writing summary.md...")
     write_summary(items, output_dir)
