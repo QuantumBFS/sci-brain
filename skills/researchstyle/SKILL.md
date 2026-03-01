@@ -18,35 +18,19 @@ Turn an existing paper collection into a structured survey registry (`summary.md
 
 **Zotero:**
 
-1. Locate `zotero.sqlite` at standard paths (`~/Zotero/`, `~/Library/Application Support/Zotero/`). If not found, ask for the path.
-2. Query all items:
+1. Locate `zotero.sqlite` — check in order: `~/Zotero/`, `~/Library/Application Support/Zotero/`, `~/snap/zotero-snap/common/Zotero/`. If not found, use `find ~ -maxdepth 4 -name "zotero.sqlite"` as fallback. If still not found, ask for the path.
+
+2. Run the bundled script:
 
 ```bash
-sqlite3 ~/Zotero/zotero.sqlite "
-  SELECT i.itemID, v_title.value AS title, v_abstract.value AS abstract
-  FROM items i
-  JOIN itemData id_t ON i.itemID = id_t.itemID
-  JOIN itemDataValues v_title ON id_t.valueID = v_title.valueID
-  JOIN fields f_t ON id_t.fieldID = f_t.fieldID AND f_t.fieldName = 'title'
-  LEFT JOIN itemData id_a ON i.itemID = id_a.itemID
-  LEFT JOIN fields f_a ON id_a.fieldID = f_a.fieldID AND f_a.fieldName = 'abstractNote'
-  LEFT JOIN itemDataValues v_abstract ON id_a.valueID = v_abstract.valueID
-  LIMIT 200;
-"
+python3 <skill-base-dir>/parse_zotero.py <path-to-zotero.sqlite> <output_dir>
 ```
 
-3. For papers missing abstracts or DOIs, find the PDF via:
+The script handles: copying the DB to avoid locking, pivot queries to avoid cartesian products, author extraction, cite key deduplication, topic classification, and generating both `summary.md` and `references.bib`.
 
-```bash
-sqlite3 ~/Zotero/zotero.sqlite "
-  SELECT ia.parentItemID, ia.key, ia.contentType
-  FROM itemAttachments ia
-  WHERE ia.parentItemID IN (ITEM_IDS)
-    AND ia.contentType = 'application/pdf';
-"
-```
+3. Review the output — the script's topic classification uses keyword matching and may need manual adjustment. Check the topic distribution it prints and offer to re-classify if the user's field isn't well covered by the default patterns.
 
-PDFs are at `~/Zotero/storage/<key>/<filename>.pdf`. Read them to extract the abstract.
+4. For papers missing abstracts or DOIs, find the PDF via the `itemAttachments` table. PDFs are at `<zotero-data-dir>/storage/<key>/<filename>.pdf`. Read them to extract the abstract.
 
 **PDF folder:**
 
@@ -64,7 +48,12 @@ PDFs are at `~/Zotero/storage/<key>/<filename>.pdf`. Read them to extract the ab
 
 **1. `summary.md`** — all papers listed by topic cluster, with BibTeX cite keys (e.g., `[AuthorYear]`) as indices.
 
-**2. `references.bib`** — BibTeX entries. Every entry **must** contain:
+**2. `references.bib`** — BibTeX entries. Only include entries that have at least a DOI or URL — skip the rest. Every included entry **must** contain:
 
 - `abstract` — the paper's abstract
 - `doi` or `url` — at least one identifier for retrieval
+
+**Processing tips:**
+
+- **Always use bundled scripts** (`parse_zotero.py` for Zotero). Don't try to do it inline with shell commands — even for small libraries, a script is more reliable and easier to debug.
+- **Topic classification** in the script uses keyword matching ordered most-specific-first. The default patterns cover quantum computing, physics, CS, and math. For other fields, modify `TOPIC_PATTERNS` in the script or ask the user to provide keywords for their domain.
