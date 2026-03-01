@@ -64,26 +64,38 @@ Do NOT present critical questions yet — wait for the user to narrow down first
 **Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–6 critical questions tailored to the ideas. The question set must:
 
 1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice."). This is routed to the Ideator.
-2. Draw the remaining questions from the critique lenses below, picking whichever are most relevant to the specific ideas. Each lens has a **when to use** guide and a **routes to** indicator.
+2. **Diagnose before picking questions.** For each idea, identify its weakness pattern, then select the matching lenses:
+
+| Weakness pattern | Lenses to offer |
+|------------------|-----------------|
+| Unclear how to validate | Feasibility, Success criteria |
+| Feels familiar / may already exist | Prior art, Timing |
+| Rests on a shaky claim | Assumption, Failure mode |
+| Vague goal / unclear payoff | Impact, Success criteria |
+| Long path, no checkpoints | Signs of progress |
+| Narrow framing, stuck in one perspective | *(suggest Restater/Scoper to Ideator via "Elaborate")* |
+| Missing survey data | Completeness |
+
+Pick 2–5 questions from the lenses below based on the diagnosis. Each lens has a **routes to** indicator.
 
 **Ideator-routed** — user selection is relayed to the Ideator (creative/generative questions):
 
-| Critique lens | Example question template | When to use |
-|---------------|--------------------------|-------------|
-| **Feasibility** | "What's the minimal experiment that would validate this?" | Idea sounds promising but the path to validation is unclear |
-| **Success criteria** | "What observable outcome would constitute success?" | The idea's goal is vague — what does "solved" actually look like? |
-| **Impact** | "If this works perfectly, what's the actual improvement — 1% or 10x?" | Need to gauge ambition level — incremental vs. paradigm shift |
-| **Signs of progress** | "What intermediate result would justify continuing?" | Idea requires a long research arc — need milestones to avoid blind alleys |
+| Critique lens | Example question template |
+|---------------|--------------------------|
+| **Feasibility** | "What's the minimal experiment that would validate this?" |
+| **Success criteria** | "What observable outcome would constitute success?" |
+| **Impact** | "If this works perfectly, what's the actual improvement — 1% or 10x?" |
+| **Signs of progress** | "What intermediate result would justify continuing?" |
 
 **Main-agent-routed** — main agent elaborates grounded in the survey (factual/analytical questions, shown only to user, not relayed to Ideator):
 
-| Critique lens | Example question template | When to use |
-|---------------|--------------------------|-------------|
-| **Prior art** | "Has this been tried before? [cite survey entry if applicable]" | Idea feels familiar — need to check for existing work |
-| **Assumption** | "What's the weakest assumption here?" | Idea rests on a claim that may not hold |
-| **Failure mode** | "What would need to be true for this to fail?" | Idea seems too good — stress-test adversarially |
-| **Timing** | "Why hasn't this been addressed before — what changed recently?" | Idea targets a long-standing problem — need to justify why now |
-| **Completeness** | "Are we overlooking data or constraints from the survey?" | Discussion has narrowed — check if we dropped something important |
+| Critique lens | Example question template |
+|---------------|--------------------------|
+| **Prior art** | "Has this been tried before? [cite survey entry if applicable]" |
+| **Assumption** | "What's the weakest assumption here?" |
+| **Failure mode** | "What would need to be true for this to fail?" |
+| **Timing** | "Why hasn't this been addressed before — what changed recently?" |
+| **Completeness** | "Are we overlooking data or constraints from the survey?" |
 
 The user selects which questions to dig into, or writes their own via "Other" (custom questions are always routed to the Ideator).
 
