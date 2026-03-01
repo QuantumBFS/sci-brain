@@ -47,9 +47,33 @@ The Ideator adapts its strategy to the topic — lenses are tools, not requireme
 
 **Search policy:** The Ideator should ground ideas in the loaded survey registries and personal registry — do NOT default to web search. Only perform web searches when the user suggests a direction that goes beyond what the survey data covers (e.g., a new sub-field, a method not mentioned in the registry). This keeps ideation fast and anchored in vetted references.
 
-Present the Ideator's initial ideas to the user and ask:
+Present the Ideator's initial ideas using the **idea presentation rules** (see below).
 
-> `>>> Based on what we found, what directions interest you? Even a vague hunch is fine.`
+#### Idea presentation rules
+
+Apply these rules whenever presenting the Ideator's ideas (Step 1 or Step 2):
+
+**Long list (> 3 ideas):** Number them `1, 2, 3 …` with a one-line summary each. Then ask:
+
+> "Type the numbers of the ideas you'd like to explore (e.g. `1, 3`), or describe a new direction."
+
+Do NOT present critical questions yet — wait for the user to narrow down first.
+
+**Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–4 critical questions tailored to the ideas. The question set must:
+
+1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice.").
+2. Draw the remaining questions from the critique lenses below, picking whichever are most relevant to the specific ideas:
+
+| Critique lens | Example question template |
+|---------------|--------------------------|
+| **Prior art** | "Has this been tried before? [cite survey entry if applicable]" |
+| **Assumption** | "What's the weakest assumption here?" |
+| **Impact** | "If this works perfectly, what's the actual improvement — 1% or 10x?" |
+| **Failure mode** | "What would need to be true for this to fail?" |
+| **Timing** | "Why hasn't this been addressed before — what changed recently?" |
+| **Feasibility** | "What's the minimal experiment that would validate this?" |
+
+The user selects which questions to dig into, or writes their own via "Other."
 
 ### Step 2 — Conversation loop
 
@@ -68,14 +92,7 @@ The Ideator is persistent — resumed with its agent ID on each turn, accumulati
    - Proposes concrete approaches and combinations
    - Asks probing questions that open new angles
 
-2. **Present ideas, then let the user pick critical questions.** The main agent presents the Ideator's ideas, then uses `AskUserQuestion` (multiSelect) to offer 3-4 idea-specific Polya-style critical questions for the user to choose from. The user selects which questions they want to dig into (or writes their own via "Other"). Example question bank (adapt to the specific ideas — never use these verbatim):
-   - "This is not a new problem — why hasn't it been addressed?"
-   - "Has this been tried before? [cite relevant survey entry if applicable]"
-   - "What's the weakest assumption here?"
-   - "If this works perfectly, what's the actual improvement — 1% or 10x?"
-   - "What would need to be true for this to fail?"
-
-   Generate questions specific to the ideas presented — reference survey entries where relevant. The user's selections (and any custom question) determine which challenges the main agent elaborates on and relays to the Ideator.
+2. **Present ideas using the idea presentation rules** (defined in Step 1). If the Ideator returned > 3 ideas, list and let the user narrow down first. If ≤ 3, present with critical questions via `AskUserQuestion` (multiSelect) — always including one "Elaborate on _____ ." option. The user's selections (and any custom question) determine which challenges the main agent elaborates on and relays to the Ideator.
 
 3. **Main agent elaborates on selected questions** — provide a substantive response to each question the user picked, grounded in the survey. Then relay the user's selections and any custom question back to the Ideator.
 
