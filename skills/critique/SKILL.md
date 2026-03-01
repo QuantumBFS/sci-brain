@@ -1,13 +1,13 @@
 ---
 name: critique
-description: Use when critiquing brainstorm ideas — runs adversarial devil's advocate review with source verification, then AI judge ranks and kills ideas, then user decides whether to loop or write proposal
+description: Use when critiquing research ideas — runs adversarial devil's advocate review with source verification, then AI judge ranks and kills ideas, then user decides whether to loop or write proposal
 ---
 
 ## Step 3 — Critique (adversarial review + source verification)
 
 Try to kill each idea with evidence — AI ideas and human ideas alike. Whatever survives is worth considering. This is also where source claims get fact-checked.
 
-**Each brainstorm idea (AI or human) is paired with a devil's advocate subagent that:**
+**Each idea from Step 2 (AI or human) is paired with a devil's advocate subagent that:**
 
 - Searches for prior art (has this been tried?) via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty claim, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
 - **Verifies key references** — for each idea, identify the small number of references that the idea's validity depends on (not every citation — just the load-bearing ones). Fetch the full PDF if needed (survey only collected abstracts). Check that these papers exist, that the cited claims match the actual content, and flag any misrepresentations

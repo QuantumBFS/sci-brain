@@ -1,6 +1,6 @@
 # sci-brainstorm
 
-A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey, brainstorming, and adversarial critique in a loop until the user picks a direction, then produces a research plan.
+A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey, ideation, and adversarial critique in a loop until the user picks a direction, then produces a research plan.
 
 This brainstorming style incorporates strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
 
@@ -67,7 +67,7 @@ typst compile images/flowchart.typ images/flowchart.svg
 typst compile images/flowchart.typ images/flowchart.png
 ```
 
-## Optional: Strategies to Improve the Brainstorm
+## Optional: Strategies to Improve Ideation
 
 ### 1. Configure MCP Servers
 
@@ -104,7 +104,7 @@ This lets the AI search your local paper collection during survey — before hit
 
 ## Output
 
-Each loop iteration saves intermediate artifacts. The final brainstorm report includes the full reasoning trail — what was explored, what was killed and why, and the surviving direction with justifications. All citations are in BibTeX format.
+Each loop iteration saves intermediate artifacts. The final ideas report includes the full reasoning trail — what was explored, what was killed and why, and the surviving direction with justifications. All citations are in BibTeX format.
 
 **Survey registry** (user chooses global or project-scoped at session start):
 
@@ -123,12 +123,12 @@ Each loop iteration saves intermediate artifacts. The final brainstorm report in
 ```
 articles/
   iteration-1/
-    brainstorm/      # Step 2 — idea reports per lens
+    ideas/           # Step 2 — idea reports per lens
     critique/        # Step 3 — report + counter-report pairs
     SUMMARY.md       # Step 4 — ranked ideas table, epitaphs for killed ideas
   iteration-2/
     ...
-  YYYY-MM-DD-<topic>-brainstorm-report.{md,typ,tex}   # Refine — format chosen by user
+  YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}   # Refine — format chosen by user
   YYYY-MM-DD-<topic>-references.bib                   # BibTeX references
 ```
 

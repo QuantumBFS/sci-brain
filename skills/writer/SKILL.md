@@ -1,22 +1,22 @@
 ---
 name: writer
-description: Use when writing the final brainstorm report after the user picks a research direction — produces a structured document with reasoning trail, chosen direction, and BibTeX references
+description: Use when writing the final ideas report after the user picks a research direction — produces a structured document with reasoning trail, chosen direction, and BibTeX references
 ---
 
 ## Refine (exit from loop)
 
-Produce a **brainstorm report** — not just a plan, but a full record of the reasoning and justifications from the brainstorming process. Include what was explored, what was tried and killed, and why the surviving direction was chosen.
+Produce an **ideas report** — not just a plan, but a full record of the reasoning and justifications from the ideation process. Include what was explored, what was tried and killed, and why the surviving direction was chosen.
 
 **Autonomous research (gap-filling):** Before writing, search for any gaps in the reference list — missing methodology papers for the planned approach, code repos, datasets, or benchmarks. Use available MCP servers (Semantic Scholar, arxiv, paper-search) or WebSearch.
 
 **Output format:** Check `CLAUDE.md`/`AGENTS.md` for a configured report format. If not configured, ask the user:
 
-> "What format for the brainstorm report?"
+> "What format for the ideas report?"
 > - **(a)** Typst (`.typ`) — recommended, native BibTeX support, compiles to PDF
 > - **(b)** LaTeX (`.tex`) — full BibTeX support, traditional academic format
 > - **(c)** Markdown (`.md`) — note: limited BibTeX support, citations will be inline text rather than rendered references
 
-Save to `articles/YYYY-MM-DD-<topic>-brainstorm-report.{md,typ,tex}` (with matching `references.bib`).
+Save to `articles/YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}` (with matching `references.bib`).
 
 Structure (draft each section, show, get feedback):
 

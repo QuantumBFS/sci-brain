@@ -13,8 +13,8 @@
   let bk-stroke = black,
   let survey-fill = rgb("#e0f2fe"),
   let survey-stroke = rgb("#0284c7"),
-  let brainstorm-fill = rgb("#f3e8ff"),
-  let brainstorm-stroke = rgb("#7c3aed"),
+  let ideas-fill = rgb("#f3e8ff"),
+  let ideas-stroke = rgb("#7c3aed"),
   let critique-fill = rgb("#fee2e2"),
   let critique-stroke = rgb("#dc2626"),
   let arrow = black,
@@ -43,9 +43,9 @@
   ])),
     fill: survey-fill, stroke: 1pt + survey-stroke, corner-radius: 4pt, inset: 5pt, name: <survey>),
 
-  // Row 1 (right to left): Brainstorm → Critique → AI Judge → User Judge
+  // Row 1 (right to left): Ideas → Critique → AI Judge → User Judge
   node((3, 1), box(width: w, align(left, text(fill: bk, size: s)[
-    *Step 2: Brainstorm*\
+    *Step 2: Ideas*\
     #text(size: sm)[2a. Human + AI in parallel:\
     #h(6pt)#sym.bullet Human ideas\
     #h(6pt)#sym.bullet Combiner #sym.bullet Inverter\
@@ -53,7 +53,7 @@
     #h(6pt)#sym.bullet Bottleneck-breaker\
     2b. Merge & present]
   ])),
-    fill: brainstorm-fill, stroke: 1pt + brainstorm-stroke, corner-radius: 4pt, inset: 5pt, name: <brainstorm>),
+    fill: ideas-fill, stroke: 1pt + ideas-stroke, corner-radius: 4pt, inset: 5pt, name: <ideas>),
 
   node((2, 1), box(width: w, align(left, text(fill: bk, size: s)[
     *Step 3: Critique*\
@@ -72,10 +72,10 @@
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <userjudge>),
 
   // Row 2: Refine → Doc
-  node((0, 2), box(width: w, align(center, text(fill: bk, size: s)[*Refine*\ brainstorm report])),
+  node((0, 2), box(width: w, align(center, text(fill: bk, size: s)[*Refine*\ ideas report])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <refine>),
 
-  node((1, 2), box(width: w, align(center, text(fill: bk, size: s)[*Brainstorm Report*\ + BibTeX])),
+  node((1, 2), box(width: w, align(center, text(fill: bk, size: s)[*Ideas Report*\ + BibTeX])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <doc>),
 
   // Row 0 forward (left to right)
@@ -83,11 +83,11 @@
   edge(<background>, <clarify>, "-|>", stroke: 1pt + arrow),
   edge(<clarify>, <survey>, "-|>", stroke: 1pt + arrow),
 
-  // Corner: survey down to brainstorm
-  edge(<survey>, <brainstorm>, "-|>", stroke: 1pt + arrow),
+  // Corner: survey down to ideas
+  edge(<survey>, <ideas>, "-|>", stroke: 1pt + arrow),
 
   // Row 1 forward (right to left)
-  edge(<brainstorm>, <critique>, "-|>", stroke: 1pt + arrow),
+  edge(<ideas>, <critique>, "-|>", stroke: 1pt + arrow),
   edge(<critique>, <aijudge>, "-|>", stroke: 1pt + arrow),
   edge(<aijudge>, <userjudge>, "-|>", stroke: 1pt + arrow),
 

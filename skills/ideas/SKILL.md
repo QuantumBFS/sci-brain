@@ -1,19 +1,19 @@
 ---
-name: brainstorm
-description: Use when brainstorming research ideas from a survey report — runs a concurrent conversation where the main agent suggests directions while background agents analyze and develop ideas
+name: ideas
+description: Use when generating research ideas from a survey report — runs a concurrent conversation where the main agent suggests directions while background agents analyze and develop ideas
 ---
 
-## Step 2 — Brainstorm
+## Step 2 — Ideas
 
-A concurrent conversation: the main agent brainstorms with the human while background agents do real-time research. The human provides creative direction; the AI does the analytical heavy lifting.
+A concurrent conversation: the main agent explores ideas with the human while background agents do real-time research. The human provides creative direction; the AI does the analytical heavy lifting.
 
 **Phase 0 — Load context.**
 
 **Survey registries:** Check for existing survey registries in both global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If registries exist, list them and ask the user which ones to load:
 
-> "I found these survey registries. Which ones should I use for brainstorming? Pick one or more."
+> "I found these survey registries. Which ones should I use for ideation? Pick one or more."
 
-Read the selected `summary.md` and `references.bib` files to ground the brainstorm in prior survey work. If no registries exist, skip this.
+Read the selected `summary.md` and `references.bib` files to ground the ideas in prior survey work. If no registries exist, skip this.
 
 **Personal registry:** Check for an existing personal registry at the global registry path (e.g., `~/.claude/survey/personal/`). Also check `CLAUDE.md`/`AGENTS.md` for a configured registry path. If found, read `summary.md` to understand the user's research background and calibrate suggestions. If not found, offer:
 
@@ -70,4 +70,4 @@ Once the human is done, collect all ideas (human-seeded, AI-suggested during con
 
 Present all developed ideas as a single numbered list. Each idea should have its Polya analysis filled in so the human can compare them on substance, not just vibes.
 
-Save brainstorm reports to `articles/iteration-N/brainstorm/`.
+Save ideas reports to `articles/iteration-N/ideas/`.
