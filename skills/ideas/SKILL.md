@@ -42,6 +42,8 @@ Present the survey highlights. Launch the **Ideator** (foreground) with the regi
 | **Inverter** | Invert a key assumption — what if the opposite is true? |
 | **Transplanter** | Apply a method from field A to problem B |
 | **Bottleneck-breaker** | Directly attack the identified bottleneck |
+| **Restater** | Reframe the problem statement itself — a different formulation may unlock different solutions |
+| **Scoper** | Zoom in (specialize to a concrete case) or zoom out (generalize to a broader class — Polya's Inventor's paradox: "the more ambitious plan may have more chances of success") |
 
 The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Each lens produces 0-2 concrete ideas with a paragraph summary grounded in survey findings.
 
@@ -61,19 +63,29 @@ Do NOT present critical questions yet — wait for the user to narrow down first
 
 **Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–6 critical questions tailored to the ideas. The question set must:
 
-1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice.").
-2. Draw the remaining questions from the critique lenses below, picking whichever are most relevant to the specific ideas:
+1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice."). This is routed to the Ideator.
+2. Draw the remaining questions from the critique lenses below, picking whichever are most relevant to the specific ideas. Each lens has a **when to use** guide and a **routes to** indicator.
 
-| Critique lens | Example question template |
-|---------------|--------------------------|
-| **Prior art** | "Has this been tried before? [cite survey entry if applicable]" |
-| **Assumption** | "What's the weakest assumption here?" |
-| **Impact** | "If this works perfectly, what's the actual improvement — 1% or 10x?" |
-| **Failure mode** | "What would need to be true for this to fail?" |
-| **Timing** | "Why hasn't this been addressed before — what changed recently?" |
-| **Feasibility** | "What's the minimal experiment that would validate this?" |
+**Ideator-routed** — user selection is relayed to the Ideator (creative/generative questions):
 
-The user selects which questions to dig into, or writes their own via "Other."
+| Critique lens | Example question template | When to use |
+|---------------|--------------------------|-------------|
+| **Feasibility** | "What's the minimal experiment that would validate this?" | Idea sounds promising but the path to validation is unclear |
+| **Success criteria** | "What observable outcome would constitute success?" | The idea's goal is vague — what does "solved" actually look like? |
+| **Impact** | "If this works perfectly, what's the actual improvement — 1% or 10x?" | Need to gauge ambition level — incremental vs. paradigm shift |
+| **Signs of progress** | "What intermediate result would justify continuing?" | Idea requires a long research arc — need milestones to avoid blind alleys |
+
+**Main-agent-routed** — main agent elaborates grounded in the survey (factual/analytical questions, shown only to user, not relayed to Ideator):
+
+| Critique lens | Example question template | When to use |
+|---------------|--------------------------|-------------|
+| **Prior art** | "Has this been tried before? [cite survey entry if applicable]" | Idea feels familiar — need to check for existing work |
+| **Assumption** | "What's the weakest assumption here?" | Idea rests on a claim that may not hold |
+| **Failure mode** | "What would need to be true for this to fail?" | Idea seems too good — stress-test adversarially |
+| **Timing** | "Why hasn't this been addressed before — what changed recently?" | Idea targets a long-standing problem — need to justify why now |
+| **Completeness** | "Are we overlooking data or constraints from the survey?" | Discussion has narrowed — check if we dropped something important |
+
+The user selects which questions to dig into, or writes their own via "Other" (custom questions are always routed to the Ideator).
 
 ### Step 2 — Conversation loop
 
@@ -95,9 +107,11 @@ The main agent must **never** send its own elaboration, critique, or directives 
 
 2. **Present ideas using the idea presentation rules** (defined in Step 1). If the Ideator returned > 3 ideas, list and let the user narrow down first. If ≤ 3, present with critical questions via `AskUserQuestion` (multiSelect) — always including one "Elaborate on _____ ." option.
 
-3. **Main agent elaborates on critique-lens questions** (prior art, assumption, impact, etc.) — provide a substantive response grounded in the survey. This elaboration is shown **only to the user**, not relayed to the Ideator.
+3. **Route by question type:**
+   - **Ideator-routed questions** ("Elaborate on _____", Feasibility, Success criteria, Impact, Signs of progress, custom "Other") → relay the user's selection to the Ideator. The Ideator responds creatively.
+   - **Main-agent-routed questions** (Prior art, Assumption, Failure mode, Timing, Completeness) → the main agent elaborates, grounded in the survey. This elaboration is shown **only to the user**, not relayed to the Ideator.
 
-4. **Relay all user selections to the Ideator** — pass the user's selected questions (including "Elaborate on _____"), any custom input, and any verbatim user feedback. The Ideator receives everything the user said, nothing the main agent said. Loop to 1.
+4. **Loop to 1** — pass all user feedback (selections + verbatim reactions) to the Ideator. The Ideator receives everything the user said, nothing the main agent said.
 
 The conversation continues until the user is ready to move on. When presenting multiple ideas, always offer these choices:
 
