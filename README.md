@@ -123,13 +123,12 @@ Each loop iteration saves intermediate artifacts. The final ideas report include
 ```
 articles/
   iteration-1/
-    ideas/           # Ideator output — idea reports with Polya development
-    critique/        # Critic output — report + counter-report pairs
-    SUMMARY.md       # AI Judge — ranked ideas table, epitaphs for killed ideas
+    report.md                                          # Ideas — comprehensive iteration report
   iteration-2/
     ...
-  YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}   # Refine — format chosen by user
-  YYYY-MM-DD-<topic>-references.bib                   # BibTeX references
+  YYYY-MM-DD-<topic>-ideas-report.md                   # Ideas — final report (input for writer)
+  YYYY-MM-DD-<topic>-ideas-report.{typ,tex}            # Writer — polished document
+  YYYY-MM-DD-<topic>-references.bib                    # BibTeX references
 ```
 
 ## Contributors

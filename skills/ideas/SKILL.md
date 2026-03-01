@@ -3,7 +3,7 @@ name: ideas
 description: Use when generating research ideas — runs three-agent concurrent conversation (Ideator proposes, Critic challenges, main agent mediates), then formal adversarial review, AI judge ranking, and user decision
 ---
 
-## Step 2 — Ideas
+## Ideas
 
 Three-agent concurrent ideation: the Ideator proposes, the Critic challenges, and the main agent mediates the conversation with the human. After the conversation, formal adversarial review kills or ranks ideas, then the user decides.
 
@@ -11,13 +11,13 @@ Three-agent concurrent ideation: the Ideator proposes, the Critic challenges, an
 
 | Agent | Role | Mode |
 |-------|------|------|
-| **Main agent** | Mediator — presents proposals and challenges, asks for user feedback | Foreground |
-| **Ideator** | Brainstorms questions, proposes new ideas, develops directions | Background subagent |
-| **Critic** | Reads literature, challenges ideas adversarially | Background subagent |
+| **Main agent** | Mediator — presents proposals and challenges, asks for user feedback, encourages deeper input | Foreground |
+| **Ideator** | Enthusiastic creative partner. Proposes ideas, asks probing questions, optionally uses creative lenses. Grounded in survey | Persistent (resumed via agent ID), foreground |
+| **Critic** | Harsh, professional, annoying. Pokes holes in everything with evidence. Does not hold back negative comments. User can address or ignore | Persistent (resumed via agent ID), foreground |
 
-The main agent does NOT generate ideas or critique. It relays, summarizes, and asks.
+The main agent does NOT generate ideas or critique. It relays, summarizes, and asks. Both subagents are persistent — they accumulate context via resume across the entire conversation.
 
-### Phase 0 — Load context
+### Step 0 — Load context
 
 **Survey registries:** Check for existing survey registries in both global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If registries exist, list them and ask the user which ones to load:
 
@@ -29,13 +29,13 @@ Read the selected `summary.md` and `references.bib` files to ground the ideas in
 
 > "I can build a personal registry from your Zotero/PDF folder/Google Scholar to calibrate suggestions. Want to do that now, or skip?"
 
-### Phase 1 — Open
+**Collect registry paths** for subagent launches. Both the Ideator and Critic need access to the survey data. When launching or resuming either subagent, include the file paths so they can read the files directly:
+- Survey registry paths: `<registry-root>/<topic>/summary.md` and `references.bib`
+- Personal registry path (if available): `<global-registry-root>/personal/summary.md`
 
-Present the survey highlights and suggest 2-3 promising directions. Then ask:
+### Step 1 — Open
 
-> `>>> Based on what we found, what directions interest you? Even a vague hunch is fine.`
-
-Launch the **Ideator** as a background subagent with the survey context. The Ideator may optionally use **creative lenses** when they fit the topic:
+Present the survey highlights. Launch the **Ideator** (foreground) with the registry file paths so it can read the survey context and generate initial ideas. The Ideator may optionally use **creative lenses** when they fit the topic:
 
 | Lens | Strategy | Search focus |
 |------|----------|-------------|
@@ -46,31 +46,45 @@ Launch the **Ideator** as a background subagent with the survey context. The Ide
 
 The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Each lens produces 0-2 concrete ideas with a paragraph summary grounded in survey findings.
 
-### Phase 2 — Concurrent conversation
+Present the Ideator's initial ideas to the user and ask:
 
-When the user mentions a direction or gives feedback:
+> `>>> Based on what we found, what directions interest you? Even a vague hunch is fine.`
 
-1. **Ideator** (background) develops it:
-   - Search for related methods and recent advances
-   - Connect to survey findings
-   - Propose concrete approaches and combinations
-   - Ask probing questions that open new angles
-   - Report ideas to main agent
+### Step 2 — Conversation loop
 
-2. **Critic** (background) challenges it:
-   - Check novelty against the survey (has this been tried?)
-   - Search for prior art and negative results
-   - Identify risks and prior failures
-   - Report challenges with evidence to main agent
+A sequential loop with a predictable rhythm: **ideas → user reacts → critique → user responds → repeat.**
 
-3. **Main agent** relays to the user:
-   - Present Ideator's proposals: "The Ideator suggests [idea] — it connects to [survey finding] because [reason]."
-   - Present Critic's challenges: "The Critic found [paper X] tried something similar and hit [problem]. What's different about your angle?"
-   - Ask for the user's opinion: "Given this critique, do you want to refine this idea, pivot, or move on?"
+Both subagents are persistent — resumed with their agent ID on each turn, accumulating full context across the conversation. On each resume, the main agent sends:
+- Latest user feedback/reaction
+- What the other subagent said (so they stay informed of each other)
+- Any user decisions (e.g., "user ignored your critique of idea 3")
+- Directive for what to do next
+
+**The loop:**
+
+1. **Resume Ideator** (foreground) with all context (user feedback, Critic's previous points, current direction).
+   - Ideator searches for related methods and recent advances
+   - Connects to survey findings
+   - Proposes concrete approaches and combinations
+   - Asks probing questions that open new angles
+   - Main agent presents Ideator's ideas to user
+
+2. **User reacts** — provides feedback, direction, or new thoughts. Main agent encourages deeper input: ask follow-up questions, invite the user to think more.
+
+3. **Resume Critic** (foreground) with ideas + user's reaction.
+   - Critic checks novelty against the survey (has this been tried?)
+   - Searches for prior art and negative results
+   - Identifies risks and prior failures
+   - Delivers harsh but evidence-backed critique
+   - Main agent presents Critic's challenges. User can address or ignore.
+
+4. **User responds** to critique (or ignores it). Main agent notes the user's decision.
+
+5. **Loop to 1** with full accumulated context.
 
 The conversation continues until the user settles on 1-3 directions or says they're done.
 
-### Phase 3 — Develop
+### Step 3 — Develop
 
 Collect all surviving ideas (human-seeded, Ideator-proposed, lens outputs). The Ideator fills in **Polya criteria** for each:
 
@@ -82,9 +96,7 @@ Collect all surviving ideas (human-seeded, Ideator-proposed, lens outputs). The 
 
 Present all developed ideas as a single numbered list with Polya analysis filled in.
 
-Save to `articles/iteration-N/ideas/`.
-
-### Phase 4 — Formal critique
+### Step 4 — Formal critique and ranking
 
 The Critic runs a full adversarial review on each developed idea. Try to kill each idea with evidence — Ideator ideas and human ideas alike. Whatever survives is worth pursuing.
 
@@ -110,13 +122,7 @@ The Critic runs a full adversarial review on each developed idea. Try to kill ea
 - Never assert novelty judgments — present evidence, let user evaluate.
 - Always preserve pivot path — show what's salvageable when critique kills an idea.
 
-Present critiques to the user and ask for their opinion before proceeding to judgment.
-
-**Output:** Each idea has a report + counter-report pair. Save to `articles/iteration-N/critique/`.
-
-### Phase 5 — AI Judge
-
-Read all report/counter-report pairs from Phase 4 and make hard calls.
+**After the review, make hard calls:**
 
 - **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died. If all ideas are killed, report what was learned, suggest new angles, and ask the user whether to loop back to survey with adjusted strategies
 - **Rank** survivors by: novelty, impact, viability
@@ -128,30 +134,32 @@ Read all report/counter-report pairs from Phase 4 and make hard calls.
 | 2 | ... | High | Medium | High | Prior art Y | Alive |
 | 3 | ... | Medium | High | Low | Killed by Z | Dead |
 
-Save synthesis to `articles/iteration-N/SUMMARY.md`.
 
-### Phase 6 — User Judge
+### Step 5 — User Judge
 
 Present the ranked results. Ask **one question:**
 
 "Which direction interests you?"
 
-- **(a)** Pick one and write the proposal — exit loop, proceed to Refine
+- **(a)** Pick one and write a report — generate a markdown summary and exit
 - **(b)** Pick one and go deeper — loop back to Survey with narrowed scope
 - **(c)** None of these, explore differently — loop back to Survey with new angle from user
 
 Analyze the user's feedback to understand their reasoning before proceeding.
 
+**For (a):** Generate a comprehensive markdown report to `articles/YYYY-MM-DD-<topic>-ideas-report.md` covering:
+
+- **Research question** — one sentence
+- **Field landscape** — key papers, sub-themes, open problems, bottlenecks (from survey)
+- **All ideas explored** — each idea with its Polya criteria (what's new, why now, methodology, minimal experiment, key risk)
+- **Critique and ranking** — 4-axis ratings, evidence-backed challenges, ranked table
+- **Killed ideas** — epitaphs explaining why each died
+- **Surviving ideas** — what survived and why
+- **Chosen direction** — the user's pick with reasoning
+- **Key references** — full citation list with BibTeX keys
+
+This single file should contain everything the writer skill needs to produce a polished document. Then suggest: "For a polished document (Typst/LaTeX), run `/writer`."
+
 ### Loop Handoff (between iterations)
 
-When the user chooses to go deeper or explore a new angle (options b/c), run this before starting the next iteration:
-
-**1. Save iteration summary** to `articles/iteration-N/ITERATION-SUMMARY.md`:
-
-- Research question as understood at this point
-- Key findings from the survey (with file references to saved reports)
-- Ideas generated — which survived, which were killed and why
-- User feedback and chosen direction
-- What to explore next and why
-
-**2. Compact the conversation** if it is getting long: summarize the conversation so far, then compact or trim context to free space for the next iteration (e.g., `/compact` in Claude Code). The saved files in `articles/iteration-N/` serve as the durable record — re-read them as needed in the next iteration rather than relying on conversation history.
+When the user chooses to go deeper or explore a new angle (options b/c), save an iteration report to `articles/iteration-N/report.md` with the same structure as above. Then clear the conversation context (e.g., `/compact` in Claude Code) and re-read the iteration report before starting the next iteration.

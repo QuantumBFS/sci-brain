@@ -25,14 +25,14 @@
   node((0, 0), box(width: w, align(center, text(fill: bk, size: s)[*User states idea*])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <idea>),
 
-  node((1, 0), box(width: w, align(center, text(fill: bk, size: s)[*Step 0: Background*\ #text(size: sm)[Zotero / Scholar lookup]])),
+  node((1, 0), box(width: w, align(center, text(fill: bk, size: s)[*Background*\ #text(size: sm)[Zotero / Scholar lookup]])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <background>),
 
   node((2, 0), box(width: w, align(center, text(fill: bk, size: s)[*Clarify*\ multiple choice Q])),
     fill: bk-fill, stroke: 1pt + bk-stroke, corner-radius: 4pt, inset: 5pt, name: <clarify>),
 
   node((3, 0), box(width: w, align(left, text(fill: bk, size: s)[
-    *Step 1: Survey*\
+    *Survey*\
     #text(size: sm)[#sym.bullet Landscape #sym.bullet Adjacent\
     #sym.bullet Cross-vocabulary\
     #sym.bullet Cross-method\
@@ -41,9 +41,9 @@
   ])),
     fill: survey-fill, stroke: 1pt + survey-stroke, corner-radius: 4pt, inset: 5pt, name: <survey>),
 
-  // Row 1: Step 2 — Ideas (expanded, spans columns 1-3)
+  // Row 1: Ideas (expanded, spans columns 1-3)
   node((1.5, 1), box(width: 320pt, align(left, text(fill: bk, size: s)[
-    *Step 2: Ideas*\
+    *Ideas*\
     #text(size: sm)[
       *Ideator* (background): proposals, lenses, Polya development\
       *Critic* (background): novelty check, source verification, formal review\
