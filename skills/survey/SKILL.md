@@ -72,8 +72,8 @@ After the survey registry is built, ask:
 
 > "Survey complete. What next?"
 > - **(a)** Deeper survey — survey a specific subtopic and add results to this registry (user types the subtopic, then go back to Step 2)
-> - **(b)** Ideas — continue to ideation in the current session
-> - **(c)** Clear context and ideate — compact the conversation first (frees context for longer ideation), then continue to ideas step
+> - **(b)** Ideas — continue to ideation (brainstorming, critique, and ranking) in the current session
+> - **(c)** Clear context and ideate — compact the conversation first (frees context for longer ideation), then continue
 > - **(d)** Stop here — keep the survey registry, end the session
 
 For **(a)**: use the user's subtopic as the new query, go back to Step 2 (pick strategies & search). Append new references to the existing `references.bib` and update `summary.md` with the new findings.

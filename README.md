@@ -1,6 +1,6 @@
 # sci-brainstorm
 
-A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey, ideation, and adversarial critique in a loop until the user picks a direction, then produces a research plan.
+A structured scientific research brainstorming workflow for AI coding assistants. Iterates through survey and ideation (with built-in adversarial critique) in a loop until the user picks a direction, then produces a research plan.
 
 This brainstorming style incorporates strategic research questioning and problem-solving wisdom from Polya's *How to Solve It*. The skill format is inspired by [superpowers](https://github.com/obra/superpowers).
 
@@ -123,9 +123,9 @@ Each loop iteration saves intermediate artifacts. The final ideas report include
 ```
 articles/
   iteration-1/
-    ideas/           # Step 2 — idea reports per lens
-    critique/        # Step 3 — report + counter-report pairs
-    SUMMARY.md       # Step 4 — ranked ideas table, epitaphs for killed ideas
+    ideas/           # Ideator output — idea reports with Polya development
+    critique/        # Critic output — report + counter-report pairs
+    SUMMARY.md       # AI Judge — ranked ideas table, epitaphs for killed ideas
   iteration-2/
     ...
   YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}   # Refine — format chosen by user

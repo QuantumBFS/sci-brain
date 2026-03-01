@@ -26,13 +26,13 @@ Structure (draft each section, show, get feedback):
 - **Key Bottleneck** — the specific bottleneck this work addresses
 - **Survey Trail** — what strategies were used per iteration, what was discovered, what shifted our understanding
 - **Ideas Explored** — all ideas generated (human + AI), with the reasoning behind each
-- **Ideas Killed** — which ideas were eliminated, the evidence and critique that killed them (epitaphs from Step 4)
+- **Ideas Killed** — which ideas were eliminated, the evidence and critique that killed them (epitaphs from the AI Judge phase)
 - **Ideas Survived** — which ideas survived critique and why
 
 *Part 2 — The chosen direction:*
 
 - **Research Question** — one sentence
-- **Novelty Claim** — what's new (survived critique in Step 3)
+- **Novelty Claim** — what's new (survived formal critique)
 - **Why Now, Why You** — what changed to make this tractable; unique advantage
 - **Cross-field Connections** — unexpected links from cross-vocabulary / transplanter strategies
 - **Proposed Approach** — method outline (Polya: what is the plan?)

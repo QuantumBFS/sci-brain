@@ -1,13 +1,23 @@
 ---
 name: ideas
-description: Use when generating research ideas from a survey report — runs a concurrent conversation where the main agent suggests directions while background agents analyze and develop ideas
+description: Use when generating research ideas — runs three-agent concurrent conversation (Ideator proposes, Critic challenges, main agent mediates), then formal adversarial review, AI judge ranking, and user decision
 ---
 
 ## Step 2 — Ideas
 
-A concurrent conversation: the main agent explores ideas with the human while background agents do real-time research. The human provides creative direction; the AI does the analytical heavy lifting.
+Three-agent concurrent ideation: the Ideator proposes, the Critic challenges, and the main agent mediates the conversation with the human. After the conversation, formal adversarial review kills or ranks ideas, then the user decides.
 
-**Phase 0 — Load context.**
+### Agents
+
+| Agent | Role | Mode |
+|-------|------|------|
+| **Main agent** | Mediator — presents proposals and challenges, asks for user feedback | Foreground |
+| **Ideator** | Brainstorms questions, proposes new ideas, develops directions | Background subagent |
+| **Critic** | Reads literature, challenges ideas adversarially | Background subagent |
+
+The main agent does NOT generate ideas or critique. It relays, summarizes, and asks.
+
+### Phase 0 — Load context
 
 **Survey registries:** Check for existing survey registries in both global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If registries exist, list them and ask the user which ones to load:
 
@@ -19,13 +29,13 @@ Read the selected `summary.md` and `references.bib` files to ground the ideas in
 
 > "I can build a personal registry from your Zotero/PDF folder/Google Scholar to calibrate suggestions. Want to do that now, or skip?"
 
-**Phase 1 — Open.**
+### Phase 1 — Open
 
-Present the survey highlights and suggest 2-3 promising directions from the findings. Then ask:
+Present the survey highlights and suggest 2-3 promising directions. Then ask:
 
 > `>>> Based on what we found, what directions interest you? Even a vague hunch is fine.`
 
-At the same time, launch the **creative lenses** as background subagents (they only need the survey, not the human's input):
+Launch the **Ideator** as a background subagent with the survey context. The Ideator may optionally use **creative lenses** when they fit the topic:
 
 | Lens | Strategy | Search focus |
 |------|----------|-------------|
@@ -34,33 +44,35 @@ At the same time, launch the **creative lenses** as background subagents (they o
 | **Transplanter** | Apply a method from field A to problem B | Search field A for concrete methods and their results |
 | **Bottleneck-breaker** | Directly attack the identified bottleneck | Search for recent tools, techniques, or compute advances that could break it |
 
-Each lens produces 0-2 concrete ideas with a paragraph summary explaining why it is interesting and why it might work, grounded in survey findings.
+The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Each lens produces 0-2 concrete ideas with a paragraph summary grounded in survey findings.
 
-**Phase 2 — Concurrent conversation.**
+### Phase 2 — Concurrent conversation
 
-As soon as the human mentions a direction:
+When the user mentions a direction or gives feedback:
 
-1. **Launch background subagents** to analyze what the human said:
-   - Check novelty against the survey (has this been tried?)
+1. **Ideator** (background) develops it:
    - Search for related methods and recent advances
-   - Identify what would make this tractable now
-   - Find potential risks or prior failures
+   - Connect to survey findings
+   - Propose concrete approaches and combinations
+   - Ask probing questions that open new angles
+   - Report ideas to main agent
 
-2. **Main agent keeps the conversation going** — don't wait for background results. Instead of drilling the human with questions, **actively suggest directions**:
-   - Connect human instincts to survey findings: "That connects to [paper X] which found [Y] — could that method apply here?"
-   - Propose angles: "The survey showed [bottleneck Z] is the main obstacle. What if we attacked it with [method from field A]?"
-   - Challenge gently when needed: "That's interesting, but [paper X] tried something similar and hit [problem]. What would be different this time?"
+2. **Critic** (background) challenges it:
+   - Check novelty against the survey (has this been tried?)
+   - Search for prior art and negative results
+   - Identify risks and prior failures
+   - Report challenges with evidence to main agent
 
-3. **When background results arrive**, integrate them naturally:
-   - "I just checked — [paper] tried something similar but [key difference]. That actually supports your angle because [reason]."
-   - "Novelty check: I couldn't find prior work combining [X] and [Y] — that's genuinely new territory."
-   - "One risk: [paper] showed that [assumption] breaks down when [condition]. Worth keeping in mind."
+3. **Main agent** relays to the user:
+   - Present Ideator's proposals: "The Ideator suggests [idea] — it connects to [survey finding] because [reason]."
+   - Present Critic's challenges: "The Critic found [paper X] tried something similar and hit [problem]. What's different about your angle?"
+   - Ask for the user's opinion: "Given this critique, do you want to refine this idea, pivot, or move on?"
 
-The conversation continues until the human settles on 1-3 directions or says they're done. The main agent should be an active collaborator — suggesting, connecting, challenging — not an interviewer drilling questions.
+The conversation continues until the user settles on 1-3 directions or says they're done.
 
-**Phase 3 — Develop and present.**
+### Phase 3 — Develop
 
-Once the human is done, collect all ideas (human-seeded, AI-suggested during conversation, and creative lens outputs). Run subagents to fill in **Polya criteria** for each idea:
+Collect all surviving ideas (human-seeded, Ideator-proposed, lens outputs). The Ideator fills in **Polya criteria** for each:
 
 - **What's new?** — verify novelty claim against survey
 - **Why now?** — identify recent enablers (new data, methods, compute, theory)
@@ -68,6 +80,78 @@ Once the human is done, collect all ideas (human-seeded, AI-suggested during con
 - **Minimal experiment** — smallest test that validates the core claim
 - **Key risk** — weakest assumption
 
-Present all developed ideas as a single numbered list. Each idea should have its Polya analysis filled in so the human can compare them on substance, not just vibes.
+Present all developed ideas as a single numbered list with Polya analysis filled in.
 
-Save ideas reports to `articles/iteration-N/ideas/`.
+Save to `articles/iteration-N/ideas/`.
+
+### Phase 4 — Formal critique
+
+The Critic runs a full adversarial review on each developed idea. Try to kill each idea with evidence — Ideator ideas and human ideas alike. Whatever survives is worth pursuing.
+
+**Each idea is paired with a devil's advocate analysis that:**
+
+- Searches for prior art via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
+- **Verifies key references** — identify load-bearing references (not every citation). Fetch the full PDF if needed. Check that papers exist and cited claims match actual content. Flag misrepresentations
+- Identifies the weakest assumption
+- Estimates feasibility (what would it actually take?)
+- Rates on four axes:
+
+| Axis | Challenge |
+|------|-----------|
+| **Source reliability** | "Which references does this idea stand or fall on? Do those key papers actually claim what's stated?" |
+| **Novelty** | "I found [paper X] very similar. How is this different?" |
+| **Rigor** | "State the core claim as a testable hypothesis." |
+| **Impact** | "If this works perfectly, what improvement? Enough for [venue]?" |
+
+**Evidence-backed critique:** Every critique claim must be supported by a search or a concrete argument. No unsupported opinions — critique without evidence is just noise.
+
+**Guardrails:**
+- Never fabricate citations — only present what tools actually found.
+- Never assert novelty judgments — present evidence, let user evaluate.
+- Always preserve pivot path — show what's salvageable when critique kills an idea.
+
+Present critiques to the user and ask for their opinion before proceeding to judgment.
+
+**Output:** Each idea has a report + counter-report pair. Save to `articles/iteration-N/critique/`.
+
+### Phase 5 — AI Judge
+
+Read all report/counter-report pairs from Phase 4 and make hard calls.
+
+- **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died. If all ideas are killed, report what was learned, suggest new angles, and ask the user whether to loop back to survey with adjusted strategies
+- **Rank** survivors by: novelty, impact, viability
+- **Present** a ranked table to the user
+
+| # | Idea | Novelty | Impact | Viability | Key risk | Status |
+|---|------|---------|--------|-----------|----------|--------|
+| 1 | ... | High | High | Medium | Needs X | Alive |
+| 2 | ... | High | Medium | High | Prior art Y | Alive |
+| 3 | ... | Medium | High | Low | Killed by Z | Dead |
+
+Save synthesis to `articles/iteration-N/SUMMARY.md`.
+
+### Phase 6 — User Judge
+
+Present the ranked results. Ask **one question:**
+
+"Which direction interests you?"
+
+- **(a)** Pick one and write the proposal — exit loop, proceed to Refine
+- **(b)** Pick one and go deeper — loop back to Survey with narrowed scope
+- **(c)** None of these, explore differently — loop back to Survey with new angle from user
+
+Analyze the user's feedback to understand their reasoning before proceeding.
+
+### Loop Handoff (between iterations)
+
+When the user chooses to go deeper or explore a new angle (options b/c), run this before starting the next iteration:
+
+**1. Save iteration summary** to `articles/iteration-N/ITERATION-SUMMARY.md`:
+
+- Research question as understood at this point
+- Key findings from the survey (with file references to saved reports)
+- Ideas generated — which survived, which were killed and why
+- User feedback and chosen direction
+- What to explore next and why
+
+**2. Compact the conversation** if it is getting long: summarize the conversation so far, then compact or trim context to free space for the next iteration (e.g., `/compact` in Claude Code). The saved files in `articles/iteration-N/` serve as the durable record — re-read them as needed in the next iteration rather than relying on conversation history.
