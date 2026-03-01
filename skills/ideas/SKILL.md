@@ -14,7 +14,7 @@ Two-agent ideation: the Ideator proposes, the main agent challenges with Polya-s
 | **Main agent** | Presents Ideator's proposals, raises Polya-style critical questions, asks for user feedback, encourages deeper input | Foreground |
 | **Ideator** | Enthusiastic creative partner. Proposes ideas, asks probing questions, optionally uses creative lenses. Grounded in survey | Persistent (resumed via agent ID), foreground |
 
-The main agent does NOT generate ideas itself. It presents the Ideator's output, raises critical questions for the user to consider, and relays the user's feedback back to the Ideator. The Ideator is persistent — it accumulates context via resume across the entire conversation.
+The main agent does NOT generate ideas itself. It presents the Ideator's output, raises critical questions for the user to consider, and relays **only the user's feedback** back to the Ideator — never the main agent's own elaboration, critique, or directives. The Ideator is persistent — it accumulates context via resume across the entire conversation and responds purely based on what the user said.
 
 ### Step 0 — Load context
 
@@ -59,7 +59,7 @@ Apply these rules whenever presenting the Ideator's ideas (Step 1 or Step 2):
 
 Do NOT present critical questions yet — wait for the user to narrow down first.
 
-**Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–4 critical questions tailored to the ideas. The question set must:
+**Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–6 critical questions tailored to the ideas. The question set must:
 
 1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice.").
 2. Draw the remaining questions from the critique lenses below, picking whichever are most relevant to the specific ideas:
@@ -79,24 +79,25 @@ The user selects which questions to dig into, or writes their own via "Other."
 
 A loop: **Ideator proposes → main agent presents ideas with critical questions → user responds → repeat.**
 
-The Ideator is persistent — resumed with its agent ID on each turn, accumulating full context. On each resume, the main agent sends:
-- Latest user feedback/reaction
-- Which critical questions the user engaged with or ignored
-- Directive for what to do next
+The Ideator is persistent — resumed with its agent ID on each turn, accumulating full context. **Information boundary:** on each resume, the main agent sends **only** user-originated content:
+- The user's verbatim feedback/reaction
+- Which critical questions the user selected (or the user's custom question)
+
+The main agent must **never** send its own elaboration, critique, or directives to the Ideator. The Ideator responds purely based on the user's input.
 
 **The loop:**
 
-1. **Resume Ideator** (foreground) with all context (user feedback, current direction).
+1. **Resume Ideator** (foreground) with user feedback only.
    - Grounds ideas in survey findings and personal registry — no web search by default
    - Only searches the web when the user's direction goes beyond the loaded survey data
    - Proposes concrete approaches and combinations
    - Asks probing questions that open new angles
 
-2. **Present ideas using the idea presentation rules** (defined in Step 1). If the Ideator returned > 3 ideas, list and let the user narrow down first. If ≤ 3, present with critical questions via `AskUserQuestion` (multiSelect) — always including one "Elaborate on _____ ." option. The user's selections (and any custom question) determine which challenges the main agent elaborates on and relays to the Ideator.
+2. **Present ideas using the idea presentation rules** (defined in Step 1). If the Ideator returned > 3 ideas, list and let the user narrow down first. If ≤ 3, present with critical questions via `AskUserQuestion` (multiSelect) — always including one "Elaborate on _____ ." option.
 
-3. **Main agent elaborates on selected questions** — provide a substantive response to each question the user picked, grounded in the survey. Then relay the user's selections and any custom question back to the Ideator.
+3. **Main agent elaborates on critique-lens questions** (prior art, assumption, impact, etc.) — provide a substantive response grounded in the survey. This elaboration is shown **only to the user**, not relayed to the Ideator.
 
-4. **Loop to 1** with full accumulated context.
+4. **Relay all user selections to the Ideator** — pass the user's selected questions (including "Elaborate on _____"), any custom input, and any verbatim user feedback. The Ideator receives everything the user said, nothing the main agent said. Loop to 1.
 
 The conversation continues until the user is ready to move on. When presenting multiple ideas, always offer these choices:
 
