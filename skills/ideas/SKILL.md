@@ -70,13 +70,13 @@ Present the Ideator's initial ideas using the **idea presentation rules** (see b
 
 Apply these rules whenever presenting the Ideator's ideas (Step 1 or Step 2):
 
-**Long list (> 2 ideas):** Number them `1, 2, 3 …` with a one-line summary each. Then ask:
+Number all ideas `1, 2, 3 …` with a one-line summary each. Then ask:
 
-> "Please select 1-2 directions to explore further."
+> "Please select one direction to explore."
 
-Do NOT present critical questions yet — wait for the user to narrow down to 1-2 ideas first. Once narrowed, enter the conversation loop (Step 2) with critical questions.
+The main agent **memorizes the remaining ideas**. Enter the conversation loop (Step 2) focusing on the selected idea only. If this idea dies during critique, present the remaining ideas again and let the user pick another.
 
-**Short list (≤ 2 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 2–5 critical questions tailored to the ideas. The question set must:
+Once an idea is selected, present it with a paragraph summary and use `AskUserQuestion` (multiSelect) to offer 2–5 critical questions. The question set must:
 
 1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice."). This is routed to the Ideator.
 2. Always include one **"I'm ready — let's write up one of these ideas"** option — if the user selects this, proceed to Step 3 (Develop) → Step 4 (Formal critique).
