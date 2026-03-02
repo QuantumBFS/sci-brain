@@ -40,21 +40,46 @@ This only needs to be asked once per session. If a registry already exists at th
 
 When presenting to the user, briefly explain why you recommend each strategy for their specific topic (e.g., "Cross-vocabulary recommended because your problem — buffering stochastic supply — appears in operations research and hydrology too").
 
-Each subagent produces a short **findings report** — key papers found, grouped by sub-theme, with titles and one-line descriptions. No BibTeX yet.
+Each subagent produces a short **findings report** — key papers found, grouped by sub-theme, with titles and one-line descriptions. No BibTeX yet. **Important:** subagents must also collect the DOI and arXiv ID for each paper when visible in search results (e.g., DOIs from publisher URLs, arXiv IDs from arxiv.org links like `2401.12345`). Record these alongside titles in the findings report.
 
-**Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one) and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I build a literature registry for? Pick one or more." The user can select multiple.
+**Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one), **preserve any DOIs and arXiv IDs collected** during Step 2, and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I build a literature registry for? Pick one or more." The user can select multiple.
 
-**Step 4 — Build registry.** For the selected directions only, generate the full BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source. Use the following lookup chain (in priority order):
+**Step 4 — Build registry.** For the selected directions only, generate the full BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source.
 
-1. **CrossRef API** (gold standard for DOI-based lookup) — `curl -sL -H "Accept: application/x-bibtex" "https://doi.org/{DOI}"` returns BibTeX directly, no auth needed. Use `WebFetch` if `curl` is blocked.
-2. **Semantic Scholar API** — `https://api.semanticscholar.org/graph/v1/paper/DOI:{DOI}?fields=title,authors,year,journal,abstract,externalIds,citationStyles` returns structured metadata. Also supports title search: `https://api.semanticscholar.org/graph/v1/paper/search?query={title}&fields=...`
-3. **MCP servers** (if configured):
-   - **arxiv MCP** — search for the paper, get abstract and arxiv ID
-   - **paper-search-mcp** — PubMed, bioRxiv, CrossRef
-   - **Semantic Scholar MCP** — citation metadata, abstract, DOI
-4. **WebFetch on publisher page** (fallback) — fetch the paper's landing page and extract metadata. Less reliable but works when APIs are blocked.
+First, **pre-sort papers** from Step 3 into two groups based on whether a DOI or arXiv ID was collected during Steps 2-3:
 
-If all API methods fail (e.g., network restrictions), BibTeX may be constructed from WebSearch results but **must** flag unverified fields with a comment `% unverified`.
+- **ID-known papers** — papers where a DOI or arXiv ID was found in search results
+- **ID-unknown papers** — papers where neither was found
+
+**arxiv MCP fast path:** If an arxiv MCP server with `export_papers` is configured (e.g., `anuj0456/arxiv-mcp-server`), check which papers have arXiv IDs (from `externalIds` or arXiv URLs collected in Steps 2-3). Batch-export those via `export_papers(arxiv_ids, format="bibtex", include_abstract=True)` before launching the subagents below, and remove them from the DOI-known/unknown lists.
+
+Then launch **two subagents in parallel**, one per group:
+
+**Subagent A — ID-known papers (batch lookup):**
+
+1. Make a single batch call to the Semantic Scholar API:
+   ```
+   POST https://api.semanticscholar.org/graph/v1/paper/batch?fields=title,authors,year,journal,abstract,externalIds,citationStyles
+   Body: {"ids": ["DOI:10.xxxx/yyyy", "ARXIV:2401.12345", ...]}
+   ```
+   Use `DOI:` prefix for DOIs, `ARXIV:` prefix for arXiv IDs. Returns BibTeX (via `citationStyles.bibtex`), abstract, and DOI for all papers in one request (up to 500).
+2. **Enrich each BibTeX entry** — the `citationStyles.bibtex` field does not include `abstract` or `doi`. Inject these from the response's `abstract` and `externalIds.DOI` fields into each BibTeX string.
+3. For any papers that return `null` from the batch call (ID not found in Semantic Scholar), fall back to **CrossRef API**: `curl -sL -H "Accept: application/x-bibtex" "https://doi.org/{DOI}"` (DOI-only). Then fetch the abstract separately from Semantic Scholar by title match or from the publisher page via WebFetch.
+
+**Subagent B — ID-unknown papers (sequential title match):**
+
+1. For each paper, call the Semantic Scholar title-match endpoint:
+   ```
+   GET https://api.semanticscholar.org/graph/v1/paper/search/match?query={URL-encoded title}&fields=title,authors,year,journal,abstract,externalIds,citationStyles
+   ```
+   This returns the best-matching paper with BibTeX and metadata. **Enrich the BibTeX** with `abstract` and `doi`/`url` as above. Rate limit: ~1 request/second for unauthenticated access — add a short delay between calls.
+2. If the match endpoint fails or returns a poor match (title mismatch), fall back to:
+   - **MCP servers** (if configured): arxiv MCP, paper-search-mcp, Semantic Scholar MCP
+   - **CrossRef API** title search: `https://api.crossref.org/works?query.bibliographic={title}&rows=1`
+   - **WebFetch on publisher page** — fetch the paper's landing page and extract metadata
+3. If all methods fail, BibTeX may be constructed from WebSearch results but **must** flag unverified fields with a comment `% unverified`.
+
+After both subagents complete, **merge their results** into the final registry files.
 
 If the survey reveals the idea is already published, present the prior art and ask the user if they see a different angle before proceeding.
 
