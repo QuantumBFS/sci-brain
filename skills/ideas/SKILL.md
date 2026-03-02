@@ -29,15 +29,18 @@ The main agent does NOT generate ideas or answer questions itself. It presents t
 
 ### Step 0 — Load context
 
-**Survey registries:** Check for existing survey registries in both global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If registries exist, list them and ask the user which ones to load:
+**Survey registries:** Check for existing survey registries in both global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). Also check for a personal registry at the global registry path (e.g., `~/.claude/survey/personal/`) and in `CLAUDE.md`/`AGENTS.md`.
 
-> "I found these survey registries. Which ones should I use for ideation? Pick one or more."
+Present a single question listing all available registries plus the option to build a personal one:
 
-Read the selected `summary.md` and `references.bib` files to ground the ideas in prior survey work. If no registries exist, skip this.
+> "Which registries should I use for ideation? Pick one or more."
+> - Any existing survey registries found (listed by topic name)
+> - Any existing personal registry (if found)
+> - **Build personal registry** — index your Zotero library, PDF folder, or Google Scholar profile (always shown if no personal registry exists)
 
-**Personal registry:** Check for an existing personal registry at the global registry path (e.g., `~/.claude/survey/personal/`). Also check `CLAUDE.md`/`AGENTS.md` for a configured registry path. If found, read `summary.md` to understand the user's research background and calibrate suggestions. If not found, offer:
+Read the selected `summary.md` and `references.bib` files to ground the ideas in prior survey work. If the user picks "Build personal registry", run the `researchstyle` skill first, then continue.
 
-> "I can build a personal registry from your Zotero/PDF folder/Google Scholar to calibrate suggestions. Want to do that now, or skip?"
+If a personal registry is loaded, read `summary.md` to understand the user's research background and calibrate suggestions.
 
 **Collect registry paths** for the Ideator. When launching or resuming the Ideator, include the file paths so it can read the files directly:
 - Survey registry paths: `<registry-root>/<topic>/summary.md` and `references.bib`
