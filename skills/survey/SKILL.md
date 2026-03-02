@@ -64,20 +64,18 @@ Then launch **two subagents in parallel**, one per group:
    ```
    Use `DOI:` prefix for DOIs, `ARXIV:` prefix for arXiv IDs. Returns BibTeX (via `citationStyles.bibtex`), abstract, and DOI for all papers in one request (up to 500).
 2. **Enrich each BibTeX entry** — the `citationStyles.bibtex` field does not include `abstract` or `doi`. Inject these from the response's `abstract` and `externalIds.DOI` fields into each BibTeX string.
-3. For any papers that return `null` from the batch call (ID not found in Semantic Scholar), fall back to **CrossRef API**: `curl -sL -H "Accept: application/x-bibtex" "https://doi.org/{DOI}"` (DOI-only). Then fetch the abstract separately from Semantic Scholar by title match or from the publisher page via WebFetch.
+3. For any papers that return `null` from the batch call, the agent should pick the single most effective method for each paper and try that (e.g., CrossRef for DOI-only papers, title match for others).
 
-**Subagent B — ID-unknown papers (sequential title match):**
+**Subagent B — ID-unknown papers (title-based lookup):**
 
-1. For each paper, call the Semantic Scholar title-match endpoint:
-   ```
-   GET https://api.semanticscholar.org/graph/v1/paper/search/match?query={URL-encoded title}&fields=title,authors,year,journal,abstract,externalIds,citationStyles
-   ```
-   This returns the best-matching paper with BibTeX and metadata. **Enrich the BibTeX** with `abstract` and `doi`/`url` as above. Rate limit: ~1 request/second for unauthenticated access — add a short delay between calls.
-2. If the match endpoint fails or returns a poor match (title mismatch), fall back to:
-   - **MCP servers** (if configured): arxiv MCP, paper-search-mcp, Semantic Scholar MCP
-   - **CrossRef API** title search: `https://api.crossref.org/works?query.bibliographic={title}&rows=1`
-   - **WebFetch on publisher page** — fetch the paper's landing page and extract metadata
-3. If all methods fail, BibTeX may be constructed from WebSearch results but **must** flag unverified fields with a comment `% unverified`.
+For each paper, the agent picks the single most effective lookup method based on available context (e.g., publisher, field, available MCP servers). Available methods:
+
+- **Semantic Scholar title match** — `GET https://api.semanticscholar.org/graph/v1/paper/search/match?query={title}&fields=title,authors,year,journal,abstract,externalIds,citationStyles` (rate limit: ~1 req/s unauthenticated)
+- **CrossRef title search** — `https://api.crossref.org/works?query.bibliographic={title}&rows=1`
+- **MCP servers** (if configured): arxiv MCP, paper-search-mcp, Semantic Scholar MCP
+- **WebFetch on publisher page** — extract metadata from the paper's landing page
+
+**Enrich the BibTeX** with `abstract` and `doi`/`url` if missing. If the chosen method fails, try one alternative. If that also fails, BibTeX may be constructed from WebSearch results but **must** flag unverified fields with `% unverified`.
 
 After both subagents complete, **merge their results** into the final registry files.
 
