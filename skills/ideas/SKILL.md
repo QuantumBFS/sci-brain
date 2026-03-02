@@ -21,10 +21,11 @@ The main agent does NOT generate ideas or answer questions itself. It presents t
 1. **Always propose a new angle.** Every Ideator response must end with at least one fresh direction, twist, or refinement — regardless of what question was asked. Answering a feasibility question? Still propose a new angle. Discussing prior art? Still suggest where to go next. The conversation must always move forward.
 2. **Never ask questions.** The Ideator only proposes and explains. It does not ask the user questions or request clarification. If the Ideator needs to surface a choice, it proposes multiple concrete options instead of asking an open-ended question.
 3. **If an idea dies, propose pivots.** When critique or analysis kills an idea, the Ideator must propose 1-2 concrete pivots — salvageable directions or related ideas that survive the critique. Dead ends become forks, not stops.
+4. **Format for direct display.** The main agent shows the Ideator's output verbatim — so format concisely: **idea name → one-sentence summary → key reason/insight** for each idea. No verbose reasoning or internal framing.
 
 **Main agent presentation rules:**
 
-1. **Rewrite, don't relay.** The main agent never dumps the Ideator's raw output. It restructures the content into a concise, user-friendly format: **idea name → one-sentence summary → key reason/insight** for each idea or angle. Strip verbose reasoning, redundant context, and Ideator-internal framing.
+1. **Show verbatim, don't rewrite.** Display the Ideator's output directly. The main agent only appends critical questions via `AskUserQuestion`.
 2. **Always offer options.** Every presentation must end with clear next actions for the user (via `AskUserQuestion` or numbered choices). Never leave the user without a clear next action.
 
 ### Step 0 — Load context
