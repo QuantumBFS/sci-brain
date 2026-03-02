@@ -74,7 +74,7 @@ Number all ideas `1, 2, 3 …` with a one-line summary each. Then ask:
 
 > "Please select one direction to explore."
 
-The main agent **memorizes the remaining ideas**. Enter the conversation loop (Step 2) focusing on the selected idea only. If this idea dies during critique, present the remaining ideas again and let the user pick another.
+Enter the conversation loop (Step 2) focusing on the selected idea only.
 
 Once an idea is selected, present it with a paragraph summary and use `AskUserQuestion` (multiSelect) to offer 2–5 critical questions. The question set must:
 
