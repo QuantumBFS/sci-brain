@@ -11,10 +11,21 @@ Two-agent ideation: the Ideator proposes, the main agent challenges with Polya-s
 
 | Agent | Role | Mode |
 |-------|------|------|
-| **Main agent** | Presents Ideator's proposals, raises Polya-style critical questions, asks for user feedback, encourages deeper input | Foreground |
-| **Ideator** | Enthusiastic creative partner. Proposes ideas, asks probing questions, optionally uses creative lenses. Grounded in survey | Persistent (resumed via agent ID), foreground |
+| **Main agent** | Presents Ideator's proposals, offers critical questions for user to select, relays user feedback to Ideator. Never elaborates or answers questions on its own | Foreground |
+| **Ideator** | Enthusiastic creative partner. Proposes ideas and new angles, optionally uses creative lenses. Never asks questions — only proposes. Grounded in survey | Persistent (resumed via agent ID), foreground |
 
-The main agent does NOT generate ideas itself. It presents the Ideator's output, raises critical questions for the user to consider, and relays **only the user's feedback** back to the Ideator — never the main agent's own elaboration, critique, or directives. The Ideator is persistent — it accumulates context via resume across the entire conversation and responds purely based on what the user said.
+The main agent does NOT generate ideas or answer questions itself. It presents the Ideator's output and **always offers options to the user** (via `AskUserQuestion` or numbered choices). All questions are answered by the Ideator, not the main agent. The Ideator is persistent — it accumulates context via resume across the entire conversation and responds purely based on what the user said.
+
+**Ideator output rules (apply to every Ideator response):**
+
+1. **Always propose a new angle.** Every Ideator response must end with at least one fresh direction, twist, or refinement — regardless of what question was asked. Answering a feasibility question? Still propose a new angle. Discussing prior art? Still suggest where to go next. The conversation must always move forward.
+2. **Never ask questions.** The Ideator only proposes and explains. It does not ask the user questions or request clarification. If the Ideator needs to surface a choice, it proposes multiple concrete options instead of asking an open-ended question.
+3. **If an idea dies, propose pivots.** When critique or analysis kills an idea, the Ideator must propose 1-2 concrete pivots — salvageable directions or related ideas that survive the critique. Dead ends become forks, not stops.
+
+**Main agent presentation rules:**
+
+1. **Rewrite, don't relay.** The main agent never dumps the Ideator's raw output. It restructures the content into a concise, user-friendly format: **idea name → one-sentence summary → key reason/insight** for each idea or angle. Strip verbose reasoning, redundant context, and Ideator-internal framing.
+2. **Always offer options.** Every presentation must end with clear next actions for the user (via `AskUserQuestion` or numbered choices). Never leave the user without a clear next action.
 
 ### Step 0 — Load context
 
@@ -57,9 +68,9 @@ Apply these rules whenever presenting the Ideator's ideas (Step 1 or Step 2):
 
 **Long list (> 3 ideas):** Number them `1, 2, 3 …` with a one-line summary each. Then ask:
 
-> "Type the numbers of the ideas you'd like to explore (e.g. `1, 3`), or describe a new direction."
+> "Please select 1-3 directions to develop further, then we'll move to evaluation."
 
-Do NOT present critical questions yet — wait for the user to narrow down first.
+Do NOT present critical questions yet — wait for the user to narrow down to 1-3 ideas first. This is the convergence point: once the user picks, proceed to one round of critical questions (Step 2), then directly to Step 3 (Develop) → Step 4 (Formal critique).
 
 **Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–6 critical questions tailored to the ideas. The question set must:
 
@@ -77,9 +88,7 @@ Do NOT present critical questions yet — wait for the user to narrow down first
 | Missing survey data | Completeness |
 | Idea hinges on a specific paper's claim | Check reference |
 
-Pick 2–5 questions from the lenses below based on the diagnosis. Each lens has a **routes to** indicator.
-
-**Ideator-routed** — user selection is relayed to the Ideator (creative/generative questions):
+Pick 2–5 questions from the lenses below based on the diagnosis. **All questions are routed to the Ideator** — the main agent only presents answers, never elaborates on its own.
 
 | Critique lens | Example question template |
 |---------------|--------------------------|
@@ -87,21 +96,16 @@ Pick 2–5 questions from the lenses below based on the diagnosis. Each lens has
 | **Success criteria** | "What observable outcome would constitute success?" |
 | **Impact** | "If this works perfectly, what's the actual improvement — 1% or 10x?" |
 | **Signs of progress** | "What intermediate result would justify continuing?" |
-
-**Main-agent-routed** — main agent elaborates grounded in the survey (factual/analytical questions, shown only to user, not relayed to Ideator):
-
-| Critique lens | Example question template |
-|---------------|--------------------------|
 | **Prior art** | "Has this been tried before? [cite survey entry if applicable]" |
 | **Assumption** | "What's the weakest assumption here?" |
 | **Failure mode** | "What would need to be true for this to fail?" |
 | **Timing** | "Why hasn't this been addressed before — what changed recently?" |
 | **Completeness** | "Are we overlooking data or constraints from the survey?" |
-| **Check reference** | "Let me read [Smith2023] to verify the claim that _____ ." |
+| **Check reference** | "Read [Smith2023] to verify the claim that _____ ." |
 
-For **Check reference**: the main agent identifies the load-bearing reference from the Ideator's labels, then reads the full article via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Summarize what the paper actually says and whether it supports the Ideator's claim.
+For **Check reference**: the Ideator identifies the load-bearing reference from its own labels, then reads the full article via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. It summarizes what the paper actually says and whether it supports the claim.
 
-The user selects which questions to dig into, or writes their own via "Other" (custom questions are always routed to the Ideator).
+The user selects which questions to dig into, or writes their own via "Other".
 
 ### Step 2 — Conversation loop
 
@@ -111,32 +115,24 @@ The Ideator is persistent — resumed with its agent ID on each turn, accumulati
 - The user's verbatim feedback/reaction
 - Which critical questions the user selected (or the user's custom question)
 
-The main agent must **never** send its own elaboration, critique, or directives to the Ideator. The Ideator responds purely based on the user's input.
+The main agent must **never** elaborate, critique, or answer questions on its own. It only presents the Ideator's output and relays the user's feedback. All questions — creative, factual, or analytical — are routed to the Ideator.
 
 **The loop:**
 
 1. **Resume Ideator** (foreground) with user feedback only.
    - Grounds ideas in survey findings and personal registry — no web search by default
    - Only searches the web when the user's direction goes beyond the loaded survey data
-   - Proposes concrete approaches and combinations
-   - Asks probing questions that open new angles
+   - Proposes concrete approaches, combinations, and new angles
+   - Never asks questions — only proposes
+   - If an idea dies under critique, proposes 1-2 concrete pivots
 
-2. **Present ideas using the idea presentation rules** (defined in Step 1). If the Ideator returned > 3 ideas, list and let the user narrow down first. If ≤ 3, present with critical questions via `AskUserQuestion` (multiSelect) — always including one "Elaborate on _____ ." option.
+2. **Present the Ideator's output and always offer options to the user** using the idea presentation rules (defined in Step 1). If the Ideator returned > 3 ideas, list and let the user narrow down first. If ≤ 3, present with critical questions via `AskUserQuestion` (multiSelect) — always including one "Elaborate on _____ ." option. The main agent must never leave the user without a clear next action.
 
-3. **Route by question type:**
-   - **Ideator-routed questions** ("Elaborate on _____", Feasibility, Success criteria, Impact, Signs of progress, custom "Other") → relay the user's selection to the Ideator. The Ideator responds creatively.
-   - **Main-agent-routed questions** (Prior art, Assumption, Failure mode, Timing, Completeness) → the main agent elaborates, grounded in the survey. This elaboration is shown **only to the user**, not relayed to the Ideator.
+3. **Route all questions to the Ideator** — relay the user's selected questions to the Ideator. The main agent only presents the Ideator's answers, never elaborates on its own.
 
-4. **Loop to 1** — pass all user feedback (selections + verbatim reactions) to the Ideator. The Ideator receives everything the user said, nothing the main agent said.
+4. **Loop to 1** — pass all user feedback (selections + verbatim reactions) to the Ideator.
 
-The conversation continues until the user is ready to move on. When presenting multiple ideas, always offer these choices:
-
-> "What would you like to do?"
-> - **(a)** Explore a specific direction further — tell me which one
-> - **(b)** Evaluate these ideas — run formal critique and ranking on the current set
-> - **(c)** Something else — new angle, combine ideas, etc.
-
-If the user picks **(b)**, proceed to Step 3 (Develop) → Step 4 (Formal critique).
+After one round of critical questions (Step 2), proceed directly to Step 3 (Develop) → Step 4 (Formal critique) with the user's selected directions. Do NOT offer an open-ended "explore more" option — the conversation must move forward to evaluation. If the user wants to explore further, they can always say so explicitly.
 
 ### Step 3 — Develop
 
