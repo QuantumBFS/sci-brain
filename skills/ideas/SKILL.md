@@ -60,7 +60,7 @@ Present the survey highlights. Launch the **Ideator** (foreground) with the regi
 | **Restater** | Reframe the problem statement itself — a different formulation may unlock different solutions |
 | **Scoper** | Zoom in (specialize to a concrete case) or zoom out (generalize to a broader class — Polya's Inventor's paradox: "the more ambitious plan may have more chances of success") |
 
-The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Produces 2-5 concrete ideas with a paragraph summary grounded in survey findings. **Every idea must cite key references** from the survey registry using BibTeX labels (e.g., `[Smith2023]`), so the main agent and user can trace claims back to sources.
+The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Produce 2-5 **high-level directions** (not concrete solutions yet) with short summaries grounded in survey findings. Keep Step 1 intentionally vague and open; after user selection, narrow and concretize in Step 2 based on the user's preferences. **Every direction must cite key references** from the survey registry using BibTeX labels (e.g., `[Smith2023]`), so the main agent and user can trace claims back to sources.
 
 **Search policy:** The Ideator should ground ideas in the loaded survey registries and personal registry — do NOT default to web search. Only perform web searches when the user suggests a direction that goes beyond what the survey data covers (e.g., a new sub-field, a method not mentioned in the registry). This keeps ideation fast and anchored in vetted references.
 
@@ -70,11 +70,11 @@ Present the Ideator's initial ideas using the **idea presentation rules** (see b
 
 Apply these rules whenever presenting the Ideator's ideas (Step 1 or Step 2):
 
-Number all ideas `1, 2, 3 …` with a one-line summary each. Then ask:
+Number all directions `1, 2, 3 …` with a one-line summary each. Then ask:
 
 > "Please select one direction to explore."
 
-Enter the conversation loop (Step 2) focusing on the selected idea only.
+Enter the conversation loop (Step 2) focusing on the selected direction only. In Step 2, the Ideator narrows the direction using the user's selected questions and stated preferences.
 
 Once an idea is selected, present it with a paragraph summary and use `AskUserQuestion` (multiSelect) to offer 2–5 critical questions. The question set must:
 
@@ -131,13 +131,13 @@ The main agent must **never** elaborate, critique, or answer questions on its ow
    - Never asks questions — only proposes
    - If the current idea dies, proposes 1-2 pivots (from remaining ideas in its history or new angles)
 
-2. **Present the Ideator's output** and offer 2-5 critical questions via `AskUserQuestion` (multiSelect) — always including "Elaborate on _____ ." and "I'm ready — let's write up one of these ideas".
+2. **Present the Ideator's output** and offer 2-5 critical questions via `AskUserQuestion` (multiSelect) — always including "Elaborate on _____ ." and "Good enough — let's write up one of these ideas".
 
-3. If the user selected **"I'm ready — let's write up one of these ideas"**, go to Step 3. Otherwise, **loop to 1** with the user's selections and feedback.
+3. If the user selected **"Good enough — let's write up one of these ideas"**, go to Step 3. Otherwise, **loop to 1** with the user's selections and feedback.
 
-### Step 3 — Develop
+### Step 3 — Develop chosen idea
 
-Collect all surviving ideas (human-seeded, Ideator-proposed, lens outputs). The Ideator fills in **Polya criteria** for each:
+Keep only the user's chosen idea from Step 2. The Ideator fills in **Polya criteria** for that one idea:
 
 - **What's new?** — verify novelty claim against survey
 - **Why now?** — identify recent enablers (new data, methods, compute, theory)
@@ -145,18 +145,19 @@ Collect all surviving ideas (human-seeded, Ideator-proposed, lens outputs). The 
 - **Minimal experiment** — smallest test that validates the core claim
 - **Key risk** — weakest assumption
 
-Present all developed ideas as a single numbered list with Polya analysis filled in.
+Present the developed chosen idea with Polya analysis filled in.
 
-### Step 4 — Formal critique and ranking
+### Step 4 — Focused survey and criteria check
 
-The main agent runs a full adversarial review on each developed idea. Try to kill each idea with evidence — Ideator ideas and human ideas alike. Whatever survives is worth pursuing.
+The main agent runs a focused survey-backed review on the chosen developed idea. Do not kill the idea in this step. Instead, stress-test it and fill missing criteria with evidence.
 
-**Each idea is paired with a devil's advocate analysis that:**
+**The chosen idea is paired with an evidence-backed analysis that:**
 
 - Searches for prior art via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
-- **Verifies key references** — identify load-bearing references (not every citation). **Read the full article** via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Check that papers exist and cited claims match actual content. Flag misrepresentations. This is the most important step — an idea built on a misread paper is worthless
+- **Verifies key references** — identify load-bearing references (not every citation). **Read the full article** via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Check that papers exist and cited claims match actual content. Flag misrepresentations
 - Identifies the weakest assumption
 - Estimates feasibility (what would it actually take?)
+- Fills and refines Polya criteria (what's new, why now, methodology, minimal experiment, key risk)
 - Rates on four axes:
 
 | Axis | Challenge |
@@ -166,31 +167,30 @@ The main agent runs a full adversarial review on each developed idea. Try to kil
 | **Rigor** | "State the core claim as a testable hypothesis." |
 | **Impact** | "If this works perfectly, what improvement? Enough for [venue]?" |
 
-**Evidence-backed critique:** Every critique claim must be supported by a search or a concrete argument. No unsupported opinions — critique without evidence is just noise.
+**Evidence-backed review:** Every critique claim must be supported by a search or a concrete argument. No unsupported opinions — critique without evidence is just noise.
 
 **Guardrails:**
 - Never fabricate citations — only present what tools actually found.
 - Never assert novelty judgments — present evidence, let user evaluate.
-- Always preserve pivot path — show what's salvageable when critique kills an idea.
+- When evidence is weak, propose refinements instead of rejecting the chosen idea.
 
-**After the review, make hard calls:**
+**After the review, return a refinement summary:**
 
-- **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died. If all ideas are killed, report what was learned, suggest new angles, and offer to dive into papers (Step 5b) for deeper grounding
-- **Rank** survivors by: novelty, impact, viability
-- **Present** a ranked table to the user
+- Do not kill the chosen idea
+- Summarize what is supported vs uncertain
+- Present concrete refinements to improve rigor and feasibility
+- Present a one-row table for the chosen idea
 
 | # | Idea | Novelty | Impact | Viability | Key risk | Status |
 |---|------|---------|--------|-----------|----------|--------|
-| 1 | ... | High | High | Medium | Needs X | Alive |
-| 2 | ... | High | Medium | High | Prior art Y | Alive |
-| 3 | ... | Medium | High | Low | Killed by Z | Dead |
+| 1 | ... | High | High | Medium | Needs X | Refine |
 
 
 ### Step 5 — User Judge
 
-Present the ranked results. Ask **one question:**
+Present the focused review results for the chosen idea. Ask **one question:**
 
-"Which direction interests you?"
+"What do you want to do next with this chosen idea?"
 
 - **(a)** Pick one and write a report — generate a markdown summary and exit
 - **(b)** Dive into papers — read key papers in full, then brainstorm again with deeper grounding
@@ -201,11 +201,9 @@ Analyze the user's feedback to understand their reasoning before proceeding.
 
 - **Research question** — one sentence
 - **Field landscape** — key papers, sub-themes, open problems, bottlenecks (from survey)
-- **All ideas explored** — each idea with its Polya criteria (what's new, why now, methodology, minimal experiment, key risk)
-- **Critique and ranking** — 4-axis ratings, evidence-backed challenges, ranked table
-- **Killed ideas** — epitaphs explaining why each died
-- **Surviving ideas** — what survived and why
-- **Chosen direction** — the user's pick with reasoning
+- **Chosen idea evolution** — initial direction, user preference narrowing, and final Polya criteria
+- **Focused review** — 4-axis ratings, evidence-backed challenges, and refinement summary for the chosen idea
+- **Chosen direction** — the user's pick with reasoning and updated scope
 - **Key references** — full citation list with BibTeX keys
 
 This single file should contain everything the writer skill needs to produce a polished document. Then suggest: "For a polished document (Typst/LaTeX), run `/writer`."
@@ -214,9 +212,9 @@ This single file should contain everything the writer skill needs to produce a p
 
 > "You might enjoy: [title] by [author] — [one sentence on why it's relevant and why they'd like it]."
 
-**For (b):** Identify the load-bearing references from the surviving ideas. Present them and let the user pick which ones to read. Then start a fresh Ideator (do not resume the old one) with:
+**For (b):** Identify the load-bearing references from the chosen idea. Present them and let the user pick which ones to read. Then start a fresh Ideator (do not resume the old one) with:
 
-- A summary of the surviving idea(s) the user wants to develop
+- A summary of the chosen idea the user wants to develop
 - The survey registry paths (so it can look up papers in `references.bib`)
 - The titles of the papers the user picked
 
