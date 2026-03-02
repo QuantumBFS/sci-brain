@@ -71,9 +71,9 @@ Apply these rules whenever presenting the Ideator's ideas (Step 1 or Step 2):
 
 **Long list (> 3 ideas):** Number them `1, 2, 3 …` with a one-line summary each. Then ask:
 
-> "Please select 1-3 directions to develop further, then we'll move to evaluation."
+> "Please select 1-3 directions to explore further."
 
-Do NOT present critical questions yet — wait for the user to narrow down to 1-3 ideas first. This is the convergence point: once the user picks, proceed to one round of critical questions (Step 2), then directly to Step 3 (Develop) → Step 4 (Formal critique).
+Do NOT present critical questions yet — wait for the user to narrow down to 1-3 ideas first. Once narrowed, enter the conversation loop (Step 2) with critical questions.
 
 **Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–6 critical questions tailored to the ideas. The question set must:
 
@@ -135,7 +135,11 @@ The main agent must **never** elaborate, critique, or answer questions on its ow
 
 4. **Loop to 1** — pass all user feedback (selections + verbatim reactions) to the Ideator.
 
-After one round of critical questions (Step 2), proceed directly to Step 3 (Develop) → Step 4 (Formal critique) with the user's selected directions. Do NOT offer an open-ended "explore more" option — the conversation must move forward to evaluation. If the user wants to explore further, they can always say so explicitly.
+Keep looping until the user signals they want to crystallize. Clear signals: the user says "evaluate", "rank", "critique", "write up", "let's go with", picks a final direction, or selects option (b) below. Do NOT auto-advance to Step 3 after a fixed number of rounds.
+
+Every few rounds (or when ideas have stabilized), include among the `AskUserQuestion` options:
+
+> **(b)** Evaluate these ideas — run formal critique and ranking on the current set
 
 ### Step 3 — Develop
 
