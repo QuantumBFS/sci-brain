@@ -60,7 +60,7 @@ Present the survey highlights. Launch the **Ideator** (foreground) with the regi
 | **Restater** | Reframe the problem statement itself — a different formulation may unlock different solutions |
 | **Scoper** | Zoom in (specialize to a concrete case) or zoom out (generalize to a broader class — Polya's Inventor's paradox: "the more ambitious plan may have more chances of success") |
 
-The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Each lens produces 0-2 concrete ideas with a paragraph summary grounded in survey findings. **Every idea must cite key references** from the survey registry using BibTeX labels (e.g., `[Smith2023]`), so the main agent and user can trace claims back to sources.
+The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Produces 2-5 concrete ideas with a paragraph summary grounded in survey findings. **Every idea must cite key references** from the survey registry using BibTeX labels (e.g., `[Smith2023]`), so the main agent and user can trace claims back to sources.
 
 **Search policy:** The Ideator should ground ideas in the loaded survey registries and personal registry — do NOT default to web search. Only perform web searches when the user suggests a direction that goes beyond what the survey data covers (e.g., a new sub-field, a method not mentioned in the registry). This keeps ideation fast and anchored in vetted references.
 
@@ -70,13 +70,13 @@ Present the Ideator's initial ideas using the **idea presentation rules** (see b
 
 Apply these rules whenever presenting the Ideator's ideas (Step 1 or Step 2):
 
-**Long list (> 3 ideas):** Number them `1, 2, 3 …` with a one-line summary each. Then ask:
+**Long list (> 2 ideas):** Number them `1, 2, 3 …` with a one-line summary each. Then ask:
 
-> "Please select 1-3 directions to explore further."
+> "Please select 1-2 directions to explore further."
 
-Do NOT present critical questions yet — wait for the user to narrow down to 1-3 ideas first. Once narrowed, enter the conversation loop (Step 2) with critical questions.
+Do NOT present critical questions yet — wait for the user to narrow down to 1-2 ideas first. Once narrowed, enter the conversation loop (Step 2) with critical questions.
 
-**Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–6 critical questions tailored to the ideas. The question set must:
+**Short list (≤ 2 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 2–5 critical questions tailored to the ideas. The question set must:
 
 1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice."). This is routed to the Ideator.
 2. Always include one **"I'm ready — let's write up one of these ideas"** option — if the user selects this, proceed to Step 3 (Develop) → Step 4 (Formal critique).
