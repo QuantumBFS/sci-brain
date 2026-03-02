@@ -79,7 +79,7 @@ Enter the conversation loop (Step 2) focusing on the selected direction only. In
 Once an idea is selected, present it with a paragraph summary and use `AskUserQuestion` (multiSelect) to offer 2–5 critical questions. The question set must:
 
 1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice."). This is routed to the Ideator.
-2. Always include one **"I'm ready — let's write up one of these ideas"** option — if the user selects this, proceed to Step 3 (Develop) → Step 4 (Formal critique).
+2. Always include one **"Good enough — let's write up one of these ideas"** option — if the user selects this, proceed to Step 3.
 3. **Diagnose before picking questions.** For each idea, identify its weakness pattern, then select the matching lenses:
 
 | Weakness pattern | Lenses to offer |
@@ -135,23 +135,11 @@ The main agent must **never** elaborate, critique, or answer questions on its ow
 
 3. If the user selected **"Good enough — let's write up one of these ideas"**, go to Step 3. Otherwise, **loop to 1** with the user's selections and feedback.
 
-### Step 3 — Develop chosen idea
+### Step 3 — Develop + focused survey (single pass)
 
-Keep only the user's chosen idea from Step 2. The Ideator fills in **Polya criteria** for that one idea:
+Keep only the user's chosen idea from Step 2. In one round, run a focused survey-backed review and fill the table.
 
-- **What's new?** — verify novelty claim against survey
-- **Why now?** — identify recent enablers (new data, methods, compute, theory)
-- **Methodology** — outline approach, connect to known methods
-- **Minimal experiment** — smallest test that validates the core claim
-- **Key risk** — weakest assumption
-
-Present the developed chosen idea with Polya analysis filled in.
-
-### Step 4 — Focused survey and criteria check
-
-The main agent runs a focused survey-backed review on the chosen developed idea. Do not kill the idea in this step. Instead, stress-test it and fill missing criteria with evidence.
-
-**The chosen idea is paired with an evidence-backed analysis that:**
+**In this single pass, the chosen idea gets an evidence-backed analysis that:**
 
 - Searches for prior art via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
 - **Verifies key references** — identify load-bearing references (not every citation). **Read the full article** via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Check that papers exist and cited claims match actual content. Flag misrepresentations
@@ -166,27 +154,17 @@ The main agent runs a focused survey-backed review on the chosen developed idea.
 | **Novelty** | "I found [paper X] very similar. How is this different?" |
 | **Rigor** | "State the core claim as a testable hypothesis." |
 | **Impact** | "If this works perfectly, what improvement? Enough for [venue]?" |
+| **Key risk** | "What are the weakest assumptions that could kill this?" |
 
 **Evidence-backed review:** Every critique claim must be supported by a search or a concrete argument. No unsupported opinions — critique without evidence is just noise.
 
 **Guardrails:**
+- Summarize what is supported vs uncertain.
 - Never fabricate citations — only present what tools actually found.
 - Never assert novelty judgments — present evidence, let user evaluate.
-- When evidence is weak, propose refinements instead of rejecting the chosen idea.
-
-**After the review, return a refinement summary:**
-
-- Do not kill the chosen idea
-- Summarize what is supported vs uncertain
 - Present concrete refinements to improve rigor and feasibility
-- Present a one-row table for the chosen idea
 
-| # | Idea | Novelty | Impact | Viability | Key risk | Status |
-|---|------|---------|--------|-----------|----------|--------|
-| 1 | ... | High | High | Medium | Needs X | Refine |
-
-
-### Step 5 — User Judge
+### Step 4 — User Judge
 
 Present the focused review results for the chosen idea. Ask **one question:**
 
