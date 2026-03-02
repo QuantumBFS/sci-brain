@@ -79,7 +79,8 @@ Do NOT present critical questions yet — wait for the user to narrow down to 1-
 **Short list (≤ 3 ideas):** Present each idea with a paragraph summary, then use `AskUserQuestion` (multiSelect) to offer 3–6 critical questions tailored to the ideas. The question set must:
 
 1. Always include one **"Elaborate on _____ ."** option — fill the blank with the most under-specified or most promising aspect of the presented ideas (e.g., "Elaborate on how the cross-domain transfer would work in practice."). This is routed to the Ideator.
-2. **Diagnose before picking questions.** For each idea, identify its weakness pattern, then select the matching lenses:
+2. Always include one **"I'm ready — let's write up one of these ideas"** option — if the user selects this, proceed to Step 3 (Develop) → Step 4 (Formal critique).
+3. **Diagnose before picking questions.** For each idea, identify its weakness pattern, then select the matching lenses:
 
 | Weakness pattern | Lenses to offer |
 |------------------|-----------------|
@@ -136,11 +137,7 @@ The main agent must **never** elaborate, critique, or answer questions on its ow
 
 4. **Loop to 1** — pass all user feedback (selections + verbatim reactions) to the Ideator.
 
-Keep looping until the user signals they want to crystallize. Clear signals: the user says "evaluate", "rank", "critique", "write up", "let's go with", picks a final direction, or selects option (b) below. Do NOT auto-advance to Step 3 after a fixed number of rounds.
-
-Every few rounds (or when ideas have stabilized), include among the `AskUserQuestion` options:
-
-> **(b)** Evaluate these ideas — run formal critique and ranking on the current set
+Keep looping until the user selects "I'm ready — let's write up one of these ideas" or otherwise signals they want to crystallize. Do NOT auto-advance to Step 3 after a fixed number of rounds.
 
 ### Step 3 — Develop
 
