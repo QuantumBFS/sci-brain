@@ -133,7 +133,7 @@ The main agent must **never** elaborate, critique, or answer questions on its ow
 
 2. **Present the Ideator's output** and offer 2-5 critical questions via `AskUserQuestion` (multiSelect) — always including "Elaborate on _____ ." and "I'm ready — let's write up one of these ideas".
 
-3. **Loop to 1** — relay the user's selections and feedback to the Ideator. Do NOT auto-advance to Step 3.
+3. If the user selected **"I'm ready — let's write up one of these ideas"**, go to Step 3. Otherwise, **loop to 1** with the user's selections and feedback.
 
 ### Step 3 — Develop
 
