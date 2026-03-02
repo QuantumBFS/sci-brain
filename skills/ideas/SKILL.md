@@ -126,16 +126,14 @@ The main agent must **never** elaborate, critique, or answer questions on its ow
 
 1. **Resume Ideator** (foreground) with user feedback only.
    - Grounds ideas in survey findings and personal registry — no web search by default
-   - Only searches the web when the user's direction goes beyond the loaded survey data
+   - Searches the web when the user's direction goes beyond the loaded survey data
    - Proposes concrete approaches, combinations, and new angles
    - Never asks questions — only proposes
-   - If an idea dies under critique, proposes 1-2 concrete pivots
+   - If the current idea dies, proposes 1-2 pivots (from remaining ideas in its history or new angles)
 
-2. **Present the Ideator's output** on the selected idea and offer critical questions via `AskUserQuestion` (multiSelect) — always including "Elaborate on _____ ." and "I'm ready — let's write up one of these ideas".
+2. **Present the Ideator's output** and offer 2-5 critical questions via `AskUserQuestion` (multiSelect) — always including "Elaborate on _____ ." and "I'm ready — let's write up one of these ideas".
 
-3. **Loop to 1** — relay the user's selections and feedback to the Ideator.
-
-If the selected idea dies under critique, the Ideator already has the remaining ideas in its history — it proposes 1-2 pivots (from remaining ideas or new angles). Keep looping until the user selects "I'm ready" or otherwise signals they want to crystallize. Do NOT auto-advance to Step 3.
+3. **Loop to 1** — relay the user's selections and feedback to the Ideator. Do NOT auto-advance to Step 3.
 
 ### Step 3 — Develop
 
