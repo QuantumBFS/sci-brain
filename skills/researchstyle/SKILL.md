@@ -40,6 +40,8 @@ The script handles: copying the DB to avoid locking, pivot queries to avoid cart
 
 **Google Scholar:**
 
+> **Note:** Google Scholar actively blocks automated access — WebFetch may hit CAPTCHAs or rate limits. If scraping fails, suggest alternatives: export BibTeX manually from the Scholar profile page (Scholar → select all → export BibTeX), use [ORCID](https://orcid.org/) or [DBLP](https://dblp.org/) profiles instead (both have machine-friendly APIs), or switch to the PDF folder method with downloaded papers.
+
 1. Fetch the profile page.
 2. Extract paper titles, years, citation counts.
 3. For each paper, search for the DOI and abstract via WebSearch.

@@ -74,6 +74,7 @@ Do NOT present critical questions yet — wait for the user to narrow down first
 | Vague goal / unclear payoff | Impact, Success criteria |
 | Long path, no checkpoints | Signs of progress |
 | Narrow framing, stuck in one perspective | *(suggest Restater/Scoper to Ideator via "Elaborate")* |
+| Too ambitious / scope too large | Feasibility, Signs of progress *(and suggest Scoper zoom-in to Ideator via "Elaborate")* |
 | Missing survey data | Completeness |
 | Idea hinges on a specific paper's claim | Check reference |
 
@@ -99,7 +100,11 @@ Pick 2–5 questions from the lenses below based on the diagnosis. Each lens has
 | **Completeness** | "Are we overlooking data or constraints from the survey?" |
 | **Check reference** | "Let me read [Smith2023] to verify the claim that _____ ." |
 
-For **Check reference**: the main agent identifies the load-bearing reference from the Ideator's labels, then reads the full article via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Summarize what the paper actually says and whether it supports the Ideator's claim.
+For **Check reference**: the main agent identifies the load-bearing reference from the Ideator's labels, then reads the full article via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Summarize what the paper actually says and whether it supports the Ideator's claim. **After verification**, present the finding to the user and ask:
+
+> - **(a)** The paper supports the claim — continue as-is
+> - **(b)** The paper contradicts or doesn't support the claim — tell the Ideator to revise (relay as user feedback)
+> - **(c)** The paper is tangential — kill this angle and ask the Ideator for a new direction
 
 The user selects which questions to dig into, or writes their own via "Other" (custom questions are always routed to the Ideator).
 
