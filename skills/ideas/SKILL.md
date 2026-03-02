@@ -45,7 +45,7 @@ Present the survey highlights. Launch the **Ideator** (foreground) with the regi
 | **Restater** | Reframe the problem statement itself — a different formulation may unlock different solutions |
 | **Scoper** | Zoom in (specialize to a concrete case) or zoom out (generalize to a broader class — Polya's Inventor's paradox: "the more ambitious plan may have more chances of success") |
 
-The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Each lens produces 0-2 concrete ideas with a paragraph summary grounded in survey findings.
+The Ideator adapts its strategy to the topic — lenses are tools, not requirements. Each lens produces 0-2 concrete ideas with a paragraph summary grounded in survey findings. **Every idea must cite key references** from the survey registry using BibTeX labels (e.g., `[Smith2023]`), so the main agent and user can trace claims back to sources.
 
 **Search policy:** The Ideator should ground ideas in the loaded survey registries and personal registry — do NOT default to web search. Only perform web searches when the user suggests a direction that goes beyond what the survey data covers (e.g., a new sub-field, a method not mentioned in the registry). This keeps ideation fast and anchored in vetted references.
 
@@ -75,6 +75,7 @@ Do NOT present critical questions yet — wait for the user to narrow down first
 | Long path, no checkpoints | Signs of progress |
 | Narrow framing, stuck in one perspective | *(suggest Restater/Scoper to Ideator via "Elaborate")* |
 | Missing survey data | Completeness |
+| Idea hinges on a specific paper's claim | Check reference |
 
 Pick 2–5 questions from the lenses below based on the diagnosis. Each lens has a **routes to** indicator.
 
@@ -96,6 +97,9 @@ Pick 2–5 questions from the lenses below based on the diagnosis. Each lens has
 | **Failure mode** | "What would need to be true for this to fail?" |
 | **Timing** | "Why hasn't this been addressed before — what changed recently?" |
 | **Completeness** | "Are we overlooking data or constraints from the survey?" |
+| **Check reference** | "Let me read [Smith2023] to verify the claim that _____ ." |
+
+For **Check reference**: the main agent identifies the load-bearing reference from the Ideator's labels, then reads the full article via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Summarize what the paper actually says and whether it supports the Ideator's claim.
 
 The user selects which questions to dig into, or writes their own via "Other" (custom questions are always routed to the Ideator).
 
@@ -153,7 +157,7 @@ The main agent runs a full adversarial review on each developed idea. Try to kil
 **Each idea is paired with a devil's advocate analysis that:**
 
 - Searches for prior art via **Semantic Scholar MCP** (citation chains) + **arxiv MCP** (novelty, negative results) + **paper-search-mcp** (cross-database) + **WebSearch** (blog posts, workshop papers)
-- **Verifies key references** — identify load-bearing references (not every citation). Fetch the full PDF if needed. Check that papers exist and cited claims match actual content. Flag misrepresentations
+- **Verifies key references** — identify load-bearing references (not every citation). **Read the full article** via Zotero MCP (fulltext), arxiv MCP (download), or the Read tool on local PDFs. Check that papers exist and cited claims match actual content. Flag misrepresentations. This is the most important step — an idea built on a misread paper is worthless
 - Identifies the weakest assumption
 - Estimates feasibility (what would it actually take?)
 - Rates on four axes:

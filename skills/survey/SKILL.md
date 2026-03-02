@@ -73,6 +73,9 @@ After the survey registry is built, ask:
 > "Survey complete. What next?"
 > - **(a)** Deeper survey — survey a specific subtopic and add results to this registry (user types the subtopic, then go back to Step 2)
 > - **(b)** Ideas — continue to ideation (brainstorming, critique, and ranking) in the current session
-> - **(c)** Stop here — keep the survey registry, end the session
+> - **(c)** Export to Zotero — save discovered papers to your Zotero library (requires Zotero MCP with write support)
+> - **(d)** Stop here — keep the survey registry, end the session
+
+For **(c)**: if a Zotero MCP server with write support is configured, create items from `references.bib` entries in the user's Zotero library. Ask which collection to add them to. If no write-capable Zotero MCP is available, tell the user they can import `references.bib` manually via Zotero's File > Import.
 
 For **(a)**: use the user's subtopic as the new query, go back to Step 2 (pick strategies & search). Append new references to the existing `references.bib` and update `summary.md` with the new findings.
