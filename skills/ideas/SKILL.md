@@ -131,13 +131,11 @@ The main agent must **never** elaborate, critique, or answer questions on its ow
    - Never asks questions — only proposes
    - If an idea dies under critique, proposes 1-2 concrete pivots
 
-2. **Present the Ideator's output and always offer options to the user** using the idea presentation rules (defined in Step 1). If the Ideator returned > 3 ideas, list and let the user narrow down first. If ≤ 3, present with critical questions via `AskUserQuestion` (multiSelect) — always including one "Elaborate on _____ ." option. The main agent must never leave the user without a clear next action.
+2. **Present the Ideator's output** on the selected idea and offer critical questions via `AskUserQuestion` (multiSelect) — always including "Elaborate on _____ ." and "I'm ready — let's write up one of these ideas".
 
-3. **Route all questions to the Ideator** — relay the user's selected questions to the Ideator. The main agent only presents the Ideator's answers, never elaborates on its own.
+3. **Loop to 1** — relay the user's selections and feedback to the Ideator.
 
-4. **Loop to 1** — pass all user feedback (selections + verbatim reactions) to the Ideator.
-
-Keep looping until the user selects "I'm ready — let's write up one of these ideas" or otherwise signals they want to crystallize. Do NOT auto-advance to Step 3 after a fixed number of rounds.
+If the selected idea dies under critique, the Ideator already has the remaining ideas in its history — it proposes 1-2 pivots (from remaining ideas or new angles). Keep looping until the user selects "I'm ready" or otherwise signals they want to crystallize. Do NOT auto-advance to Step 3.
 
 ### Step 3 — Develop
 
