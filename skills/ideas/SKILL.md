@@ -178,7 +178,7 @@ The main agent runs a full adversarial review on each developed idea. Try to kil
 
 **After the review, make hard calls:**
 
-- **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died. If all ideas are killed, report what was learned, suggest new angles, and ask the user whether to loop back to survey with adjusted strategies
+- **Kill** ideas that did not survive critique — write a one-line epitaph explaining why each died. If all ideas are killed, report what was learned, suggest new angles, and offer to dive into papers (Step 5b) for deeper grounding
 - **Rank** survivors by: novelty, impact, viability
 - **Present** a ranked table to the user
 
@@ -196,8 +196,7 @@ Present the ranked results. Ask **one question:**
 "Which direction interests you?"
 
 - **(a)** Pick one and write a report — generate a markdown summary and exit
-- **(b)** Pick one and go deeper — loop back to Survey with narrowed scope
-- **(c)** None of these, explore differently — loop back to Survey with new angle from user
+- **(b)** Dive into papers — read key papers in full, then brainstorm again with deeper grounding
 
 Analyze the user's feedback to understand their reasoning before proceeding.
 
@@ -218,6 +217,10 @@ This single file should contain everything the writer skill needs to produce a p
 
 > "You might enjoy: [title] by [author] — [one sentence on why it's relevant and why they'd like it]."
 
-### Loop Handoff (between iterations)
+**For (b):** Identify the load-bearing references from the surviving ideas. Present them and let the user pick which ones to read. Then start a fresh Ideator (do not resume the old one) with:
 
-When the user chooses to go deeper or explore a new angle (options b/c), save an iteration report to `articles/iteration-N/report.md` with the same structure as above. Then clear the conversation context (e.g., `/compact` in Claude Code) and re-read the iteration report before starting the next iteration.
+- A summary of the surviving idea(s) the user wants to develop
+- The survey registry paths (so it can look up papers in `references.bib`)
+- The titles of the papers the user picked
+
+The Ideator reads the papers itself — finding them via Zotero MCP, arxiv MCP, or local PDFs. Resume from Step 1.
