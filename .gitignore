@@ -20,3 +20,4 @@ Thumbs.db
 images/flowchart.png
 articles/
 docs/plans/
+__pycache__/

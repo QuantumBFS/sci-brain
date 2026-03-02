@@ -5,15 +5,31 @@ description: Use when writing the final ideas report after the user picks a rese
 
 ## Refine (exit from loop)
 
+### Step 0 — Load context
+
+Check whether the current session already has ideas context (ideas report, survey registry, critique results). If not — e.g., the user invoked `/writer` in a fresh session — locate the materials:
+
+1. **Ideas report:** Search for recent files matching `articles/*-ideas-report.md`. If multiple exist, list them and ask the user which one to use. If none exist, ask the user: "I don't see an ideas report. Point me to one, or describe the research direction and I'll write from scratch."
+2. **Survey registry:** Check global and project registry paths (e.g., `~/.claude/survey/`, `.claude/survey/`). If registries exist, list them and ask which to load. Read the selected `summary.md` and `references.bib`.
+3. **Personal registry:** Check `~/.claude/survey/personal/`. If found, read `summary.md` for background context.
+
+Read all selected files before proceeding. The loaded ideas report provides the reasoning trail, critique results, and chosen direction that structure the document.
+
+### Step 1 — Report scope
+
 **Report scope:** Ask the user before writing:
 
 > "What scope for the ideas report?"
 > - **(a)** Full brainstorming process — complete reasoning trail: what was explored, tried, killed, and why the surviving direction was chosen
 > - **(b)** Crystallized idea only — focused writeup of the chosen research direction, skipping the exploration history
 
-**Autonomous research (gap-filling):** Before writing, search for any gaps in the reference list — missing methodology papers for the planned approach, code repos, datasets, or benchmarks. Use available MCP servers (Semantic Scholar, arxiv, paper-search) or WebSearch.
+### Step 2 — Gap-filling research
 
-**Output format:** Check `CLAUDE.md`/`AGENTS.md` for a configured report format. If not configured, ask the user:
+Before writing, search for gaps in the reference list — missing methodology papers for the planned approach, code repos, datasets, or benchmarks. Use available MCP servers (Semantic Scholar, arxiv, paper-search) or WebSearch. Aim for 3–5 methodology references and 1–2 datasets/benchmarks per key claim. Stop after covering the main claims — completeness is not the goal, grounding is.
+
+### Step 3 — Output format
+
+Check `CLAUDE.md`/`AGENTS.md` for a configured report format. If not configured, ask the user:
 
 > "What format for the ideas report?"
 > - **(a)** Typst (`.typ`) — recommended, native BibTeX support, compiles to PDF

@@ -60,7 +60,9 @@ def find_zotero_db():
 
 def copy_db(src: Path) -> Path:
     """Copy the database to a temp file to avoid locking issues."""
-    tmp = Path(tempfile.mktemp(suffix=".sqlite"))
+    fd = tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False)
+    fd.close()
+    tmp = Path(fd.name)
     shutil.copy2(src, tmp)
     return tmp
 
@@ -75,21 +77,26 @@ def query_items(db_path: Path) -> dict:
             MAX(CASE WHEN f.fieldName = 'abstractNote' THEN idv.value END),
             MAX(CASE WHEN f.fieldName = 'DOI' THEN idv.value END),
             MAX(CASE WHEN f.fieldName = 'date' THEN idv.value END),
-            MAX(CASE WHEN f.fieldName = 'url' THEN idv.value END)
+            MAX(CASE WHEN f.fieldName = 'url' THEN idv.value END),
+            MAX(CASE WHEN f.fieldName = 'publicationTitle' THEN idv.value END),
+            MAX(CASE WHEN f.fieldName = 'proceedingsTitle' THEN idv.value END),
+            it.typeName
         FROM items i
+        JOIN itemTypes it ON i.itemTypeID = it.itemTypeID
         JOIN itemData id ON i.itemID = id.itemID
         JOIN fields f ON id.fieldID = f.fieldID
         JOIN itemDataValues idv ON id.valueID = idv.valueID
-        WHERE i.itemTypeID NOT IN (
-            SELECT itemTypeID FROM itemTypes WHERE typeName IN ('attachment', 'note'))
-            AND f.fieldName IN ('title', 'abstractNote', 'DOI', 'date', 'url')
+        WHERE it.typeName NOT IN ('attachment', 'note')
+            AND i.itemID NOT IN (SELECT itemID FROM deletedItems)
+            AND f.fieldName IN ('title', 'abstractNote', 'DOI', 'date', 'url',
+                                'publicationTitle', 'proceedingsTitle')
         GROUP BY i.itemID
         HAVING MAX(CASE WHEN f.fieldName = 'title' THEN idv.value END) IS NOT NULL
         ORDER BY i.itemID
     """)
     items = {}
     for row in cur.fetchall():
-        item_id, title, abstract, doi, date, url = row
+        item_id, title, abstract, doi, date, url, journal, proceedings, item_type = row
         year_match = re.search(r"(\d{4})", date or "")
         items[item_id] = {
             "title": title or "",
@@ -97,6 +104,8 @@ def query_items(db_path: Path) -> dict:
             "doi": doi or "",
             "year": year_match.group(1) if year_match else "",
             "url": url or "",
+            "journal": journal or proceedings or "",
+            "item_type": item_type or "journalArticle",
             "authors": "",
         }
     conn.close()
@@ -104,18 +113,21 @@ def query_items(db_path: Path) -> dict:
 
 
 def query_authors(db_path: Path) -> dict:
-    """Extract authors grouped by item ID."""
+    """Extract authors grouped by item ID, preserving Zotero ordering."""
     conn = sqlite3.connect(str(db_path))
     cur = conn.cursor()
+    # Subquery ensures ORDER BY ic.orderIndex is applied before GROUP_CONCAT
     cur.execute("""
-        SELECT ic.itemID,
-            GROUP_CONCAT(c.lastName || ', ' || c.firstName, '; ')
-        FROM itemCreators ic
-        JOIN creators c ON ic.creatorID = c.creatorID
-        WHERE ic.creatorTypeID = (
-            SELECT creatorTypeID FROM creatorTypes WHERE creatorType = 'author')
-        GROUP BY ic.itemID
-        ORDER BY ic.itemID
+        SELECT itemID, GROUP_CONCAT(author_name, '; ')
+        FROM (
+            SELECT ic.itemID, c.lastName || ', ' || c.firstName AS author_name
+            FROM itemCreators ic
+            JOIN creators c ON ic.creatorID = c.creatorID
+            WHERE ic.creatorTypeID = (
+                SELECT creatorTypeID FROM creatorTypes WHERE creatorType = 'author')
+            ORDER BY ic.itemID, ic.orderIndex
+        )
+        GROUP BY itemID
     """)
     authors = {}
     for row in cur.fetchall():
@@ -255,6 +267,28 @@ def write_summary(items: dict, output_dir: Path) -> None:
             f.write("\n")
 
 
+# Zotero itemType -> BibTeX entry type
+ZOTERO_TO_BIBTEX_TYPE = {
+    "journalArticle": "article",
+    "conferencePaper": "inproceedings",
+    "book": "book",
+    "bookSection": "incollection",
+    "thesis": "phdthesis",
+    "report": "techreport",
+    "preprint": "article",
+    "manuscript": "unpublished",
+    "presentation": "misc",
+    "webpage": "misc",
+}
+
+
+def escape_bibtex(text: str) -> str:
+    """Escape special BibTeX characters in field values."""
+    for ch in ("&", "%", "#"):
+        text = text.replace(ch, f"\\{ch}")
+    return text
+
+
 def format_authors_bibtex(authors_str: str) -> str:
     """Convert 'Last, First; Last, First' to BibTeX 'Last, First and Last, First'."""
     if not authors_str:
@@ -270,19 +304,23 @@ def write_bibtex(items: dict, output_dir: Path) -> int:
             if not item["doi"] and not item["url"]:
                 continue
             count += 1
-            f.write(f"@article{{{item['cite_key']},\n")
+            bib_type = ZOTERO_TO_BIBTEX_TYPE.get(item.get("item_type", ""), "article")
+            f.write(f"@{bib_type}{{{item['cite_key']},\n")
             if item["authors"]:
                 f.write(f"  author = {{{format_authors_bibtex(item['authors'])}}},\n")
-            f.write(f"  title = {{{item['title']}}},\n")
+            f.write(f"  title = {{{escape_bibtex(item['title'])}}},\n")
             if item["year"]:
                 f.write(f"  year = {{{item['year']}}},\n")
+            if item.get("journal"):
+                journal_field = "booktitle" if bib_type == "inproceedings" else "journal"
+                f.write(f"  {journal_field} = {{{escape_bibtex(item['journal'])}}},\n")
             if item["doi"]:
                 f.write(f"  doi = {{{item['doi']}}},\n")
             if item["url"]:
                 f.write(f"  url = {{{item['url']}}},\n")
             if item["abstract"]:
                 abstract_oneline = " ".join(item["abstract"].split())
-                f.write(f"  abstract = {{{abstract_oneline}}},\n")
+                f.write(f"  abstract = {{{escape_bibtex(abstract_oneline)}}},\n")
             f.write("}\n\n")
     return count
 

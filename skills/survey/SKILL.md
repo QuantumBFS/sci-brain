@@ -15,7 +15,12 @@ If the user already provided a research topic or question, skip the clarificatio
 > - **(a)** Global — shared across all projects (auto-detected path based on platform, e.g., `~/.claude/survey/` for Claude Code, `~/.codex/survey/` for Codex, `~/.config/opencode/survey/` for OpenCode)
 > - **(b)** Project — scoped to this project (`.claude/survey/`)
 
-This only needs to be asked once per session. If a registry already exists at either location, detect it and confirm with the user.
+This only needs to be asked once per session. If a registry already exists at the chosen location for this topic (i.e., `<registry-root>/<topic>/` already contains `summary.md` and `references.bib`), ask:
+
+> "A survey registry for this topic already exists (N papers). What should I do?"
+> - **(a)** Extend — add new findings to the existing registry (keeps existing entries, appends new ones, deduplicates by DOI/title)
+> - **(b)** Replace — start fresh (backs up the old registry to `<topic>.bak/` first)
+> - **(c)** New subtopic — create a separate registry under a more specific name
 
 **Step 1 — Clarify.** Ask one question to narrow the research topic. Give 2-4 choice options.
 
@@ -37,7 +42,7 @@ When presenting to the user, briefly explain why you recommend each strategy for
 
 Each subagent produces a short **findings report** — key papers found, grouped by sub-theme, with titles and one-line descriptions. No BibTeX yet.
 
-**Step 3 — User picks directions.** Main agent consolidates all findings reports and presents them as numbered options. Ask: "Which directions should I build a literature registry for? Pick one or more." The user can select multiple.
+**Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one) and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I build a literature registry for? Pick one or more." The user can select multiple.
 
 **Step 4 — Build registry.** For the selected directions only, generate the full BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source. Use the following lookup chain (in priority order):
 
@@ -52,6 +57,8 @@ Each subagent produces a short **findings report** — key papers found, grouped
 If all API methods fail (e.g., network restrictions), BibTeX may be constructed from WebSearch results but **must** flag unverified fields with a comment `% unverified`.
 
 If the survey reveals the idea is already published, present the prior art and ask the user if they see a different angle before proceeding.
+
+**If extending an existing registry** (Step 0 option a): read the existing `references.bib` first, skip papers already present (match by DOI or exact title), and append only new entries. Update `summary.md` by merging new findings into the existing topic sections.
 
 Output the **survey registry** — a folder `<registry-root>/<topic>/` (where `<registry-root>` is the global or project path chosen in Step 0) containing:
 
