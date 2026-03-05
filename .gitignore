@@ -21,3 +21,4 @@ images/flowchart.png
 articles/
 docs/plans/
 __pycache__/
+.claude/survey/
