@@ -72,15 +72,13 @@ If a personal registry already exists at `~/.claude/survey/personal/`, read it a
 
 For **(b)** or **(c)**: run the `researchstyle` skill to build a personal registry, then continue.
 
-**Two questions** (ask one at a time):
+**One question:**
 
-1. "Is this your first research project, or have you done this before?"
-2. "Do you have a clear objective in mind, or are you open for free brainstorming?"
+"Is this your first research project, or have you done this before?"
 
-Store these answers as an internal **user profile** that shapes everything that follows.
+Store the answer as part of an internal **user profile** that shapes everything that follows.
 
-If the user has a clear objective → skip Phase 1, go to Phase 2.
-If open for brainstorming → continue to Phase 1.
+**Then listen.** The user may already describe what they want to explore, share an idea, or ask a question — if so, go directly to Phase 2 with that context. If the user doesn't volunteer a direction, continue to Phase 1 to help them find one.
 
 ### Phase 1 — Find Good Problems
 
