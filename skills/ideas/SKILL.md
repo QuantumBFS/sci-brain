@@ -78,17 +78,24 @@ For **(b)** or **(c)**: run the `researchstyle` skill to build a personal regist
 
 Store the answer as part of an internal **user profile** that shapes everything that follows.
 
-**Then listen.** The user may already describe what they want to explore, share an idea, or ask a question — if so, go directly to Phase 2 with that context. If the user doesn't volunteer a direction, continue to Phase 1 to help them find one.
+**Then listen.** The user may already describe what they want to explore, share an idea, or ask a question. Either way, always proceed to Phase 1 — even when the user states a direction, it's rarely sharp enough. Phase 1 helps refine, contextualize, and ground whatever the user brings (or helps them find a direction if they don't have one yet).
 
 ### Phase 1 — Find Good Problems
 
+**Always run this phase** — even when the user already stated a direction. A user's initial framing is rarely sharp enough. Phase 1 refines it by grounding in the literature and surfacing what the user might not see yet.
+
 **Load context:** Check for survey registries in global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If found, present them and ask which to use. If none found, ask for a topic area and suggest running `/survey` first — or do a lighter web search to map the landscape.
 
-**Search direction — shaped by user profile:**
+**Two entry modes:**
+
+- **User has a direction:** Don't take it at face value. Dig into the area around it — what's the landscape? What has been tried? What are the real open questions near their idea? Present what you find and refine their framing: "You said you're interested in [X]. Here's what I found around that area..."
+- **User is open:** Search broadly based on their background and profile.
 
 Tell the user what you're doing:
 
 > "Let me see if I have some good questions in my pocket, digging..."
+
+**Search direction — shaped by user profile:**
 
 Mine the survey registry's open problems/bottlenecks + web search for recent developments. The *direction* of the search is tailored by who the user is:
 
@@ -98,7 +105,7 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 | Experienced, wants challenge | Recently opened problems, contrarian angles, cross-field opportunities |
 | Has specific tools/methods | Problems where those tools are underused or newly applicable |
 
-**Present 3-5 problems.** For each one:
+**Present 3-5 problems or refined angles.** For each one:
 
 - **What it is** — explained in terms the user understands. For beginners, no jargon without explanation. The goal must be crystal clear: "The goal is to [concrete outcome]. People have tried [A] and [B], but nobody has [specific gap]. You'd basically be doing [plain description]."
 - **Why it matters** — industrial or scientific impact
@@ -106,7 +113,7 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 - **Why it fits you** — connect to their background: "Your experience in [X] is actually rare in this field"
 - **Key reference** — one paper to start with
 
-Ask: "Any of these catch your eye? Or do you already have something in mind?"
+Ask: "Any of these catch your eye?"
 
 ### Phase 2 — The Conversation
 
