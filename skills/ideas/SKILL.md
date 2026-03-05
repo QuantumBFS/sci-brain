@@ -78,13 +78,15 @@ Open with a warm greeting:
 
 If a personal registry already exists at `~/.claude/survey/personal/`, read it and say: "I already know a bit about your background from before. Let me know if anything's changed."
 
-For **(b)** or **(c)**: run the `researchstyle` skill to build a personal registry, then continue.
+For **(b)** or **(c)**: run the `researchstyle` skill to build a personal registry, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
 
-**One question:**
+**For (a) only — one follow-up question:**
 
 "Is this your first research project, or have you done this before?"
 
-Store the answer as part of an internal **user profile** that shapes everything that follows.
+(Skip this for (b)/(c) — infer experience from the indexed data instead.)
+
+Store the result as part of an internal **user profile** that shapes everything that follows.
 
 **Then listen.** The user may already describe what they want to explore, share an idea, or ask a question. Either way, always proceed to Phase 1 — there's usually more to discover around any starting point. Phase 1 helps contextualize and ground whatever the user brings (or helps them find a direction if they don't have one yet).
 
@@ -103,9 +105,13 @@ Tell the user what you're doing:
 
 > "Let me see if I have some good questions in my pocket, digging..."
 
-**Search direction — shaped by user profile:**
+**Search with three matters in mind** — these shape what directions to explore:
 
-Mine the survey registry's open problems/bottlenecks + web search for recent developments. The *direction* of the search is tailored by who the user is:
+1. **Practical impact** — What real problems need solving? Who would benefit?
+2. **Theoretically interesting and open** — Where is there genuine depth? What key questions are still unsolved?
+3. **Fit with user's knowledge** — What can this user realistically tackle given their skills?
+
+Mine the survey registry's open problems/bottlenecks + web search for recent developments. The *direction* of the search is further tailored by who the user is:
 
 | User profile | Search direction |
 |---|---|
@@ -113,15 +119,9 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 | Experienced, wants challenge | Recently opened problems, contrarian angles, cross-field opportunities |
 | Has specific tools/methods | Problems where those tools are underused or newly applicable |
 
-**Present 3-5 problems or refined angles.** For each one:
+**Present 2-4 problems or refined angles.** For each, highlight what makes it interesting — don't try to cover every dimension. Speak naturally, as you would in conversation. For beginners, no jargon without explanation. Include a key reference for each.
 
-- **What it is** — explained in terms the user understands. For beginners, no jargon without explanation. The goal must be crystal clear: "The goal is to [concrete outcome]. People have tried [A] and [B], but nobody has [specific gap]. You'd basically be doing [plain description]."
-- **Why it matters** — industrial or scientific impact
-- **How hard it is** — and what skills it requires
-- **Why it fits you** — connect to their background: "Your experience in [X] is actually rare in this field"
-- **Key reference** — one paper to start with
-
-Ask: "Any of these catch your eye?"
+Then ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up (what makes it interesting, key reference, etc.) shown in the right panel.
 
 ### Phase 2 — The Conversation
 
@@ -140,22 +140,17 @@ The core loop. The mentor adapts to what the user needs, operating in three mode
 
 *When the user picks a problem or wants new angles.*
 
-- Generate 2-4 concrete ideas/approaches grounded in survey + web search
-- For each: name, one-line summary, why it might work, key reference
-- Use creative lenses when helpful:
+- Search with three matters in mind — these shape *what to look for*, not just how to present results:
 
-| Lens | Strategy |
-|------|----------|
-| **Combiner** | Combine two distant findings into a novel approach |
-| **Inverter** | Invert a key assumption — what if the opposite is true? |
-| **Transplanter** | Apply a method from field A to problem B |
-| **Bottleneck-breaker** | Directly attack the identified bottleneck |
-| **Restater** | Reframe the problem statement itself |
-| **Scoper** | Zoom in (specialize) or zoom out (generalize — Polya's Inventor's paradox) |
+  1. **Practical impact** — What real problems need solving? Who would benefit?
+  2. **Theoretically interesting and open** — Where is there genuine depth? What key questions are still unsolved?
+  3. **Fit with user's knowledge** — What can this user realistically tackle given their skills?
 
-- Apply principle (e): "Since you're good at [X], you should be able to handle [idea Y]"
+- Generate 2-4 concrete ideas/approaches from the search
+- For each, highlight what makes it interesting — don't try to cover every dimension. Include a key reference.
+- Apply principle (e): connect ideas to the user's strengths
 - Apply principle (d): throw in a cross-field connection to spark new thinking
-- Ask: "How do these feel? Which one excites you?"
+- Then ask via `AskUserQuestion` with markdown previews — each option has a short idea name as the label, a one-line description, and a `markdown` preview with the full write-up shown in the right panel.
 
 #### Mode: Evaluate Risk
 
