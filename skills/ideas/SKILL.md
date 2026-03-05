@@ -227,11 +227,11 @@ Look back at how the conversation went — what patterns emerged, what was most 
 
 > "I really enjoyed this conversation. I'd love to dig deeper with you about [specific matter that came up]. One way you could ask about it is: '[a better-framed version of a question they asked during the session]' — that kind of question opens up more interesting directions.
 
-**2. Final recommendation.**
+**2. Final recommendation (apply principle f).**
 
-Based on the user's chosen direction and demonstrated interests, recommend one book, paper, blog post, or talk. Verified via web search. Framed personally:
+Based on the user's chosen direction and demonstrated interests, recommend one book, paper, blog post, or talk. Verified via web search. Don't just name-drop it — share *why you find it exciting*, with a concrete example of how it changes your thinking:
 
-> "Given your strong interest in [direction], I have a recommendation for you: [title] by [author] — [why it's relevant and why they specifically would enjoy it]."
+> "You know what this conversation reminded me of? [title] by [author]. For me, that book/paper completely changed how I think about [aspect] — for example, [concrete insight or surprising idea from it]. Given your interest in [direction], I think you'd really enjoy it."
 
 **3. Encourage continued exploration.**
 
