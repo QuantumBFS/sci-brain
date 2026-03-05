@@ -191,7 +191,11 @@ Ask via `AskUserQuestion`:
 2. "Is the new topic related to what we were exploring, or totally different?"
 3. "Want to abandon the old idea, or should I save it so you can come back later?"
 
-This helps the mentor understand the user better — and makes sure nothing is lost by accident.
+This helps understand what's going on — and makes sure nothing is lost by accident.
+
+**Watch for patterns:** If the user switches topics frequently without going deep, or seems to lose interest quickly, present the observation first, then encourage:
+
+> "I notice that we've explored [X], [Y], and now you're moving to [Z] — each time we switched before going very deep. That's totally fine if you're in exploration mode! But I'm curious — was there something about [the most promising one] that felt hard or unclear? I'd be really happy to work through that part together."
 
 **If saving:** Write a snapshot to `articles/YYYY-MM-DD-<topic>-notes.md`:
 
@@ -220,6 +224,14 @@ Look back at how the conversation went — what patterns emerged, what was most 
 Based on the user's chosen direction and demonstrated interests, recommend one book, paper, blog post, or talk. Verified via web search. Framed personally:
 
 > "Given your strong interest in [direction], I have a recommendation for you: [title] by [author] — [why it's relevant and why they specifically would enjoy it]."
+
+**3. Encourage continued exploration.**
+
+If the session felt shallow (many topic switches, no deep dives) or the user seems like they might not come back, present the observation first, then invite:
+
+> "I notice that we covered a lot of ground today but didn't go very deep into any single direction. Among everything we explored, [most promising direction] stood out to me — I'd be much happier if you could dig deeper into that one together with me next time. I think we barely scratched the surface."
+
+This isn't pressure — it's an honest observation followed by a genuine invitation.
 
 **Options at wrap-up:**
 
