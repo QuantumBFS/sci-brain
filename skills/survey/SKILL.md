@@ -3,7 +3,7 @@ name: survey
 description: Use when surveying a research topic — launches parallel exploration strategies via web search, lets user pick interesting directions, then builds a focused survey registry with BibTeX
 ---
 
-Before starting, check which MCP servers are available (arxiv, paper-search, Semantic Scholar). If none are configured, warn the user that the survey will rely on WebSearch only.
+Before starting, check which MCP servers are available (arxiv, paper-search, Semantic Scholar, Sci-Hub, etc.). Present the detected servers to the user and let them choose which ones to use for this session via `AskUserQuestion` (multi-select). If none are configured, warn the user that the survey will rely on WebSearch only.
 
 If the user already provided a research topic or question, skip the clarification step.
 
@@ -72,10 +72,10 @@ For each paper, the agent picks the single most effective lookup method based on
 
 - **Semantic Scholar title match** — `GET https://api.semanticscholar.org/graph/v1/paper/search/match?query={title}&fields=title,authors,year,journal,abstract,externalIds,citationStyles` (rate limit: ~1 req/s unauthenticated)
 - **CrossRef title search** — `https://api.crossref.org/works?query.bibliographic={title}&rows=1`
-- **MCP servers** (if configured): arxiv MCP, paper-search-mcp, Semantic Scholar MCP
+- **MCP servers** (if configured): arxiv MCP, paper-search-mcp, Semantic Scholar MCP, Sci-Hub MCP (`search_scihub_by_title`, `get_paper_metadata`)
 - **WebFetch on publisher page** — extract metadata from the paper's landing page
 
-**Enrich the BibTeX** with `abstract` and `doi`/`url` if missing. If the chosen method fails, try one alternative. If that also fails, BibTeX may be constructed from WebSearch results but **must** flag unverified fields with `% unverified`.
+**Enrich the BibTeX** with `abstract` and `doi`/`url` if missing. If the abstract is still missing and a Sci-Hub MCP server is configured, use `download_scihub_pdf` to get the full text and extract the abstract from it. If the chosen method fails, try one alternative. If that also fails, BibTeX may be constructed from WebSearch results but **must** flag unverified fields with `% unverified`.
 
 After both subagents complete, **merge their results** into the final registry files.
 
@@ -102,7 +102,7 @@ After the survey registry is built, ask:
 
 > "Survey complete. What next?"
 > - **(a)** Deeper survey — survey a specific subtopic and add results to this registry (user types the subtopic, then go back to Step 2)
-> - **(b)** Ideas — continue to ideation (brainstorming, critique, and ranking) in the current session
+> - **(b)** Ideas — continue to brainstorming in the current session
 > - **(c)** Export to Zotero — save discovered papers to your Zotero library (requires Zotero MCP with write support)
 > - **(d)** Stop here — keep the survey registry, end the session
 

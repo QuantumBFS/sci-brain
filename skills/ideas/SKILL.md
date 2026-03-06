@@ -93,11 +93,13 @@ Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (time
 ...
 ```
 
-This log accumulates across sessions, building a record of the user's research interests, thinking patterns, and explored directions.
+These logs accumulate across sessions as separate files, building a record of the user's research interests, thinking patterns, and explored directions.
 
 ### Phase 0 — Get to Know You
 
-**First, check for history.** If conversation logs exist at `docs/discussion/*-ideas-log.md`, read them — it contains past brainstorming sessions and reveals the user's evolving interests, thinking patterns, and which directions they've explored before. Use this to inform the conversation: reference past sessions, avoid re-treading ground, and pick up threads they left open.
+**Skip if chaining from survey.** If the current session already has survey context (user has been working on a topic, background is known), skip Phase 0 and go straight to Phase 1.
+
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions (skip the background question if profile is already sufficient). Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before. Use this to inform the conversation: reference past sessions, avoid re-treading ground, and pick up threads they left open.
 
 Open with a warm greeting:
 
@@ -114,7 +116,7 @@ If there's conversation history, adapt: "Hey, welcome back! I remember last time
 
 If a personal registry already exists at `~/.claude/survey/personal/`, read it and say: "I already know a bit about your background from before. Let me know if anything's changed."
 
-For **(b)** or **(c)**: run the `researchstyle` skill to build a personal registry, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
+For **(b)** or **(c)**: follow the `researchstyle` skill instructions (read `skills/researchstyle/SKILL.md`) to build a personal registry, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
 
 **For (a) only — one follow-up question:**
 
@@ -122,7 +124,7 @@ For **(b)** or **(c)**: run the `researchstyle` skill to build a personal regist
 
 (Skip this for (b)/(c) — infer experience from the indexed data instead.)
 
-Store the result as part of an internal **user profile** that shapes everything that follows.
+**Save the user profile** to `docs/discussion/user-profile.md` — this persists across sessions so later conversations can reference it. Include: name, field, experience level, key skills/tools, research interests, and notable papers/projects. If the file already exists, update it rather than overwriting (the user's profile evolves over time).
 
 **Then listen.** The user may already describe what they want to explore, share an idea, or ask a question. Either way, always proceed to Phase 1 — there's usually more to discover around any starting point. Phase 1 helps contextualize and ground whatever the user brings (or helps them find a direction if they don't have one yet).
 
@@ -191,31 +193,11 @@ Follow the six conversation principles naturally — as instinct, not as a check
 
 The conversation may loop between steps 2-4 as the idea evolves. That's natural.
 
-After each exchange, offer next steps via `AskUserQuestion`: keep refining, try a different angle, switch topic (→ Phase 3), or save and wrap up.
+After each exchange, offer next steps via `AskUserQuestion`: keep refining, try a different angle, or wrap up.
 
 **Search policy:** Ground ideas in loaded survey registries first. Only search the web when the conversation goes beyond what the survey covers.
 
-### Phase 3 — Topic Switch
-
-When the mentor detects a topic shift (or the user says they want to switch), **ask why before saving**:
-
-> "Before we jump — can I ask a few things?"
-
-Ask via `AskUserQuestion`:
-
-1. "Why are you switching? Did the last direction feel off somehow?"
-2. "Is the new topic related to what we were exploring, or totally different?"
-3. "Want to abandon the old idea, or should I save it so you can come back later?"
-
-This helps understand what's going on — and makes sure nothing is lost by accident.
-
-**Watch for patterns:** Check both the current session and `docs/discussion/*-ideas-log.md` for cross-session patterns. If the user switches topics frequently without going deep — whether within this session or across sessions — present the observation first, then encourage:
-
-> "I notice that we've explored [X], [Y], and now you're moving to [Z] — each time we switched before going very deep. That's totally fine if you're in exploration mode! But I'm curious — was there something about [the most promising one] that felt hard or unclear? I'd be really happy to work through that part together."
-
-Then continue to the new topic (return to Phase 1 or Phase 2 depending on whether the user has a clear direction). The conversation log already captures what was explored — no separate snapshot needed.
-
-### Phase 4 — Wrap Up
+### Phase 3 — Wrap Up
 
 When the user is done, the mentor does two special things before ending:
 
