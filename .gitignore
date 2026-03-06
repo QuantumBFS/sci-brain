@@ -21,5 +21,6 @@ images/flowchart.png
 articles/
 docs/plans/
 docs/test-reports/
+docs/discussion/
 __pycache__/
 .claude/survey/
