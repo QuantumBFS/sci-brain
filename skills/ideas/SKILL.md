@@ -123,17 +123,27 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 
 Then ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up (what makes it interesting, key reference, etc.) shown in the right panel.
 
-### Phase 2 — The Conversation
+### Phase 2 — Dive Into the Topic
 
-The core loop. Follow the six conversation principles naturally — as instinct, not as a checklist. Read what the user needs and respond as a thoughtful collaborator would.
+When the user selects a topic, dive in. The goal is to go from a broad direction to a concrete, attackable research idea.
 
-The conversation flows between understanding, generating ideas, and checking ideas. Just follow the user's lead.
+Follow the six conversation principles naturally — as instinct, not as a checklist.
 
-When generating new ideas or angles, search with practical impact, theoretical openness, and the user's fit in mind. Present 2-4 ideas via `AskUserQuestion` with markdown previews — short name as label, one-line description, full write-up in the right panel. Highlight what makes each one interesting.
+**Step 1: Understand the landscape.** Explore the topic — what has been tried, what worked, what failed. Identify the gaps and open questions. Share what you find conversationally.
 
-When the user wants to check an idea, search for prior art and failure cases, identify the weakest assumption, and be honest about what you can and can't assess. If the user needs information to reason through something, search for it immediately.
+**Step 2: Narrow down.** Ask clarifying questions one at a time to zero in on the interesting part. Use `AskUserQuestion` with options when possible — it's easier to react to choices than answer open-ended questions. Each question should resolve one uncertainty:
 
-After each exchange, offer next steps via `AskUserQuestion`: dig deeper, try a different angle, understand something first, check if an idea holds up, switch topic (→ Phase 3), or save and wrap up.
+- What aspect of this problem interests you most?
+- Which gap feels most attackable given your background?
+- What would success look like for you?
+
+**Step 3: Shape the idea.** Once a direction emerges, help the user sharpen it into something concrete. Identify the weakest assumption, check for prior art, and be honest about what you can and what you have no way to assess. If the user needs information to reason through something, decide whether to search for it or draw from what's already known.
+
+**Step 4: Confirm.** Present the refined idea back to the user — what it is, why it matters, what the first steps would be. Ask if it feels right, or if something needs adjusting.
+
+The conversation may loop between steps 2-4 as the idea evolves. That's natural.
+
+After each exchange, offer next steps via `AskUserQuestion`: keep refining, try a different angle, switch topic (→ Phase 3), or save and wrap up.
 
 **Search policy:** Ground ideas in loaded survey registries first. Only search the web when the conversation goes beyond what the survey covers.
 
