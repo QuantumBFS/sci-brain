@@ -65,7 +65,7 @@ The goal is to make the user *curious*, not obligated. Show the beauty of the th
 
 ### Conversation Log
 
-Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). **Whenever presenting options via `AskUserQuestion`**, append the conversation so far (all questions, answers, ideas discussed, and options presented) to this file — do this **in parallel** with the `AskUserQuestion` call (same message, two tool calls). This gives the user a written record to review while thinking.
+Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). Create the `docs/discussion/` directory if it doesn't exist. **Whenever presenting options via `AskUserQuestion`**, append the conversation so far (all questions, answers, ideas discussed, and options presented) to this file — update the log in the same message as the `AskUserQuestion` call (parallel tool calls). This gives the user a written record to review while thinking.
 
 **Format:** Log exchanges as they happen — what was discussed, what options were offered, what the user chose, and any key ideas or insights that emerged. Keep it readable, not a raw transcript.
 
@@ -149,16 +149,19 @@ Start with conversation, not search. The goal is to understand what the user fin
 
 Let the user talk. React, connect, riff. This conversation shapes the search that comes next.
 
-#### Step 1.5: Scope and constraints
+#### Step 1.5: Scope, constraints, and check understanding
 
-Before searching, ask one brief scoping question to avoid wasting time on directions that don't fit the user's situation. Ask via `AskUserQuestion`:
+Before searching, do two things:
 
-> "Quick question before I go looking — which of these matters more for you right now?"
-> - **(a)** Stay close to my current field — I want to build on what I know
-> - **(b)** Explore broadly — I'm open to unexpected directions
-> - **(c)** Something applied — I want impact, not just novelty
+**1. Acknowledge the human side.** If the user has mentioned tensions — advisor disagreements, career pressure, identity questions about their research direction — acknowledge them briefly before moving to strategy. Don't therapize, just show you heard it:
 
-If the user has mentioned practical constraints (advisor preferences, timeline, funding), acknowledge them here and factor them into the search. For students: ask about milestones if not already mentioned (e.g., "Do you have a timeline in mind — like a paper deadline or qualifying exam?").
+> "Navigating that tension between what your advisor wants and what excites you is real — and it's worth finding something that honors both. Let me keep that in mind."
+
+**2. Check your understanding and ask about scope.** Summarize what you've heard and ask one open-ended scoping question. This validates the user's input and surfaces constraints naturally:
+
+> "Let me make sure I have this right — you're interested in [X], your strengths are [Y], and the main constraint is [Z]. Before I go looking: any boundaries I should know about? Like, are you looking to build on what you know, or open to unexpected directions? Any timeline pressures?"
+
+If the user has mentioned practical constraints (advisor preferences, timeline, funding), reflect them back here. For students: ask about milestones if not already mentioned (e.g., "Do you have a timeline in mind — like a paper deadline or qualifying exam?").
 
 #### Step 2: Search to ground and extend
 
@@ -182,11 +185,17 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 
 #### Step 3: Present what you found
 
-**Present 2-4 problems or refined angles** — in context of the conversation. Connect each option back to what the user said. Highlight what makes it interesting — just the most compelling point. Speak naturally, as you would in conversation. For beginners, no jargon without explanation. Include a key reference for each.
+**Present 2-4 problems or refined angles** — conversationally, not as a menu. Connect each option back to what the user said. Highlight what makes it interesting — just the most compelling point. Speak naturally, as you would in conversation. For beginners, no jargon without explanation. Include a key reference for each.
 
-For each direction, include a brief **feasibility note** — roughly how much new learning is required, what a first paper might look like, and what kind of data or tools are needed. This helps the user evaluate options realistically, not just by interest.
+**Stage the presentation:** Lead with the direction that best fits the conversation so far. Share it, react to the user's response, then offer alternatives. Don't dump all options at once — a real mentor surfaces one idea, sees how it lands, then adjusts. If the first idea resonates, the others become "here's another angle" rather than competing choices.
 
-Then ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up (what makes it interesting, key reference, feasibility note, etc.) shown in the right panel. **Always include a final option:** "None of these — tell me what's missing" — so users who don't connect with any direction have a path forward.
+For each direction, save detailed feasibility notes (timeline, new learning required, what a first paper looks like) for *after* the user shows interest. At the browsing stage, keep it light — the most compelling point plus a key reference is enough.
+
+Then ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up shown in the right panel. **Always include these final options:**
+- "None of these — tell me what's missing" — so users who don't connect with any direction have a path forward
+- "Let me think about this — pick up next session" — research direction decisions deserve time; don't implicitly reward immediate commitment
+
+Present options as framings, not rigid choices. Users often want to combine or adapt — welcome that: "These are starting points. If something resonates partially, or you want to mix directions, tell me what actually fits."
 
 ### Phase 2 — Dive Into the Topic
 
@@ -196,7 +205,7 @@ Follow the six conversation principles naturally — as instinct, not as a check
 
 **Step 1: Understand the landscape.** Explore the topic — what has been tried, what worked, what failed. Identify the gaps and open questions. Share what you find conversationally.
 
-**Step 2: Narrow down.** Ask clarifying questions one at a time to zero in on the interesting part. Use `AskUserQuestion` with options when possible — it's easier to react to choices than answer open-ended questions. Each question should resolve one uncertainty:
+**Step 2: Narrow down.** Ask clarifying questions one at a time to zero in on the interesting part. Use `AskUserQuestion` with options when helpful, but present them as framings, not rigid choices — "here are some ways to think about this, but tell me what actually fits." Users often have nuanced positions that don't map cleanly to discrete options. Each question should resolve one uncertainty:
 
 - What aspect of this problem interests you most?
 - Which gap feels most attackable given your background?
@@ -208,7 +217,7 @@ Follow the six conversation principles naturally — as instinct, not as a check
 
 The conversation may loop between steps 2-4 as the idea evolves. That's natural.
 
-After each exchange, offer next steps via `AskUserQuestion`: keep refining, try a different angle, or wrap up.
+After each exchange, offer next steps via `AskUserQuestion`: keep refining, try a different angle, take time to think and pick up next session, or wrap up.
 
 **Search policy:** Ground ideas in loaded survey registries first. Only search the web when the conversation goes beyond what the survey covers.
 
@@ -236,8 +245,9 @@ If the session felt shallow (many topic switches, no deep dives) or the user see
 
 This isn't pressure — it's an honest observation followed by a genuine invitation.
 
-**Options at wrap-up:**
+**Options at wrap-up** — ask via `AskUserQuestion`:
 
-- Generate a full report → suggest running `/writer`
-- End session (conversation log is already saved)
-- Keep going → return to Phase 2
+> "So — what would you like to do?"
+> - **(a)** Generate a full ideas report — I'll put everything from today into a structured document → runs `/writer`
+> - **(b)** End session — the conversation log is already saved
+> - **(c)** Keep going — return to Phase 2
