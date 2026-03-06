@@ -118,7 +118,9 @@ If a personal registry already exists at `~/.claude/survey/personal/`, read it a
 
 For **(b)** or **(c)**: follow the `researchstyle` skill instructions (read `skills/researchstyle/SKILL.md`) to build a personal registry, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
 
-**For (a) only — one follow-up question:**
+**For (a) only — one follow-up question (if not already answered):**
+
+If the user's self-introduction already reveals their experience level (e.g., they mentioned prior publications, years in a program, or previous projects), skip this question — the information is already there. Otherwise ask:
 
 "Is this your first research project, or have you done this before?"
 
@@ -147,6 +149,17 @@ Start with conversation, not search. The goal is to understand what the user fin
 
 Let the user talk. React, connect, riff. This conversation shapes the search that comes next.
 
+#### Step 1.5: Scope and constraints
+
+Before searching, ask one brief scoping question to avoid wasting time on directions that don't fit the user's situation. Ask via `AskUserQuestion`:
+
+> "Quick question before I go looking — which of these matters more for you right now?"
+> - **(a)** Stay close to my current field — I want to build on what I know
+> - **(b)** Explore broadly — I'm open to unexpected directions
+> - **(c)** Something applied — I want impact, not just novelty
+
+If the user has mentioned practical constraints (advisor preferences, timeline, funding), acknowledge them here and factor them into the search. For students: ask about milestones if not already mentioned (e.g., "Do you have a timeline in mind — like a paper deadline or qualifying exam?").
+
 #### Step 2: Search to ground and extend
 
 Once something interesting surfaces from the conversation, go to the literature. The search is now *guided by* the conversation, not the other way around.
@@ -171,7 +184,9 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 
 **Present 2-4 problems or refined angles** — in context of the conversation. Connect each option back to what the user said. Highlight what makes it interesting — just the most compelling point. Speak naturally, as you would in conversation. For beginners, no jargon without explanation. Include a key reference for each.
 
-Then ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up (what makes it interesting, key reference, etc.) shown in the right panel.
+For each direction, include a brief **feasibility note** — roughly how much new learning is required, what a first paper might look like, and what kind of data or tools are needed. This helps the user evaluate options realistically, not just by interest.
+
+Then ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up (what makes it interesting, key reference, feasibility note, etc.) shown in the right panel. **Always include a final option:** "None of these — tell me what's missing" — so users who don't connect with any direction have a path forward.
 
 ### Phase 2 — Dive Into the Topic
 

@@ -25,7 +25,13 @@ Once the user selects a skill, read its full `SKILL.md` and extract:
 - **Expected outputs** — files created, formats, locations
 - **Dependencies** — other skills referenced, MCP servers, APIs
 
-Present this structural analysis to the user. Example format:
+**Flag structural issues** found during analysis:
+- Decision points with no fallback/escape option (e.g., user must pick from presented choices with no "none of these")
+- Abrupt phase transitions where the skill jumps from one mode to another without bridging
+- Phases that reference files or context without checking if they exist first
+- Asymmetric option handling (e.g., option (a) has a follow-up but (b) and (c) don't)
+
+Present this structural analysis to the user, including any flagged issues. Example format:
 
 ```
 ## Skill Analysis: [name]
@@ -38,6 +44,8 @@ Present this structural analysis to the user. Example format:
   - [file path] — [description]
 **Dependencies:**
   - [skill/service] — [how it's used]
+**Structural flags:**
+  - [issue] at [location]
 ```
 
 Ask the user via `AskUserQuestion`:
@@ -69,7 +77,8 @@ Present the persona to the user via `AskUserQuestion`:
 > - **(a)** Looks good — start the test
 > - **(b)** Make them more challenging — increase pushback and skepticism
 > - **(c)** Make them more cooperative — reduce friction, focus on happy path
-> - **(d)** Let me describe a custom persona
+> - **(d)** Adversarial — generate a persona designed to break assumptions (one-word answers, misunderstandings, off-topic tangents, ignores instructions)
+> - **(e)** Let me describe a custom persona
 
 ### Step 2 — Execute the Skill with Role Play
 
@@ -192,10 +201,14 @@ The session is over. Step out of character briefly and give me structured feedba
 
 **Clean up** any mock files created during testing. List what was cleaned up in the report.
 
+**Add an intent-vs-experience comparison** to the Structural Observations section: for each phase tested, note what the skill's instructions intended to happen alongside what the simulated user actually experienced. Highlight gaps where the experience diverged from intent.
+
 Present the report path to the user and offer:
 
 > "Test complete. Report saved to `docs/test-reports/[file]`. What next?"
 > - **(a)** Review the report together — walk through findings
-> - **(b)** Run another test — same skill, different persona
+> - **(b)** Run another test — same skill, different persona (skips Step 0 analysis — reuses the existing analysis)
 > - **(c)** Test a different skill
 > - **(d)** Done
+
+**Re-run shortcut:** When the user selects **(b)**, skip Step 0 entirely — the skill analysis doesn't change. Go straight to Step 1 (persona generation) with the same target skill.

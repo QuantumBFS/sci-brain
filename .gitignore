@@ -20,5 +20,6 @@ Thumbs.db
 images/flowchart.png
 articles/
 docs/plans/
+docs/test-reports/
 __pycache__/
 .claude/survey/
