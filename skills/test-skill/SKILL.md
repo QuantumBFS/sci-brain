@@ -135,18 +135,20 @@ The first question is: [first decision point from the skill]
 
 ### Step 3 — Collect Feedback & Report
 
-**Resume the subagent one final time** with:
+**Resume the subagent one final time** — stay in character. Interview the persona as the skill's agent would naturally wrap up:
 
 ```
-The session is over. Step out of character briefly and give me structured feedback from your experience as the simulated user:
+We're wrapping up. A few questions before you go:
 
-1. **Natural vs. forced** — What parts of the interaction felt natural? What felt forced, scripted, or awkward?
-2. **Confusing moments** — Were you ever confused by the options presented? Were choices missing that you wanted?
-3. **Understanding** — Did the agent seem to understand what you (as your persona) needed? Where did it miss?
-4. **Pacing** — Was the flow too fast, too slow, or about right? Were there unnecessary steps?
-5. **Missing or unnecessary** — What would you add? What would you remove?
-6. **Overall impression** — Would your persona come back and use this skill again? Why or why not?
+1. What was most useful from today?
+2. Was there anything confusing, or that didn't fit what you needed?
+3. Were there parts that felt too rushed, or parts where we spent too long?
+4. Was there anything you wanted to do or ask about but couldn't?
+5. What did you walk away with, and what would you change next time?
+6. Any other thoughts on how to make this better?
 ```
+
+The persona answers as themselves — no stepping out of character, no meta-analysis. What they report is grounded in what actually happened during the interaction. The test executor interprets these answers in the Structural Observations section of the report.
 
 **Generate the test report** at `docs/test-reports/<skill-name>-<YYYYMMDD-HHMMSS>.md`:
 
@@ -179,9 +181,9 @@ The session is over. Step out of character briefly and give me structured feedba
 
 [Files, skills, paths, or services mentioned in the SKILL.md that don't exist or aren't accessible]
 
-## UX Feedback (from simulated user)
+## Persona Interview
 
-[Subagent's structured feedback from the final resume, organized by category]
+[In-character responses from the simulated user to the wrap-up questions. These reflect what happened during the interaction, not meta-analysis.]
 
 ## Structural Observations (from test executor)
 

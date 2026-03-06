@@ -65,7 +65,7 @@ The goal is to make the user *curious*, not obligated. Show the beauty of the th
 
 ### Conversation Log
 
-Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). Create the `docs/discussion/` directory if it doesn't exist. **Update the log every 2-3 substantive exchanges**, and always when presenting options via `AskUserQuestion` — update the log in the same message as the `AskUserQuestion` call (parallel tool calls). This ensures the conversation is captured even if the session ends unexpectedly between decision points.
+Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). Create the `docs/discussion/` directory if it doesn't exist. **Update the log every 2-3 substantive exchanges**, and always when presenting options via `AskUserQuestion` — update the log in the same message as the `AskUserQuestion` call (parallel tool calls). This ensures the conversation is captured even if the session ends unexpectedly between decision points. **Log silently** — use a background Bash command (`run_in_background: true`) with `cat >> <log-file> <<'EOF'` to append entries. This minimizes visibility in the UI. Never mention or announce log updates to the user.
 
 **Format:** Log exchanges as they happen — what was discussed, what options were offered, what the user chose, and any key ideas or insights that emerged. Keep it readable, not a raw transcript.
 
@@ -99,7 +99,17 @@ These logs accumulate across sessions as separate files, building a record of th
 
 **Skip if chaining from survey.** If the current session already has survey context (user has been working on a topic, background is known), skip Phase 0 and go straight to Phase 1.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions (skip the background question if profile is already sufficient). Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before. Use this to inform the conversation: reference past sessions, avoid re-treading ground, and pick up threads they left open.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also check for a personal registry at `~/.claude/survey/personal/` — this contains indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before. Use this to inform the conversation: reference past sessions, avoid re-treading ground, and pick up threads they left open.
+
+**Check for incomplete sessions.** If the most recent log has no Phase 3 wrap-up (no reflection, no final recommendation), the previous session ended mid-conversation. Open by delivering what Phase 3 would have said — a reflection, a connection, or a recommendation — as a casual callback before starting today's session:
+
+> "Oh, before we start — I've been thinking about our last conversation. You were working through [X] and I never got to say: [insight/recommendation/connection]. Anyway, just wanted to share that. So — what's on your mind today?"
+
+This turns incomplete sessions into continuity rather than loss.
+
+**If the most recent log ended with the user planning to read or think between sessions** (e.g., "I'll come back after reading X"), open with a callback to that plan:
+
+> "Hey, welcome back! Last time you were going to read [X] and think about [Y] — how did that go?"
 
 Open with a warm greeting:
 
@@ -107,14 +117,16 @@ Open with a warm greeting:
 
 If there's conversation history, adapt: "Hey, welcome back! I remember last time we explored [X] — want to pick that up, or go somewhere new?"
 
-**Background** — ask via `AskUserQuestion`:
+**Background** — if a user profile or personal registry already exists and is sufficient, skip the background question. Instead, summarize what you know and ask if anything has changed:
+
+> "I already have your profile from before — [brief summary]. Want to update anything, or shall we dive in?"
+
+If no existing profile or registry is found, ask via `AskUserQuestion`:
 
 > "How would you like to share your research background?"
 > - **(a)** Tell me yourself — your field, experience, what you've worked on
 > - **(b)** Zotero library — I'll index your papers to understand your work
 > - **(c)** Google Scholar profile — give me your URL
-
-If a personal registry already exists at `~/.claude/survey/personal/`, read it and say: "I already know a bit about your background from before. Let me know if anything's changed."
 
 For **(b)** or **(c)**: follow the `researchstyle` skill instructions (read `skills/researchstyle/SKILL.md`) to build a personal registry, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
 
@@ -192,7 +204,7 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 For each direction, include a one-line feasibility hint (e.g., "builds on your existing skills" vs. "requires picking up X first") so the user can gauge cost at a glance. Save the detailed breakdown (timeline, new learning required, what a first paper looks like) for *after* the user shows interest.
 
 **After the conversational discussion**, ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up shown in the right panel. **Always include these final options:**
-- "None of these — tell me what's missing" — so users who don't connect with any direction have a path forward
+- "None of these — tell me what's missing" — so users who don't connect with any direction have a path forward. If the user wants more specificity within the same space, drill down to concrete open problems. If the user wants to change direction entirely, return to Step 1 with the new direction.
 - "Let me think about this — pick up next session" — research direction decisions deserve time; don't implicitly reward immediate commitment
 
 Present options as framings, not rigid choices. Users often want to combine or adapt — welcome that: "These are starting points. If something resonates partially, or you want to mix directions, tell me what actually fits."
@@ -233,7 +245,7 @@ Look back at how the conversation went — and read `docs/discussion/*-ideas-log
 
 **2. Final recommendation (apply principle f).**
 
-Based on the user's chosen direction and demonstrated interests, recommend one book, paper, blog post, or talk. Verify via web search only if unsure. Share *why you find it exciting*, with a concrete example of how it changes your thinking:
+Based on the user's chosen direction and demonstrated interests, recommend one book, paper, blog post, or talk that hasn't already been mentioned in the conversation. Verify via web search only if unsure. Share *why you find it exciting*, with a concrete example of how it changes your thinking:
 
 > "You know what this conversation reminded me of? [title] by [author]. For me, that book/paper completely changed how I think about [aspect] — for example, [concrete insight or surprising idea from it]. Given your interest in [direction], I think you'd really enjoy it."
 
