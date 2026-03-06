@@ -1,6 +1,6 @@
 # sci-brain
 
-An AI-powered research brainstorming partner. Tell it a research topic — it surveys the literature, generates ideas, stress-tests them, and produces a report with the survivors.
+An AI-powered research brainstorming partner. Tell it a research topic — it surveys the literature, helps you find good problems, and shapes concrete research ideas together with you.
 
 Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), and [OpenCode](https://github.com/opencode-ai/opencode). Skill format inspired by [superpowers](https://github.com/obra/superpowers).
 
@@ -32,14 +32,7 @@ You name a research area. The AI searches in parallel using multiple strategies 
 
 ### 2. Brainstorm ideas
 
-You get ideas grounded in your survey, each citing specific papers as evidence. You're offered questions to dig into — pick the ones that matter to you, or type your own:
-
-- *"What's the minimal experiment that would validate this?"*
-- *"Has this been tried before?"*
-- *"What observable outcome would constitute success?"*
-- *"Let me read [Smith2023] to check whether it actually supports this claim."*
-
-The AI reads full papers when needed to verify claims. The conversation continues until you're ready for a formal review — ideas that don't survive get killed with an epitaph. Survivors are ranked. You pick a direction.
+A Socratic research collaborator that understands your background (from your Zotero library, Google Scholar profile, or self-description). It suggests problems worth working on — filtered by practical impact, theoretical openness, and fit with your skills — then dives in with you, asking one question at a time to narrow a broad direction into a concrete, attackable research idea.
 
 ### 3. Write it up
 

@@ -63,11 +63,47 @@ The goal is to make the user *curious*, not obligated. Show the beauty of the th
 
 ---
 
+### Conversation Log
+
+Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). **Whenever presenting options via `AskUserQuestion`**, append the conversation so far (all questions, answers, ideas discussed, and options presented) to this file — do this **in parallel** with the `AskUserQuestion` call (same message, two tool calls). This gives the user a written record to review while thinking.
+
+**Format:** Log exchanges as they happen — what was discussed, what options were offered, what the user chose, and any key ideas or insights that emerged. Keep it readable, not a raw transcript.
+
+```markdown
+# Ideas Session — YYYY-MM-DD HH:MM
+
+### Phase 0
+- Background: [how user shared it]
+- Profile: [key facts]
+
+### Phase 1 — Free Talk
+- Provocations offered: ...
+- User's response: ...
+- Direction that emerged: ...
+
+### Phase 1 — Search & Options
+- Options presented: [list with short descriptions]
+- User chose: ...
+
+### Phase 2 — [Topic]
+- Key exchanges: ...
+- Ideas explored: ...
+- Options presented: [list]
+- User chose: ...
+...
+```
+
+This log accumulates across sessions, building a record of the user's research interests, thinking patterns, and explored directions.
+
 ### Phase 0 — Get to Know You
+
+**First, check for history.** If conversation logs exist at `docs/discussion/*-ideas-log.md`, read them — it contains past brainstorming sessions and reveals the user's evolving interests, thinking patterns, and which directions they've explored before. Use this to inform the conversation: reference past sessions, avoid re-treading ground, and pick up threads they left open.
 
 Open with a warm greeting:
 
 > "Hey! I'm excited to brainstorm with you. But first, let me get to know you a bit — better suggestions come from understanding who I'm talking to."
+
+If there's conversation history, adapt: "Hey, welcome back! I remember last time we explored [X] — want to pick that up, or go somewhere new?"
 
 **Background** — ask via `AskUserQuestion`:
 
@@ -92,20 +128,30 @@ Store the result as part of an internal **user profile** that shapes everything 
 
 ### Phase 1 — Find Good Problems
 
-**Always run this phase** — even when the user already stated a direction. There's almost always more context to uncover. Phase 1 grounds things in the literature and surfaces what's around the user's starting point.
+**Always run this phase** — even when the user already stated a direction. There's almost always more context to uncover.
 
-**Load context:** Check for survey registries in global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If found, present them and ask which to use. If none found, ask for a topic area and suggest running `/survey` first — or do a lighter web search to map the landscape.
+**Load context:** Check for survey registries in global and project paths (e.g., `~/.claude/survey/` and `.claude/survey/`). If found, note them for later use. If none found, note that a lighter web search will be needed later.
+
+#### Step 1: Talk first
+
+Start with conversation, not search. The goal is to understand what the user finds exciting *before* touching the literature.
 
 **Two entry modes:**
 
-- **User has a direction:** Dig into the area around it — what's the landscape? What has been tried? What are the open questions nearby? Share what you find: "You mentioned [X] — I looked around that area and found some interesting things..."
-- **User is open:** Search broadly based on their background and profile.
+- **User has a direction:** Ask them about it — what draws them to this? What's the specific puzzle or opportunity they see? React to what they say, make connections, ask follow-ups. Have a genuine back-and-forth.
+- **User is open:** Scan their profile and any loaded registries for 1-2 interesting provocations — surprising connections between their skills, underexplored intersections, or things that seem ripe. Throw these out casually to spark conversation, not as formal options:
 
-Tell the user what you're doing:
+  > "Looking at your work, one thing that jumps out is [observation]. And I'm also curious about [connection]. What do you think — does either of these resonate, or is something else on your mind?"
 
-> "Let me see if I have some good questions in my pocket, digging..."
+Let the user talk. React, connect, riff. This conversation shapes the search that comes next.
 
-**Search with three matters in mind** — these shape what directions to explore:
+#### Step 2: Search to ground and extend
+
+Once something interesting surfaces from the conversation, go to the literature. The search is now *guided by* the conversation, not the other way around.
+
+> "That's a really interesting angle — let me see what's out there around this..."
+
+**Search with three matters in mind:**
 
 1. **Practical impact** — What real problems need solving? Who would benefit?
 2. **Theoretically interesting and open** — Where is there genuine depth? What key questions are still unsolved?
@@ -119,7 +165,9 @@ Mine the survey registry's open problems/bottlenecks + web search for recent dev
 | Experienced, wants challenge | Recently opened problems, contrarian angles, cross-field opportunities |
 | Has specific tools/methods | Problems where those tools are underused or newly applicable |
 
-**Present 2-4 problems or refined angles.** For each, highlight what makes it interesting — just the most compelling point. Speak naturally, as you would in conversation. For beginners, no jargon without explanation. Include a key reference for each.
+#### Step 3: Present what you found
+
+**Present 2-4 problems or refined angles** — in context of the conversation. Connect each option back to what the user said. Highlight what makes it interesting — just the most compelling point. Speak naturally, as you would in conversation. For beginners, no jargon without explanation. Include a key reference for each.
 
 Then ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up (what makes it interesting, key reference, etc.) shown in the right panel.
 
@@ -161,21 +209,11 @@ Ask via `AskUserQuestion`:
 
 This helps understand what's going on — and makes sure nothing is lost by accident.
 
-**Watch for patterns:** If the user switches topics frequently without going deep, or seems to lose interest quickly, present the observation first, then encourage:
+**Watch for patterns:** Check both the current session and `docs/discussion/*-ideas-log.md` for cross-session patterns. If the user switches topics frequently without going deep — whether within this session or across sessions — present the observation first, then encourage:
 
 > "I notice that we've explored [X], [Y], and now you're moving to [Z] — each time we switched before going very deep. That's totally fine if you're in exploration mode! But I'm curious — was there something about [the most promising one] that felt hard or unclear? I'd be really happy to work through that part together."
 
-**If saving:** Write a snapshot to `articles/YYYY-MM-DD-<topic>-notes.md`:
-
-- **Topic** — the problem/direction explored
-- **Ideas explored** — each with status (promising / killed / needs more work)
-- **Key insights** — what mentor and user discovered together
-- **Reading list** — papers and resources suggested, with why each matters
-- **Open questions** — what's still unresolved
-- **Next steps** — what the user would do if they came back to this
-- **References** — save BibTeX as `articles/YYYY-MM-DD-<topic>-references.bib`
-
-Then continue to the new topic (return to Phase 1 or Phase 2 depending on whether the user has a clear direction).
+Then continue to the new topic (return to Phase 1 or Phase 2 depending on whether the user has a clear direction). The conversation log already captures what was explored — no separate snapshot needed.
 
 ### Phase 4 — Wrap Up
 
@@ -183,7 +221,7 @@ When the user is done, the mentor does two special things before ending:
 
 **1. Reflect on the conversation and share a better way to dig in.**
 
-Look back at how the conversation went — what patterns emerged, what was most interesting. Then share a thought:
+Look back at how the conversation went — and read `docs/discussion/*-ideas-log.md` for cross-session patterns. What themes keep coming up? What directions has the user circled back to? What was most interesting today vs. past sessions? Then share a thought:
 
 > "I really enjoyed this conversation. I'd love to dig deeper with you about [specific matter that came up]. One way you could ask about it is: '[a better-framed version of a question they asked during the session]' — that kind of question opens up more interesting directions.
 
@@ -204,5 +242,5 @@ This isn't pressure — it's an honest observation followed by a genuine invitat
 **Options at wrap-up:**
 
 - Generate a full report → suggest running `/writer`
-- Save and end → snapshot as in Phase 3
+- End session (conversation log is already saved)
 - Keep going → return to Phase 2

@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "sci-brain",
-      "description": "Scientific research brainstorming loop: survey, ideate, critique, rank, and refine with user guidance",
+      "description": "Scientific research brainstorming partner: survey the literature, find good problems, and shape concrete research ideas together",
       "version": "0.1.0",
       "source": "./"
     }

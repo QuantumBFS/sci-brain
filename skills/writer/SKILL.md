@@ -7,13 +7,13 @@ description: Use when writing the final ideas report after the user picks a rese
 
 ### Step 0 — Load context
 
-Check whether the current session already has ideas context (ideas report, survey registry, critique results). If not — e.g., the user invoked `/writer` in a fresh session — locate the materials:
+Check whether the current session already has ideas context (from a preceding `/ideas` session). If not — e.g., the user invoked `/writer` in a fresh session — locate the materials:
 
-1. **Ideas report:** Search for recent files matching `articles/*-ideas-report.md`. If multiple exist, list them and ask the user which one to use. If none exist, ask the user: "I don't see an ideas report. Point me to one, or describe the research direction and I'll write from scratch."
+1. **Conversation log:** Search for files matching `docs/discussion/*-ideas-log.md`. If multiple exist, list them and ask the user which one to use. If one exists, read it. This is the primary source — it contains the full brainstorming history: questions asked, options presented, user choices, ideas explored, and directions taken. If none exist, ask the user: "I don't see a conversation log from a brainstorming session. Run `/ideas` first, or describe the research direction and I'll write from scratch."
 2. **Survey registry:** Check global and project registry paths (e.g., `~/.claude/survey/`, `.claude/survey/`). If registries exist, list them and ask which to load. Read the selected `summary.md` and `references.bib`.
 3. **Personal registry:** Check `~/.claude/survey/personal/`. If found, read `summary.md` for background context.
 
-Read all selected files before proceeding. The loaded ideas report provides the reasoning trail, critique results, and chosen direction that structure the document.
+Read all selected files before proceeding. The conversation log provides the reasoning trail, explored directions, and chosen ideas that structure the document.
 
 ### Step 1 — Report scope
 
