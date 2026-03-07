@@ -58,6 +58,10 @@ My Zotero library is at ~/custom/path/Zotero/
 
 You can also run `/researchstyle` to index your full paper collection (Zotero, PDF folder, or Google Scholar) into a registry the mentor can search during brainstorming. This happens automatically inside `/ideas` if you choose the Zotero or Scholar option — `/researchstyle` is only needed standalone if you want to set it up ahead of time.
 
+## Want to Save a Great Answer?
+
+Type `/quicknote` anytime during a conversation. It captures the last substantive Q&A exchange, saves it as a markdown file in `docs/discussion/notes/`, and copies it to your clipboard — ready to paste into Slack, email, or share with a collaborator.
+
 ## Want a Write-Up from a Past Session?
 
 At the end of an `/ideas` session, the mentor offers to generate an ideas report. But if you skipped that, or want to revisit a past session, run `/writer` — it reads your conversation logs and produces a structured document (Typst, LaTeX, or Markdown) with the full reasoning trail and BibTeX references.
@@ -79,6 +83,7 @@ Without them, everything falls back to web search — still works, just less tho
 
 - **Survey registries** — `~/.claude/survey/<topic>/` — persist across sessions, automatically loaded by `/ideas`
 - **Conversation logs** — `docs/discussion/` — each session is a timestamped file; the next session picks up where you left off
+- **Quick notes** — `docs/discussion/notes/` — individual Q&A snapshots from `/quicknote`
 - **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file
 
 ## Installation (Other Platforms)
