@@ -1,6 +1,6 @@
 # sci-brain
 
-An AI-powered research brainstorming partner. Tell it a research topic — it surveys the literature, helps you find good problems, and shapes concrete research ideas together with you.
+An AI-powered research brainstorming partner. Tell it a research topic — it helps you find good problems, think them through, and shape concrete research ideas together with you.
 
 Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), and [OpenCode](https://github.com/opencode-ai/opencode). Skill format inspired by [superpowers](https://github.com/obra/superpowers).
 
@@ -13,34 +13,32 @@ Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.
 /plugin install sci-brain@sci-brain
 ```
 
-Then in any session:
+Then type `/ideas` and start talking.
 
-| Command | When to use |
-|---------|-------------|
-| `/survey` | You want to map the landscape of a research area |
-| `/ideas` | You want to find a concrete problem worth working on |
-| `/writer` | You've picked a direction and want a structured write-up |
-| `/researchstyle` | You want the AI to know your papers and research taste |
+## What `/ideas` Is Like
 
-## What It Does
+You start a conversation. The mentor asks about your background — you can describe yourself, or point it at your Zotero library or Google Scholar profile so it can learn from your papers directly.
 
-### 1. Survey a topic
+Then you talk about what interests you. The mentor listens, makes connections, searches the literature, and presents a few directions tailored to your skills. Not as a menu — as a conversation. You pick what resonates, push back on what doesn't, combine things.
 
-Run `/survey`. Give it a research area — it searches in parallel across seven strategies (landscape mapping, adjacent subfields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks). You pick which directions look interesting, and it builds a survey registry with verified BibTeX. You can also export discovered papers to your Zotero library.
+Once a direction clicks, the mentor helps you sharpen it — narrowing from "I'm interested in X" to a concrete, attackable research problem. It asks one question at a time, checks for prior art, flags risks honestly, and brings in references. You think, it fetches.
 
-### 2. Brainstorm ideas
+When you're done, it reflects on the conversation, recommends a reading, and offers to generate a structured write-up with full BibTeX references. Sessions are logged — the next time you run `/ideas`, it remembers where you left off.
 
-Run `/ideas`. It learns your background (from your Zotero library, Google Scholar profile, or self-description), then suggests problems filtered by practical impact, theoretical openness, and fit with your skills. It works like a Socratic collaborator — asking one question at a time to narrow a broad direction into a concrete, attackable research idea.
+## Want Deeper Literature First?
 
-### 3. Write it up
+`/ideas` searches the web as you talk, but if you want a thorough literature map before brainstorming, run `/survey` first. It searches in parallel across seven strategies — landscape mapping, adjacent fields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks — and builds a registry with verified BibTeX.
 
-Run `/writer`. It produces a structured document (Typst, LaTeX, or Markdown) from your full reasoning trail — survey findings, ideas explored, what was killed and why, and the surviving direction with BibTeX references.
+When you run `/ideas` afterward, it automatically picks up the survey results and uses them to ground the conversation.
 
-## Get Better Results
+```
+/survey              ← build a literature map
+/ideas               ← brainstorm with that literature loaded
+```
 
-**Index your papers.** Run `/researchstyle` to index your Zotero library, PDF folder, or Google Scholar profile. This lets the AI search your collection during brainstorming and calibrate suggestions to your taste.
+## Want It to Know Your Work?
 
-**Describe your research style** in `CLAUDE.md` (or `AGENTS.md` for other platforms):
+The fastest way is to add a few lines to `CLAUDE.md` (or `AGENTS.md` on other platforms):
 
 ```markdown
 # Research context
@@ -49,23 +47,37 @@ My research interests: quantum computing, tensor networks
 I prefer rigorous theoretical work over empirical benchmarks.
 ```
 
-**Point to your Zotero** if it's not at the default `~/Zotero/`:
+If your Zotero isn't at the default `~/Zotero/`:
 
 ```markdown
 # PDF library
 My Zotero library is at ~/custom/path/Zotero/
 ```
 
-**Configure MCP servers** for deeper literature search and Zotero integration:
+You can also run `/researchstyle` to index your full paper collection (Zotero, PDF folder, or Google Scholar) into a registry the mentor can search during brainstorming. This happens automatically inside `/ideas` if you choose the Zotero or Scholar option — `/researchstyle` is only needed standalone if you want to set it up ahead of time.
 
-| MCP server | When it helps |
-|------------|---------------|
-| [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) | Search arxiv by topic. Download full papers to verify claims |
-| [paper-search-mcp](https://github.com/langrocks/paper-search-mcp) | Search PubMed, bioRxiv, CrossRef — essential for biomedical topics |
-| [Semantic Scholar MCP](https://github.com/YUZongmin/semantic-scholar-mcp) | Follow citation chains to find related work. Check novelty |
-| [Zotero MCP](https://github.com/kujenga/zotero-mcp) | Search your existing library, read full text of PDFs you already have |
+## Want a Write-Up from a Past Session?
 
-Without MCP servers, the workflow falls back to web search — still works, just less thorough.
+At the end of an `/ideas` session, the mentor offers to generate an ideas report. But if you skipped that, or want to revisit a past session, run `/writer` — it reads your conversation logs and produces a structured document (Typst, LaTeX, or Markdown) with the full reasoning trail and BibTeX references.
+
+## MCP Servers (Optional, Recommended)
+
+These make literature search significantly deeper:
+
+| MCP server | What it adds |
+|------------|--------------|
+| [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) | Search arxiv by topic, download full papers |
+| [paper-search-mcp](https://github.com/langrocks/paper-search-mcp) | PubMed, bioRxiv, CrossRef — essential for biomedical topics |
+| [Semantic Scholar MCP](https://github.com/YUZongmin/semantic-scholar-mcp) | Citation chains, related work, novelty checking |
+| [Zotero MCP](https://github.com/kujenga/zotero-mcp) | Search your existing library, read PDFs you already have |
+
+Without them, everything falls back to web search — still works, just less thorough.
+
+## Where Things Are Saved
+
+- **Survey registries** — `~/.claude/survey/<topic>/` — persist across sessions, automatically loaded by `/ideas`
+- **Conversation logs** — `docs/discussion/` — each session is a timestamped file; the next session picks up where you left off
+- **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file
 
 ## Installation (Other Platforms)
 
@@ -96,12 +108,6 @@ cd ~/.config/opencode/sci-brain && git pull
 ```
 
 For Claude Code, use the plugin marketplace update workflow.
-
-## Where Your Results Go
-
-**Survey results** are saved to `~/.claude/survey/<topic>/` and persist across sessions — you can run `/ideas` later and it will pick up where you left off.
-
-**Ideas reports** are saved to `articles/` in your current directory, including the write-up and a BibTeX file you can import into your reference manager.
 
 ## Contributors
 
