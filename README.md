@@ -124,4 +124,4 @@ articles/
 
 ## License
 
-MIT
+MIT. Feel free to adapt from the current code based, BUT please acknowledge this package properly, thank you.
