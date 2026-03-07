@@ -65,33 +65,25 @@ The goal is to make the user *curious*, not obligated. Show the beauty of the th
 
 ### Conversation Log
 
-Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). Create the `docs/discussion/` directory if it doesn't exist. **Update the log every 2-3 substantive exchanges**, and always when presenting options via `AskUserQuestion` — update the log in the same message as the `AskUserQuestion` call (parallel tool calls). This ensures the conversation is captured even if the session ends unexpectedly between decision points. **Log silently** — use a background Bash command (`run_in_background: true`) with `cat >> <log-file> <<'EOF'` to append entries. This minimizes visibility in the UI. Never mention or announce log updates to the user.
+Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). Create the `docs/discussion/` directory if it doesn't exist.
 
-**Format:** Log exchanges as they happen — what was discussed, what options were offered, what the user chose, and any key ideas or insights that emerged. Keep it readable, not a raw transcript.
+**Append-only logging.** Save progress by appending to the log at checkpoints. Each append captures the **full conversation content** since the last save — all options presented (with descriptions), reasoning shared, user responses, search results, and key ideas. Not a summary — a readable record of what was actually said.
+
+**When to append (checkpoints):**
+- When the user types a substantive message (ideas, questions, pushback, new directions) — this is the valuable content worth preserving
+- At phase transitions (entering Phase 1, Phase 2, Phase 3)
+- At session wrap-up (Phase 3)
+
+
+**Order: log first, then reply.** At a checkpoint, append to the log file before writing your response to the user. This ensures progress is saved even if the session is interrupted mid-reply.
+
+**File header** — write once when creating the log:
 
 ```markdown
 # Ideas Session — YYYY-MM-DD HH:MM
-
-### Phase 0
-- Background: [how user shared it]
-- Profile: [key facts]
-
-### Phase 1 — Free Talk
-- Provocations offered: ...
-- User's response: ...
-- Direction that emerged: ...
-
-### Phase 1 — Search & Options
-- Options presented: [list with short descriptions]
-- User chose: ...
-
-### Phase 2 — [Topic]
-- Key exchanges: ...
-- Ideas explored: ...
-- Options presented: [list]
-- User chose: ...
-...
 ```
+
+**Phase 3 wrap-up** — append a final section that consolidates the key outcomes: direction chosen, ideas explored, action items, and recommended readings.
 
 These logs accumulate across sessions as separate files, building a record of the user's research interests, thinking patterns, and explored directions.
 
