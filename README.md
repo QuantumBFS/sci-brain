@@ -13,30 +13,28 @@ Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.
 /plugin install sci-brain@sci-brain
 ```
 
-Then in any session, type one of these commands:
+Then in any session:
 
-| Command | What it does |
+| Command | When to use |
 |---------|-------------|
-| `/survey` | Survey a research topic |
-| `/ideas` | Brainstorm research ideas (works best after a survey) |
-| `/writer` | Write up your chosen idea as a polished document |
-| `/researchstyle` | Index your personal paper collection |
+| `/survey` | You want to map the landscape of a research area |
+| `/ideas` | You want to find a concrete problem worth working on |
+| `/writer` | You've picked a direction and want a structured write-up |
+| `/researchstyle` | You want the AI to know your papers and research taste |
 
 ## What It Does
 
-![Flowchart](images/flowchart.svg)
-
 ### 1. Survey a topic
 
-You name a research area. The AI searches in parallel using multiple strategies — landscape mapping, adjacent subfields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks. You pick which directions look interesting, and it builds a **survey registry** with verified BibTeX. You can also export discovered papers to your Zotero library.
+Run `/survey`. Give it a research area — it searches in parallel across seven strategies (landscape mapping, adjacent subfields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks). You pick which directions look interesting, and it builds a survey registry with verified BibTeX. You can also export discovered papers to your Zotero library.
 
 ### 2. Brainstorm ideas
 
-A Socratic research collaborator that understands your background (from your Zotero library, Google Scholar profile, or self-description). It suggests problems worth working on — filtered by practical impact, theoretical openness, and fit with your skills — then dives in with you, asking one question at a time to narrow a broad direction into a concrete, attackable research idea.
+Run `/ideas`. It learns your background (from your Zotero library, Google Scholar profile, or self-description), then suggests problems filtered by practical impact, theoretical openness, and fit with your skills. It works like a Socratic collaborator — asking one question at a time to narrow a broad direction into a concrete, attackable research idea.
 
 ### 3. Write it up
 
-Produces a structured document (Typst, LaTeX, or Markdown) from the full reasoning trail — survey findings, ideas explored, what was killed and why, and the surviving direction with BibTeX references.
+Run `/writer`. It produces a structured document (Typst, LaTeX, or Markdown) from your full reasoning trail — survey findings, ideas explored, what was killed and why, and the surviving direction with BibTeX references.
 
 ## Get Better Results
 
@@ -99,24 +97,11 @@ cd ~/.config/opencode/sci-brain && git pull
 
 For Claude Code, use the plugin marketplace update workflow.
 
-## Output
+## Where Your Results Go
 
-**Survey registry** (persists across sessions):
+**Survey results** are saved to `~/.claude/survey/<topic>/` and persist across sessions — you can run `/ideas` later and it will pick up where you left off.
 
-```
-~/.claude/survey/<topic>/
-  summary.md        # Papers by sub-theme, open problems, bottlenecks
-  references.bib    # BibTeX with abstract + doi/url per entry
-```
-
-**Ideas report:**
-
-```
-articles/
-  YYYY-MM-DD-<topic>-ideas-report.md      # Full reasoning trail
-  YYYY-MM-DD-<topic>-ideas-report.typ      # Polished document
-  YYYY-MM-DD-<topic>-references.bib        # BibTeX references
-```
+**Ideas reports** are saved to `articles/` in your current directory, including the write-up and a BibTeX file you can import into your reference manager.
 
 ## Contributors
 
@@ -124,4 +109,4 @@ articles/
 
 ## License
 
-MIT. Feel free to adapt from the current code based, BUT please acknowledge this package properly, thank you.
+MIT. Feel free to adapt from the current codebase, BUT please acknowledge this package properly, thank you.
