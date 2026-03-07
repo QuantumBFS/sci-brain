@@ -10,6 +10,8 @@ Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.
 
 ```
 /plugin marketplace add QuantumBFS/sci-brain
+```
+```
 /plugin install sci-brain@sci-brain
 ```
 
