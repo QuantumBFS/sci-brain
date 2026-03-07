@@ -8,24 +8,22 @@ sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, 
 
 ## Skills
 
-Four skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
+Five skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
 
-- **survey** — Parallel literature search via 7 strategies, builds a registry (`summary.md` + `references.bib`) with verified BibTeX
-- **ideas** — Socratic research mentor (single agent) that understands user background, suggests attackable problems, encourages deeper thinking, and recommends readings
-- **writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail from ideation
-- **researchstyle** — Indexes a personal paper collection (Zotero/PDF folder/Google Scholar) into the same registry format
+- **ideas** — The main entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. Auto-calls `researchstyle` (Phase 0, if user chooses Zotero/Scholar) and `writer` (Phase 3, if user wants a report).
+- **survey** — Parallel literature search via 7 strategies, builds a registry (`summary.md` + `references.bib`) with verified BibTeX. Run before `/ideas` for deeper literature grounding.
+- **writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail. Auto-called from `/ideas` at wrap-up, or run standalone on a past session's log.
+- **researchstyle** — Indexes a personal paper collection (Zotero/PDF folder/Google Scholar) into registry format. Auto-called from `/ideas` during background setup, or run standalone.
+- **quicknote** — Captures the last substantive Q&A exchange, saves to `docs/discussion/notes/`, copies to clipboard. General-purpose, works in any conversation.
 
 ## Architecture
 
-**Workflow pipeline:** Survey → Ideas → Writer (each skill can run independently or chain)
+**Entry point:** `/ideas` — most users only need this. Other skills are auto-called when needed or can run independently.
 
 **Ideas skill uses a single Socratic mentor:**
 - Understands user background (self-intro, Zotero, or Google Scholar)
-- Adapts to three motivations: understand a topic, generate ideas, evaluate risk
-- Five principles: understand motivation, encourage thinking (humbly), flag uncertainty, surface related facts, empower based on skills
-- Phases: Get to Know You → Find Good Problems → Conversation Loop → Topic Switch (snapshot) → Wrap Up
-
-**Creative lenses** (used in ideation mode): Combiner, Inverter, Transplanter, Bottleneck-breaker, Restater, Scoper
+- Six principles: clarify motivation, encourage thinking (humbly), flag uncertainty, surface related facts, empower based on skills, inspire with deep theory
+- Phases: Get to Know You → Find Good Problems → Dive Into the Topic → Wrap Up
 
 **Survey registry format** (reused across survey, ideas, researchstyle, writer):
 ```

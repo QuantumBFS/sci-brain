@@ -50,6 +50,22 @@ Draft each section, show, get feedback:
 - **Target Venue**
 - **Key References** — full BibTeX entries; save matching `.bib` file
 
+### Visualize abstract ideas
+
+When a concept is abstract or structural — a reduction between problems, a relationship between methods, a data flow, an architecture — draw a diagram instead of (or alongside) explaining it in prose. A picture makes the idea concrete and shareable in ways that paragraphs of text cannot.
+
+**For Typst reports:** use CeTZ (`@preview/cetz:0.4.0`) to draw inline figures. Refer to `skills/writer/typst-reference.md` for CeTZ patterns and syntax. Common diagram types:
+- **Reduction/connection diagrams** — boxes for concepts, arrows for relationships
+- **Pipeline/flow diagrams** — stages of a method or data flow
+- **Comparison layouts** — side-by-side before/after or method A vs. method B
+- **Conceptual sketches** — any visual that makes an abstract idea graspable at a glance
+
+**For LaTeX reports:** use TikZ for equivalent diagrams.
+
+**For Markdown reports:** use ASCII art or Mermaid diagrams where supported.
+
+The goal is not decoration — it's clarity. If drawing the idea makes it easier to understand or critique, draw it.
+
 ---
 
 *Polya's "Looking Back":* After drafting, review — can the result be derived differently? Can it be used for some other problem? Can you see the result at a glance?
