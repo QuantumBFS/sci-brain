@@ -70,9 +70,11 @@ Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (time
 **Append-only logging.** Save progress by appending to the log at checkpoints. Each append captures the **full conversation content** since the last save — all options presented (with descriptions), reasoning shared, user responses, search results, and key ideas. Not a summary — a readable record of what was actually said.
 
 **When to append (checkpoints):**
-- When the user types a substantive message (ideas, questions, pushback, new directions) — this is the valuable content worth preserving
+- Every 3-5 exchanges, at a natural pause — when a sub-topic wraps up, a decision is made, or the conversation shifts direction
 - At phase transitions (entering Phase 1, Phase 2, Phase 3)
 - At session wrap-up (Phase 3)
+
+Don't log after every message. Wait for a moment that feels like a natural checkpoint — the end of a thread, a decision point, a topic shift.
 
 
 **Order: log first, then reply.** At a checkpoint, append to the log file before writing your response to the user. This ensures progress is saved even if the session is interrupted mid-reply.
