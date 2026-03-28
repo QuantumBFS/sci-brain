@@ -1,8 +1,6 @@
 """Extract and normalize dialog from Claude Code and Codex CLI session logs."""
 import json
 import re
-import sys
-from pathlib import Path
 
 
 def _extract_text(content):

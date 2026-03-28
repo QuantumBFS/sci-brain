@@ -112,3 +112,63 @@ def test_claude_merges_consecutive_assistant():
     assert len(turns) == 1
     assert "Part 1." in turns[0]["assistant"]
     assert "Part 2." in turns[0]["assistant"]
+
+
+def test_claude_empty_input():
+    """Empty input returns empty list."""
+    assert extract_claude_turns([]) == []
+
+
+def test_claude_malformed_json():
+    """Malformed JSON lines are silently skipped."""
+    lines = [
+        "not valid json",
+        json.dumps({
+            "type": "user",
+            "message": {"role": "user", "content": "Valid"},
+            "timestamp": "2026-03-28T10:00:00Z",
+        }),
+        json.dumps({
+            "type": "assistant",
+            "message": {"role": "assistant", "content": "Response"},
+            "timestamp": "2026-03-28T10:00:01Z",
+        }),
+    ]
+    turns = extract_claude_turns(lines)
+    assert len(turns) == 1
+    assert turns[0]["user"] == "Valid"
+
+
+def test_claude_trailing_user_no_response():
+    """User message with no following assistant gets '[no response]'."""
+    lines = [
+        json.dumps({
+            "type": "user",
+            "message": {"role": "user", "content": "Last question"},
+            "timestamp": "2026-03-28T10:00:00Z",
+        }),
+    ]
+    turns = extract_claude_turns(lines)
+    assert len(turns) == 1
+    assert turns[0]["assistant"] == "[no response]"
+
+
+def test_claude_truncates_long_assistant():
+    """Assistant responses longer than 500 chars are truncated."""
+    long_text = "x" * 600
+    lines = [
+        json.dumps({
+            "type": "user",
+            "message": {"role": "user", "content": "Tell me everything"},
+            "timestamp": "2026-03-28T10:00:00Z",
+        }),
+        json.dumps({
+            "type": "assistant",
+            "message": {"role": "assistant", "content": long_text},
+            "timestamp": "2026-03-28T10:00:01Z",
+        }),
+    ]
+    turns = extract_claude_turns(lines)
+    assert len(turns) == 1
+    assert len(turns[0]["assistant"]) == 503  # 500 + "..."
+    assert turns[0]["assistant"].endswith("...")
