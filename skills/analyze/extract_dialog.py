@@ -39,11 +39,10 @@ def _truncate(text, max_chars=500):
 def _cwd_to_project_key(cwd):
     """Convert a filesystem path to Claude's project directory key format.
 
-    Replaces '/' with '-' and strips the leading '-'.
-    Example: '/home/leo/myproject' -> 'home-leo-myproject'
+    Replaces '/' with '-', keeping the leading '-'.
+    Example: '/home/leo/myproject' -> '-home-leo-myproject'
     """
-    key = cwd.replace("/", "-")
-    return key.lstrip("-")
+    return cwd.replace("/", "-")
 
 
 def list_claude_sessions(projects_root, project_filter=None):
@@ -325,7 +324,7 @@ def main():
         else:
             sessions = list_codex_sessions(args.sessions_root)
 
-        for i, s in enumerate(sessions):
+        for i, s in enumerate(sessions, 1):
             ts = s["timestamp"][:16].replace("T", " ") if s.get("timestamp") else "unknown"
             session_id = s["session_id"]
             preview = s.get("preview", "")
