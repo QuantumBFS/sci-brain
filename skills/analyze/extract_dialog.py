@@ -33,6 +33,63 @@ def _truncate(text, max_chars=500):
     return text[:max_chars] + "..."
 
 
+def extract_codex_turns(lines):
+    """Parse Codex CLI JSONL lines into normalized turns.
+
+    Args:
+        lines: iterable of JSONL string lines
+
+    Returns:
+        list of dicts with keys: index, user, assistant
+    """
+    records = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if rec.get("type") != "response_item":
+            continue
+        payload = rec.get("payload", {})
+        role = payload.get("role")
+        if role not in ("user", "assistant"):
+            continue
+        content = payload.get("content", [])
+        text = _extract_text(content)
+        if not text:
+            continue
+        if role == "user" and _is_system_preamble(text):
+            continue
+        records.append({"role": role, "text": text})
+
+    turns = []
+    idx = 0
+    i = 0
+    while i < len(records):
+        r = records[i]
+        if r["role"] == "user":
+            user_text = r["text"]
+            assistant_parts = []
+            i += 1
+            while i < len(records) and records[i]["role"] == "assistant":
+                assistant_parts.append(records[i]["text"])
+                i += 1
+            idx += 1
+            assistant_text = "\n".join(assistant_parts) if assistant_parts else "[no response]"
+            turns.append({
+                "index": idx,
+                "user": user_text,
+                "assistant": _truncate(assistant_text),
+            })
+        else:
+            i += 1
+
+    return turns
+
+
 def extract_claude_turns(lines):
     """Parse Claude Code JSONL lines into normalized turns.
 

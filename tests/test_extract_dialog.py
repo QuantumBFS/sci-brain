@@ -2,7 +2,7 @@ import json
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "skills", "analyze"))
-from extract_dialog import extract_claude_turns
+from extract_dialog import extract_claude_turns, extract_codex_turns
 
 
 def test_extract_claude_text_content():
@@ -172,3 +172,31 @@ def test_claude_truncates_long_assistant():
     assert len(turns) == 1
     assert len(turns[0]["assistant"]) == 503  # 500 + "..."
     assert turns[0]["assistant"].endswith("...")
+
+
+def test_extract_codex_turns():
+    """Codex response_item records with role user/assistant are extracted."""
+    lines = [
+        json.dumps({"type": "session_meta", "timestamp": "2026-03-28T10:00:00Z", "payload": {"model": "gpt-5.4"}}),
+        json.dumps({"type": "response_item", "timestamp": "2026-03-28T10:00:01Z", "payload": {"role": "user", "content": [{"type": "input_text", "text": "What is Rust?"}]}}),
+        json.dumps({"type": "event_msg", "timestamp": "2026-03-28T10:00:02Z", "payload": {"event": "task_started"}}),
+        json.dumps({"type": "response_item", "timestamp": "2026-03-28T10:00:03Z", "payload": {"role": "assistant", "content": [{"type": "output_text", "text": "Rust is a systems language."}]}}),
+    ]
+    turns = extract_codex_turns(lines)
+    assert len(turns) == 1
+    assert turns[0]["user"] == "What is Rust?"
+    assert turns[0]["assistant"] == "Rust is a systems language."
+
+
+def test_codex_skips_developer_and_no_role():
+    """Developer (system) messages and role=N/A items are skipped."""
+    lines = [
+        json.dumps({"type": "response_item", "timestamp": "2026-03-28T10:00:00Z", "payload": {"role": "developer", "content": [{"type": "input_text", "text": "System instructions here"}]}}),
+        json.dumps({"type": "response_item", "timestamp": "2026-03-28T10:00:01Z", "payload": {"role": "user", "content": [{"type": "input_text", "text": "Hello"}]}}),
+        json.dumps({"type": "response_item", "timestamp": "2026-03-28T10:00:02Z", "payload": {"content": "some string without role"}}),
+        json.dumps({"type": "response_item", "timestamp": "2026-03-28T10:00:03Z", "payload": {"role": "assistant", "content": [{"type": "output_text", "text": "Hi!"}]}}),
+    ]
+    turns = extract_codex_turns(lines)
+    assert len(turns) == 1
+    assert turns[0]["user"] == "Hello"
+    assert turns[0]["assistant"] == "Hi!"
