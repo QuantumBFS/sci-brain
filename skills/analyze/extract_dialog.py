@@ -24,9 +24,19 @@ def _extract_text(content):
 
 
 def _is_system_preamble(text):
-    """Check if text is entirely system-reminder tags or environment injection."""
-    stripped = re.sub(r"<system-reminder>.*?</system-reminder>", "", text, flags=re.DOTALL).strip()
-    return len(stripped) == 0
+    """Check if text is entirely system/environment tags with no real user content."""
+    stripped = text
+    # Remove XML-style system tags
+    for tag in ("system-reminder", "environment_context", "command-message",
+                "command-name", "INSTRUCTIONS", "instructions"):
+        stripped = re.sub(rf"<{tag}>.*?</{tag}>", "", stripped, flags=re.DOTALL)
+    stripped = stripped.strip()
+    if len(stripped) == 0:
+        return True
+    # Detect AGENTS.md / CLAUDE.md preamble injections
+    if stripped.startswith("# AGENTS.md") or stripped.startswith("# CLAUDE.md"):
+        return True
+    return False
 
 
 def _truncate(text, max_chars=500):
@@ -128,7 +138,7 @@ def list_codex_sessions(sessions_root):
         return []
 
     sessions = []
-    for jsonl_file in root.glob("*.jsonl"):
+    for jsonl_file in root.rglob("rollout-*.jsonl"):
         session_id = jsonl_file.stem
         timestamp = None
         preview = ""
