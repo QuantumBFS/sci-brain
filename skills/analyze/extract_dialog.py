@@ -1,6 +1,9 @@
 """Extract and normalize dialog from Claude Code and Codex CLI session logs."""
+import argparse
 import json
 import re
+import sys
+from pathlib import Path
 
 
 def _extract_text(content):
@@ -31,6 +34,137 @@ def _truncate(text, max_chars=500):
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + "..."
+
+
+def _cwd_to_project_key(cwd):
+    """Convert a filesystem path to Claude's project directory key format.
+
+    Replaces '/' with '-' and strips the leading '-'.
+    Example: '/home/leo/myproject' -> 'home-leo-myproject'
+    """
+    key = cwd.replace("/", "-")
+    return key.lstrip("-")
+
+
+def list_claude_sessions(projects_root, project_filter=None):
+    """List sessions from Claude Code projects directory.
+
+    Args:
+        projects_root: path to ~/.claude/projects or equivalent
+        project_filter: if given, only look in this project subdirectory name
+
+    Returns:
+        list of dicts with keys: session_id, project, timestamp, preview
+        sorted by timestamp descending
+    """
+    root = Path(projects_root)
+    if not root.exists():
+        return []
+
+    sessions = []
+    if project_filter:
+        project_dirs = [root / project_filter] if (root / project_filter).is_dir() else []
+    else:
+        project_dirs = [p for p in root.iterdir() if p.is_dir()]
+
+    for project_dir in project_dirs:
+        for jsonl_file in project_dir.glob("*.jsonl"):
+            # Skip subagent files — they live under <session_id>/subagents/
+            # (i.e. the parent's parent is not the project dir)
+            if jsonl_file.parent != project_dir:
+                continue
+
+            session_id = jsonl_file.stem
+            timestamp = None
+            preview = ""
+
+            try:
+                with jsonl_file.open() as f:
+                    for raw in f:
+                        raw = raw.strip()
+                        if not raw:
+                            continue
+                        try:
+                            rec = json.loads(raw)
+                        except json.JSONDecodeError:
+                            continue
+                        # Find first real user message
+                        if rec.get("type") == "user":
+                            msg = rec.get("message", {})
+                            text = _extract_text(msg.get("content", ""))
+                            if text and not _is_system_preamble(text):
+                                if timestamp is None:
+                                    timestamp = rec.get("timestamp", "")
+                                preview = text[:80]
+                                break
+                        # Capture timestamp from any record if not yet set
+                        if timestamp is None:
+                            timestamp = rec.get("timestamp", "")
+            except OSError:
+                continue
+
+            sessions.append({
+                "session_id": session_id,
+                "project": project_dir.name,
+                "timestamp": timestamp or "",
+                "preview": preview,
+            })
+
+    sessions.sort(key=lambda s: s["timestamp"], reverse=True)
+    return sessions
+
+
+def list_codex_sessions(sessions_root):
+    """List Codex sessions from ~/.codex/sessions/ or equivalent.
+
+    Args:
+        sessions_root: path to the Codex sessions directory
+
+    Returns:
+        list of dicts with keys: session_id, timestamp, preview, path
+        sorted by timestamp descending
+    """
+    root = Path(sessions_root)
+    if not root.exists():
+        return []
+
+    sessions = []
+    for jsonl_file in root.glob("*.jsonl"):
+        session_id = jsonl_file.stem
+        timestamp = None
+        preview = ""
+
+        try:
+            with jsonl_file.open() as f:
+                for raw in f:
+                    raw = raw.strip()
+                    if not raw:
+                        continue
+                    try:
+                        rec = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+                    if timestamp is None:
+                        timestamp = rec.get("timestamp", "")
+                    if rec.get("type") == "response_item":
+                        payload = rec.get("payload", {})
+                        if payload.get("role") == "user":
+                            text = _extract_text(payload.get("content", []))
+                            if text and not _is_system_preamble(text):
+                                preview = text[:80]
+                                break
+        except OSError:
+            continue
+
+        sessions.append({
+            "session_id": session_id,
+            "timestamp": timestamp or "",
+            "preview": preview,
+            "path": str(jsonl_file),
+        })
+
+    sessions.sort(key=lambda s: s["timestamp"], reverse=True)
+    return sessions
 
 
 def extract_codex_turns(lines):
@@ -145,3 +279,113 @@ def extract_claude_turns(lines):
             i += 1
 
     return turns
+
+
+def main():
+    """CLI entry point for listing and extracting dialog sessions."""
+    parser = argparse.ArgumentParser(description="Extract dialog from Claude Code and Codex sessions")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # list subcommand
+    list_p = sub.add_parser("list", help="List available sessions")
+    list_p.add_argument("--source", choices=["claude", "codex"], required=True)
+    list_p.add_argument("--project", help="Project directory name to filter (Claude only)")
+    list_p.add_argument(
+        "--projects-root",
+        default=str(Path.home() / ".claude" / "projects"),
+        help="Root of Claude projects directory",
+    )
+    list_p.add_argument(
+        "--sessions-root",
+        default=str(Path.home() / ".codex" / "sessions"),
+        help="Root of Codex sessions directory",
+    )
+
+    # extract subcommand
+    ext_p = sub.add_parser("extract", help="Extract dialog from a session")
+    ext_p.add_argument("--source", choices=["claude", "codex"], required=True)
+    ext_p.add_argument("--session", required=True, help="Session ID to extract")
+    ext_p.add_argument(
+        "--projects-root",
+        default=str(Path.home() / ".claude" / "projects"),
+        help="Root of Claude projects directory",
+    )
+    ext_p.add_argument(
+        "--sessions-root",
+        default=str(Path.home() / ".codex" / "sessions"),
+        help="Root of Codex sessions directory",
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "list":
+        if args.source == "claude":
+            project_filter = args.project or _cwd_to_project_key(str(Path.cwd()))
+            sessions = list_claude_sessions(args.projects_root, project_filter=project_filter)
+        else:
+            sessions = list_codex_sessions(args.sessions_root)
+
+        for i, s in enumerate(sessions):
+            ts = s["timestamp"][:16].replace("T", " ") if s.get("timestamp") else "unknown"
+            session_id = s["session_id"]
+            preview = s.get("preview", "")
+            print(f'[{i}] {ts} | {session_id} | "{preview}"')
+
+    elif args.command == "extract":
+        session_file = None
+        timestamp = None
+
+        if args.source == "claude":
+            claude_projects = Path(args.projects_root)
+            for candidate in claude_projects.rglob(f"{args.session}.jsonl"):
+                # Skip subagent files (they sit inside <session>/subagents/)
+                if "subagents" in candidate.parts:
+                    continue
+                session_file = candidate
+                break
+        else:
+            codex_root = Path(args.sessions_root)
+            for candidate in codex_root.rglob("*.jsonl"):
+                if args.session in candidate.stem:
+                    session_file = candidate
+                    break
+
+        if session_file is None:
+            print(f"Session '{args.session}' not found.", file=sys.stderr)
+            sys.exit(1)
+
+        with session_file.open() as f:
+            lines = f.readlines()
+
+        # Get timestamp from first parseable record
+        for raw in lines:
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                rec = json.loads(raw)
+                timestamp = rec.get("timestamp", "")
+                break
+            except json.JSONDecodeError:
+                continue
+
+        if args.source == "claude":
+            turns = extract_claude_turns(lines)
+            project = session_file.parent.name if session_file else ""
+        else:
+            turns = extract_codex_turns(lines)
+            project = ""
+
+        output = {
+            "source": args.source,
+            "session_id": args.session,
+            "project": project,
+            "timestamp": timestamp or "",
+            "turns": turns,
+        }
+        json.dump(output, sys.stdout, indent=2)
+        print()
+
+
+if __name__ == "__main__":
+    main()

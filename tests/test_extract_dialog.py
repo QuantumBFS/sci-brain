@@ -1,8 +1,10 @@
 import json
+import subprocess
 import sys
 import os
+from pathlib import Path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "skills", "analyze"))
-from extract_dialog import extract_claude_turns, extract_codex_turns
+from extract_dialog import extract_claude_turns, extract_codex_turns, list_claude_sessions
 
 
 def test_extract_claude_text_content():
@@ -200,3 +202,58 @@ def test_codex_skips_developer_and_no_role():
     assert len(turns) == 1
     assert turns[0]["user"] == "Hello"
     assert turns[0]["assistant"] == "Hi!"
+
+
+def test_list_claude_sessions(tmp_path):
+    """Lists sessions from a project directory, showing timestamp and first user message."""
+    project_dir = tmp_path / "projects" / "-home-leo-test"
+    project_dir.mkdir(parents=True)
+    session_file = project_dir / "abc-123.jsonl"
+    session_file.write_text(
+        json.dumps({
+            "type": "user",
+            "message": {"role": "user", "content": "First real question"},
+            "timestamp": "2026-03-28T10:00:00Z",
+        }) + "\n"
+    )
+    sub_dir = project_dir / "abc-123" / "subagents"
+    sub_dir.mkdir(parents=True)
+    (sub_dir / "agent-x.jsonl").write_text('{"type":"user","message":{"role":"user","content":"sub"}}\n')
+
+    sessions = list_claude_sessions(str(tmp_path / "projects"), project_filter="-home-leo-test")
+    assert len(sessions) == 1
+    assert sessions[0]["session_id"] == "abc-123"
+    assert "First real question" in sessions[0]["preview"]
+
+
+def test_cli_extract_claude(tmp_path):
+    """CLI extract command outputs valid JSON to stdout."""
+    project_dir = tmp_path / "projects" / "-test"
+    project_dir.mkdir(parents=True)
+    session_file = project_dir / "sess-1.jsonl"
+    session_file.write_text(
+        json.dumps({
+            "type": "user",
+            "message": {"role": "user", "content": "What is X?"},
+            "timestamp": "2026-03-28T10:00:00Z",
+        })
+        + "\n"
+        + json.dumps({
+            "type": "assistant",
+            "message": {"role": "assistant", "content": "X is Y."},
+            "timestamp": "2026-03-28T10:00:01Z",
+        })
+        + "\n"
+    )
+    script = str(Path(__file__).parent.parent / "skills" / "analyze" / "extract_dialog.py")
+    result = subprocess.run(
+        [sys.executable, script, "extract", "--source", "claude", "--session", "sess-1",
+         "--projects-root", str(tmp_path / "projects")],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    data = json.loads(result.stdout)
+    assert data["source"] == "claude"
+    assert data["session_id"] == "sess-1"
+    assert len(data["turns"]) == 1
+    assert data["turns"][0]["user"] == "What is X?"
