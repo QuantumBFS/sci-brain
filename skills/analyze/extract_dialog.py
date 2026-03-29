@@ -329,7 +329,10 @@ def main():
 
     if args.command == "list":
         if args.source == "claude":
-            project_filter = args.project or _cwd_to_project_key(str(Path.cwd()))
+            if args.project == "all":
+                project_filter = None
+            else:
+                project_filter = args.project or _cwd_to_project_key(str(Path.cwd()))
             sessions = list_claude_sessions(args.projects_root, project_filter=project_filter)
         else:
             sessions = list_codex_sessions(args.sessions_root)

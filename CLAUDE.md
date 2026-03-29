@@ -8,14 +8,15 @@ sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, 
 
 ## Skills
 
-Six skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
+Seven skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
 
 - **ideas** — The main entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. Auto-calls `researchstyle` (Phase 0, if user chooses Zotero/Scholar) and `writer` (Phase 3, if user wants a report).
 - **survey** — Parallel literature search via 7 strategies, builds a registry (`summary.md` + `references.bib`) with verified BibTeX. Run before `/ideas` for deeper literature grounding.
 - **writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail. Auto-called from `/ideas` at wrap-up, or run standalone on a past session's log.
 - **researchstyle** — Indexes a personal paper collection (Zotero/PDF folder/Google Scholar) into registry format. Auto-called from `/ideas` during background setup, or run standalone.
 - **quicknote** — Captures the last substantive Q&A exchange, saves to `docs/discussion/notes/`, copies to clipboard. General-purpose, works in any conversation.
-- **analyze** — Extracts dialog from Claude Code or Codex CLI session logs, classifies user questions across 6 academic dimensions (Bloom's, Graesser, Paul & Elder, Walton, Long & Sato), outputs tagged Q&A report to `docs/dialog/`. Extraction script: `python skills/analyze/extract_dialog.py list|extract`.
+- **analyze** — Extracts dialog from Claude Code or Codex CLI session logs, classifies user messages across 6 academic dimensions (Bloom's, Graesser, Paul & Elder, Walton, Long & Sato), organizes by topic, outputs tagged dialog reports to `docs/dialog/`. Extraction script: `python skills/analyze/extract_dialog.py list|extract`.
+- **soul-extraction** — Reads `/analyze` output, clusters trigger→reaction pairs into `thinking-pattern.md`, detects logic jumps (with user confirmation) for `master-thinking.md`. The master-thinking file serves as a self-interview for the creator to reconstruct their chain of thought.
 
 ## Architecture
 
