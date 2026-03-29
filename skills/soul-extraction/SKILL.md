@@ -63,17 +63,37 @@ A "logic jump" is a user message that is NOT a direct response to what the assis
 - User introduces a topic or constraint not mentioned in the prior assistant turn
 - A starting question (Turn 1) that connects multiple domains or frames a problem unusually
 
-**User confirmation gate:** Present each candidate to the user:
+**Curation:** Not every candidate is worth presenting. From all candidates, select the **5-12 most valuable** logic jumps. Value is judged **relative to the topic being analyzed** — e.g., if the topic is `skill-design`, evaluate jumps by how they improved skill writing; if `debugging`, by how they led to root-cause discovery.
 
-> **Candidate logic jump** (Session <id>, Turn N)
->
-> **Context:** <prior assistant message, truncated>
-> **Your message:** "<user message>"
-> **Hypothesis:** <one-line explanation of why this seems like a logic jump>
->
-> **keep** / **skip** / **rewrite** (correct the hypothesis)?
+Selection criteria:
+- **Brought good outcomes for the topic** — the jump led to a better result in the domain being studied (e.g., better skill design, better code, better paper)
+- **Introduced a transferable insight** — the reasoning pattern could improve future work in the same topic area
+- **Revealed non-obvious reasoning** — the connection between context and question is genuinely surprising
 
-Process candidates in batches of ~5. Only confirmed jumps (keep or rewrite) go into `master-thinking.md`.
+Discard jumps that are routine (e.g., simple scope corrections, obvious next steps, bloom jumps that are just resuming after confirmations).
+
+**User confirmation gate:** Present ONE curated candidate at a time with full context. When moving to a new session for the first time, start with a session summary:
+
+> **Session:** <id> — <1-2 sentence summary of what this session was about>
+
+Then present the candidate:
+
+> **Candidate logic jump** (Turn N)
+>
+> **Prior assistant message:** <full or near-full text of what the assistant said before this turn>
+> **Your message:** "<the user's full message>"
+> **Why this looks like a jump:** <explain what gap you detected — what about the prior context makes this message surprising or non-obvious as a next step>
+>
+> **What chain of thought might connect these?**
+> **(A)** <guess 1 — a plausible reasoning chain>
+> **(B)** <guess 2 — a different angle>
+> **(C)** <guess 3 — a third possibility>
+> **(D)** None of these — I'll explain
+> **(E)** Skip — this is not a logic jump
+>
+> The 3 guesses should be substantively different hypotheses about what the user was *actually thinking* — not surface restatements. Consider: hidden analogies, pattern recognition from other domains, latent dissatisfaction, architectural instincts, or unstated goals.
+
+If the user picks A/B/C, record that guess as the chain of thought. If D, the user provides their own explanation. If E, discard the candidate. Process candidates one at a time — do NOT batch.
 
 ### Phase 4 — Output
 
