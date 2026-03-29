@@ -1,5 +1,5 @@
 ---
-name: analyze
+name: conversation-dump
 description: Use when analyzing conversation patterns — extracts dialog from Claude Code or Codex CLI history, classifies each user message across 6 academic dimensions (Bloom's cognitive level, Graesser question depth, Paul & Elder reasoning probe, Walton presupposition quality, Long & Sato discourse function, Graesser generation mechanism), and outputs tagged dialog reports
 ---
 
@@ -14,15 +14,15 @@ Ask the user to choose a source: **claude** or **codex**.
 List and extract ALL sessions in batch using the Python script:
 
 ```bash
-python skills/analyze/extract_dialog.py list --source claude --project all
-python skills/analyze/extract_dialog.py list --source codex
+python skills/conversation-dump/extract_dialog.py list --source claude --project all
+python skills/conversation-dump/extract_dialog.py list --source codex
 ```
 
 Extract every listed session and save the JSON output to a staging directory:
 
 ```bash
 mkdir -p docs/dialog/<source>/extracted
-python skills/analyze/extract_dialog.py extract --source <source> --session <id> > docs/dialog/<source>/extracted/<session-id>.json
+python skills/conversation-dump/extract_dialog.py extract --source <source> --session <id> > docs/dialog/<source>/extracted/<session-id>.json
 ```
 
 Run extractions in parallel (batch shell commands). Skip sessions that yield 0 user turns after filtering.

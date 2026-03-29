@@ -1,6 +1,6 @@
 ---
 name: soul-extraction
-description: Use when extracting conversation patterns and logic jumps from tagged dialog reports — reads /analyze output, clusters trigger→reaction pairs into thinking-pattern.md, detects logic jumps with user confirmation for master-thinking.md
+description: Use when extracting conversation patterns and logic jumps from tagged dialog reports — reads /conversation-dump output, clusters trigger→reaction pairs into thinking-pattern.md, detects logic jumps with user confirmation for master-thinking.md
 ---
 
 ## Soul Extraction
@@ -78,20 +78,31 @@ Discard jumps that are routine (e.g., simple scope corrections, obvious next ste
 
 Then present the candidate:
 
-> **Candidate logic jump** (Turn N)
->
-> **Prior assistant message:** <full or near-full text of what the assistant said before this turn>
-> **Your message:** "<the user's full message>"
-> **Why this looks like a jump:** <explain what gap you detected — what about the prior context makes this message surprising or non-obvious as a next step>
->
-> **What chain of thought might connect these?**
-> **(A)** <guess 1 — a plausible reasoning chain>
-> **(B)** <guess 2 — a different angle>
-> **(C)** <guess 3 — a third possibility>
-> **(D)** None of these — I'll explain
-> **(E)** Skip — this is not a logic jump
->
-> The 3 guesses should be substantively different hypotheses about what the user was *actually thinking* — not surface restatements. Consider: hidden analogies, pattern recognition from other domains, latent dissatisfaction, architectural instincts, or unstated goals.
+**Candidate logic jump** (Turn N)
+
+> *Assistant:* <full or near-full text of what the assistant said before this turn>
+
+> *You:* "<the user's full message>"
+
+**Why this is a jump:** <explain what gap you detected — what about the prior context makes this message surprising or non-obvious as a next step>
+
+**(A)** `<causality chain>`
+
+**(B)** `<causality chain>`
+
+**(C)** `<causality chain>`
+
+**(D)** None of these — I'll explain
+
+**(E)** Skip
+
+The 3 guesses should be substantively different hypotheses about what the user was *actually thinking* — not surface restatements. Consider: hidden analogies, pattern recognition from other domains, latent dissatisfaction, architectural instincts, or unstated goals.
+
+Express each guess in **causality form** using `+` (logical AND of observations/principles) and `=>` (implies). The `+` terms can appear anywhere in the chain — beginning, middle, or end. Keep it flexible and natural.
+Examples:
+- `"simple is good" principle + complex code => not good => should consider simpler approach`
+- `fixed a bug => why did it exist? + responsibilities are tangled => orthogonalize`
+- `design looks complete => dry-run in head + subagent is stateless => missing dependency`
 
 If the user picks A/B/C, record that guess as the chain of thought. If D, the user provides their own explanation. If E, discard the candidate. Process candidates one at a time — do NOT batch.
 
@@ -141,7 +152,7 @@ Write both files to `docs/dialog/<source>/`:
 
 **Context:** <what the assistant just said, truncated>
 **Your question:** <the actual user message>
-**Chain of thought:** _(to be filled by the creator)_
+**Chain of thought:** `<principle/observation> + <context> => <inference> => <action>`
 
 > **Interview prompt:** "You were looking at [context]. Then you asked [question]. Walk me through what connected those — what were you actually thinking?"
 ```

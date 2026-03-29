@@ -15,8 +15,8 @@ Seven skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + 
 - **writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail. Auto-called from `/ideas` at wrap-up, or run standalone on a past session's log.
 - **researchstyle** — Indexes a personal paper collection (Zotero/PDF folder/Google Scholar) into registry format. Auto-called from `/ideas` during background setup, or run standalone.
 - **quicknote** — Captures the last substantive Q&A exchange, saves to `docs/discussion/notes/`, copies to clipboard. General-purpose, works in any conversation.
-- **analyze** — Extracts dialog from Claude Code or Codex CLI session logs, classifies user messages across 6 academic dimensions (Bloom's, Graesser, Paul & Elder, Walton, Long & Sato), organizes by topic, outputs tagged dialog reports to `docs/dialog/`. Extraction script: `python skills/analyze/extract_dialog.py list|extract`.
-- **soul-extraction** — Reads `/analyze` output, clusters trigger→reaction pairs into `thinking-pattern.md`, detects logic jumps (with user confirmation) for `master-thinking.md`. The master-thinking file serves as a self-interview for the creator to reconstruct their chain of thought.
+- **conversation-dump** — Extracts dialog from Claude Code or Codex CLI session logs, classifies user messages across 6 academic dimensions (Bloom's, Graesser, Paul & Elder, Walton, Long & Sato), organizes by topic, outputs tagged dialog reports to `docs/dialog/`. Extraction script: `python skills/conversation-dump/extract_dialog.py list|extract`.
+- **soul-extraction** — Reads `/conversation-dump` output, clusters trigger→reaction pairs into `thinking-pattern.md`, detects logic jumps (with user confirmation) for `master-thinking.md`. The master-thinking file serves as a self-interview for the creator to reconstruct their chain of thought.
 
 ## Architecture
 
