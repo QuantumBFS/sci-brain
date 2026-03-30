@@ -23,18 +23,28 @@ def _extract_text(content):
     return ""
 
 
+_SYSTEM_TAGS = (
+    "system-reminder", "environment_context", "command-message",
+    "command-name", "INSTRUCTIONS", "instructions",
+    "user-prompt-submit-hook", "context",
+)
+
+
+def _strip_system_tags(text):
+    """Remove known XML-style system tags from text, preserving real user content."""
+    result = text
+    for tag in _SYSTEM_TAGS:
+        result = re.sub(rf"<{tag}>.*?</{tag}>", "", result, flags=re.DOTALL)
+    return result.strip()
+
+
 def _is_system_preamble(text):
     """Check if text is entirely system/environment tags with no real user content."""
-    stripped = text
-    # Remove XML-style system tags
-    for tag in ("system-reminder", "environment_context", "command-message",
-                "command-name", "INSTRUCTIONS", "instructions"):
-        stripped = re.sub(rf"<{tag}>.*?</{tag}>", "", stripped, flags=re.DOTALL)
-    stripped = stripped.strip()
+    stripped = _strip_system_tags(text)
     if len(stripped) == 0:
         return True
-    # Detect AGENTS.md / CLAUDE.md preamble injections
-    if stripped.startswith("# AGENTS.md") or stripped.startswith("# CLAUDE.md"):
+    # Detect AGENTS.md / CLAUDE.md / GEMINI.md preamble injections
+    if re.match(r"^# (AGENTS|CLAUDE|GEMINI)\.md\b", stripped):
         return True
     return False
 
@@ -117,6 +127,7 @@ def list_claude_sessions(projects_root, project_filter=None):
                 "project": project_dir.name,
                 "timestamp": timestamp or "",
                 "preview": preview,
+                "path": str(jsonl_file),
             })
 
     sessions.sort(key=lambda s: s["timestamp"], reverse=True)
@@ -271,7 +282,7 @@ def extract_claude_turns(lines):
             if _is_system_preamble(r["text"]):
                 i += 1
                 continue
-            user_text = r["text"]
+            user_text = _strip_system_tags(r["text"]) or r["text"]
             assistant_parts = []
             i += 1
             while i < len(records) and records[i]["role"] == "assistant":

@@ -93,6 +93,21 @@ These logs accumulate across sessions as separate files, building a record of th
 
 **Skip if chaining from survey.** If the current session already has survey context (user has been working on a topic, background is known), skip Phase 0 and go straight to Phase 1.
 
+**Advisor selection.** Check if `advisors/index.md` exists and contains advisor entries. If so, present the available advisors before proceeding:
+
+> "Would you like to brainstorm with a specific advisor? Each advisor has a unique thinking style based on a real researcher."
+
+| Name | Field | Strengths |
+|------|-------|-----------|
+| (rows from `advisors/index.md`) | | |
+| **No advisor** | | Default mentor behavior |
+
+If the user picks an advisor, read `advisors/<name>/profile.md` and adopt that advisor's thinking style for the entire session. Use the most relevant topic section (prefer `brainstorming` or `research`). Follow all "As this advisor:" directives throughout the conversation.
+
+The advisor profile shapes *how* the mentor thinks and behaves. The user's own profile (`user-profile.md`) still determines *what* the mentor knows about the user's background. Both are loaded.
+
+If no advisor is selected or no advisors exist, proceed with default mentor behavior.
+
 **First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also check for a personal registry at `~/.claude/survey/personal/` — this contains indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before. Use this to inform the conversation: reference past sessions, avoid re-treading ground, and pick up threads they left open.
 
 **Check for incomplete sessions.** If the most recent log has no Phase 3 wrap-up (no reflection, no final recommendation), the previous session ended mid-conversation. Open by delivering what Phase 3 would have said — a reflection, a connection, or a recommendation — as a casual callback before starting today's session:

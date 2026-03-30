@@ -13,13 +13,30 @@ Ask the user to specify:
 - **Source:** claude or codex
 - **Topic:** a specific topic folder name (e.g., `skill-design`), or `all`
 
-Read all `.md` report files in `docs/dialog/<source>/<topic>/` (or all topic folders if "all"). Skip non-report files (`topics.md`, `summary.md`, files without tag lines).
+Read all `.json` report files in `docs/dialog/<source>/<topic>/` (or all topic folders if "all"). Skip non-report files (`topics.md`, `summary.md`).
 
-For each turn, parse:
-- User message text
-- 6-dimension tags: `bloom`, `depth`, `probe`, `presup`, `discourse`, `mechanism`
-- Assistant response (preceding context)
-- Turn position (Turn 1 = starting question)
+Each JSON file follows the conversation-dump output schema:
+
+```json
+{
+  "turns": [
+    {
+      "index": 1,
+      "user": "...",
+      "assistant": "...",
+      "tags": { "bloom": "...", "depth": "...", "probe": "...", "presup": "...", "discourse": "...", "mechanism": "..." },
+      "note": "..."
+    }
+  ]
+}
+```
+
+For each turn, extract:
+- User message text (`user`)
+- 6-dimension tags from `tags` object
+- Assistant response (`assistant` — preceding context)
+- Turn position (`index` — Turn 1 = starting question)
+- Classification note (`note`) — if present, use it to understand non-obvious tag assignments. Notes explain why the classifier chose a tag that might seem wrong at face value (e.g., why a statement was tagged `probe:assumption-probe`). Factor notes into clustering and jump detection when they clarify intent.
 
 ### Phase 2 — Extract Patterns
 
@@ -34,7 +51,7 @@ A "pattern" is a pair: **trigger signature → reaction pattern**.
 - The action taken (select, command, evaluate, redirect, etc.)
 - A natural-language summary
 
-**Clustering:** Group turns with similar trigger→reaction profiles across sessions. Similarity is based on matching `bloom` + `depth` + `discourse` + `mechanism` (the 4 most discriminating dimensions). A pattern must appear in 2+ sessions to be recorded.
+**Clustering:** Group turns with similar trigger→reaction profiles across sessions. Two turns are "similar" when **at least 3 of 4** discriminating dimensions match: `bloom`, `depth` (level only, ignoring sub-category), `discourse`, `mechanism`. A pattern must appear in 2+ sessions to be recorded.
 
 Name each pattern with a descriptive verb phrase (e.g., "Fail-safe to human", "Redirect scope", "Challenge naming inconsistency").
 
@@ -108,7 +125,7 @@ If the user picks A/B/C, record that guess as the chain of thought. If D, the us
 
 ### Phase 4 — Output
 
-Write both files to `docs/dialog/<source>/`:
+Write both files to `docs/dialog/<source>/<topic>/` (or `docs/dialog/<source>/all/` when topic is "all"):
 
 **`thinking-pattern.md`:**
 
@@ -157,4 +174,8 @@ Write both files to `docs/dialog/<source>/`:
 > **Interview prompt:** "You were looking at [context]. Then you asked [question]. Walk me through what connected those — what were you actually thinking?"
 ```
 
-The `Chain of thought:` field starts empty — the self-interview for the creator to answer later.
+If the user confirmed a guess (A/B/C) or provided their own explanation (D), fill the `Chain of thought:` field with it. The interview prompt is always generated — it serves as a self-interview anchor even when the chain is already filled.
+
+### Note: Incarnate Integration
+
+When soul-extraction is invoked as part of the `incarnate` skill's contributor onboarding (Step 2), control returns to incarnate after Phase 4 completes. Incarnate Step 3 then uses the outputs written here to synthesize an advisor profile. Do not invoke incarnate from here — incarnate drives the flow.
