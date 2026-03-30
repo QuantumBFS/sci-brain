@@ -113,7 +113,7 @@ For any presupposition issue or non-obvious classification, add a brief **Note**
 
 ### Phase 4 — Output
 
-**Per-session reports:** Write one JSON file per session to `docs/dialog/<source>/<topic>/<session-id>.json`.
+**Per-session reports:** Overwrite the extracted JSON file at `docs/dialog/<source>/<topic>/<session-id>.json` with the enriched version containing tags. This replaces the raw Phase 1 output with the fully classified version.
 
 Schema:
 

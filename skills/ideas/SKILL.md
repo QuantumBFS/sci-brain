@@ -102,7 +102,7 @@ These logs accumulate across sessions as separate files, building a record of th
 | (rows from `advisors/index.md`) | | |
 | **No advisor** | | Default mentor behavior |
 
-If the user picks an advisor, read `advisors/<name>/profile.md` and adopt that advisor's thinking style for the entire session. Use the most relevant topic section (prefer `brainstorming` or `research`). Follow all "As this advisor:" directives throughout the conversation.
+If the user picks an advisor, read `advisors/<slug>/profile.md` (slug is lowercase hyphenated, e.g., `jin-guo-liu`) and adopt that advisor's thinking style for the entire session. Use the most relevant topic section (prefer `brainstorming` or `research`). Follow all "As this advisor:" directives throughout the conversation.
 
 The advisor profile shapes *how* the mentor thinks and behaves. The user's own profile (`user-profile.md`) still determines *what* the mentor knows about the user's background. Both are loaded.
 

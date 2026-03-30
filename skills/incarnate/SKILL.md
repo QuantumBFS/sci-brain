@@ -32,7 +32,7 @@ Run the analysis pipeline step by step:
 
 **Step 2a — conversation-dump.** Read `skills/conversation-dump/SKILL.md` and follow Phases 1-4. This extracts all sessions, classifies them by topic, performs deep 6-dimension analysis, and outputs tagged JSON reports. At the end of Phase 2, the contributor selects which topics to analyze in depth.
 
-**Step 2b — soul-extraction (per topic).** For each topic the contributor selected, read `skills/soul-extraction/SKILL.md` and follow Phases 1-4. Pass the source and topic from conversation-dump. The contributor participates in the logic jump confirmation gate — this is their opportunity to explain their own reasoning. Do not skip or rush it.
+**Step 2b — soul-extraction (per topic).** For each topic the contributor selected, read `skills/soul-extraction/SKILL.md` and follow Phases 1-4. Skip soul-extraction's Phase 1 source/topic prompt — you already know both from conversation-dump. Pass the source and topic directly. The contributor participates in the logic jump confirmation gate — this is their opportunity to explain their own reasoning. Do not skip or rush it.
 
 After soul-extraction finishes for all selected topics, note which topics had enough data to produce patterns (2+ patterns = sufficient).
 

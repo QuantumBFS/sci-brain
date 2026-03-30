@@ -179,3 +179,5 @@ If the user confirmed a guess (A/B/C) or provided their own explanation (D), fil
 ### Note: Incarnate Integration
 
 When soul-extraction is invoked as part of the `incarnate` skill's contributor onboarding (Step 2), control returns to incarnate after Phase 4 completes. Incarnate Step 3 then uses the outputs written here to synthesize an advisor profile. Do not invoke incarnate from here — incarnate drives the flow.
+
+**Important:** Do not delete or move the session JSON files in `docs/dialog/<source>/<topic>/` after Phase 4. Incarnate reads them directly for presup-based blind spot analysis.

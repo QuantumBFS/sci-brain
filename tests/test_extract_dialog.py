@@ -91,6 +91,25 @@ def test_claude_skips_system_preamble():
     assert turns[0]["user"] == "Real question here"
 
 
+def test_claude_strips_system_tags_preserving_content():
+    """User messages with both system tags and real content have tags stripped."""
+    lines = [
+        json.dumps({
+            "type": "user",
+            "message": {"role": "user", "content": "<system-reminder>hook data</system-reminder>Real question here"},
+            "timestamp": "2026-03-28T10:00:00Z",
+        }),
+        json.dumps({
+            "type": "assistant",
+            "message": {"role": "assistant", "content": "Answer"},
+            "timestamp": "2026-03-28T10:00:01Z",
+        }),
+    ]
+    turns = extract_claude_turns(lines)
+    assert len(turns) == 1
+    assert turns[0]["user"] == "Real question here"
+
+
 def test_claude_merges_consecutive_assistant():
     """Multiple assistant records before next user are merged."""
     lines = [
