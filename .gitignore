@@ -19,6 +19,5 @@ Thumbs.db
 # Generated image artifact
 images/flowchart.png
 articles/
-docs/
 __pycache__/
 .claude/survey/
