@@ -121,7 +121,10 @@ For Claude Code, use the plugin marketplace update workflow.
 If you've used Claude Code or Codex for research conversations and want your thinking style captured as a reusable advisor profile, just run:
 
 ```
-clone https://github.com/QuantumBFS/sci-brain, invoke incarnate skill in the cloned repo to create my profile, then submit a pr, include all relevant chat history, interview output and the generated profile.
+clone https://github.com/QuantumBFS/sci-brain,
+invoke incarnate skill in the cloned repo to create my profile,
+then submit a pr,
+include all relevant chat history, interview output and the generated profile.
 ```
 
 The whole process is interactive — you review everything before it's published, and you can decide to include the raw conversation data (for research purposes) in the pr or not.
