@@ -1,0 +1,13 @@
+{
+  "source": "claude",
+  "session_id": "93e3af6b-24f3-4d42-a45a-452fc04d036e",
+  "project": "-Users-lewang-Work-wangleiphy-github-io",
+  "timestamp": "",
+  "turns": [
+    {
+      "index": 1,
+      "user": "set CLAUDE_CODE_NO_FLICKER=1 by default",
+      "assistant": "I'll add `CLAUDE_CODE_NO_FLICKER=1` to your shell profile so it's set by default.\nNot set yet. Adding it:\nDone. `export CLAUDE_CODE_NO_FLICKER=1` has been added to `~/.zshrc`. It will take effect in new shell sessions. To apply it in the current session, run `! source ~/.zshrc`."
+    }
+  ]
+}

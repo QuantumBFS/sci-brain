@@ -1,0 +1,18 @@
+{
+  "source": "claude",
+  "session_id": "fdee264c-aae2-436d-b06a-4ead8072eff5",
+  "project": "-Users-lewang-Work-nct-hubbard",
+  "timestamp": "",
+  "turns": [
+    {
+      "index": 1,
+      "user": "hello",
+      "assistant": "[no response]"
+    },
+    {
+      "index": 2,
+      "user": "[Request interrupted by user]",
+      "assistant": "[no response]"
+    }
+  ]
+}

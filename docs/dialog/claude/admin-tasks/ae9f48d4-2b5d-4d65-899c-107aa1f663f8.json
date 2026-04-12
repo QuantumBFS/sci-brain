@@ -1,0 +1,13 @@
+{
+  "source": "claude",
+  "session_id": "ae9f48d4-2b5d-4d65-899c-107aa1f663f8",
+  "project": "-Users-lewang-Library-Mobile-Documents-com-apple-CloudDocs-CV",
+  "timestamp": "",
+  "turns": [
+    {
+      "index": 1,
+      "user": "add this /Users/lewang/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_c14nsygzen3u12_046e/msg/file/2026-04/PRB-Relaxation.pdf  into CV.tex",
+      "assistant": "Let me read the PDF to get the paper details.\nI can see the paper details. Now let me read the current CV.tex to find where to add it.\nNow I have all the information. The paper is:\n\n- **Title:** Thermal tensor network approach for spin-lattice relaxation in quantum magnets\n- **Authors:** Ning Xi, Yuan Gao, Huihang Lin, Qiaoyi Li, Chengchen Li, Enze Lv, Shuang Liang, Lei Wang, Rong Yu, Xiaoqun Wang, and Wei Li\n- **Journal:** Phys. Rev. B **113**, 165105 (2026)\n\nThis is a published paper, so it go..."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "source": "claude",
+  "session_id": "b44d499f-8dbf-4780-9b48-939b0572c3f3",
+  "project": "-Users-lewang-Work-nct-hubbard",
+  "timestamp": "",
+  "topic": "debugging",
+  "turns": [
+    {
+      "index": 1,
+      "user": "plot doublewell_splitting overlay with 10614 checkpoint",
+      "assistant": "[no response]",
+      "tags": {
+        "bloom": "apply",
+        "depth": "shallow/procedural",
+        "probe": "none",
+        "presup": "sound",
+        "discourse": "indirect-request",
+        "mechanism": "action-coordination"
+      },
+      "note": "Command to generate visualization; identical to 10975f37 session turn 1 — likely a retry session."
+    },
+    {
+      "index": 2,
+      "user": "how was jobs with M=10k chain doing ?",
+      "assistant": "[no response]",
+      "tags": {
+        "bloom": "remember",
+        "depth": "shallow/definitional",
+        "probe": "none",
+        "presup": "sound",
+        "discourse": "display",
+        "mechanism": "knowledge-deficit"
+      },
+      "note": "Status query about experimental run."
+    },
+    {
+      "index": 3,
+      "user": "[Request interrupted by user]",
+      "assistant": "[no response]",
+      "tags": {
+        "bloom": "apply",
+        "depth": "shallow/procedural",
+        "probe": "none",
+        "presup": "sound",
+        "discourse": "conversation-control",
+        "mechanism": "conversation-control"
+      }
+    },
+    {
+      "index": 4,
+      "user": "[Request interrupted by user]",
+      "assistant": "[no response]",
+      "tags": {
+        "bloom": "apply",
+        "depth": "shallow/procedural",
+        "probe": "none",
+        "presup": "sound",
+        "discourse": "conversation-control",
+        "mechanism": "conversation-control"
+      }
+    }
+  ]
+}

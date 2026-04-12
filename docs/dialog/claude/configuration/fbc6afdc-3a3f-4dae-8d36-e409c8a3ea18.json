@@ -1,0 +1,18 @@
+{
+  "source": "claude",
+  "session_id": "fbc6afdc-3a3f-4dae-8d36-e409c8a3ea18",
+  "project": "-Users-lewang-Work-paper-recommender",
+  "timestamp": "",
+  "turns": [
+    {
+      "index": 1,
+      "user": "set allowInsecure is enabled in my V2rayU server setting",
+      "assistant": "[no response]"
+    },
+    {
+      "index": 2,
+      "user": "[Request interrupted by user]",
+      "assistant": "[no response]"
+    }
+  ]
+}

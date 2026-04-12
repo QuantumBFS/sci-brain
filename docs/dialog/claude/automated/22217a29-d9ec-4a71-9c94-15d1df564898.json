@@ -1,0 +1,13 @@
+{
+  "source": "claude",
+  "session_id": "22217a29-d9ec-4a71-9c94-15d1df564898",
+  "project": "-Users-lewang-Work-nct-hubbard",
+  "timestamp": "2026-04-06T00:58:03.815Z",
+  "turns": [
+    {
+      "index": 1,
+      "user": "hello",
+      "assistant": "[no response]"
+    }
+  ]
+}

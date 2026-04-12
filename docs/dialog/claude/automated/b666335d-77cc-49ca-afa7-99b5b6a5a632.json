@@ -1,0 +1,13 @@
+{
+  "source": "claude",
+  "session_id": "b666335d-77cc-49ca-afa7-99b5b6a5a632",
+  "project": "-Users-lewang-Work-nct-hubbard",
+  "timestamp": "",
+  "turns": [
+    {
+      "index": 1,
+      "user": "hello",
+      "assistant": "Hey! What can I help you with today?"
+    }
+  ]
+}
