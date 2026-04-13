@@ -2,20 +2,16 @@
 
 An AI-powered research brainstorming partner. Tell it a research topic — it helps you find good problems, think them through, and shape concrete research ideas together with you.
 
-Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), and [OpenCode](https://github.com/opencode-ai/opencode). Skill format inspired by [superpowers](https://github.com/obra/superpowers).
+Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), and [OpenCode](https://github.com/opencode-ai/opencode). Skill question styles inspired by [superpowers](https://github.com/obra/superpowers).
 
 ## Quick Start
 
-**Claude Code:**
+**Claude Code**/**Codex**/**OpenCode**:
 
 ```
-/plugin marketplace add QuantumBFS/sci-brain
+Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
+Then invoke `ideas` skill to start talking.
 ```
-```
-/plugin install sci-brain@sci-brain
-```
-
-Then type `/ideas` and start talking.
 
 ## What `/ideas` Is Like
 
@@ -58,14 +54,6 @@ My Zotero library is at ~/custom/path/Zotero/
 
 You can also run `/researchstyle` to index your full paper collection (Zotero, PDF folder, or Google Scholar) into a registry the mentor can search during brainstorming. This happens automatically inside `/ideas` if you choose the Zotero or Scholar option — `/researchstyle` is only needed standalone if you want to set it up ahead of time.
 
-## Want to Save a Great Answer?
-
-Type `/quicknote` anytime during a conversation. It captures the last substantive Q&A exchange, saves it as a markdown file in `docs/discussion/notes/`, and copies it to your clipboard — ready to paste into Slack, email, or share with a collaborator.
-
-## Want a Write-Up from a Past Session?
-
-At the end of an `/ideas` session, the mentor offers to generate an ideas report. But if you skipped that, or want to revisit a past session, run `/writer` — it reads your conversation logs and produces a structured document (Typst, LaTeX, or Markdown) with the full reasoning trail and BibTeX references.
-
 ## MCP Servers (Optional, Recommended)
 
 These make literature search significantly deeper:
@@ -85,36 +73,6 @@ Without them, everything falls back to web search — still works, just less tho
 - **Conversation logs** — `docs/discussion/` — each session is a timestamped file; the next session picks up where you left off
 - **Quick notes** — `docs/discussion/notes/` — individual Q&A snapshots from `/quicknote`
 - **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file
-
-## Installation (Other Platforms)
-
-### Codex
-
-Tell Codex:
-
-```
-Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brain/refs/heads/main/.codex/INSTALL.md
-```
-
-### OpenCode
-
-Tell OpenCode:
-
-```
-Fetch and follow instructions from https://raw.githubusercontent.com/QuantumBFS/sci-brain/refs/heads/main/.opencode/INSTALL.md
-```
-
-### Updating
-
-```bash
-# Codex
-cd ~/.codex/sci-brain && git pull
-
-# OpenCode
-cd ~/.config/opencode/sci-brain && git pull
-```
-
-For Claude Code, use the plugin marketplace update workflow.
 
 ## Want to Become an Advisor?
 
