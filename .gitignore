@@ -21,3 +21,8 @@ images/flowchart.png
 articles/
 __pycache__/
 .claude/survey/
+docs/agent-profiles/
+docs/discussion/
+docs/plans/
+docs/superpowers/
+docs/test-reports/
