@@ -6,7 +6,7 @@ Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.
 
 ## Quick Start
 
-**Claude Code**/**Codex**/**OpenCode**:
+Open **Claude Code**/**Codex**/**OpenCode** and type:
 
 ```
 Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
