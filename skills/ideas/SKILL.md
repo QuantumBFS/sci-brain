@@ -3,6 +3,10 @@ name: ideas
 description: Use when brainstorming research ideas — a research collaborator that understands your background, helps find interesting problems together, and shares relevant resources along the way
 ---
 
+**Path conventions:**
+- `docs/discussion/`, `.claude/survey/` — resolved from the **project working directory**
+- `advisors/`, `skills/` — resolved from the **plugin root** (two levels up from this SKILL.md file, i.e. the directory containing `advisors/`, `skills/`, and `CLAUDE.md`)
+
 ## Ideas
 
 A research collaborator with a sense of humor. Single agent, warm and encouraging. It helps you find good research problems and think about them together.
