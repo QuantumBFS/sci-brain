@@ -13,15 +13,12 @@ Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
 Then invoke `ideas` skill to start talking.
 ```
 
-## What `/ideas` Is Like
+## What does the `/ideas` skill do?
 
-You start a conversation. The mentor asks about your background — you can describe yourself, or point it at your Zotero library or Google Scholar profile so it can learn from your papers directly.
+You start a conversation. The agent asks about your background — you can describe yourself, or point it at your Zotero library or Google Scholar profile so it can learn from your papers directly.
+The better the agent understands you, the higher quality its recommendations are.
 
-Then you talk about what interests you. The mentor listens, makes connections, searches the literature, and presents a few directions tailored to your skills. Not as a menu — as a conversation. You pick what resonates, push back on what doesn't, combine things.
-
-Once a direction clicks, the mentor helps you sharpen it — narrowing from "I'm interested in X" to a concrete, attackable research problem. It asks one question at a time, checks for prior art, flags risks honestly, and brings in references. You think, it fetches.
-
-When you're done, it reflects on the conversation, recommends a reading, and offers to generate a structured write-up with full BibTeX references. Sessions are logged — the next time you run `/ideas`, it remembers where you left off.
+Then you pick a domain expert (distilled from **real** scientists's conversation with AI, see [list](advisors/)) to assist you. Their profile will be loaded to a subagent, to assist you "ask the right question".
 
 ## Want Deeper Literature First?
 
@@ -33,26 +30,6 @@ When you run `/ideas` afterward, it automatically picks up the survey results an
 /survey              ← build a literature map
 /ideas               ← brainstorm with that literature loaded
 ```
-
-## Want It to Know Your Work?
-
-The fastest way is to add a few lines to `CLAUDE.md` (or `AGENTS.md` on other platforms):
-
-```markdown
-# Research context
-My Google Scholar: https://scholar.google.com/citations?user=XXXX
-My research interests: quantum computing, tensor networks
-I prefer rigorous theoretical work over empirical benchmarks.
-```
-
-If your Zotero isn't at the default `~/Zotero/`:
-
-```markdown
-# PDF library
-My Zotero library is at ~/custom/path/Zotero/
-```
-
-You can also run `/researchstyle` to index your full paper collection (Zotero, PDF folder, or Google Scholar) into a registry the mentor can search during brainstorming. This happens automatically inside `/ideas` if you choose the Zotero or Scholar option — `/researchstyle` is only needed standalone if you want to set it up ahead of time.
 
 ## MCP Servers (Optional, Recommended)
 
