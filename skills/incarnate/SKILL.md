@@ -5,7 +5,7 @@ description: Use when onboarding a contributor as an advisor — guides them thr
 
 ## Advisor Profile Generation
 
-Onboard a contributor and create a named advisor profile. The profile captures how a real person thinks — their cognitive style, attention patterns, reasoning strengths, and conversation dynamics — so the ideas skill can role-play as them.
+Onboard a contributor and create a named advisor profile. The profile captures how a real person thinks — their cognitive style, attention patterns, reasoning strengths, and conversation dynamics — so the ideas skill can launch them as a subagent collaborator rather than a thin inline persona.
 
 ### Step 1 — Personal Profile
 
@@ -21,6 +21,8 @@ From the response, extract:
 - **Key research themes**
 - **Technical skills**
 - **Notable contributions**
+- **Publication sources** if available (homepage, Google Scholar, ORCID, DBLP, arXiv author page)
+- **Voice preference** if available (spoken language, accent, or preferred `edge-tts` voice)
 
 Hold this information for Step 4.
 
@@ -109,6 +111,16 @@ For jump-derived directives:
 - **Notable contributions:** <contributions>
 - **Generated:** <date>
 
+## Publication Sources
+
+- **Homepage:** <url or omit section if unknown>
+- **Scholar/ORCID/DBLP/arXiv:** <url list or omit section if unknown>
+
+## Voice
+
+- **Language:** <language or omit section if unknown>
+- **edge-tts:** <voice id or omit section if unknown>
+
 ## Thinking Style: <topic>
 
 ### Cognitive Style
@@ -181,3 +193,4 @@ When run on a contributor who already has a profile (`advisors/<slug>/profile.md
 3. Replace or add topic sections based on new soul-extraction output
 4. Keep existing topic sections that weren't re-analyzed
 5. Update the index row
+6. Preserve or refresh `Publication Sources` and `Voice` if the contributor provided new information

@@ -31,19 +31,6 @@ When you run `/ideas` afterward, it automatically picks up the survey results an
 /ideas               ← brainstorm with that literature loaded
 ```
 
-## MCP Servers (Optional, Recommended)
-
-These make literature search significantly deeper:
-
-| MCP server | What it adds |
-|------------|--------------|
-| [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) | Search arxiv by topic, download full papers |
-| [paper-search-mcp](https://github.com/langrocks/paper-search-mcp) | PubMed, bioRxiv, CrossRef — essential for biomedical topics |
-| [Semantic Scholar MCP](https://github.com/YUZongmin/semantic-scholar-mcp) | Citation chains, related work, novelty checking |
-| [Zotero MCP](https://github.com/kujenga/zotero-mcp) | Search your existing library, read PDFs you already have |
-
-Without them, everything falls back to web search — still works, just less thorough.
-
 ## Where Things Are Saved
 
 - **Survey registries** — `~/.claude/survey/<topic>/` — persist across sessions, automatically loaded by `/ideas`
