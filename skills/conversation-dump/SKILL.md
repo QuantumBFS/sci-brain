@@ -95,7 +95,7 @@ For each session in the selected topics, classify ALL user messages across 6 dim
 | `discourse:` | Discourse Function | referential, display, rhetorical, confirmation-check, clarification-request, indirect-request |
 | `mechanism:` | Generation Mechanism | knowledge-deficit, common-ground, action-coordination, conversation-control, exploration, debugging, undetermined |
 
-For full classification criteria, decision rules, tie-breaking rules, and examples, see `docs/plans/classification-criteria.md`.
+For full classification criteria, decision rules, tie-breaking rules, and examples, see `classification-criteria.md`.
 
 **Quick classification guidelines:**
 - When two `bloom` levels seem equally valid, pick the higher one (the message is *at least* that complex)
