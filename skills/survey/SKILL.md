@@ -98,14 +98,29 @@ Output the **survey registry** — a folder `<registry-root>/<topic>/` (where `<
 
 ## After Survey — transition checkpoint
 
+Before the menu below, scan the conversation for any arXiv IDs / DOIs the user mentioned that the parallel-search strategies didn't surface (a user can name a specific paper that no strategy hit). If any are missing from `references.bib`, ask via `AskUserQuestion`:
+
+> "You mentioned N papers that didn't come through the parallel search. Want to pull them in directly?"
+> - **(a)** Add all — invoke `download-ref` for each
+> - **(b)** Pick a subset
+> - **(c)** Skip
+
+For (a) / (b), invoke `download-ref` (read `skills/download-ref/SKILL.md`) targeting the registry just built.
+
 After the survey registry is built, ask:
 
 > "Survey complete. What next?"
-> - **(a)** Deeper survey — survey a specific subtopic and add results to this registry (user types the subtopic, then go back to Step 2)
-> - **(b)** Ideas — continue to brainstorming in the current session
-> - **(c)** Export to Zotero — save discovered papers to your Zotero library (requires Zotero MCP with write support)
-> - **(d)** Stop here — keep the survey registry, end the session
+> - **(a)** Fetch PDFs for all refs — bulk-download arXiv PDFs and render each to markdown (invokes `fetch-papers`)
+> - **(b)** Add specific refs by ID — paste arXiv IDs / DOIs missing from the parallel search, append them now (invokes `download-ref`)
+> - **(c)** Deeper survey — survey a specific subtopic and append to this registry (user types the subtopic, then go back to Step 2)
+> - **(d)** Ideas — continue to brainstorming in the current session
 
-For **(c)**: if a Zotero MCP server with write support is configured, create items from `references.bib` entries in the user's Zotero library. Ask which collection to add them to. If no write-capable Zotero MCP is available, tell the user they can import `references.bib` manually via Zotero's File > Import.
+If the user wants to stop, they can pick "Other" or just say so — keep the registry as-is.
 
-For **(a)**: use the user's subtopic as the new query, go back to Step 2 (pick strategies & search). Append new references to the existing `references.bib` and update `summary.md` with the new findings.
+For **(a)**, invoke the `fetch-papers` skill (read `skills/fetch-papers/SKILL.md`) targeting the registry just built. It reads `references.bib`, downloads each arXiv PDF (with arXiv-preprint fallback for paywalled DOIs), and renders to markdown under `.raw/`, `.figures/`, and per-paper `<id>_<slug>.md`.
+
+For **(b)**, invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the registry just built. It handles metadata fetch, cite-key confirmation, BibTeX append, PDF render, and `summary.md` row insertion per ref.
+
+For **(c)**: use the user's subtopic as the new query, go back to Step 2 (pick strategies & search). Append new references to the existing `references.bib` and update `summary.md` with the new findings.
+
+**Optional: export to Zotero.** If a Zotero MCP server with write support is configured, you can additionally offer to create items from `references.bib` in the user's Zotero library. Ask which collection to add them to. If no write-capable Zotero MCP is available, tell the user they can import `references.bib` manually via Zotero's File > Import.

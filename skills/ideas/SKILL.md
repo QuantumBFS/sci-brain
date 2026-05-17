@@ -344,6 +344,17 @@ If the session felt shallow (many topic switches, no deep dives) or the user see
 
 This isn't pressure — it's an honest observation followed by a genuine invitation.
 
+**4. Offer to capture new references.**
+
+Scan the conversation log for arXiv IDs / DOIs that surfaced during the session and aren't already in the active registry's `references.bib` (if a registry is loaded). If any are found, ask via `AskUserQuestion`:
+
+> "We touched on N papers that aren't in your registry yet. Want to add any now?"
+> - **(a)** Add all — invoke `download-ref` for each
+> - **(b)** Pick a subset — show the list, user multi-selects
+> - **(c)** Skip
+
+For (a) / (b), invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the active registry. The skill handles metadata fetch, cite-key confirmation, BibTeX append, PDF render, and `summary.md` row insertion per ref.
+
 **Options at wrap-up** — ask via `AskUserQuestion`:
 
 > "So — what would you like to do?"

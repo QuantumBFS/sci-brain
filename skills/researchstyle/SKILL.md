@@ -1,18 +1,26 @@
 ---
 name: researchstyle
-description: Use when indexing a personal paper collection into a survey registry — supports Zotero library, a PDF folder, or a Google Scholar profile
+description: Use when indexing a paper collection (your own or another researcher's) into a survey registry — supports Zotero library, a PDF folder, or a Google Scholar profile
 ---
 
-# Personal Survey Registry
+# Researcher Survey Registry
 
-Turn an existing paper collection into a structured survey registry (`summary.md` + `references.bib`). The output uses the same registry format as the `survey` skill — so personal and topic registries can be merged.
+Turn an existing paper collection into a structured survey registry (`summary.md` + `references.bib`). The output uses the same registry format as the `survey` skill — so personal, per-researcher, and topic registries can all be merged.
 
-**Step 1 — Locate the source.** Ask which source to index:
+**Step 1 — Identify the researcher and source.** First, ask whose papers to index:
 
-> "Where are your papers?"
+> "Whose papers should I index? (Give me a name, or leave blank for your own collection.)"
+
+Derive a slug from the name: lowercase, hyphenated (e.g., `jin-guo-liu`, `john-preskill`). If no name is given, or the user says "me" / "myself" / "personal", use the slug `personal`.
+
+Then ask which source to use:
+
+> "Where are the papers?"
 > - **(a)** Zotero library
 > - **(b)** A PDF folder (give me the path)
 > - **(c)** Google Scholar profile (give me the URL)
+
+Note: the Zotero option is only meaningful for the `personal` slug (it's your local DB). For another researcher, choose **(b)** or **(c)**.
 
 **Step 2 — Index the collection.**
 
@@ -46,7 +54,7 @@ The script handles: copying the DB to avoid locking, pivot queries to avoid cart
 2. Extract paper titles, years, citation counts.
 3. For each paper, search for the DOI and abstract via WebSearch.
 
-**Step 3 — Produce the registry.** Output to the global registry path at `<global-registry-root>/personal/` (e.g., `~/.claude/survey/personal/`), containing:
+**Step 3 — Produce the registry.** Output to the global registry path at `<global-registry-root>/<slug>/` (e.g., `~/.claude/survey/personal/` for your own collection, `~/.claude/survey/jin-guo-liu/` for a named researcher), containing:
 
 **1. `summary.md`** — all papers listed by topic cluster, with BibTeX cite keys (e.g., `[AuthorYear]`) as indices.
 
@@ -59,3 +67,17 @@ The script handles: copying the DB to avoid locking, pivot queries to avoid cart
 
 - **Always use bundled scripts** (`parse_zotero.py` for Zotero). Don't try to do it inline with shell commands — even for small libraries, a script is more reliable and easier to debug.
 - **Topic classification** in the script uses keyword matching ordered most-specific-first. The default patterns cover quantum computing, physics, CS, and math. For other fields, modify `TOPIC_PATTERNS` in the script or ask the user to provide keywords for their domain.
+
+**Step 4 — Wrap-up menu.**
+
+After the registry is written, ask via `AskUserQuestion`:
+
+> "Registry built at `<registry-root>/<slug>/` (N papers). What next?"
+> - **(a)** Fetch PDFs for all refs — bulk-download arXiv PDFs and render each to markdown (invokes `fetch-papers`)
+> - **(b)** Add specific refs by ID — paste arXiv IDs / DOIs of papers cited in conversation but missing from the source, append them to the registry (invokes `download-ref`)
+> - **(c)** Continue to brainstorming — start `/sci-brain:ideas` using this registry as background
+> - **(d)** Stop here — keep the registry, end the session
+
+For **(a)**, invoke the `fetch-papers` skill (read `skills/fetch-papers/SKILL.md`) targeting the registry just built. It reads `references.bib`, downloads each arXiv PDF (with arXiv-preprint fallback for paywalled DOIs), and renders to markdown under `.raw/`, `.figures/`, and per-paper `<id>_<slug>.md`.
+
+For **(b)**, invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the registry just built. It handles metadata fetch, cite-key confirmation, BibTeX append, PDF render, and `summary.md` row insertion per ref.
