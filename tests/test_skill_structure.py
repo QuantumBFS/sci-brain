@@ -140,4 +140,27 @@ def test_researchstyle_regenerates_index():
     text = _read("researchstyle")
     assert "index.py" in text
 
-# ---- ideas, incarnate — added in later tasks ----
+# ---- ideas ----
+
+def test_ideas_uses_dot_knowledge_paths():
+    text = _read("ideas")
+    assert "<project>/.knowledge" in text or ".knowledge" in text
+    assert "advisors/<slug>/.knowledge" in text
+    # Old paths gone
+    assert "advisors/<slug>/survey" not in text
+    assert ".claude/survey/" not in text
+    assert "<registry-root>" not in text
+
+
+def test_ideas_still_launches_advisor_subagent():
+    text = _read("ideas")
+    assert "launch a dedicated advisor subagent" in text
+
+
+def test_ideas_loads_advisor_kb_from_dot_knowledge():
+    text = _read("ideas")
+    # The advisor's literature comes from .knowledge/, no longer publications.yml
+    assert "publications.yml" not in text
+    assert "papers/*.md" not in text
+
+# ---- incarnate — added in later tasks ----

@@ -9,12 +9,21 @@ def test_ideas_skill_requires_advisor_subagent_workflow():
 
     required_phrases = [
         "launch a dedicated advisor subagent",
-        "advisor survey index",
-        "10 representative publications",
-        "rendered into markdown",
+        "advisors/<slug>/.knowledge",
         "loaded into the advisor subagent context",
         "edge-tts",
     ]
 
     for phrase in required_phrases:
-        assert phrase in text
+        assert phrase in text, f"missing required phrase: {phrase!r}"
+
+
+def test_ideas_skill_drops_old_advisor_cache_terms():
+    text = IDEAS_SKILL.read_text()
+    forbidden = [
+        "10 representative publications",
+        "advisor survey index",
+        "publications.yml",
+    ]
+    for phrase in forbidden:
+        assert phrase not in text, f"stale phrase still present: {phrase!r}"
