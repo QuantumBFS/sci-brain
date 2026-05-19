@@ -147,7 +147,7 @@ Use this for moments where the advisor's specific perspective, instinct, or expe
 
 If no advisor is selected or no advisors exist, proceed with default mentor behavior.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also check for a personal registry at `<project>/.knowledge/` — this contains indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also check for a project knowledge base at `<project>/.knowledge/` — this contains indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
 **Session picker.** If previous session logs exist, present them as an interactive choice via `AskUserQuestion` before proceeding:
 
@@ -185,7 +185,7 @@ Open with a warm greeting:
 
 Create a new log file and proceed normally. Even when starting fresh, use past session logs as background context — reference past sessions, avoid re-treading ground, and pick up threads they left open, but don't force continuity.
 
-**Background** — if a user profile or personal registry already exists and is sufficient, skip the background question. Instead, summarize what you know and ask if anything has changed:
+**Background** — if a user profile or project knowledge base already exists and is sufficient, skip the background question. Instead, summarize what you know and ask if anything has changed:
 
 > "I already have your profile from before — [brief summary]. Want to update anything, or shall we dive in?"
 
@@ -196,7 +196,7 @@ If no existing profile or registry is found, ask via `AskUserQuestion`:
 > - **(b)** Zotero library — I'll index your papers to understand your work
 > - **(c)** Google Scholar profile — give me your URL
 
-For **(b)** or **(c)**: follow the `researchstyle` skill instructions (read `skills/researchstyle/SKILL.md`) to build a personal registry, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
+For **(b)** or **(c)**: follow the `researchstyle` skill instructions (read `skills/researchstyle/SKILL.md`) to build a project knowledge base, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
 
 **For (a) only — one follow-up question (if not already answered):**
 

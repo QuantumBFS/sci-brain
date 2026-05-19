@@ -34,6 +34,8 @@ python3 <skill-base-dir>/parse_zotero.py <path-to-zotero.sqlite> <output_dir>
 
 The script handles: copying the DB to avoid locking, pivot queries to avoid cartesian products, author extraction, cite key deduplication, topic classification, and generating structured output.
 
+   **Important — treat `<output_dir>` as a scratch directory, not the KB.** The script writes legacy-format index files (a topic index and a `.bib` file) into `<output_dir>`. Pick a temp path (e.g., `/tmp/zotero-export-$$/`). Steps 3–6 are the authoritative writes — they read those intermediate files from `<output_dir>` as input data, then emit `.raw/{arxiv,doi}/<id>.json` into `$KB` and append to `$(dirname $KB)/ref.bib`. After Steps 3–6 finish, the contents of `<output_dir>` can be deleted.
+
 3. Review the output — the script's topic classification uses keyword matching and may need manual adjustment. Check the topic distribution it prints and offer to re-classify if the user's field isn't well covered by the default patterns.
 
 4. For papers missing abstracts or DOIs, find the PDF via the `itemAttachments` table. PDFs are at `<zotero-data-dir>/storage/<key>/<filename>.pdf`. Read them to extract the abstract.
@@ -109,3 +111,15 @@ Write or extend `$KB/NOTES.md` with:
 - **Temporal arc** — early career → recent work, if visible.
 
 Reference papers as `[@<cite-key>]`. If `NOTES.md` exists, extend rather than overwrite.
+
+## After researchstyle — transition checkpoint
+
+After Steps 3–6 complete, the KB is populated with metadata but PDFs aren't downloaded yet. Ask the user via `AskUserQuestion`:
+
+> "Index built. What next?"
+> - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $(dirname $KB)/ref.bib --kb $KB` (bulk mode)
+> - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot, per-ref cite-key confirmation)
+> - **(c)** Continue to `/ideas` — start brainstorming with the indexed literature loaded
+> - **(d)** Stop — leave the KB as-is
+
+For (a) and (b), see `skills/download-ref/SKILL.md`. For (c), invoke `/ideas` in the current session.
