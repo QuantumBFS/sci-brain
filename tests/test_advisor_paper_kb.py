@@ -1,50 +1,57 @@
-from pathlib import Path
+"""Structural tests for advisor knowledge bases.
 
-import yaml
+The advisor KB layout mirrors the project KB:
+    advisors/<slug>/
+      profile.md           # always present (committed)
+      ref.bib              # advisor's BibTeX namespace (optional; created on first append)
+      .knowledge/          # gitignored cache (optional; populated by researchstyle/download-ref)
+        INDEX.md
+        NOTES.md
+        .raw/{arxiv,doi}/...
+        .figures/...
+        <id>_<slug>.md
+
+We only enforce: each advisor has profile.md, and the .knowledge cache
+is gitignored if/when it exists.
+"""
+from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADVISORS = ["xi-dai", "lei-wang"]
+ADVISORS_DIR = ROOT / "advisors"
 
 
-def test_raw_advisor_cache_is_gitignored():
-    text = (ROOT / ".gitignore").read_text()
-    assert ".cache/advisors/" in text
+def _advisor_slugs():
+    return [p.name for p in ADVISORS_DIR.iterdir() if p.is_dir() and (p / "profile.md").exists()]
 
 
-def test_advisor_profiles_reference_publication_kb():
-    for slug in ADVISORS:
-        profile = (ROOT / "advisors" / slug / "profile.md").read_text()
-        assert "## Publication Sources" in profile
-        assert "## Representative Publications" in profile
+def test_at_least_one_advisor_exists():
+    assert _advisor_slugs(), "no advisor folders with profile.md found"
 
 
-def test_advisor_publication_manifests_define_ten_representative_papers():
-    for slug in ADVISORS:
-        manifest_path = ROOT / "advisors" / slug / "publications.yml"
-        manifest = yaml.safe_load(manifest_path.read_text())
-
-        assert manifest["advisor_slug"] == slug
-        papers = manifest["papers"]
-        assert len(papers) == 10
-
-        for paper in papers:
-            assert paper["title"]
-            assert paper["year"]
-            assert paper["summary"]
-            assert paper["landing_url"]
-            assert paper["pdf_url"]
-            assert paper["kb_slug"]
+def test_each_advisor_has_profile_md():
+    for slug in _advisor_slugs():
+        profile = ADVISORS_DIR / slug / "profile.md"
+        assert profile.exists(), f"missing profile.md for advisor {slug}"
+        # Sanity: not empty
+        assert profile.stat().st_size > 0, f"empty profile.md for advisor {slug}"
 
 
-def test_each_advisor_has_ten_markdown_paper_cards_and_an_index():
-    for slug in ADVISORS:
-        papers_dir = ROOT / "advisors" / slug / "papers"
-        paper_cards = sorted(papers_dir.glob("*.md"))
-        assert len(paper_cards) == 10
+def test_advisor_knowledge_is_gitignored():
+    """The per-advisor .knowledge cache must be excluded from git."""
+    gi = (ROOT / ".gitignore").read_text()
+    assert "advisors/*/.knowledge/" in gi or "advisors/**/.knowledge/" in gi, \
+        ".gitignore must exclude advisors/*/.knowledge/"
 
-        index_path = ROOT / "advisors" / slug / "survey" / "index.md"
-        index_text = index_path.read_text()
 
-        for paper_card in paper_cards:
-            assert paper_card.stem in index_text
+def test_advisor_knowledge_when_present_has_expected_shape():
+    """If an advisor has a populated .knowledge/, verify the canonical files exist."""
+    for slug in _advisor_slugs():
+        kb = ADVISORS_DIR / slug / ".knowledge"
+        if not kb.exists():
+            continue  # cache not built yet — fine
+        # INDEX.md is the only file download-ref guarantees on populated KBs
+        # (NOTES.md is optional human-curated content)
+        index = kb / "INDEX.md"
+        if any(kb.glob("*.md")):
+            assert index.exists(), f"populated {kb} missing INDEX.md"

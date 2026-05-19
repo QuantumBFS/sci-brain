@@ -20,7 +20,13 @@ Thumbs.db
 images/flowchart.png
 articles/
 __pycache__/
-.claude/survey/
+
+# Advisor literature caches (per-advisor .knowledge/ folder, populated by /researchstyle or /download-ref)
+advisors/*/.knowledge/
+
+# Project KB (populated by /survey, /researchstyle, /download-ref)
+.knowledge/
+
 docs/agent-profiles/
 docs/discussion/
 docs/plans/
