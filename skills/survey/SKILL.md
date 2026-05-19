@@ -9,19 +9,6 @@ If the user already provided a research topic or question, skip the clarificatio
 
 ## Topic Survey
 
-**Step 0 — Registry location.** Check `CLAUDE.md`/`AGENTS.md` for a configured survey registry path. If not configured, ask:
-
-> "Where should I store the survey registry? It persists across sessions so you can reuse it later."
-> - **(a)** Global — shared across all projects (auto-detected path based on platform, e.g., `~/.claude/survey/` for Claude Code, `~/.codex/survey/` for Codex, `~/.config/opencode/survey/` for OpenCode)
-> - **(b)** Project — scoped to this project (`.claude/survey/`)
-
-This only needs to be asked once per session. If a registry already exists at the chosen location for this topic (i.e., `<registry-root>/<topic>/` already contains `summary.md` and `references.bib`), ask:
-
-> "A survey registry for this topic already exists (N papers). What should I do?"
-> - **(a)** Extend — add new findings to the existing registry (keeps existing entries, appends new ones, deduplicates by DOI/title)
-> - **(b)** Replace — start fresh (backs up the old registry to `<topic>.bak/` first)
-> - **(c)** New subtopic — create a separate registry under a more specific name
-
 **Step 1 — Clarify.** Ask one question to narrow the research topic. Give 2-4 choice options.
 
 **Step 2 — Pick strategies & search.** Present the strategy menu to the user as a multi-select question. Recommend 3-4 strategies based on the topic context, but let the user choose. Then launch one subagent per selected strategy in parallel. Every subagent uses **WebSearch only** at this stage — fast and broad.
@@ -44,83 +31,94 @@ Each subagent produces a short **findings report** — key papers found, grouped
 
 **Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one), **preserve any DOIs and arXiv IDs collected** during Step 2, and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I build a literature registry for? Pick one or more." The user can select multiple.
 
-**Step 4 — Build registry.** For the selected directions only, generate the full BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source.
+**Step 4 — Build registry.** For the selected directions only, generate the BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source.
 
-First, **pre-sort papers** from Step 3 into two groups based on whether a DOI or arXiv ID was collected during Steps 2-3:
+**KB resolution.** The target KB is the project KB by default:
 
-- **ID-known papers** — papers where a DOI or arXiv ID was found in search results
-- **ID-unknown papers** — papers where neither was found
+```sh
+KB=$(python3 skills/download-ref/helpers/resolve_kb.py)
+```
 
-**arxiv MCP fast path:** If an arxiv MCP server with `export_papers` is configured (e.g., `anuj0456/arxiv-mcp-server`), check which papers have arXiv IDs (from `externalIds` or arXiv URLs collected in Steps 2-3). Batch-export those via `export_papers(arxiv_ids, format="bibtex", include_abstract=True)` before launching the subagents below, and remove them from the DOI-known/unknown lists.
+If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user via `AskUserQuestion` for an explicit path. When invoked from `/incarnate` against a specific advisor, override with `<plugin-root>/advisors/<slug>/.knowledge`.
 
-Then launch **two subagents in parallel**, one per group:
+Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 
-**Subagent A — ID-known papers (batch lookup):**
+**Pre-sort the picks.** Split selected papers into:
 
-1. Make a single batch call to the Semantic Scholar API:
+- **ID-known papers** — DOI or arXiv ID was collected during Steps 2-3
+- **ID-unknown papers** — neither was found
+
+**arxiv MCP fast path.** If an arxiv MCP with `export_papers` is configured, batch-export papers with arXiv IDs via `export_papers(arxiv_ids, format="bibtex", include_abstract=True)` and remove them from the lists below.
+
+**Subagent A — ID-known papers (batch lookup).**
+
+1. Single batch call to Semantic Scholar:
    ```
    POST https://api.semanticscholar.org/graph/v1/paper/batch?fields=title,authors,year,journal,abstract,externalIds,citationStyles
    Body: {"ids": ["DOI:10.xxxx/yyyy", "ARXIV:2401.12345", ...]}
    ```
-   Use `DOI:` prefix for DOIs, `ARXIV:` prefix for arXiv IDs. Returns BibTeX (via `citationStyles.bibtex`), abstract, and DOI for all papers in one request (up to 500).
-2. **Enrich each BibTeX entry** — the `citationStyles.bibtex` field does not include `abstract` or `doi`. Inject these from the response's `abstract` and `externalIds.DOI` fields into each BibTeX string.
-3. For any papers that return `null` from the batch call, the agent should pick the single most effective method for each paper and try that (e.g., CrossRef for DOI-only papers, title match for others).
+   Up to 500 ids per call.
+2. **For each returned paper:** write the full response to `$KB/.raw/{arxiv,doi}/<id>.json` in the exact JSON shape `fetch_metadata.py` produces (top-level keys: `title`, `authors`, `year`, `venue`, `abstract`, `externalIds`, `citationStyles`, `openAccessPdf`). Use `<safe-doi>` (DOI with `/` → `-`) for the filename in `.raw/doi/`.
+3. For papers returning `null` from the batch, pick the single most effective fallback (CrossRef for DOI-only, title-match for others).
 
-**Subagent B — ID-unknown papers (title-based lookup):**
+**Subagent B — ID-unknown papers (title-based lookup).**
 
-For each paper, the agent picks the single most effective lookup method based on available context (e.g., publisher, field, available MCP servers). Available methods:
+For each paper, pick the single most effective method (Semantic Scholar title match, CrossRef, MCP servers, WebFetch publisher page). On success, write the result to `$KB/.raw/{arxiv,doi}/<id>.json` in the same shape as Subagent A.
 
-- **Semantic Scholar title match** — `GET https://api.semanticscholar.org/graph/v1/paper/search/match?query={title}&fields=title,authors,year,journal,abstract,externalIds,citationStyles` (rate limit: ~1 req/s unauthenticated)
-- **CrossRef title search** — `https://api.crossref.org/works?query.bibliographic={title}&rows=1`
-- **MCP servers** (if configured): arxiv MCP, paper-search-mcp, Semantic Scholar MCP, Sci-Hub MCP (`search_scihub_by_title`, `get_paper_metadata`)
-- **WebFetch on publisher page** — extract metadata from the paper's landing page
+**Step 4 finalize — bib + INDEX.**
 
-**Enrich the BibTeX** with `abstract` and `doi`/`url` if missing. If the abstract is still missing and a Sci-Hub MCP server is configured, use `download_scihub_pdf` to get the full text and extract the abstract from it. If the chosen method fails, try one alternative. If that also fails, BibTeX may be constructed from WebSearch results but **must** flag unverified fields with `% unverified`.
+After both subagents complete, for each new ref:
 
-After both subagents complete, **merge their results** into the final registry files.
+```sh
+# Get the auto-proposed key from the JSON.
+KEY=$(python3 skills/download-ref/helpers/append_bibtex.py propose \
+        --kb "$KB" --id "$ID" --type "$TYPE" | python3 -c 'import sys,json; print(json.load(sys.stdin)["proposed_key"])')
+# Append to ref.bib (dedup is free — refuses duplicates).
+python3 skills/download-ref/helpers/append_bibtex.py append \
+  --kb "$KB" --id "$ID" --type "$TYPE" --key "$KEY" \
+  --bib "$(dirname $KB)/ref.bib"
+```
+
+Skip per-ref user confirmation — at survey scale (30+ refs) it's unworkable, and survey is the authority for its own cite keys.
+
+Finally, regenerate `INDEX.md`:
+
+```sh
+python3 skills/download-ref/helpers/index.py \
+  --kb "$KB" \
+  --title "<topic-slug> — references" \
+  --source-note "Built by /survey on $(date -u +%Y-%m-%d)."
+```
+
+**Write NOTES.md.** Write or extend `$KB/NOTES.md` with three sections:
+
+- **Field landscape** — key papers clustered by sub-theme with years, active groups, temporal trends. Reference papers as `[@<cite-key>]`.
+- **Key open problems** — unsolved questions.
+- **Key bottlenecks** — obstacles preventing progress.
+
+If `NOTES.md` already exists, **extend** rather than overwrite: merge new findings into existing sections, preserve user edits.
+
+**Extending an existing KB** (Survey was run before on this project): read `$(dirname $KB)/ref.bib` first; skip papers already present (match by DOI or exact title); append only new entries.
 
 If the survey reveals the idea is already published, present the prior art and ask the user if they see a different angle before proceeding.
 
-**If extending an existing registry** (Step 0 option a): read the existing `references.bib` first, skip papers already present (match by DOI or exact title), and append only new entries. Update `summary.md` by merging new findings into the existing topic sections.
-
-Output the **survey registry** — a folder `<registry-root>/<topic>/` (where `<registry-root>` is the global or project path chosen in Step 0) containing:
-
-**1. `summary.md`** — references listed as indices categorized by topic, using BibTeX cite keys (e.g., `[AuthorYear]`). Include:
-
-- **Field landscape** — key papers clustered by sub-theme with publication years, active groups, temporal trends
-- **Key open problems** — unsolved questions
-- **Key bottlenecks** — obstacles preventing progress
-
-**2. `references.bib`** — BibTeX for all references. Every entry **must** contain:
-
-- `abstract` — the paper's abstract
-- `doi` or `url` — at least one identifier for retrieval
-
 ## After Survey — transition checkpoint
 
-Before the menu below, scan the conversation for any arXiv IDs / DOIs the user mentioned that the parallel-search strategies didn't surface (a user can name a specific paper that no strategy hit). If any are missing from `references.bib`, ask via `AskUserQuestion`:
+Before the menu below, scan the conversation for arXiv IDs / DOIs the user mentioned that the parallel-search strategies didn't surface. If any are missing from `ref.bib`, ask via `AskUserQuestion`:
 
 > "You mentioned N papers that didn't come through the parallel search. Want to pull them in directly?"
-> - **(a)** Add all — invoke `download-ref` for each
+> - **(a)** Add all — invoke `download-ref` for each (single-shot mode, with cite-key confirmation per ref)
 > - **(b)** Pick a subset
 > - **(c)** Skip
 
-For (a) / (b), invoke `download-ref` (read `skills/download-ref/SKILL.md`) targeting the registry just built.
-
-After the survey registry is built, ask:
+After the registry is built:
 
 > "Survey complete. What next?"
-> - **(a)** Fetch PDFs for all refs — bulk-download arXiv PDFs and render each to markdown (invokes `fetch-papers`)
-> - **(b)** Add specific refs by ID — paste arXiv IDs / DOIs missing from the parallel search, append them now (invokes `download-ref`)
-> - **(c)** Deeper survey — survey a specific subtopic and append to this registry (user types the subtopic, then go back to Step 2)
+> - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $(dirname $KB)/ref.bib --kb $KB`
+> - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot)
+> - **(c)** Deeper survey — survey a subtopic, append to this registry (go back to Step 2)
 > - **(d)** Ideas — continue to brainstorming in the current session
 
-If the user wants to stop, they can pick "Other" or just say so — keep the registry as-is.
+For **(c)**, use the user's subtopic as the new query, go back to Step 2. Append new references to the existing `ref.bib` and extend `NOTES.md`.
 
-For **(a)**, invoke the `fetch-papers` skill (read `skills/fetch-papers/SKILL.md`) targeting the registry just built. It reads `references.bib`, downloads each arXiv PDF (with arXiv-preprint fallback for paywalled DOIs), and renders to markdown under `.raw/`, `.figures/`, and per-paper `<id>_<slug>.md`.
-
-For **(b)**, invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the registry just built. It handles metadata fetch, cite-key confirmation, BibTeX append, PDF render, and `summary.md` row insertion per ref.
-
-For **(c)**: use the user's subtopic as the new query, go back to Step 2 (pick strategies & search). Append new references to the existing `references.bib` and update `summary.md` with the new findings.
-
-**Optional: export to Zotero.** If a Zotero MCP server with write support is configured, you can additionally offer to create items from `references.bib` in the user's Zotero library. Ask which collection to add them to. If no write-capable Zotero MCP is available, tell the user they can import `references.bib` manually via Zotero's File > Import.
+**Optional: export to Zotero.** If a Zotero MCP with write support is configured, offer to create items from `ref.bib`. If not, the user can import `ref.bib` manually via Zotero's File > Import.

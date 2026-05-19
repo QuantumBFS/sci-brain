@@ -69,4 +69,47 @@ def test_download_ref_uses_resolve_kb():
     assert "resolve_kb" in text
 
 
-# ---- survey, researchstyle, ideas, incarnate — added in later tasks ----
+# ---- survey ----
+
+def test_survey_targets_dot_knowledge():
+    text = _read("survey")
+    assert ".knowledge" in text
+    assert "<registry-root>" not in text
+    assert "registry-location picker" not in text.lower()
+
+
+def test_survey_writes_notes_md_not_summary_md():
+    text = _read("survey")
+    assert "NOTES.md" in text
+    assert "summary.md" not in text
+
+
+def test_survey_uses_dot_raw_json_path():
+    text = _read("survey")
+    assert ".raw/" in text or ".raw/arxiv" in text
+
+
+def test_survey_invokes_append_bibtex_for_dedup():
+    text = _read("survey")
+    assert "append_bibtex.py" in text
+
+
+def test_survey_regenerates_index_at_end():
+    text = _read("survey")
+    assert "index.py" in text
+    assert "INDEX.md" in text
+
+
+def test_survey_no_step_zero_registry_picker():
+    text = _read("survey")
+    assert "Step 0" not in text
+    assert "Where should I store the survey registry" not in text
+
+
+def test_survey_transition_uses_download_ref_from_bib():
+    text = _read("survey")
+    assert "download-ref" in text
+    assert "--from-bib" in text
+
+
+# ---- researchstyle, ideas, incarnate — added in later tasks ----
