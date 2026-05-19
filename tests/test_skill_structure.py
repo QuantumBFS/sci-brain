@@ -163,4 +163,21 @@ def test_ideas_loads_advisor_kb_from_dot_knowledge():
     assert "publications.yml" not in text
     assert "papers/*.md" not in text
 
-# ---- incarnate — added in later tasks ----
+# ---- incarnate ----
+
+def test_incarnate_targets_advisor_dot_knowledge():
+    text = _read("incarnate")
+    assert "advisors/<slug>/.knowledge" in text or "advisors/<name>/.knowledge" in text
+    assert "advisors/<slug>/survey" not in text
+
+
+def test_incarnate_keeps_profile_md_unchanged():
+    text = _read("incarnate")
+    # profile.md should still be the deliverable
+    assert "profile.md" in text
+
+
+def test_incarnate_invokes_researchstyle_or_download_ref():
+    text = _read("incarnate")
+    # The advisor KB is populated by /researchstyle or /download-ref
+    assert "researchstyle" in text or "download-ref" in text
