@@ -112,4 +112,32 @@ def test_survey_transition_uses_download_ref_from_bib():
     assert "--from-bib" in text
 
 
-# ---- researchstyle, ideas, incarnate — added in later tasks ----
+# ---- researchstyle ----
+
+def test_researchstyle_targets_dot_knowledge():
+    text = _read("researchstyle")
+    assert ".knowledge" in text
+    assert "<registry-root>" not in text
+
+
+def test_researchstyle_writes_notes_md_not_summary_md():
+    text = _read("researchstyle")
+    assert "NOTES.md" in text
+    assert "summary.md" not in text
+
+
+def test_researchstyle_writes_dot_raw_json():
+    text = _read("researchstyle")
+    assert ".raw/" in text
+
+
+def test_researchstyle_invokes_append_bibtex():
+    text = _read("researchstyle")
+    assert "append_bibtex.py" in text
+
+
+def test_researchstyle_regenerates_index():
+    text = _read("researchstyle")
+    assert "index.py" in text
+
+# ---- ideas, incarnate — added in later tasks ----
