@@ -14,7 +14,7 @@ If the same entry has both an arXiv ID and a DOI, the arXiv ID wins
 (arXiv preprints are reliably downloadable; DOIs often paywalled).
 
 Usage:
-    python3 bibtex_to_manifest.py /abs/path/to/references.bib > manifest.json
+    python3 bibtex_to_manifest.py /abs/path/to/ref.bib > manifest.json
 """
 from __future__ import annotations
 

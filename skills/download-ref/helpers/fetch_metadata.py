@@ -136,7 +136,7 @@ def main() -> int:
             ok = False
             # First try S2's openAccessPdf if it points to a non-publisher host
             oa_url = (r.get("openAccessPdf") or {}).get("url") or ""
-            if oa_url and not any(h in oa_url for h in ("link.aps.org", "iopscience", "nature.com", "science.org")):
+            if oa_url and not any(h in oa_url for h in ("link.aps.org", "iopscience", "nature.com", "science.org", "pubs.acs.org")):
                 ok = fetch_pdf(oa_url, out)
             # Then arXiv preprint (paywall bypass)
             if not ok and arxiv_pre:

@@ -1,5 +1,7 @@
 # sci-brain
 
+> ⚠️ **Breaking change in v0.3.** The on-disk layout changed: knowledge bases now live at `<project>/.knowledge/` with `INDEX.md` + `<project>/ref.bib`, replacing the old `<registry-root>/<topic>/` registries (`summary.md` + `references.bib`). See [`CLAUDE.md`](./CLAUDE.md) § "Migrating from the pre-0.3 layout" for `mv` commands. The `fetch-papers` skill was folded into `download-ref --from-bib`.
+
 An AI-powered research brainstorming partner. Tell it a research topic — it helps you find good problems, think them through, and shape concrete research ideas together with you.
 
 Works with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), and [OpenCode](https://github.com/opencode-ai/opencode). Skill question styles inspired by [superpowers](https://github.com/obra/superpowers).
@@ -33,10 +35,12 @@ When you run `/ideas` afterward, it automatically picks up the survey results an
 
 ## Where Things Are Saved
 
-- **Survey registries** — `~/.claude/survey/<topic>/` — persist across sessions, automatically loaded by `/ideas`
-- **Conversation logs** — `docs/discussion/` — each session is a timestamped file; the next session picks up where you left off
-- **Quick notes** — `docs/discussion/notes/` — individual Q&A snapshots from `/quicknote`
-- **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file
+- **Project knowledge base** — `<project>/.knowledge/` — papers, rendered markdown, `INDEX.md`, `NOTES.md`. Populated by `/survey`, `/researchstyle`, `/download-ref`.
+- **Project BibTeX** — `<project>/ref.bib` — cite-key namespace, shared with any LaTeX in the project.
+- **Advisor knowledge bases** — `advisors/<slug>/.knowledge/` and `advisors/<slug>/ref.bib` — per-advisor private cache, gitignored.
+- **Conversation logs** — `docs/discussion/` — each session is a timestamped file; the next session picks up where you left off.
+- **Quick notes** — `docs/discussion/notes/` — individual Q&A snapshots from `/quicknote`.
+- **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file.
 
 ## Want to Become an Advisor?
 

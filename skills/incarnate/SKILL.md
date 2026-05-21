@@ -26,6 +26,8 @@ From the response, extract:
 
 Hold this information for Step 4.
 
+**Advisor KB.** Each advisor gets a private knowledge base at `advisors/<slug>/.knowledge/` (shape identical to the project KB: `INDEX.md`, `NOTES.md`, `.raw/`, `.figures/`, rendered `<id>_<slug>.md` files). The advisor's BibTeX namespace lives at `advisors/<slug>/ref.bib`. When `/researchstyle` or `/download-ref` is invoked from this skill, pass `--kb advisors/<slug>/.knowledge` explicitly to direct writes to the advisor KB rather than the project KB.
+
 ### Step 2 — Conversation Analysis
 
 Ask the contributor to specify their conversation source:
