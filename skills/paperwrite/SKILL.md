@@ -13,13 +13,15 @@ A working-rules guide for writing scientific papers, distilled from John Martini
 
 ## The Iron Rules
 
-These five override everything else.
+These seven override everything else.
 
 1. **Figures first, then prose.** Plot every figure you intend to publish *before* writing a single section. Figures are the backbone; the text serves them. If you cannot draw the story in 4–8 figures, you do not yet know the story.
 2. **Polish what readers actually read.** 95% of readers read only the title, abstract, introduction, figures + captions, and conclusions. These five elements deserve disproportionate iteration. Write them last — *but iterate them most*.
 3. **State main results explicitly.** Use at least one sentence per main result that names it as such: *"This figure / equation / observation is our (first / second / Nth) main result."* Do not assume the reader will identify which sentence is the punchline.
 4. **One concept per sentence.** If you must break this rule, both concepts must be simple. Long compound sentences with three new ideas are how readers drop out.
 5. **Never plot anything in arbitrary units.** If you find yourself reaching for "a.u." on an axis, the axis is wrong — find the right normalization (dimensionless ratio, calibrated scale, or experimental control). This is non-negotiable; "a.u." plots are a known integrity red flag.
+6. **Target journal before story.** Before proposing story lines, discuss the target journal or venue with the user and download the official author template; if the user deliberately has no target yet, record that choice. Venue constraints shape the narrative, figure count, length, and format.
+7. **Iterate the story with the user.** Once the figures or figure plan are available and the target venue is known, propose 1–3 plausible story lines for the user to choose, reject, or combine. Do not draft prose until the user has selected the paper's narrative.
 
 ---
 
@@ -47,9 +49,35 @@ If none of these exist, name what's missing and ask the user to either point at 
 - Draft each figure. Apply the **Figure Rulebook** (below). Do not move on until line weights, axes, colors, and dimensionless choices are right — going back later is more expensive than getting it right now.
 - For each figure, write a one-sentence caption-summary: what the figure *shows* in plain words. These become the spine of the captions and the Results section.
 
+### Phase 1.5 — Target journal and template checkpoint
+
+Before the story checkpoint, stop and discuss the target journal or venue with the user. If the user has not chosen one, propose 2–3 plausible venues with tradeoffs: article type, audience, length pressure, figure limits, novelty bar, and format requirements. Ask the user to pick one target or explicitly choose "no target yet." If they choose no target yet, record that no official template can be selected and continue only after they confirm this tradeoff.
+
+Once a target is chosen:
+
+1. Find the official author instructions and template from the journal or publisher website. Prefer official publisher pages over mirrors, GitHub copies, Overleaf community templates, or lab handouts.
+2. Download the template package into the active manuscript directory, usually `articles/YYYY-MM-DD-<paper-slug>/template/`. If no manuscript directory exists yet, create the article directory first.
+3. Record the template source URL, access date, journal name, article type, and key constraints in a short `template/README.md` or manuscript note.
+4. If the official template cannot be downloaded, explain why, save the author-instruction URL, and ask the user whether to continue with a generic draft format.
+5. Do not propose story lines until the target venue and template status are clear.
+
+### Phase 1.6 — Story checkpoint with the user
+
+Before the telegram outline, stop and discuss the paper's narrative with the user. Base this only on the provided figures, caption-summaries, existing draft, loaded literature context, and target-journal constraints.
+
+1. Propose **1–3 candidate story lines** for the user to pick from. If there is only one defensible story, present one strong option and say why alternatives would be forced.
+2. For each story line, include:
+   - the central claim in one sentence,
+   - the figure order and what each figure contributes,
+   - the hierarchy of main results,
+   - the audience or venue fit,
+   - what the story deliberately de-emphasizes.
+3. Ask the user to choose one, combine pieces, or reject them. If they push back, revise the story lines and ask again.
+4. Only after the user selects or synthesizes a story, continue to the telegram outline. Treat the selected story as the contract for the draft.
+
 ### Phase 2 — Telegram outline
 
-- Write a telegram-style outline: section headings → bullet points → which figures and equations land where.
+- Write a telegram-style outline from the selected story line: section headings → bullet points → which figures and equations land where.
 - Mark which sentence in each section names a main result.
 - Show the outline to a collaborator/advisor before you write prose. Cost of revision is lowest now.
 
@@ -168,6 +196,9 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 - [ ] Conclusions name the contribution and at least one implication.
 
 **Main-result labeling:**
+- [ ] Target journal or "no target yet" was discussed with the user before story selection.
+- [ ] Official template was downloaded, or the failed/blocked/not-applicable template status was recorded.
+- [ ] The user selected or synthesized a story line before prose drafting began.
 - [ ] Each major result has a sentence explicitly tagging it as a main result.
 - [ ] Each main result has a corresponding figure or equation.
 
@@ -213,7 +244,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 
 - **Citations:** Pull BibTeX from an existing registry built by `survey` / `researchstyle`. Never invent BibTeX from memory — use the lookup chain (CrossRef → Semantic Scholar → MCP → WebFetch).
 - **Missing reference:** Call `download-ref` to append the new entry to the registry's `references.bib`. Use the existing cite-key convention.
-- **Manuscript format:** Default to Typst (`.typ`) for native BibTeX + figure handling; LaTeX (`.tex`) for journal-required templates; Markdown only for arXiv-style preprints where the journal accepts it.
+- **Manuscript format:** Use the target journal's official template when available. Default to Typst (`.typ`) only when no target venue or required template exists; use LaTeX (`.tex`) or Word when the journal requires it; use Markdown only for arXiv-style preprints where the journal accepts it.
 - **Storing the draft:** `articles/YYYY-MM-DD-<paper-slug>/` with `main.typ` (or `.tex`), `references.bib`, and `figures/`.
 
 ---
