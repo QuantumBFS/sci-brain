@@ -76,3 +76,29 @@ def test_cli_exits_nonzero_when_unresolvable(tmp_path, capsys, monkeypatch):
     err = capsys.readouterr().err
     assert rc != 0
     assert "unresolvable" in err.lower()
+
+
+def test_default_dirname_is_dot_knowledge(tmp_path, monkeypatch):
+    repo = tmp_path / "proj"
+    (repo / ".git").mkdir(parents=True)
+    monkeypatch.delenv("SCIBRAIN_KB_DIRNAME", raising=False)
+    mod = _load()
+    assert mod.resolve_kb(start=repo) == repo / ".knowledge"
+
+
+def test_env_var_overrides_dirname_with_git_root(tmp_path, monkeypatch):
+    repo = tmp_path / "proj"
+    (repo / ".git").mkdir(parents=True)
+    monkeypatch.setenv("SCIBRAIN_KB_DIRNAME", "kb")
+    mod = _load()
+    assert mod.resolve_kb(start=repo) == repo / "kb"
+
+
+def test_env_var_overrides_dirname_with_fallback(tmp_path, monkeypatch):
+    fake_home = tmp_path / "home"
+    (fake_home / "scratch").mkdir(parents=True)
+    monkeypatch.setenv("HOME", str(fake_home))
+    monkeypatch.setenv("SCIBRAIN_KB_DIRNAME", "papers")
+    mod = _load()
+    start = fake_home / "scratch"
+    assert mod.resolve_kb(start=start) == start / "papers"

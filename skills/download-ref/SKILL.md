@@ -202,8 +202,9 @@ for f in "$KB"/*.md; do
   head -1 "$f" | grep -q '^---$' || echo "MISSING FRONTMATTER: $f"
 done
 # Raw blobs gitignored
-git -C "$(dirname "$KB")" check-ignore .knowledge/.raw/ 2>/dev/null \
-  || echo "WARN: .knowledge/.raw/ not gitignored"
+KB_NAME=$(basename "$KB")
+git -C "$(dirname "$KB")" check-ignore "$KB_NAME/.raw/" 2>/dev/null \
+  || echo "WARN: $KB_NAME/.raw/ not gitignored"
 # INDEX picked up the new ids
 for id in 1806.08734 2006.10739; do
   grep -q "$id" "$KB/INDEX.md" || echo "WARN: $id missing from INDEX.md"

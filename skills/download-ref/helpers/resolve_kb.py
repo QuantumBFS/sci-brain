@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Resolve a project's .knowledge/ directory.
+"""Resolve a project's knowledge-base directory.
 
 Walks up from `start` looking for a `.git/` directory. If found, returns
-`<git-root>/.knowledge`. If not found and `start` is at or above $HOME,
+`<git-root>/<KB-name>`. If not found and `start` is at or above $HOME,
 returns None (the caller should prompt the user). Otherwise falls back
-to `start/.knowledge`.
+to `start/<KB-name>`.
+
+The KB directory name defaults to `.knowledge` and can be overridden via
+the `SCIBRAIN_KB_DIRNAME` environment variable (e.g. `kb`, `papers`).
 
 This is the single source of truth for "where does the project KB live"
 across download-ref, survey, researchstyle, ideas, and incarnate.
@@ -39,15 +42,21 @@ def _is_at_or_above_home(start: Path) -> bool:
     return s == home or home.is_relative_to(s)
 
 
+def _kb_dirname() -> str:
+    """KB directory name. Override via $SCIBRAIN_KB_DIRNAME (default '.knowledge')."""
+    return os.environ.get("SCIBRAIN_KB_DIRNAME", ".knowledge")
+
+
 def resolve_kb(start: Optional[Path] = None) -> Optional[Path]:
-    """Return the resolved .knowledge/ path, or None if the caller should prompt."""
+    """Return the resolved KB path, or None if the caller should prompt."""
     start = (start or Path.cwd()).resolve()
+    name = _kb_dirname()
     git_root = _find_git_root(start)
     if git_root is not None:
-        return git_root / ".knowledge"
+        return git_root / name
     if _is_at_or_above_home(start):
         return None
-    return start / ".knowledge"
+    return start / name
 
 
 def main(argv: Optional[list[str]] = None) -> int:
