@@ -102,3 +102,38 @@ def test_env_var_overrides_dirname_with_fallback(tmp_path, monkeypatch):
     mod = _load()
     start = fake_home / "scratch"
     assert mod.resolve_kb(start=start) == start / "papers"
+
+
+def test_advisor_kb_under_plugin_root(monkeypatch):
+    monkeypatch.delenv("SCIBRAIN_KB_DIRNAME", raising=False)
+    mod = _load()
+    plugin_root = HELPER.resolve().parents[3]
+    assert mod.resolve_kb(advisor="lei-wang") == plugin_root / "advisors" / "lei-wang" / ".knowledge"
+
+
+def test_advisor_kb_honors_env_var(monkeypatch):
+    monkeypatch.setenv("SCIBRAIN_KB_DIRNAME", "kb")
+    mod = _load()
+    plugin_root = HELPER.resolve().parents[3]
+    assert mod.resolve_kb(advisor="xi-dai") == plugin_root / "advisors" / "xi-dai" / "kb"
+
+
+def test_advisor_ignores_start(tmp_path, monkeypatch):
+    """When --advisor is set, --start has no effect."""
+    monkeypatch.delenv("SCIBRAIN_KB_DIRNAME", raising=False)
+    repo = tmp_path / "proj"
+    (repo / ".git").mkdir(parents=True)
+    mod = _load()
+    plugin_root = HELPER.resolve().parents[3]
+    assert mod.resolve_kb(start=repo, advisor="some-advisor") == \
+        plugin_root / "advisors" / "some-advisor" / ".knowledge"
+
+
+def test_cli_advisor_flag(capsys, monkeypatch):
+    monkeypatch.delenv("SCIBRAIN_KB_DIRNAME", raising=False)
+    mod = _load()
+    rc = mod.main(["--advisor", "lei-wang"])
+    out = capsys.readouterr().out.strip()
+    plugin_root = HELPER.resolve().parents[3]
+    assert rc == 0
+    assert out == str(plugin_root / "advisors" / "lei-wang" / ".knowledge")

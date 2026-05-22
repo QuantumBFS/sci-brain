@@ -116,11 +116,17 @@ If the user picks an advisor, do **not** just read `advisors/<slug>/profile.md` 
 
 1. **Read the advisor profile.** Load `advisors/<slug>/profile.md` (slug is lowercase hyphenated, e.g., `xi-dai`) and use the most relevant topic section (prefer `brainstorming` or `research`) to understand how this advisor thinks.
 
-When an advisor is selected:
-- Load `advisors/<slug>/.knowledge/INDEX.md` to know what literature is available.
-- Load `advisors/<slug>/.knowledge/NOTES.md` for the advisor's curated thematic notes (if present).
-- Pre-fetch a handful of representative papers from `advisors/<slug>/.knowledge/<id>_<slug>.md` and supply them as context **loaded into the advisor subagent context** at launch.
-- If `advisors/<slug>/.knowledge/` is empty, fall back to launching the advisor without a literature cache (still useful — the profile alone shapes their reasoning).
+When an advisor is selected, first resolve the advisor KB path so it follows `$SCIBRAIN_KB_DIRNAME` if the user has set it:
+
+```sh
+ADVISOR_KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)
+```
+
+Then:
+- Load `$ADVISOR_KB/INDEX.md` to know what literature is available.
+- Load `$ADVISOR_KB/NOTES.md` for the advisor's curated thematic notes (if present).
+- Pre-fetch a handful of representative papers from `$ADVISOR_KB/<id>_<slug>.md` and supply them as context **loaded into the advisor subagent context** at launch.
+- If `$ADVISOR_KB/` is empty or missing, fall back to launching the advisor without a literature cache (still useful — the profile alone shapes their reasoning).
 
 **Launch the advisor.** The advisor subagent's job is to contribute hard-won taste: what to ask next, which assumptions are dangerous, which papers matter, and what this advisor would investigate first. The main mentor remains responsible for session flow, empathy, logging, and synthesis.
 
@@ -214,7 +220,7 @@ If the user's self-introduction already reveals their experience level (e.g., th
 
 **Always run this phase** — even when the user already stated a direction. There's almost always more context to uncover.
 
-**Load context:** Check for knowledge bases in the project path (e.g., `<project>/.knowledge/`). If found, note them for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `advisors/<slug>/.knowledge/INDEX.md` so the mentor knows what literature the advisor subagent already has in context.
+**Load context:** Resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed knowledge. If found, note it for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `$ADVISOR_KB/INDEX.md` (resolved earlier with `--advisor <slug>`) so the mentor knows what literature the advisor subagent already has in context.
 
 #### Step 1: Talk first
 

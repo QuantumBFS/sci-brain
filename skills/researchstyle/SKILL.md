@@ -68,7 +68,7 @@ The KB target is decided by the caller:
 KB=$(python3 skills/download-ref/helpers/resolve_kb.py)
 
 # Invoked from /incarnate (indexes another researcher's collection into the advisor KB):
-KB="<plugin-root>/advisors/<slug>/.knowledge"
+KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)
 ```
 
 Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist.

@@ -65,7 +65,7 @@ if [ -z "$KB" ]; then
 fi
 ```
 
-For advisor flows (`/incarnate`, `/ideas` with a selected advisor), override `KB` explicitly to `<plugin-root>/advisors/<slug>/.knowledge`.
+For advisor flows (`/incarnate`, `/ideas` with a selected advisor), resolve the advisor KB instead: `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)`. This honors `$SCIBRAIN_KB_DIRNAME` the same way the project-KB form does.
 
 ### 2. Confirm the refs aren't already present
 
