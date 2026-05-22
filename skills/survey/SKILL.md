@@ -33,13 +33,13 @@ Each subagent produces a short **findings report** — key papers found, grouped
 
 **Step 4 — Build registry.** For the selected directions only, generate the BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source.
 
-**KB resolution.** The target KB is the project KB by default:
+**KB resolution.** The target KB is the project KB by default — `<project>/.knowledge/` unless the user overrides the directory name via `$SCIBRAIN_KB_DIRNAME`:
 
 ```sh
 KB=$(python3 skills/download-ref/helpers/resolve_kb.py)
 ```
 
-If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user via `AskUserQuestion` for an explicit path. When invoked from `/incarnate` against a specific advisor, override with `<plugin-root>/advisors/<slug>/.knowledge`.
+If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user via `AskUserQuestion` for an explicit path. When invoked from `/incarnate` against a specific advisor, override via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)` so the path follows `$SCIBRAIN_KB_DIRNAME` too.
 
 Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 

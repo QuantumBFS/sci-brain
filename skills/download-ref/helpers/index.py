@@ -92,8 +92,9 @@ def main() -> int:
     note = f" {args.source_note}" if args.source_note else ""
     out.append(f"Generated {today}.{note}")
     out.append("")
-    out.append("Search inside this dir with `rg --hidden -g '!.raw' \"term\" .knowledge/` "
-               "(or `rg` from inside `.knowledge/` itself). "
+    kb_name = args.kb.resolve().name
+    out.append(f"Search this KB from its parent with `rg --hidden -g '!.raw' \"term\" {kb_name}/`, "
+               "or run `rg --hidden -g '!.raw' \"term\" .` from inside the KB. "
                "The `.raw/` subdir holds the original PDFs / clones / HTML and is gitignored.")
     out.append("")
 

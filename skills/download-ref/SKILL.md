@@ -65,7 +65,7 @@ if [ -z "$KB" ]; then
 fi
 ```
 
-For advisor flows (`/incarnate`, `/ideas` with a selected advisor), override `KB` explicitly to `<plugin-root>/advisors/<slug>/.knowledge`.
+For advisor flows (`/incarnate`, `/ideas` with a selected advisor), resolve the advisor KB instead: `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)`. This honors `$SCIBRAIN_KB_DIRNAME` the same way the project-KB form does.
 
 ### 2. Confirm the refs aren't already present
 
@@ -202,8 +202,9 @@ for f in "$KB"/*.md; do
   head -1 "$f" | grep -q '^---$' || echo "MISSING FRONTMATTER: $f"
 done
 # Raw blobs gitignored
-git -C "$(dirname "$KB")" check-ignore .knowledge/.raw/ 2>/dev/null \
-  || echo "WARN: .knowledge/.raw/ not gitignored"
+KB_NAME=$(basename "$KB")
+git -C "$(dirname "$KB")" check-ignore "$KB_NAME/.raw/" 2>/dev/null \
+  || echo "WARN: $KB_NAME/.raw/ not gitignored"
 # INDEX picked up the new ids
 for id in 1806.08734 2006.10739; do
   grep -q "$id" "$KB/INDEX.md" || echo "WARN: $id missing from INDEX.md"
@@ -216,7 +217,7 @@ Tell the user: new cite key(s), rendered file path(s), `full_text` yes/no per re
 
 - **`/survey` / `/researchstyle`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`/ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
-- **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting `advisors/<slug>/.knowledge/`.
+- **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
 
 ## Common mistakes
 

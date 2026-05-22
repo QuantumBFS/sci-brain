@@ -116,11 +116,17 @@ If the user picks an advisor, do **not** just read `advisors/<slug>/profile.md` 
 
 1. **Read the advisor profile.** Load `advisors/<slug>/profile.md` (slug is lowercase hyphenated, e.g., `xi-dai`) and use the most relevant topic section (prefer `brainstorming` or `research`) to understand how this advisor thinks.
 
-When an advisor is selected:
-- Load `advisors/<slug>/.knowledge/INDEX.md` to know what literature is available.
-- Load `advisors/<slug>/.knowledge/NOTES.md` for the advisor's curated thematic notes (if present).
-- Pre-fetch a handful of representative papers from `advisors/<slug>/.knowledge/<id>_<slug>.md` and supply them as context **loaded into the advisor subagent context** at launch.
-- If `advisors/<slug>/.knowledge/` is empty, fall back to launching the advisor without a literature cache (still useful — the profile alone shapes their reasoning).
+When an advisor is selected, first resolve the advisor KB path so it follows `$SCIBRAIN_KB_DIRNAME` if the user has set it:
+
+```sh
+ADVISOR_KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)
+```
+
+Then:
+- Load `$ADVISOR_KB/INDEX.md` to know what literature is available.
+- Load `$ADVISOR_KB/NOTES.md` for the advisor's curated thematic notes (if present).
+- Pre-fetch a handful of representative papers from `$ADVISOR_KB/<id>_<slug>.md` and supply them as context **loaded into the advisor subagent context** at launch.
+- If `$ADVISOR_KB/` is empty or missing, fall back to launching the advisor without a literature cache (still useful — the profile alone shapes their reasoning).
 
 **Launch the advisor.** The advisor subagent's job is to contribute hard-won taste: what to ask next, which assumptions are dangerous, which papers matter, and what this advisor would investigate first. The main mentor remains responsible for session flow, empathy, logging, and synthesis.
 
@@ -147,7 +153,7 @@ Use this for moments where the advisor's specific perspective, instinct, or expe
 
 If no advisor is selected or no advisors exist, proceed with default mentor behavior.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also check for a project knowledge base at `<project>/.knowledge/` — this contains indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
 **Session picker.** If previous session logs exist, present them as an interactive choice via `AskUserQuestion` before proceeding:
 
@@ -214,7 +220,7 @@ If the user's self-introduction already reveals their experience level (e.g., th
 
 **Always run this phase** — even when the user already stated a direction. There's almost always more context to uncover.
 
-**Load context:** Check for knowledge bases in the project path (e.g., `<project>/.knowledge/`). If found, note them for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `advisors/<slug>/.knowledge/INDEX.md` so the mentor knows what literature the advisor subagent already has in context.
+**Load context:** Resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed knowledge. If found, note it for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `$ADVISOR_KB/INDEX.md` (resolved earlier with `--advisor <slug>`) so the mentor knows what literature the advisor subagent already has in context.
 
 #### Step 1: Talk first
 
@@ -309,7 +315,7 @@ The conversation may loop between steps 2-4 as the idea evolves. That's natural.
 
 After a natural stopping point (idea confirmed, user seems satisfied, or energy drops), offer next steps via `AskUserQuestion`: keep refining, try a different angle, take time to think and pick up next session, or wrap up. Don't offer this after every single exchange — let the conversation breathe.
 
-**Search policy:** Ground ideas in loaded knowledge bases (`<project>/.knowledge/` and `advisors/<slug>/.knowledge/`) first. Only search the web when the conversation goes beyond what those caches cover.
+**Search policy:** Ground ideas in the loaded knowledge bases (`$KB` and, when an advisor is active, `$ADVISOR_KB`) first. Only search the web when the conversation goes beyond what those caches cover.
 
 ### Phase 3 — Wrap Up
 

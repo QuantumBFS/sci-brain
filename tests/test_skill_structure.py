@@ -163,6 +163,14 @@ def test_ideas_loads_advisor_kb_from_dot_knowledge():
     assert "publications.yml" not in text
     assert "papers/*.md" not in text
 
+
+def test_ideas_operational_instructions_use_resolved_kb_variables():
+    text = _read("ideas")
+    assert "Resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`" in text
+    assert "ADVISOR_KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)" in text
+    assert "project knowledge base at `<project>/.knowledge/`" not in text
+    assert "Ground ideas in loaded knowledge bases (`<project>/.knowledge/` and `advisors/<slug>/.knowledge/`)" not in text
+
 # ---- incarnate ----
 
 def test_incarnate_targets_advisor_dot_knowledge():
