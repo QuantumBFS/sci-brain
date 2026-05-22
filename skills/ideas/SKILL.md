@@ -153,7 +153,7 @@ Use this for moments where the advisor's specific perspective, instinct, or expe
 
 If no advisor is selected or no advisors exist, proceed with default mentor behavior.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also check for a project knowledge base at `<project>/.knowledge/` — this contains indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
 **Session picker.** If previous session logs exist, present them as an interactive choice via `AskUserQuestion` before proceeding:
 
@@ -315,7 +315,7 @@ The conversation may loop between steps 2-4 as the idea evolves. That's natural.
 
 After a natural stopping point (idea confirmed, user seems satisfied, or energy drops), offer next steps via `AskUserQuestion`: keep refining, try a different angle, take time to think and pick up next session, or wrap up. Don't offer this after every single exchange — let the conversation breathe.
 
-**Search policy:** Ground ideas in loaded knowledge bases (`<project>/.knowledge/` and `advisors/<slug>/.knowledge/`) first. Only search the web when the conversation goes beyond what those caches cover.
+**Search policy:** Ground ideas in the loaded knowledge bases (`$KB` and, when an advisor is active, `$ADVISOR_KB`) first. Only search the web when the conversation goes beyond what those caches cover.
 
 ### Phase 3 — Wrap Up
 

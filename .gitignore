@@ -28,7 +28,11 @@ advisors/*/.knowledge/
 .knowledge/
 
 docs/agent-profiles/
+docs/dialog/
 docs/discussion/
 docs/plans/
+docs/references/
 docs/superpowers/
+docs/superpowers/specs/
+docs/survey-question-classification.md
 docs/test-reports/

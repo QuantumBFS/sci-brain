@@ -217,7 +217,7 @@ Tell the user: new cite key(s), rendered file path(s), `full_text` yes/no per re
 
 - **`/survey` / `/researchstyle`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`/ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
-- **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting `advisors/<slug>/.knowledge/`.
+- **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
 
 ## Common mistakes
 

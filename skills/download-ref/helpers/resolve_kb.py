@@ -29,6 +29,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+DEFAULT_KB_DIRNAME = ".knowledge"
+
 
 def _find_git_root(start: Path) -> Optional[Path]:
     cur = start.resolve()
@@ -48,7 +50,15 @@ def _is_at_or_above_home(start: Path) -> bool:
 
 def _kb_dirname() -> str:
     """KB directory name. Override via $SCIBRAIN_KB_DIRNAME (default '.knowledge')."""
-    return os.environ.get("SCIBRAIN_KB_DIRNAME", ".knowledge")
+    raw = os.environ.get("SCIBRAIN_KB_DIRNAME")
+    if raw is None or raw == "":
+        return DEFAULT_KB_DIRNAME
+    if Path(raw).is_absolute() or raw in {".", ".."} or "/" in raw or "\\" in raw:
+        raise ValueError(
+            "SCIBRAIN_KB_DIRNAME must be a single directory name, "
+            f"not an absolute or nested path: {raw!r}"
+        )
+    return raw
 
 
 def _plugin_root() -> Path:
@@ -83,7 +93,11 @@ def main(argv: Optional[list[str]] = None) -> int:
                         help="Advisor slug (lowercase hyphenated). When set, returns the "
                              "advisor KB path under <plugin-root>/advisors/<slug>/.")
     args = parser.parse_args(argv)
-    kb = resolve_kb(start=args.start, advisor=args.advisor)
+    try:
+        kb = resolve_kb(start=args.start, advisor=args.advisor)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     if kb is None:
         print(f"unresolvable from {args.start or Path.cwd()}", file=sys.stderr)
         return 2

@@ -104,6 +104,35 @@ def test_env_var_overrides_dirname_with_fallback(tmp_path, monkeypatch):
     assert mod.resolve_kb(start=start) == start / "papers"
 
 
+def test_empty_env_var_uses_default_dirname(tmp_path, monkeypatch):
+    repo = tmp_path / "proj"
+    (repo / ".git").mkdir(parents=True)
+    monkeypatch.setenv("SCIBRAIN_KB_DIRNAME", "")
+    mod = _load()
+    assert mod.resolve_kb(start=repo) == repo / ".knowledge"
+
+
+@pytest.mark.parametrize("dirname", ["/tmp/kb", "../outside", "nested/kb", r"nested\kb", ".", ".."])
+def test_rejects_invalid_env_var_dirnames(tmp_path, monkeypatch, dirname):
+    repo = tmp_path / "proj"
+    (repo / ".git").mkdir(parents=True)
+    monkeypatch.setenv("SCIBRAIN_KB_DIRNAME", dirname)
+    mod = _load()
+    with pytest.raises(ValueError, match="SCIBRAIN_KB_DIRNAME"):
+        mod.resolve_kb(start=repo)
+
+
+def test_cli_exits_nonzero_for_invalid_env_var(tmp_path, capsys, monkeypatch):
+    repo = tmp_path / "proj"
+    (repo / ".git").mkdir(parents=True)
+    monkeypatch.setenv("SCIBRAIN_KB_DIRNAME", "/tmp/kb")
+    mod = _load()
+    rc = mod.main(["--start", str(repo)])
+    err = capsys.readouterr().err
+    assert rc != 0
+    assert "SCIBRAIN_KB_DIRNAME" in err
+
+
 def test_advisor_kb_under_plugin_root(monkeypatch):
     monkeypatch.delenv("SCIBRAIN_KB_DIRNAME", raising=False)
     mod = _load()
