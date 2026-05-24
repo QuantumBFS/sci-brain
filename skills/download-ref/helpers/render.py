@@ -130,7 +130,7 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
     return text.strip()
 
 
-def render_arxiv(kb: Path, raw: Path) -> int:
+def render_arxiv(kb: Path, raw: Path, only_missing: bool = False) -> int:
     n = 0
     arx_dir = raw / "arxiv"
     if not arx_dir.exists():
@@ -140,6 +140,10 @@ def render_arxiv(kb: Path, raw: Path) -> int:
         s2 = json.loads(json_path.read_text())
         title = s2.get("title", "(untitled)")
         slug = f"{arxiv_id}_{slugify(title)}"
+        out_path = kb / f"{slug}.md"
+        if only_missing and out_path.exists() and out_path.stat().st_size > 500:
+            n += 1
+            continue
         meta = {
             "source": f"https://arxiv.org/abs/{arxiv_id}",
             "type": "arxiv",
@@ -172,7 +176,7 @@ def render_arxiv(kb: Path, raw: Path) -> int:
     return n
 
 
-def render_doi(kb: Path, raw: Path) -> int:
+def render_doi(kb: Path, raw: Path, only_missing: bool = False) -> int:
     n = 0
     doi_dir = raw / "doi"
     if not doi_dir.exists():
@@ -183,6 +187,10 @@ def render_doi(kb: Path, raw: Path) -> int:
         doi_canon = (s2.get("externalIds") or {}).get("DOI") or safe.replace("-", "/", 1)
         title = s2.get("title", "(untitled)")
         slug = slugify(safe)
+        out_path = kb / f"{slug}.md"
+        if only_missing and out_path.exists() and out_path.stat().st_size > 500:
+            n += 1
+            continue
         ext = s2.get("externalIds") or {}
         meta = {
             "source": f"https://doi.org/{doi_canon}",
@@ -330,14 +338,19 @@ def main() -> int:
     p.add_argument("--kb", required=True, type=Path)
     p.add_argument("--manifest", type=Path, default=None,
                    help="Optional JSON manifest for web entries and bib stubs")
+    p.add_argument("--only-missing", action="store_true",
+                   help="Skip rendering papers that already have a non-trivial .md file (>500 bytes)")
     args = p.parse_args()
     raw = args.kb / ".raw"
     m = json.loads(args.manifest.read_text()) if args.manifest else {}
-    print(f"arxiv:  {render_arxiv(args.kb, raw)}")
-    print(f"doi:    {render_doi(args.kb, raw)}")
+    om = args.only_missing
+    print(f"arxiv:  {render_arxiv(args.kb, raw, only_missing=om)}")
+    print(f"doi:    {render_doi(args.kb, raw, only_missing=om)}")
     print(f"github: {render_github(args.kb, raw)}")
     print(f"web:    {render_web(args.kb, raw, m)}")
     print(f"stub:   {render_stubs(args.kb, m)}")
+    if om:
+        print("(--only-missing: skipped already-rendered papers)")
     return 0
 
 

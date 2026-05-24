@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import urllib.error
@@ -29,13 +30,17 @@ from pathlib import Path
 S2_FIELDS = "title,abstract,authors,year,venue,journal,externalIds,citationStyles,openAccessPdf"
 S2_BATCH_URL = f"https://api.semanticscholar.org/graph/v1/paper/batch?fields={S2_FIELDS}"
 
+S2_API_KEY = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "")
+
 
 def post_batch(ids: list[str]) -> list[dict | None]:
     """Submit IDs (with ARXIV: or DOI: prefix) to S2's batch endpoint."""
     body = json.dumps({"ids": ids}).encode("utf-8")
+    headers = {"Content-Type": "application/json", "User-Agent": "build-harness/1.0"}
+    if S2_API_KEY:
+        headers["x-api-key"] = S2_API_KEY
     req = urllib.request.Request(
-        S2_BATCH_URL, data=body, method="POST",
-        headers={"Content-Type": "application/json", "User-Agent": "build-harness/1.0"},
+        S2_BATCH_URL, data=body, method="POST", headers=headers,
     )
     backoff = 5
     for attempt in range(6):
@@ -54,12 +59,18 @@ def post_batch(ids: list[str]) -> list[dict | None]:
 
 def fetch_pdf(url: str, out: Path, ua: str = "Mozilla/5.0") -> bool:
     if out.exists() and out.stat().st_size > 1024:
-        return True
+        tail = out.read_bytes()[-32:]
+        if b"%%EOF" in tail:
+            return True
+        print(f"  {out.name}: existing file missing %%EOF trailer, re-downloading", file=sys.stderr)
     try:
         req = urllib.request.Request(url, headers={"User-Agent": ua})
         with urllib.request.urlopen(req, timeout=120) as r:
             body = r.read()
         if body[:4] != b"%PDF":
+            return False
+        if b"%%EOF" not in body[-32:]:
+            print(f"  {out.name}: downloaded file missing %%EOF (truncated?), skipping", file=sys.stderr)
             return False
         out.write_bytes(body)
         return True
@@ -117,15 +128,17 @@ def main() -> int:
         summarize("doi", k, r)
 
     if args.download_arxiv_pdfs:
-        print("\nfetching PDFs...")
-        # arXiv preprints
+        print("\nfetching PDFs (sequential with 2s sleep to avoid arXiv rate limits)...")
         for aid in arxiv_ids:
             out = raw / "arxiv" / f"{aid}.pdf"
+            if out.exists() and out.stat().st_size > 1024 and b"%%EOF" in out.read_bytes()[-32:]:
+                print(f"  ok arxiv:{aid} (cached)")
+                continue
             if fetch_pdf(f"https://arxiv.org/pdf/{aid}.pdf", out):
                 print(f"  ok arxiv:{aid}")
             else:
                 print(f"  FAIL arxiv:{aid}")
-        # DOI papers — try arXiv preprint via externalIds.ArXiv
+            time.sleep(2)
         for doi, r in zip(dois, results[len(arxiv_ids):]):
             if r is None:
                 continue
@@ -142,6 +155,7 @@ def main() -> int:
             if not ok and arxiv_pre:
                 ok = fetch_pdf(f"https://arxiv.org/pdf/{arxiv_pre}.pdf", out)
             print(f"  {'ok  ' if ok else 'miss'} doi:{doi} (arxiv={arxiv_pre or '-'})")
+            time.sleep(2)
 
     return 0
 

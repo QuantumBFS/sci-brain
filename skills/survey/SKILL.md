@@ -114,10 +114,13 @@ Before the menu below, scan the conversation for arXiv IDs / DOIs the user menti
 After the registry is built:
 
 > "Survey complete. What next?"
-> - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $(dirname $KB)/ref.bib --kb $KB`
+> - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $(dirname $KB)/ref.bib --kb $KB` to download PDFs and render full-text markdown
 > - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot)
 > - **(c)** Deeper survey — survey a subtopic, append to this registry (go back to Step 2)
 > - **(d)** Ideas — continue to brainstorming in the current session
+> - **(e)** Write a review — invokes `review-writer` to produce a structured technology assessment (what is it, pros/cons, SOTA, key problems, business relevance) from the survey registry
+
+For **(a)** then **(e)**: the natural pipeline is `survey` → `download-ref` (fetch + render PDFs) → `review-writer` (produce the report). After download-ref completes, offer the review-writer transition again.
 
 For **(c)**, use the user's subtopic as the new query, go back to Step 2. Append new references to the existing `ref.bib` and extend `NOTES.md`.
 

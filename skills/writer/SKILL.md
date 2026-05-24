@@ -69,3 +69,7 @@ The goal is not decoration — it's clarity. If drawing the idea makes it easier
 ---
 
 *Polya's "Looking Back":* After drafting, review — can the result be derived differently? Can it be used for some other problem? Can you see the result at a glance?
+
+
+
+**Note:** For technology reviews and assessments (SOTA, pros/cons, business relevance), use the separate `review-writer` skill instead.

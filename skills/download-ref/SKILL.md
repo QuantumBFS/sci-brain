@@ -117,7 +117,9 @@ python3 skills/download-ref/helpers/fetch_metadata.py \
   --download-arxiv-pdfs
 ```
 
-Populates `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}` idempotently. For DOIs whose publisher gates the PDF (APS / Nature / IOP / AAAS / ACS), the helper falls back to the arXiv preprint via `externalIds.ArXiv` when present. If even that fails, you'll see a `miss` line — go to Step 4b.
+Populates `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}` idempotently. PDFs are downloaded sequentially with 2s sleep between requests to avoid arXiv rate limits. Each PDF is verified for a `%%EOF` trailer; truncated downloads are discarded and retried. For DOIs whose publisher gates the PDF (APS / Nature / IOP / AAAS / ACS), the helper falls back to the arXiv preprint via `externalIds.ArXiv` when present. If even that fails, you'll see a `miss` line — go to Step 4b.
+
+**Tip:** Set `SEMANTIC_SCHOLAR_API_KEY` in your environment to raise the Semantic Scholar rate limit from ~1 req/s to 100 req/s. Get a free key at https://www.semanticscholar.org/product/api#api-key-form.
 
 ### 4b. SciHub fallback for paywalled PDFs
 
@@ -144,6 +146,12 @@ Skip this step if all PDFs were fetched in Step 4.
 
 ```sh
 python3 skills/download-ref/helpers/render.py --kb "$KB"
+```
+
+Add `--only-missing` to skip papers that already have a rendered `.md` file (>500 bytes). This is much faster when adding a few papers to a large KB:
+
+```sh
+python3 skills/download-ref/helpers/render.py --kb "$KB" --only-missing
 ```
 
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
@@ -213,8 +221,21 @@ done
 
 Tell the user: new cite key(s), rendered file path(s), `full_text` yes/no per ref.
 
+## After download — transition checkpoint
+
+After the done checklist passes, offer the next step:
+
+> "Papers downloaded and rendered. What next?"
+> - **(a)** Write a review — invokes `review-writer` to produce a technology assessment from the survey registry
+> - **(b)** Ideas — continue to brainstorming with `/ideas`
+> - **(c)** Done — stop here
+
+The natural pipeline is: `/survey` → `/download-ref` → `/review-writer`.
+
 ## Integration with other skills
 
+- **`/survey`** (upstream): writes `summary.md` + `references.bib`, then hands off to `/download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
+- **`/review-writer`** (downstream): consumes the rendered KB (full-text `.md` files + `references.bib`) to produce a structured technology assessment report.
 - **`/survey` / `/researchstyle`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`/ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
 - **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
