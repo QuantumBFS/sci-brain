@@ -20,11 +20,11 @@ Then invoke `ideas` skill to start talking.
 You start a conversation. The agent asks about your background — you can describe yourself, or point it at your Zotero library or Google Scholar profile so it can learn from your papers directly.
 The better the agent understands you, the higher quality its recommendations are.
 
-Then you pick a domain expert (distilled from **real** scientists's conversation with AI, see [list](advisors/)) to assist you. Their profile will be loaded to a subagent, to assist you "ask the right question".
+Then you pick a domain expert (distilled from **real** scientists' conversations with AI, see [list](advisors/)) to assist you. Their profile is loaded into a subagent to help you ask the right questions.
 
 ## Want Deeper Literature First?
 
-`/ideas` searches the web as you talk, but if you want a thorough literature map before brainstorming, run `/survey` first. It searches in parallel across seven strategies — landscape mapping, adjacent fields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks — and builds a registry with verified BibTeX.
+`/ideas` searches the web as you talk, but if you want a thorough literature map before brainstorming, run `/survey` first. It searches in parallel across seven strategies — landscape mapping, adjacent fields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks — and builds a knowledge base with verified BibTeX.
 
 When you run `/ideas` afterward, it automatically picks up the survey results and uses them to ground the conversation.
 
@@ -39,7 +39,6 @@ When you run `/ideas` afterward, it automatically picks up the survey results an
 - **Project BibTeX** — `<project>/ref.bib` — cite-key namespace, shared with any LaTeX in the project.
 - **Advisor knowledge bases** — `advisors/<slug>/.knowledge/` and `advisors/<slug>/ref.bib` — per-advisor private cache, gitignored.
 - **Conversation logs** — `docs/discussion/` — each session is a timestamped file; the next session picks up where you left off.
-- **Quick notes** — `docs/discussion/notes/` — individual Q&A snapshots from `/quicknote`.
 - **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file.
 
 ## Want to Become an Advisor?

@@ -29,7 +29,7 @@ Run extractions in parallel (batch shell commands). Skip sessions that yield 0 u
 
 ### Phase 2 — Classify by Topic
 
-Dispatch fast subagents (model: haiku) in parallel to classify each extracted session by conversation topic. Each agent receives a batch of ~20 extracted JSON files and returns a topic label for each.
+Dispatch fast available agents in parallel to classify each extracted session by conversation topic. Each agent receives a batch of ~20 extracted JSON files and returns a topic label for each.
 
 **Topic taxonomy (closed set):**
 

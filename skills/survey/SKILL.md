@@ -1,6 +1,6 @@
 ---
 name: survey
-description: Use when surveying a research topic — launches parallel exploration strategies via web search, lets user pick interesting directions, then builds a focused survey registry with BibTeX
+description: Use when surveying a research topic — launches parallel exploration strategies via web search, lets user pick interesting directions, then builds a focused knowledge base with BibTeX
 ---
 
 Before starting, check which MCP servers are available (arxiv, paper-search, Semantic Scholar, Sci-Hub, etc.). Present the detected servers to the user and let them choose which ones to use for this session via `AskUserQuestion` (multi-select). If none are configured, warn the user that the survey will rely on WebSearch only.
@@ -11,7 +11,7 @@ If the user already provided a research topic or question, skip the clarificatio
 
 **Step 1 — Clarify.** Ask one question to narrow the research topic. Give 2-4 choice options.
 
-**Step 2 — Pick strategies & search.** Present the strategy menu to the user as a multi-select question. Recommend 3-4 strategies based on the topic context, but let the user choose. Then launch one subagent per selected strategy in parallel. Every subagent uses **WebSearch only** at this stage — fast and broad.
+**Step 2 — Pick strategies & search.** Present the strategy menu to the user as a multi-select question. Recommend 3-4 strategies based on the topic context, but let the user choose. Then run one search worker per selected strategy in parallel when available, or sequentially otherwise. Each worker uses **broad web search only** at this stage — fast and exploratory.
 
 **Strategy menu:**
 
@@ -27,11 +27,11 @@ If the user already provided a research topic or question, skip the clarificatio
 
 When presenting to the user, briefly explain why you recommend each strategy for their specific topic (e.g., "Cross-vocabulary recommended because your problem — buffering stochastic supply — appears in operations research and hydrology too").
 
-Each subagent produces a short **findings report** — key papers found, grouped by sub-theme, with titles and one-line descriptions. No BibTeX yet. **Important:** subagents must also collect the DOI and arXiv ID for each paper when visible in search results (e.g., DOIs from publisher URLs, arXiv IDs from arxiv.org links like `2401.12345`). Record these alongside titles in the findings report.
+Each worker produces a short **findings report** — key papers found, grouped by sub-theme, with titles and one-line descriptions. No BibTeX yet. **Important:** workers must also collect the DOI and arXiv ID for each paper when visible in search results (e.g., DOIs from publisher URLs, arXiv IDs from arxiv.org links like `2401.12345`). Record these alongside titles in the findings report.
 
-**Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one), **preserve any DOIs and arXiv IDs collected** during Step 2, and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I build a literature registry for? Pick one or more." The user can select multiple.
+**Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one), **preserve any DOIs and arXiv IDs collected** during Step 2, and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I add to the knowledge base? Pick one or more." The user can select multiple.
 
-**Step 4 — Build registry.** For the selected directions only, generate the BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source.
+**Step 4 — Build KB entries.** For the selected directions only, generate the BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source.
 
 **KB resolution.** The target KB is the project KB by default — `<project>/.knowledge/` unless the user overrides the directory name via `$SCIBRAIN_KB_DIRNAME`:
 
@@ -50,7 +50,7 @@ Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 
 **arxiv MCP fast path.** If an arxiv MCP with `export_papers` is configured, batch-export papers with arXiv IDs via `export_papers(arxiv_ids, format="bibtex", include_abstract=True)` and remove them from the lists below.
 
-**Subagent A — ID-known papers (batch lookup).**
+**Lookup path A — ID-known papers (batch lookup).**
 
 1. Single batch call to Semantic Scholar:
    ```
@@ -61,13 +61,13 @@ Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 2. **For each returned paper:** write the full response to `$KB/.raw/{arxiv,doi}/<id>.json` in the exact JSON shape `fetch_metadata.py` produces (top-level keys: `title`, `authors`, `year`, `venue`, `abstract`, `externalIds`, `citationStyles`, `openAccessPdf`). Use `<safe-doi>` (DOI with `/` → `-`) for the filename in `.raw/doi/`.
 3. For papers returning `null` from the batch, pick the single most effective fallback (CrossRef for DOI-only, title-match for others).
 
-**Subagent B — ID-unknown papers (title-based lookup).**
+**Lookup path B — ID-unknown papers (title-based lookup).**
 
-For each paper, pick the single most effective method (Semantic Scholar title match, CrossRef, MCP servers, WebFetch publisher page). On success, write the result to `$KB/.raw/{arxiv,doi}/<id>.json` in the same shape as Subagent A.
+For each paper, pick the single most effective method (Semantic Scholar title match, CrossRef, MCP servers, WebFetch publisher page). On success, write the result to `$KB/.raw/{arxiv,doi}/<id>.json` in the same shape as lookup path A.
 
 **Step 4 finalize — bib + INDEX.**
 
-After both subagents complete, for each new ref:
+After both lookup paths complete, for each new ref:
 
 ```sh
 # Get the auto-proposed key from the JSON.
@@ -111,14 +111,14 @@ Before the menu below, scan the conversation for arXiv IDs / DOIs the user menti
 > - **(b)** Pick a subset
 > - **(c)** Skip
 
-After the registry is built:
+After the KB is built:
 
 > "Survey complete. What next?"
 > - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $(dirname $KB)/ref.bib --kb $KB` to download PDFs and render full-text markdown
 > - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot)
-> - **(c)** Deeper survey — survey a subtopic, append to this registry (go back to Step 2)
+> - **(c)** Deeper survey — survey a subtopic, append to this KB (go back to Step 2)
 > - **(d)** Ideas — continue to brainstorming in the current session
-> - **(e)** Write a review — invokes `review-writer` to produce a structured technology assessment (what is it, pros/cons, SOTA, key problems, business relevance) from the survey registry
+> - **(e)** Write a review — invokes `review-writer` to produce a structured technology assessment (what is it, pros/cons, SOTA, key problems, business relevance) from the active KB
 
 For **(a)** then **(e)**: the natural pipeline is `survey` → `download-ref` (fetch + render PDFs) → `review-writer` (produce the report). After download-ref completes, offer the review-writer transition again.
 

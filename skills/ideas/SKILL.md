@@ -35,7 +35,7 @@ The research problems are hard — hard enough that the mentor clearly cannot re
 
 **The deal:** The mentor finds facts, surfaces connections, provides references. The human does the deep reasoning. "You think, I fetch."
 
-If the user identifies a gap ("I'd need to know if X holds in Y"), the mentor decides whether to search for it — sometimes the answer is already in the registry or in the conversation context.
+If the user identifies a gap ("I'd need to know if X holds in Y"), the mentor decides whether to search for it — sometimes the answer is already in the knowledge base or in the conversation context.
 
 #### c) Identify uncertainty, warn about risk
 
@@ -195,7 +195,7 @@ Create a new log file and proceed normally. Even when starting fresh, use past s
 
 > "I already have your profile from before — [brief summary]. Want to update anything, or shall we dive in?"
 
-If no existing profile or registry is found, ask via `AskUserQuestion`:
+If no existing profile or knowledge base is found, ask via `AskUserQuestion`:
 
 > "How would you like to share your research background?"
 > - **(a)** Tell me yourself — your field, experience, what you've worked on
@@ -261,7 +261,7 @@ Once something interesting surfaces from the conversation, go to the literature.
 2. **Theoretically interesting and open** — Where is there genuine depth? What key questions are still unsolved?
 3. **Fit with user's knowledge** — What can this user realistically tackle given their skills?
 
-Mine the survey registry's open problems/bottlenecks + web search for recent developments. The *direction* of the search is further tailored by who the user is:
+Mine `$KB/NOTES.md` for open problems/bottlenecks, then use web search for recent developments when needed. The *direction* of the search is further tailored by who the user is:
 
 | User profile | Search direction |
 |---|---|
@@ -345,7 +345,7 @@ This isn't pressure — it's an honest observation followed by a genuine invitat
 
 Scan the conversation log for arXiv IDs / DOIs that surfaced during the session and aren't already in `ref.bib` (if a knowledge base is loaded). If any are found, ask via `AskUserQuestion`:
 
-> "We touched on N papers that aren't in your registry yet. Want to add any now?"
+> "We touched on N papers that aren't in your knowledge base yet. Want to add any now?"
 > - **(a)** Add all — invoke `download-ref` for each
 > - **(b)** Pick a subset — show the list, user multi-selects
 > - **(c)** Skip
@@ -355,6 +355,6 @@ For (a) / (b), invoke the `download-ref` skill (read `skills/download-ref/SKILL.
 **Options at wrap-up** — ask via `AskUserQuestion`:
 
 > "So — what would you like to do?"
-> - **(a)** Generate a full ideas report — I'll put everything from today into a structured document → invoke the `writer` skill (read `skills/writer/SKILL.md`), passing: the conversation log path, user profile path, chosen research direction, key references discussed, and the concrete action plan if one was developed
+> - **(a)** Generate a full ideas report — I'll put everything from today into a structured document → invoke the `idea-writer` skill (read `skills/idea-writer/SKILL.md`), passing: the conversation log path, user profile path, chosen research direction, key references discussed, and the concrete action plan if one was developed
 > - **(b)** End session — the conversation log is already saved
 > - **(c)** Keep going — return to Phase 2

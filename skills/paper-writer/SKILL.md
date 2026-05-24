@@ -1,13 +1,15 @@
 ---
-name: paperwrite
-description: Use when drafting or revising a scientific paper (journal article, PRL/Nature-style letter, or arXiv preprint) — sequences figures and sections, enforces notation/figure discipline, and walks the seven-section structure. Distinct from `writer`, which produces an ideas report; use paperwrite once results exist and a real manuscript needs to be written.
+name: paper-writer
+description: Use when drafting or revising a scientific manuscript with real results, including journal articles, letters, and arXiv preprints
 ---
 
-# Paperwrite
+# Paper Writer
 
-A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. Both source documents are preserved at `skills/paperwrite/references.md` and `skills/paperwrite/sources/` — consult them when this SKILL.md leaves a question open.
+A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. Both source documents are preserved at `skills/paper-writer/references.md` and `skills/paper-writer/sources/` — consult them when this SKILL.md leaves a question open.
 
-**Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `/writer`. If the user has not yet finished the work, push back: a paper requires results.
+**Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `idea-writer`. If the user has not yet finished the work, push back: a paper requires results.
+
+Use `skills/_shared/writing-workflow.md` for KB loading, citation handling, missing references, output formats, and Typst/diagram mechanics. The manuscript-specific rules below override shared defaults when venue templates or figure-first sequencing require it.
 
 ---
 
@@ -33,11 +35,9 @@ A correct ordering of effort that defeats writer's block. Do not reorder — the
 
 Before drafting, gather the materials that should inform the paper. Cheap to do once; expensive to skip.
 
-1. **Survey registry.** Check `CLAUDE.md`/`AGENTS.md` for a configured registry path; otherwise check the conventional roots (`~/.claude/survey/`, `.claude/survey/`, `~/.codex/survey/`, `~/.config/opencode/survey/`). List registries that match the paper's topic and ask the user which to load. Read both files:
-   - `summary.md` — field landscape clustered by sub-theme, active groups, **key open problems**, **key bottlenecks**. This is the spine of the Introduction (prior work, gap statement, motivation) and of the Conclusions (what your contribution implies for the open problems / bottlenecks named here).
-   - `references.bib` — the citation pool. Cite from here; never invent BibTeX from memory. Use `download-ref` to append any missing reference encountered during drafting.
+1. **Shared writing context.** Follow `skills/_shared/writing-workflow.md`. Use `$KB/NOTES.md` as the spine for prior work, gap statement, motivation, and conclusions.
 2. **Ideas / brainstorming log.** Look for `docs/discussion/*-ideas-log.md` from a prior `/ideas` session. If present, read it for: the original motivation, what cross-field connections were surfaced, what minimum viable experiment was planned, and what the success/hope/pivot signals were. This is the *why* behind the paper and feeds the introduction's contribution claim.
-3. **Personal registry.** Check `~/.claude/survey/personal/` (or the project-local equivalent) for the user's prior-publication index. Use it to position the new paper in the user's own arc and to avoid re-citing the user's own work incorrectly.
+3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `researchstyle` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to avoid re-citing the user's own work incorrectly.
 4. **Existing draft.** If a partial manuscript already exists under `articles/`, read it before proposing new prose — pick up where the user left off rather than starting from a blank slate.
 
 If none of these exist, name what's missing and ask the user to either point at the files or run `/survey` first. A paper without a literature foundation will read like one.
@@ -242,10 +242,9 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 
 ## Integrations
 
-- **Citations:** Pull BibTeX from an existing registry built by `survey` / `researchstyle`. Never invent BibTeX from memory — use the lookup chain (CrossRef → Semantic Scholar → MCP → WebFetch).
-- **Missing reference:** Call `download-ref` to append the new entry to the registry's `references.bib`. Use the existing cite-key convention.
+- **Citations and missing references:** Follow `skills/_shared/writing-workflow.md`.
 - **Manuscript format:** Use the target journal's official template when available. Default to Typst (`.typ`) only when no target venue or required template exists; use LaTeX (`.tex`) or Word when the journal requires it; use Markdown only for arXiv-style preprints where the journal accepts it.
-- **Storing the draft:** `articles/YYYY-MM-DD-<paper-slug>/` with `main.typ` (or `.tex`), `references.bib`, and `figures/`.
+- **Storing the draft:** `articles/YYYY-MM-DD-<paper-slug>/` with `main.typ` (or `.tex`), a bibliography copied from `ref.bib`, and `figures/`.
 
 ---
 

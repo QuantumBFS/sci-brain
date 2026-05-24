@@ -1,6 +1,6 @@
 # Source reference material
 
-Distilled rule lists from the two source guides that back `paperwrite/SKILL.md`. Use this when the main SKILL.md leaves a judgment call open, or when teaching a collaborator *why* a given rule exists.
+Distilled rule lists from the two source guides that back `paper-writer/SKILL.md`. Use this when the main SKILL.md leaves a judgment call open, or when teaching a collaborator *why* a given rule exists.
 
 ---
 

@@ -3,9 +3,9 @@ name: import-dialog
 description: Import .md dialog files (Claude.ai exports, custom markdown conversations) to create or update advisor profiles. Use when the user wants to import a conversation file, update an advisor with new dialog data, or add .md chat history to the advisor library. Invoked with /import-dialog.
 ---
 
-# Import Dialog — Update Advisor from .md Files
+# Import Dialog
 
-Import exported markdown dialog files and use them to create or update an advisor profile through the conversation-dump and soul-extraction pipeline.
+Import exported markdown dialog files, convert them to the standard dialog JSON format, then hand off to the existing advisor-profile pipeline. This skill is intentionally a thin wrapper around `conversation-dump`, `soul-extraction`, and `incarnate` so their taxonomies and profile rules stay single-sourced.
 
 ## Phase 1 — Specify Inputs
 
@@ -32,41 +32,19 @@ Save JSON outputs to `docs/dialog/md-import/raw/`. Verify each file parsed corre
 
 ## Phase 3 — Classify and Analyze
 
-Follow `conversation-dump` Phases 2–3:
-
-1. **Classify** each session into a topic using the standard taxonomy: `skill-design`, `debugging`, `documentation`, `refactoring`, `feature-implementation`, `paper-review`, `research-brainstorming`, `data-analysis`, `system-design`, `testing`, `code-review`, `literature-survey`, `writing`, `automated`, `other`.
-
-2. Move classified sessions to `docs/dialog/md-import/<topic>/`.
-
-3. Present topic counts to the user. Ask which topics to analyze in depth.
-
-4. **Deep analysis:** For each selected topic, tag every user message across the six dimensions (`bloom`, `depth`, `probe`, `presup`, `discourse`, `mechanism`). Save enriched JSON to `docs/dialog/md-import/<topic>/`.
+Follow `conversation-dump` Phases 2–3 on `docs/dialog/md-import/raw/`:
+- Use the topic taxonomy from `conversation-dump` only.
+- Move classified sessions to `docs/dialog/md-import/<topic>/`.
+- Present topic counts and ask which topics to analyze deeply.
+- Save enriched JSON back to `docs/dialog/md-import/<topic>/`.
 
 ## Phase 4 — Soul Extraction
 
-For each selected topic, follow `soul-extraction` Phases 2–4:
-
-1. **Extract patterns:** Identify trigger→reaction pairs. Cluster similar turns (3-of-4 dimension match). Record patterns with frequency and examples.
-
-2. **Detect logic jumps:** Find user messages that are not direct responses to the assistant's prior turn. Curate the 5–12 most valuable. Present each candidate to the user for confirmation with causality chain options.
-
-3. **Output:** Write `thinking-pattern.md` and `master-thinking.md` to `docs/dialog/md-import/<topic>/`.
+For each selected topic, follow `soul-extraction` Phases 2–4 and write `thinking-pattern.md` + `master-thinking.md` to `docs/dialog/md-import/<topic>/`.
 
 ## Phase 5 — Update Advisor Profile
 
-Read the target advisor's existing `advisors/<slug>/profile.md`.
-
-**If advisor exists:**
-- Preserve the Background section (unless user provides updates).
-- For each topic with sufficient data (2+ patterns), generate the five thinking-style subsections: Cognitive Style, Attention Patterns, Reasoning Strengths, Conversation Dynamics, Potential Blind Spots.
-- Add new topic sections or replace existing ones that were re-analyzed.
-- Keep existing topic sections that were not re-analyzed.
-
-**If advisor is new:**
-- Create `advisors/<slug>/profile.md` with Background + topic sections.
-- Create `advisors/<slug>/` directory.
-
-**Update `advisors/index.md`** — add or update the row for this advisor.
+Use `incarnate` Step 3–4 to synthesize or update `advisors/<slug>/profile.md` from the new `soul-extraction` outputs. Preserve existing topic sections that were not re-analyzed, and update `advisors/index.md`.
 
 Present the updated profile to the user for review:
 > Your advisor profile has been updated at `advisors/<slug>/profile.md`. The new analysis added/updated the following topic sections: [list]. Please review — raw dialog data stays in `docs/dialog/md-import/` and is not included in the profile.

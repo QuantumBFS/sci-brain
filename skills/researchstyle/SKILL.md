@@ -3,7 +3,7 @@ name: researchstyle
 description: Use when indexing a paper collection (your own or another researcher's) into a knowledge base — supports Zotero library, a PDF folder, or a Google Scholar profile
 ---
 
-# Researcher Survey Registry
+# Researchstyle
 
 Turn an existing paper collection into a structured knowledge base under `<project>/.knowledge/` (or an advisor KB). The output uses the same KB format as the `survey` and `download-ref` skills — project and advisor KBs can coexist cleanly.
 
