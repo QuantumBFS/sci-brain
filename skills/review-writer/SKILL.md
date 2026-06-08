@@ -17,46 +17,43 @@ Follow `skills/_shared/writing-workflow.md` for context loading, citation handli
 - Check `CLAUDE.md` for company description, product portfolio, customer map, or team structure. If found, include "Business Relevance"; if not found, ask whether to include it.
 - Tailor technical depth to the user's role from `docs/discussion/user-profile.md` or memory.
 - Save to `articles/YYYY-MM-DD-<topic>-review.{md,typ,tex}` or a project-specific path if the user prefers.
+- For a Typst report, start from the bundled scaffold `template.typ` (in this skill's directory, with `template.bib`): copy it to the output path and fill it in. It already encodes the § Report structure below and ships helper functions — `section_box`, `stage` (flow/era strips), `proscons` (per-approach unpaired strengths/limitations), `compare_table`, `problem_table`.
 
 ## Gap-Filling Focus
 
 - Missing SOTA results mentioned in the survey but lacking citations
 - Key groups/companies active in the field but not yet referenced
-- Competing approaches or alternative platforms for the "Pros and Cons" section
+- Approaches or method families that belong in § 2 but are not yet covered or referenced
 - Recent results (last 6 months) that may have superseded older survey entries
 
 ## Report structure
 
 Draft each section, show the user, get feedback before proceeding to the next:
 
-### 1. What Is It
-Define the technology in 2–3 paragraphs for a reader who has never heard of it. Cover:
-- What problem it solves
-- How it works (one level of detail — not a textbook, but enough to understand the pros/cons)
-- What makes it different from the dominant approach
+Organize the review **by technical approach**. The bulk of the report explains the approaches, and the state of the art and trade-offs live *inside each approach* rather than in separate global sections. Do not write a standalone global "Pros and Cons" or "State of the Art" section — those belong per-approach (see § 2).
 
-Include a **diagram** showing the key architectural concept (role separation, data flow, interaction mechanism). Use `grid` + `rect`/`box` for side-by-side layouts to avoid CeTZ overflow issues. Keep text inside fixed-width `box()` elements.
+### 1. What and Why
+Define the topic in 2–3 paragraphs for a reader who has never heard of it. Cover:
+- What it is and what problem it solves
+- Why it matters now — the motivation and stakes
+- How it differs from the dominant or prior approach
 
-### 2. Pros and Cons
-Structured **table** with numbered rows:
-- Left column: advantage (bold heading + 1–2 sentence explanation + citation)
-- Right column: corresponding disadvantage/limitation (bold heading + explanation + citation)
+Include a **diagram** showing the key concept (architecture, data flow, or the problem framing). Use `grid` + `rect`/`box` for side-by-side layouts to avoid CeTZ overflow issues. Keep text inside fixed-width `box()` elements.
 
-Aim for 4–8 rows covering orthogonal dimensions (performance, scalability, complexity, maturity, cost, risk). Every claim must have at least one `@citekey` citation.
+### 2. Technical Approaches
+This is the core of the review. Identify the main approaches / method families in the field (typically 3–6) and give **one subsection per approach**. Optionally open with a short field-wide **timeline or landscape** (a CeTZ timeline, or a one-line-per-era list) to orient the reader before the per-approach detail.
 
-### 3. State of the Art
-Two parts:
+For each approach, cover three things in order:
+- **What it is** — the mechanism at one level of detail: the representation, objective, or trick that defines it.
+- **State of the art** — the strongest current results, leading groups, and maturity, each with a `@citekey` citation. Lead with the best result, not a chronology.
+- **Pros and cons** — the genuine strengths and limitations *of this approach*, as two short bullet lists (2–4 bullets each), every bullet cited. Do **not** force advantages and limitations into matched pairs or equal counts — list the real ones. This per-approach treatment replaces the old global pros/cons table.
 
-**Milestone table:** columns = Milestone, Result, Group/Company, Year. Include citations in the Milestone column (e.g., `[First demonstration @Author2024]`). Order by year ascending. 8–12 rows.
+End the section with an **optional cross-approach comparison table** — rows = approaches, columns = a few shared criteria (e.g. scalability, verifiability/cost, maturity, best-fit use case), cells cited where they make a claim. Use it as the at-a-glance summary when the field has several comparable approaches; skip it for a single-approach topic.
 
-**Who is building what:** Bulleted prose listing active groups and companies with their species/platform, recent results (with citations), and commercial vs. academic status.
+### 3. Open Problems
+Ranked **table** with columns: #, Problem, Why it matters, Who could solve it, Urgency (Critical / High / Medium). 4–8 rows. Order by urgency descending. For each problem, cite the paper(s) that define the gap or the closest existing work.
 
-### 4. Key Problems
-Ranked **table** with columns: #, Problem, Why it matters, Who could solve it, Urgency (Critical / High / Medium). 4–8 rows. Order by urgency descending.
-
-For each problem, cite the paper(s) that define the gap or the closest existing work.
-
-### 5. Business Relevance *(include only if business context is available)*
+### 4. Business Relevance *(include only if business context is available)*
 
 Structure:
 - **Strategic fit** — 2–3 numbered points explaining why this technology amplifies the company's thesis
@@ -72,9 +69,10 @@ Use diagrams to make abstract concepts concrete. Prefer simple layouts over comp
 **Typst reports:** Use CeTZ (`@preview/cetz:0.4.0`) for timeline and dependency diagrams. For side-by-side comparisons and role diagrams, prefer Typst's native `grid` + `rect` + `box` — these handle text wrapping and overflow better than CeTZ `content()` nodes. Refer to `skills/_shared/typst-reference.md` for CeTZ patterns.
 
 **Common diagram types for reviews:**
-- **Role/architecture diagram** in "What Is It" — `grid(columns: 3)` with `rect` boxes and a center connector
-- **Timeline** in "State of the Art" — CeTZ with `line` axis, `circle` milestones, `content` labels
-- **Dependency graph** in "Key Problems" — CeTZ with `rect` nodes (string names, not content), `line` arrows, color-coded by urgency
+- **Role/architecture diagram** in "What and Why" — `grid(columns: 3)` with `rect` boxes and a center connector
+- **Timeline** for the optional field-wide overview in "Technical Approaches" — CeTZ with `line` axis, `circle` milestones, `content` labels
+- **Cross-approach comparison matrix** at the end of "Technical Approaches" — a native `table` (rows = approaches, columns = shared criteria), not CeTZ
+- **Dependency graph** in "Open Problems" — CeTZ with `rect` nodes (string names, not content), `line` arrows, color-coded by urgency
 
 **Layout rules:**
 - Always wrap multi-line text inside CeTZ `content()` with a fixed-width `box()` to prevent overflow
