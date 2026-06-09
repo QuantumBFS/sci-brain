@@ -7,7 +7,7 @@ Use this from `idea-writer`, `review-writer`, and `paper-writer` for mechanics t
 - Resolve the project KB with `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`.
 - If present, read `$KB/NOTES.md`, `$KB/INDEX.md`, and `$(dirname $KB)/ref.bib`.
 - Read `docs/discussion/user-profile.md` when audience, background, or positioning matters.
-- For ideas/manuscripts, read relevant `docs/discussion/*-ideas-log.md`.
+- For ideas/manuscripts, read relevant `docs/discussion/*-brainstorm-ideas-log.md`.
 - If the needed literature base is missing, suggest `/survey` or ask the user for explicit source files.
 
 ## References

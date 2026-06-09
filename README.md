@@ -12,10 +12,10 @@ Open **Claude Code**/**Codex**/**OpenCode** and type:
 
 ```
 Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
-Then invoke `ideas` skill to start talking.
+Then invoke `brainstorm-ideas` skill to start talking.
 ```
 
-## What does the `/ideas` skill do?
+## What does the `/brainstorm-ideas` skill do?
 
 You start a conversation. The agent asks about your background — you can describe yourself, or point it at your Zotero library or Google Scholar profile so it can learn from your papers directly.
 The better the agent understands you, the higher quality its recommendations are.
@@ -24,13 +24,13 @@ Then you pick a domain expert (distilled from **real** scientists' conversations
 
 ## Want Deeper Literature First?
 
-`/ideas` searches the web as you talk, but if you want a thorough literature map before brainstorming, run `/survey` first. It searches in parallel across seven strategies — landscape mapping, adjacent fields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks — and builds a knowledge base with verified BibTeX.
+`/brainstorm-ideas` searches the web as you talk, but if you want a thorough literature map before brainstorming, run `/survey` first. It searches in parallel across seven strategies — landscape mapping, adjacent fields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks — and builds a knowledge base with verified BibTeX.
 
-When you run `/ideas` afterward, it automatically picks up the survey results and uses them to ground the conversation.
+When you run `/brainstorm-ideas` afterward, it automatically picks up the survey results and uses them to ground the conversation.
 
 ```
 /survey              ← build a literature map
-/ideas               ← brainstorm with that literature loaded
+/brainstorm-ideas               ← brainstorm with that literature loaded
 ```
 
 ## Where Things Are Saved
