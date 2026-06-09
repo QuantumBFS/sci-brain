@@ -36,7 +36,7 @@ Dispatch fast available agents in parallel to classify each extracted session by
 | Slug | Description |
 |------|-------------|
 | `skill-design` | Designing or refining skill definitions |
-| `brainstorming` | Research ideation, /ideas sessions |
+| `brainstorming` | Research ideation, /brainstorm-ideas sessions |
 | `code-review` | Reviewing code or PRs |
 | `debugging` | Fixing bugs, diagnosing failures |
 | `documentation` | Writing or editing docs, READMEs |
@@ -73,7 +73,7 @@ Write a topic index to `docs/dialog/<source>/topics.md`:
 | Topic | Sessions | Description |
 |-------|----------|-------------|
 | skill-design | 12 | Designing or refining skill definitions |
-| brainstorming | 8 | Research ideation using /ideas |
+| brainstorming | 8 | Research ideation using /brainstorm-ideas |
 | ... | ... | ... |
 | **Total** | **N** | |
 ```

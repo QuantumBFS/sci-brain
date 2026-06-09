@@ -1,5 +1,5 @@
 ---
-name: ideas
+name: brainstorm-ideas
 description: Use when brainstorming research ideas — a research collaborator that understands your background, helps find interesting problems together, and shares relevant resources along the way
 ---
 
@@ -71,7 +71,7 @@ The goal is to make the user *curious*, not obligated. Show the beauty of the th
 
 ### Conversation Log
 
-Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-ideas-log.md` (timestamp from session start). Create the `docs/discussion/` directory if it doesn't exist.
+Maintain a running log at `docs/discussion/YYYY-MM-DD-HHMMSS-brainstorm-ideas-log.md` (timestamp from session start). Create the `docs/discussion/` directory if it doesn't exist.
 
 **Append-only logging.** Save progress by appending to the log at checkpoints. Each append captures the **full conversation content** since the last save — all options presented (with descriptions), reasoning shared, user responses, search results, and key ideas. Not a summary — a readable record of what was actually said.
 
@@ -125,10 +125,18 @@ ADVISOR_KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)
 Then:
 - Load `$ADVISOR_KB/INDEX.md` to know what literature is available.
 - Load `$ADVISOR_KB/NOTES.md` for the advisor's curated thematic notes (if present).
-- Pre-fetch a handful of representative papers from `$ADVISOR_KB/<id>_<slug>.md` and supply them as context **loaded into the advisor subagent context** at launch.
+- Pre-fetch a handful of representative papers from `$ADVISOR_KB/<id>_<slug>.md` as **seed context loaded into the advisor subagent at launch** — these are a starting point, not the advisor's whole library.
 - If `$ADVISOR_KB/` is empty or missing, fall back to launching the advisor without a literature cache (still useful — the profile alone shapes their reasoning).
 
 **Launch the advisor.** The advisor subagent's job is to contribute hard-won taste: what to ask next, which assumptions are dangerous, which papers matter, and what this advisor would investigate first. The main mentor remains responsible for session flow, empathy, logging, and synthesis.
+
+**Give the advisor subagent the tools to investigate.** Launch it via the `Agent` tool with `Read`, `Grep`, `Glob`, `WebSearch`, and `WebFetch` available, and pass `$ADVISOR_KB` (the absolute path) in its prompt. Instruct the subagent that, **before making a substantive comment, it should:**
+- **Consult its own knowledge base first.** `Grep`/`Glob` `$ADVISOR_KB/INDEX.md` and open the relevant `$ADVISOR_KB/<id>_<slug>.md` papers for specifics — don't rely only on the seed papers. The seed set is a head start; the full KB is the advisor's library to draw on.
+- **Search the web** (`WebSearch`/`WebFetch`) when the KB doesn't cover a needed fact, or to check a recent development or verify a claim before asserting it.
+- **Ground each comment in what it found and say so** — name the paper (cite key from `$ADVISOR_KB/INDEX.md`) or link the source. When neither the KB nor the web supports a claim, mark it explicitly as opinion (consistent with principle (c), "distinguish opinion from evidence").
+- Restrict file access to `$ADVISOR_KB` and the advisor's `profile.md`; the subagent reads literature and the web, it does not edit project files.
+
+If `$ADVISOR_KB` is empty or missing, the subagent still has `WebSearch`/`WebFetch` and falls back to web grounding plus profile-driven reasoning.
 
 The advisor profile shapes *how* the advisor subagent thinks and behaves. The user's own profile (`user-profile.md`) still determines *what* the overall system knows about the user's background. Both are loaded, but they are loaded into different roles: the main mentor keeps the broad session context, while the advisor subagent receives the advisor-specific literature cache and style directives.
 
@@ -153,7 +161,7 @@ Use this for moments where the advisor's specific perspective, instinct, or expe
 
 If no advisor is selected or no advisors exist, proceed with default mentor behavior.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
 **Session picker.** If previous session logs exist, present them as an interactive choice via `AskUserQuestion` before proceeding:
 
@@ -323,7 +331,7 @@ When the user is done, the mentor does two special things before ending:
 
 **1. Reflect on the conversation and share a better way to dig in.**
 
-Look back at how the conversation went — and read `docs/discussion/*-ideas-log.md` for cross-session patterns. What themes keep coming up? What directions has the user circled back to? What was most interesting today vs. past sessions? Then share a thought:
+Look back at how the conversation went — and read `docs/discussion/*-brainstorm-ideas-log.md` for cross-session patterns. What themes keep coming up? What directions has the user circled back to? What was most interesting today vs. past sessions? Then share a thought:
 
 > "I really enjoyed this conversation. I'd love to dig deeper with you about [specific matter that came up]. One way you could ask about it is: '[a better-framed version of a question they asked during the session]' — that kind of question opens up more interesting directions.
 

@@ -10,9 +10,9 @@ sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, 
 
 Twelve skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
 
-- **ideas** — The main entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. When an advisor is selected, `/ideas` launches that advisor as a subagent and loads literature from `advisors/<slug>/.knowledge/`. The project's shared knowledge base is `<project>/.knowledge/`. Auto-calls `researchstyle` (Phase 0, if user chooses Zotero/Scholar) and `idea-writer` (Phase 3, if user wants a report).
-- **survey** — Parallel literature search via 7 strategies, populates `<project>/.knowledge/` with `.raw/` JSON, appends to `<project>/ref.bib` via `download-ref`'s helpers, regenerates `INDEX.md`, writes curated `NOTES.md` (sub-themes, open problems, bottlenecks). Run before `/ideas` for deeper literature grounding.
-- **idea-writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail. Auto-called from `/ideas` at wrap-up, or run standalone on a past session's log.
+- **brainstorm-ideas** — The main entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. When an advisor is selected, `/brainstorm-ideas` launches that advisor as a subagent and loads literature from `advisors/<slug>/.knowledge/`. The project's shared knowledge base is `<project>/.knowledge/`. Auto-calls `researchstyle` (Phase 0, if user chooses Zotero/Scholar) and `idea-writer` (Phase 3, if user wants a report).
+- **survey** — Parallel literature search via 7 strategies, populates `<project>/.knowledge/` with `.raw/` JSON, appends to `<project>/ref.bib` via `download-ref`'s helpers, regenerates `INDEX.md`, writes curated `NOTES.md` (sub-themes, open problems, bottlenecks). Run before `/brainstorm-ideas` for deeper literature grounding.
+- **idea-writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail. Auto-called from `/brainstorm-ideas` at wrap-up, or run standalone on a past session's log.
 - **survey-writer** — Produces a structured technology assessment from a populated KB (what it is, pros/cons, state of the art, key problems, optional business relevance). The write-up stage of the `survey` → `download-ref` → `survey-writer` pipeline.
 - **paper-writer** — Use when drafting or revising an actual scientific manuscript. Encodes the von Delft / Martinis workflow: figures first → telegram outline → body → polish abstract+intro+conclusions last. Distinct from `idea-writer` — for real manuscripts with results.
 - **paper-reviewer** — The *review/enhance an existing manuscript* counterpart to `paper-writer`'s *drafting*. Reads the whole paper, emits location-anchored comments against eight writing guidelines (one-concept sentences, define-before-use, one-job paragraphs, DRY, display-math discipline, figure integration) plus reference & fact verification (CrossRef → Semantic Scholar → MCP → WebFetch, repairs via `download-ref`). Comment-first and non-destructive: applies only approved edits, then re-runs the compile-check. Distinct from `survey-writer` (which assesses a field, not a manuscript).
@@ -25,12 +25,12 @@ Twelve skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter +
 
 ## Architecture
 
-**Entry point:** `/ideas` — most users only need this. Other skills are auto-called or can run independently.
+**Entry point:** `/brainstorm-ideas` — most users only need this. Other skills are auto-called or can run independently.
 
-**Ideas skill uses a primary Socratic mentor plus an optional advisor subagent:**
+**brainstorm-ideas skill uses a primary Socratic mentor plus an optional advisor subagent:**
 - Understands user background (self-intro, Zotero, or Google Scholar)
 - Loads project literature from `<project>/.knowledge/INDEX.md` + `NOTES.md`
-- When an advisor is selected, also loads `advisors/<slug>/.knowledge/INDEX.md` + `NOTES.md` and pre-fetches representative papers into the advisor subagent context
+- When an advisor is selected, also loads `advisors/<slug>/.knowledge/INDEX.md` + `NOTES.md` and pre-fetches representative papers into the advisor subagent context. The advisor subagent is launched with `Read`/`Grep`/`Glob` over its `.knowledge/` KB plus `WebSearch`/`WebFetch`, and is instructed to consult its KB and the web before making comments (grounding each comment in a cited source or marking it as opinion)
 - Six principles: clarify motivation, encourage thinking (humbly), flag uncertainty, surface related facts, empower based on skills, inspire with deep theory
 - Phases: Get to Know You → Find Good Problems → Dive Into the Topic → Wrap Up
 
@@ -59,7 +59,7 @@ advisors/<slug>/
 
 `download-ref` owns `INDEX.md`, `ref.bib` (via append), `.raw/`, `.figures/`, and the rendered `<id>_<slug>.md` files. `survey` / `researchstyle` / humans own `NOTES.md`.
 
-**Advisor library** (`advisors/`): Named advisor profiles generated by `incarnate`. Each profile captures cognitive patterns, attention patterns, reasoning strengths, and conversation dynamics, and may include publication-source links and `edge-tts` voice hints. The ideas skill launches a selected advisor as a subagent and loads their `advisors/<slug>/.knowledge/` literature during brainstorming.
+**Advisor library** (`advisors/`): Named advisor profiles generated by `incarnate`. Each profile captures cognitive patterns, attention patterns, reasoning strengths, and conversation dynamics, and may include publication-source links and `edge-tts` voice hints. The brainstorm-ideas skill launches a selected advisor as a subagent and loads their `advisors/<slug>/.knowledge/` literature during brainstorming.
 
 **BibTeX lookup chain** (never from memory): CrossRef API → Semantic Scholar API → MCP servers → WebFetch fallback
 

@@ -5,14 +5,14 @@ description: Use when writing an ideas report after brainstorming or when turnin
 
 # Idea Writer
 
-Write a structured ideas report after `/ideas` has converged on a research direction. For technology assessments use `survey-writer`; for manuscripts with real results use `paper-writer`.
+Write a structured ideas report after `/brainstorm-ideas` has converged on a research direction. For technology assessments use `survey-writer`; for manuscripts with real results use `paper-writer`.
 
 ## Setup
 
 Follow `skills/_shared/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
-- Primary source: `docs/discussion/*-ideas-log.md`; if multiple exist, ask which one to use.
-- If no log exists, ask the user to run `/ideas` first or describe the direction.
+- Primary source: `docs/discussion/*-brainstorm-ideas-log.md`; if multiple exist, ask which one to use.
+- If no log exists, ask the user to run `/brainstorm-ideas` first or describe the direction.
 - Save to `articles/YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}`.
 
 ## Report Structure
