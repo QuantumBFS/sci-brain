@@ -119,7 +119,7 @@ After Steps 3–6 complete, the KB is populated with metadata but PDFs aren't do
 > "Index built. What next?"
 > - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $(dirname $KB)/ref.bib --kb $KB` (bulk mode)
 > - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot, per-ref cite-key confirmation)
-> - **(c)** Continue to `/ideas` — start brainstorming with the indexed literature loaded
+> - **(c)** Continue to `/brainstorm-ideas` — start brainstorming with the indexed literature loaded
 > - **(d)** Stop — leave the KB as-is
 
-For (a) and (b), see `skills/download-ref/SKILL.md`. For (c), invoke `/ideas` in the current session.
+For (a) and (b), see `skills/download-ref/SKILL.md`. For (c), invoke `/brainstorm-ideas` in the current session.
