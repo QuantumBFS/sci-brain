@@ -1,6 +1,6 @@
 # Shared Writing Workflow
 
-Use this from `idea-writer`, `review-writer`, and `paper-writer` for mechanics that are not product-specific.
+Use this from `idea-writer`, `survey-writer`, and `paper-writer` for mechanics that are not product-specific.
 
 ## Context
 

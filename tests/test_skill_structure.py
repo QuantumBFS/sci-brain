@@ -256,8 +256,36 @@ def test_paper_reviewer_references_paper_writer_rules():
 
 def test_paper_reviewer_does_not_collide_with_writer_description():
     # The trigger must be about reviewing an EXISTING manuscript, distinct
-    # from paper-writer (drafting) and review-writer (field assessment).
+    # from paper-writer (drafting) and survey-writer (field assessment).
     text = _read("paper-reviewer")
     front = text.split("---", 2)[1].lower()
     assert "review" in front
     assert "manuscript" in front or "paper" in front
+
+
+# ---- survey-writer (renamed from review-writer, issue #20) ----
+
+def test_survey_writer_replaces_review_writer():
+    # The skill directory was renamed review-writer -> survey-writer.
+    assert (SKILLS / "survey-writer" / "SKILL.md").exists()
+    assert not (SKILLS / "review-writer").exists()
+
+
+def test_survey_writer_has_renamed_frontmatter():
+    text = _read("survey-writer")
+    assert "name: survey-writer" in text
+    assert "name: review-writer" not in text
+
+
+def test_no_lingering_review_writer_references():
+    # Every tracked skill file, template, and CLAUDE.md must reference the new
+    # name. Catches stale cross-references after the rename.
+    scanned = (
+        list(SKILLS.rglob("*.md"))
+        + list(SKILLS.rglob("*.typ"))
+        + [ROOT / "CLAUDE.md"]
+    )
+    offenders = [
+        str(p.relative_to(ROOT)) for p in scanned if "review-writer" in p.read_text()
+    ]
+    assert offenders == [], f"stale review-writer references: {offenders}"

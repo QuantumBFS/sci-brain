@@ -1,4 +1,4 @@
-// review-writer Typst template — copy to articles/YYYY-MM-DD-<topic>-review.typ
+// survey-writer Typst template — copy to articles/YYYY-MM-DD-<topic>-review.typ
 // and replace the placeholder content. Compile with: typst compile <file>.typ
 // Citations use a sibling bib (see the bibliography() call at the bottom);
 // copy the project's ref.bib beside the document, or adapt template.bib.
