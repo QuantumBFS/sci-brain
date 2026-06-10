@@ -226,16 +226,16 @@ Tell the user: new cite key(s), rendered file path(s), `full_text` yes/no per re
 After the done checklist passes, offer the next step:
 
 > "Papers downloaded and rendered. What next?"
-> - **(a)** Write a review — invokes `review-writer` to produce a technology assessment from the active KB
+> - **(a)** Write a review — invokes `survey-writer` to produce a technology assessment from the active KB
 > - **(b)** Ideas — continue to brainstorming with `/brainstorm-ideas`
 > - **(c)** Done — stop here
 
-The natural pipeline is: `/survey` → `/download-ref` → `/review-writer`.
+The natural pipeline is: `/survey` → `/download-ref` → `/survey-writer`.
 
 ## Integration with other skills
 
 - **`/survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$(dirname $KB)/ref.bib`, regenerates `$KB/INDEX.md`, then hands off to `/download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
-- **`/review-writer`** (downstream): consumes the rendered KB (full-text `.md` files + `$(dirname $KB)/ref.bib`) to produce a structured technology assessment report.
+- **`/survey-writer`** (downstream): consumes the rendered KB (full-text `.md` files + `$(dirname $KB)/ref.bib`) to produce a structured technology assessment report.
 - **`/survey` / `/researchstyle`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`/brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
 - **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.

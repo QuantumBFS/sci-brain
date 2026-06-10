@@ -5,7 +5,7 @@ description: Use when writing an ideas report after brainstorming or when turnin
 
 # Idea Writer
 
-Write a structured ideas report after `/brainstorm-ideas` has converged on a research direction. For technology assessments use `review-writer`; for manuscripts with real results use `paper-writer`.
+Write a structured ideas report after `/brainstorm-ideas` has converged on a research direction. For technology assessments use `survey-writer`; for manuscripts with real results use `paper-writer`.
 
 ## Setup
 

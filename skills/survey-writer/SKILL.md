@@ -1,13 +1,13 @@
 ---
-name: review-writer
-description: Use when writing a technology review, field assessment, SOTA report, pros/cons report, or business-relevance assessment
+name: survey-writer
+description: Use when writing up a literature survey, technology review, field assessment, SOTA report, pros/cons report, or business-relevance assessment from a populated knowledge base — the write-up stage of the survey pipeline
 ---
 
-Write a structured review/assessment report for a technology, research field, or platform. The output is a self-contained document suitable for internal decision-making, investor communication, or team onboarding.
+Write a structured survey/assessment report for a technology, research field, or platform. The output is a self-contained document suitable for internal decision-making, investor communication, or team onboarding.
 
-**Pipeline:** This skill is the final stage of the `survey` → `download-ref` → `review-writer` pipeline. Run `/survey` first to build a literature KB, then `/download-ref` to fetch PDFs and render full-text markdown, then this skill to produce the report. The skill can also run standalone if a project KB already exists.
+**Pipeline:** This skill is the final stage of the `survey` → `download-ref` → `survey-writer` pipeline. Run `/survey` first to build a literature KB, then `/download-ref` to fetch PDFs and render full-text markdown, then this skill to produce the report. The skill can also run standalone if a project KB already exists.
 
-Trigger phrases: "write a review", "technology assessment", "what is it / pros and cons / SOTA", "evaluate this field", "business relevance of X", "write a report on X".
+Trigger phrases: "write up the survey", "write a review", "technology assessment", "what is it / pros and cons / SOTA", "evaluate this field", "business relevance of X", "write a report on X".
 
 ## Setup
 

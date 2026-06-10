@@ -189,3 +189,103 @@ def test_incarnate_invokes_researchstyle_or_download_ref():
     text = _read("incarnate")
     # The advisor KB is populated by /researchstyle or /download-ref
     assert "researchstyle" in text or "download-ref" in text
+
+
+# ---- paper-reviewer ----
+
+def test_paper_reviewer_has_frontmatter():
+    text = _read("paper-reviewer")
+    assert "name: paper-reviewer" in text
+    assert "description:" in text
+
+
+def test_paper_reviewer_uses_shared_writing_workflow():
+    text = _read("paper-reviewer")
+    assert "skills/_shared/writing-workflow.md" in text
+
+
+def test_paper_reviewer_mentions_verification_chain():
+    # Guideline #8: never invent BibTeX; use the lookup chain.
+    text = _read("paper-reviewer")
+    assert "CrossRef" in text
+    assert "Semantic Scholar" in text
+
+
+def test_paper_reviewer_is_comment_first_then_apply():
+    # Operating principle: non-destructive, approve before edit.
+    text = _read("paper-reviewer").lower()
+    assert "comment" in text
+    assert "approve" in text or "approval" in text
+
+
+def test_paper_reviewer_covers_the_eight_checks():
+    text = _read("paper-reviewer").lower()
+    # #1 sentence length / one concept
+    assert "one concept" in text or "sentence length" in text
+    # #2 define before use
+    assert "before use" in text or "forward reference" in text or "forward-reference" in text
+    # #3 paragraph purpose / one job
+    assert "paragraph" in text
+    # #4 DRY / anti-repetition (new)
+    assert "dry" in text or "repetition" in text or "repeated" in text
+    # #5 display math discipline
+    assert "display math" in text or "display equation" in text
+    # #6 read the whole paper first
+    assert "whole" in text
+    # #7 figure integration / orphan figures
+    assert "figure" in text and "orphan" in text
+
+
+def test_paper_reviewer_repairs_refs_via_download_ref():
+    # Never invent BibTeX from memory; repair via download-ref.
+    text = _read("paper-reviewer")
+    assert "download-ref" in text
+
+
+def test_paper_reviewer_has_compile_check():
+    text = _read("paper-reviewer").lower()
+    assert "latexmk" in text or "pdflatex" in text
+    assert "typst compile" in text
+
+
+def test_paper_reviewer_references_paper_writer_rules():
+    # Reuse paper-writer's rule definitions rather than duplicating them.
+    text = _read("paper-reviewer")
+    assert "paper-writer" in text
+
+
+def test_paper_reviewer_does_not_collide_with_writer_description():
+    # The trigger must be about reviewing an EXISTING manuscript, distinct
+    # from paper-writer (drafting) and survey-writer (field assessment).
+    text = _read("paper-reviewer")
+    front = text.split("---", 2)[1].lower()
+    assert "review" in front
+    assert "manuscript" in front or "paper" in front
+
+
+# ---- survey-writer (renamed from review-writer, issue #20) ----
+
+def test_survey_writer_replaces_review_writer():
+    # The skill directory was renamed review-writer -> survey-writer.
+    assert (SKILLS / "survey-writer" / "SKILL.md").exists()
+    assert not (SKILLS / "review-writer").exists()
+
+
+def test_survey_writer_has_renamed_frontmatter():
+    text = _read("survey-writer")
+    assert "name: survey-writer" in text
+    assert "name: review-writer" not in text
+
+
+def test_no_lingering_review_writer_references():
+    # Every tracked skill file, template, and CLAUDE.md must reference the new
+    # name. Catches stale cross-references after the rename.
+    scanned = (
+        list(SKILLS.rglob("*.md"))
+        + list(SKILLS.rglob("*.typ"))
+        + [ROOT / "CLAUDE.md"]
+    )
+    offenders = [
+        str(p.relative_to(ROOT)) for p in scanned if "review-writer" in p.read_text()
+    ]
+    assert offenders == [], f"stale review-writer references: {offenders}"
