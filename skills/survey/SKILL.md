@@ -73,10 +73,10 @@ After both lookup paths complete, for each new ref:
 # Get the auto-proposed key from the JSON.
 KEY=$(python3 skills/download-ref/helpers/append_bibtex.py propose \
         --kb "$KB" --id "$ID" --type "$TYPE" | python3 -c 'import sys,json; print(json.load(sys.stdin)["proposed_key"])')
-# Append to ref.bib (dedup is free — refuses duplicates).
+# Append to the KB's references.bib (dedup is free — refuses duplicates).
 python3 skills/download-ref/helpers/append_bibtex.py append \
   --kb "$KB" --id "$ID" --type "$TYPE" --key "$KEY" \
-  --bib "$(dirname $KB)/ref.bib"
+  --bib "$KB/references.bib"
 ```
 
 Skip per-ref user confirmation — at survey scale (30+ refs) it's unworkable, and survey is the authority for its own cite keys.
@@ -98,30 +98,18 @@ python3 skills/download-ref/helpers/index.py \
 
 If `NOTES.md` already exists, **extend** rather than overwrite: merge new findings into existing sections, preserve user edits.
 
-**Extending an existing KB** (Survey was run before on this project): read `$(dirname $KB)/ref.bib` first; skip papers already present (match by DOI or exact title); append only new entries.
+**Extending an existing KB** (Survey was run before on this project): read `$KB/references.bib` first; skip papers already present (match by DOI or exact title); append only new entries.
 
 If the survey reveals the idea is already published, present the prior art and ask the user if they see a different angle before proceeding.
 
-## After Survey — transition checkpoint
+## After Survey — hand off to download-ref
 
-Before the menu below, scan the conversation for arXiv IDs / DOIs the user mentioned that the parallel-search strategies didn't surface. If any are missing from `ref.bib`, ask via `AskUserQuestion`:
+The survey's job is done once the KB has its references, `NOTES.md`, and `INDEX.md`. The next stage of the **`survey` → `download-ref` → `survey-writer`** pipeline is `download-ref`, which fetches PDFs and renders full-text markdown.
 
-> "You mentioned N papers that didn't come through the parallel search. Want to pull them in directly?"
-> - **(a)** Add all — invoke `download-ref` for each (single-shot mode, with cite-key confirmation per ref)
-> - **(b)** Pick a subset
-> - **(c)** Skip
+First, scan the conversation for arXiv IDs / DOIs the user mentioned that the parallel search didn't surface. If any are missing from `references.bib`, pull them in (invoke `download-ref` single-shot, cite-key confirmation per ref) so the reference set is complete before downloading.
 
-After the KB is built:
+Then offer the next step:
 
-> "Survey complete. What next?"
-> - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $(dirname $KB)/ref.bib --kb $KB` to download PDFs and render full-text markdown
-> - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot)
-> - **(c)** Deeper survey — survey a subtopic, append to this KB (go back to Step 2)
-> - **(d)** Ideas — continue to brainstorming in the current session
-> - **(e)** Write a review — invokes `survey-writer` to produce a structured technology assessment (what is it, pros/cons, SOTA, key problems, business relevance) from the active KB
-
-For **(a)** then **(e)**: the natural pipeline is `survey` → `download-ref` (fetch + render PDFs) → `survey-writer` (produce the report). After download-ref completes, offer the survey-writer transition again.
-
-For **(c)**, use the user's subtopic as the new query, go back to Step 2. Append new references to the existing `ref.bib` and extend `NOTES.md`.
-
-**Optional: export to Zotero.** If a Zotero MCP with write support is configured, offer to create items from `ref.bib`. If not, the user can import `ref.bib` manually via Zotero's File > Import.
+> "Survey complete. Fetch the PDFs?"
+> - **(a)** Fetch + render all refs — invokes `download-ref --from-bib $KB/references.bib --kb $KB` to download PDFs and render full-text markdown. This is the next stage of the pipeline; `download-ref` then hands off to `survey-writer`.
+> - **(b)** Done — stop here.

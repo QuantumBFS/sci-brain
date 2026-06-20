@@ -1,6 +1,6 @@
 ---
 name: download-ref
-description: Use when adding one or many new references (arXiv ID or DOI) to a sci-brain knowledge base — `<project>/.knowledge/` by default, or `advisors/<slug>/.knowledge/` when invoked from an advisor flow. Fetches metadata via Semantic Scholar, downloads PDFs (with SciHub fallback), renders to markdown, regenerates `INDEX.md`, and appends to `ref.bib`. Handles both single refs and bulk-from-bib batches.
+description: Use when adding one or many new references (arXiv ID or DOI) to a sci-brain knowledge base — `<project>/.knowledge/` by default, or `advisors/<slug>/.knowledge/` when invoked from an advisor flow. Fetches metadata via Semantic Scholar, downloads PDFs (with SciHub fallback), renders to markdown, regenerates `INDEX.md`, and appends to the KB's `references.bib`. Handles both single refs and bulk-from-bib batches.
 ---
 
 # download-ref
@@ -9,7 +9,7 @@ description: Use when adding one or many new references (arXiv ID or DOI) to a s
 
 - A discussion / draft surfaces a paper not yet in the project KB, and you want it indexed for future search.
 - The user says "add this ref to the KB", "download arXiv:XXXX", "pull this DOI".
-- Bulk-importing a reading list from issue threads / chat history / a `ref.bib`.
+- Bulk-importing a reading list from issue threads / chat history / a `references.bib`.
 
 Do NOT use:
 - For GitHub repos / web pages — those are too varied for a single-shot helper.
@@ -45,10 +45,12 @@ python3 -m pip install --user pymupdf4llm
 - `$KB/.figures/{arxiv__<id>,doi__<safe>}/...`
 - `$KB/<id>_<slug>.md` (rendered paper, one per ref)
 - `$KB/INDEX.md` (regenerated each run)
-- Appends entries to `$(dirname $KB)/ref.bib`
+- Appends entries to `$KB/references.bib`
 
 `download-ref` **never touches**:
 - `$KB/NOTES.md` — owned by `survey` / `researchstyle` / humans (sub-themes, open problems, bottlenecks).
+
+The canonical bib is `$KB/references.bib` — it lives inside the KB, beside `INDEX.md` and `NOTES.md`. (Older notes may say `$(dirname $KB)/ref.bib`; that project-root path is retired.)
 
 ## Workflow
 
@@ -92,11 +94,11 @@ cat > "$TMP" <<'EOF'
 EOF
 ```
 
-**3b. From an existing `ref.bib`** (bulk mode, `--from-bib`):
+**3b. From an existing `references.bib`** (bulk mode, `--from-bib`):
 
 ```sh
 TMP=/tmp/download-ref-manifest.json
-python3 skills/download-ref/helpers/bibtex_to_manifest.py "$(dirname $KB)/ref.bib" > "$TMP"
+python3 skills/download-ref/helpers/bibtex_to_manifest.py "$KB/references.bib" > "$TMP"
 ```
 
 When in bulk mode, optionally ask the user:
@@ -165,7 +167,7 @@ PDF backend priority:
 
 ### 6. Propose + confirm cite key (per ref, single-shot mode only)
 
-In single-shot mode (Step 3a), ask the user to confirm each new cite key. In bulk mode (Step 3b), the keys come from `ref.bib` directly — skip this step.
+In single-shot mode (Step 3a), ask the user to confirm each new cite key. In bulk mode (Step 3b), the keys come from `references.bib` directly — skip this step.
 
 ```sh
 python3 skills/download-ref/helpers/append_bibtex.py propose \
@@ -183,7 +185,7 @@ Once confirmed:
 python3 skills/download-ref/helpers/append_bibtex.py append \
   --kb "$KB" --id 1806.08734 --type arxiv \
   --key rahaman_2018_spectral \
-  --bib "$(dirname $KB)/ref.bib"
+  --bib "$KB/references.bib"
 ```
 
 The helper rewrites the BibTeX cite key, refuses duplicates, appends with one blank-line separator.
@@ -221,21 +223,18 @@ done
 
 Tell the user: new cite key(s), rendered file path(s), `full_text` yes/no per ref.
 
-## After download — transition checkpoint
+## After download — hand off to survey-writer
 
-After the done checklist passes, offer the next step:
+After the done checklist passes, offer the pipeline's final stage:
 
-> "Papers downloaded and rendered. What next?"
-> - **(a)** Write a review — invokes `survey-writer` to produce a technology assessment from the active KB
-> - **(b)** Ideas — continue to brainstorming with `/brainstorm-ideas`
-> - **(c)** Done — stop here
-
-The natural pipeline is: `/survey` → `/download-ref` → `/survey-writer`.
+> "Papers downloaded and rendered. Write the review?"
+> - **(a)** Write a review — invokes `survey-writer` to produce a technology assessment from the rendered KB. This is the final stage of the `survey` → `download-ref` → `survey-writer` pipeline.
+> - **(b)** Done — stop here.
 
 ## Integration with other skills
 
-- **`/survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$(dirname $KB)/ref.bib`, regenerates `$KB/INDEX.md`, then hands off to `/download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
-- **`/survey-writer`** (downstream): consumes the rendered KB (full-text `.md` files + `$(dirname $KB)/ref.bib`) to produce a structured technology assessment report.
+- **`/survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$KB/references.bib`, regenerates `$KB/INDEX.md`, then hands off to `/download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
+- **`/survey-writer`** (downstream): consumes the rendered KB (full-text `.md` files + `$KB/references.bib`) to produce a structured technology assessment report.
 - **`/survey` / `/researchstyle`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`/brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
 - **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
@@ -257,5 +256,5 @@ The natural pipeline is: `/survey` → `/download-ref` → `/survey-writer`.
 - [ ] `.raw/{arxiv,doi}/<id>.pdf` exists where the source allows (else recorded as miss)
 - [ ] One new `<id>_<slug>.md` per ref at `$KB/` root, with frontmatter
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
-- [ ] `$(dirname $KB)/ref.bib` has the new cite key (no duplicate)
+- [ ] `$KB/references.bib` has the new cite key (no duplicate)
 - [ ] User told cite keys, file names, and `full_text` yes/no per ref

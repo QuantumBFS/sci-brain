@@ -39,7 +39,10 @@
   ],
 )
 
-// optional cross-approach comparison matrix
+// optional cross-approach comparison matrix.
+// `rows` is an ARRAY OF ROW-ARRAYS — one inner (…) per row — so a stray comma
+// or paren breaks only that row, with an error pointing at it, instead of
+// silently mis-nesting the whole table.
 #let compare_table(rows) = table(
   columns: (20%, 18%, 22%, 16%, 24%),
   stroke: (x, y) => if y == 0 { 0.8pt + black } else { 0.4pt + rgb("d7dbe6") },
@@ -47,9 +50,10 @@
   table.header(
     [#strong[Approach]], [#strong[Scalability]], [#strong[Verifiability / cost]], [#strong[Maturity]], [#strong[Best-fit use case]],
   ),
-  ..rows,
+  ..rows.flatten(),
 )
 
+// `rows` is an array of row-arrays — see compare_table.
 #let problem_table(rows) = table(
   columns: (5%, 27%, 38%, 20%, 10%),
   stroke: (x, y) => if y == 0 { 0.8pt + black } else { 0.4pt + rgb("d7dbe6") },
@@ -57,7 +61,7 @@
   table.header(
     [#strong[No.]], [#strong[Problem]], [#strong[Why it matters]], [#strong[Who could solve it]], [#strong[Urgency]],
   ),
-  ..rows,
+  ..rows.flatten(),
 )
 
 // ---- title --------------------------------------------------------------
@@ -150,16 +154,16 @@ TODO: define the topic for a reader who has never heard of it @Example2024.
 // Optional: include when the field has several comparable approaches; drop for a
 // single-approach topic.
 #compare_table((
-  [Approach One], [TODO @Example2024], [TODO], [TODO], [TODO],
-  [Approach Two], [TODO @Example2025], [TODO], [TODO], [TODO],
+  ([Approach One], [TODO @Example2024], [TODO], [TODO], [TODO]),
+  ([Approach Two], [TODO @Example2025], [TODO], [TODO], [TODO]),
 ))
 
 = Open Problems
 
 #problem_table((
-  [1], [TODO problem], [TODO why it matters @Example2024], [TODO who], [#text(fill: red.darken(10%))[Critical]],
-  [2], [TODO problem], [TODO why it matters @Example2025], [TODO who], [#text(fill: orange.darken(20%))[High]],
-  [3], [TODO problem], [TODO why it matters], [TODO who], [#text(fill: olive.darken(10%))[Medium]],
+  ([1], [TODO problem], [TODO why it matters @Example2024], [TODO who], [#text(fill: red.darken(10%))[Critical]]),
+  ([2], [TODO problem], [TODO why it matters @Example2025], [TODO who], [#text(fill: orange.darken(20%))[High]]),
+  ([3], [TODO problem], [TODO why it matters], [TODO who], [#text(fill: olive.darken(10%))[Medium]]),
 ))
 
 #v(0.8em)
@@ -169,14 +173,6 @@ TODO: define the topic for a reader who has never heard of it @Example2024.
   [TODO: one tight paragraph — the synthesis / recommendation the reader should leave with @Example2024.],
   fill: rgb("eef6ef"), stroke: rgb("bcd9c4"),
 )
-
-// ---- optional: Business Relevance (only if business context is available) ---
-// = Business Relevance
-//   - Strategic fit (numbered points)
-//   - Product-level impact table
-//   - Customer map table
-//   - Recommended actions (highlighted box)
-//   - What we should NOT do (guardrails)
 
 #v(0.6em)
 

@@ -11,15 +11,15 @@ sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, 
 Fourteen skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
 
 - **brainstorm-ideas** — The main entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. When an advisor is selected, `/brainstorm-ideas` launches that advisor as a subagent and loads literature from `advisors/<slug>/.knowledge/`. The project's shared knowledge base is `<project>/.knowledge/`. Auto-calls `researchstyle` (Phase 0, if user chooses Zotero/Scholar) and `idea-writer` (Phase 3, if user wants a report).
-- **survey** — Parallel literature search via 7 strategies, populates `<project>/.knowledge/` with `.raw/` JSON, appends to `<project>/ref.bib` via `download-ref`'s helpers, regenerates `INDEX.md`, writes curated `NOTES.md` (sub-themes, open problems, bottlenecks). Run before `/brainstorm-ideas` for deeper literature grounding.
+- **survey** — Parallel literature search via 7 strategies, populates `<project>/.knowledge/` with `.raw/` JSON, appends to `<project>/.knowledge/references.bib` via `download-ref`'s helpers, regenerates `INDEX.md`, writes curated `NOTES.md` (sub-themes, open problems, bottlenecks). Run before `/brainstorm-ideas` for deeper literature grounding.
 - **idea-writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail. Auto-called from `/brainstorm-ideas` at wrap-up, or run standalone on a past session's log.
 - **survey-writer** — Produces a structured technology assessment from a populated KB (what it is, pros/cons, state of the art, key problems, optional business relevance). The write-up stage of the `survey` → `download-ref` → `survey-writer` pipeline.
 - **paper-writer** — Use when drafting or revising an actual scientific manuscript. Encodes the von Delft / Martinis workflow: figures first → telegram outline → body → polish abstract+intro+conclusions last. Distinct from `idea-writer` — for real manuscripts with results.
 - **paper-reviewer** — The *review/enhance an existing manuscript* counterpart to `paper-writer`'s *drafting*. Reads the whole paper, emits location-anchored comments against eight writing guidelines (one-concept sentences, define-before-use, one-job paragraphs, DRY, display-math discipline, figure integration) plus reference & fact verification (CrossRef → Semantic Scholar → MCP → WebFetch, repairs via `download-ref`). Comment-first and non-destructive: applies only approved edits, then re-runs the compile-check. Distinct from `survey-writer` (which assesses a field, not a manuscript).
 - **figure-taste** — Reviews the *visual design quality* of a figure, plot, or diagram and prints a scorecard. Source-aware (renders the figure to a raster to look at it via `helpers/render.py`, reads matplotlib/Typst/SVG source so fixes can cite a line), report-only, terminal-first. Scores against an 18-rule rubric (11 general — alignment, proximity, color, hierarchy, contrast, colorblind-safety, …; plus 7 scientific-plot rules — text size, line weight, space use, chartjunk, legend, cross-panel consistency, resolution). Distinct from `paper-reviewer` (which checks whether a figure is cited/discussed in the text, not how it looks) and `paper-writer` (which authors figures). Full rubric in `skills/figure-taste/checklist.md`.
 - **flow** — Autonomous deep-thinker that conquers one hard goal via a CDCL/DPLL-style search loop: a **preflight gate** (is the goal testable? are all context/KB facts loaded?), then iterate *decide* (**what-if**: assume a condition, test "closer to goal?" + "easier to achieve?") → *propagate* (**simulate**: run consequences forward, reflect; may fan out 2–3 subagents on wide forks) → *learn* (note a reusable clause after **every** trial) → *backjump* (non-chronological, to the real cause) → *pivot* (meta-restart: re-aim to an equally-valuable easier goal when stuck, keeping all notes). Domain-agnostic and KB-optional. Writes a per-trial journal to `docs/flow/<goal-slug>.md` (template in `skills/flow/journal-template.md`). Terminates SOLVED / PIVOTED-SOLVED / EXHAUSTED (≤3 pivots). Distinct from `brainstorm-ideas` (open-ended, collaborative) — `flow` is goal-locked and autonomous.
-- **researchstyle** — Indexes a paper collection (Zotero / PDF folder / Google Scholar) into the active KB. Default target is `<project>/.knowledge/`; when invoked from `/incarnate` targets `advisors/<slug>/.knowledge/`. Writes `.raw/` JSON, delegates `ref.bib` writes via `download-ref` helpers.
-- **download-ref** — Adds one or many new arXiv IDs / DOIs to a knowledge base (`<project>/.knowledge/` by default; `advisors/<slug>/.knowledge/` when invoked from advisor flows). Fetches Semantic Scholar metadata, downloads PDFs (with SciHub fallback), renders to markdown via `pymupdf4llm`, regenerates `INDEX.md`, appends to `ref.bib`. Supports `--from-bib` for bulk operations on an existing BibTeX.
+- **researchstyle** — Indexes a paper collection (Zotero / PDF folder / Google Scholar) into the active KB. Default target is `<project>/.knowledge/`; when invoked from `/incarnate` targets `advisors/<slug>/.knowledge/`. Writes `.raw/` JSON, delegates `references.bib` writes via `download-ref` helpers.
+- **download-ref** — Adds one or many new arXiv IDs / DOIs to a knowledge base (`<project>/.knowledge/` by default; `advisors/<slug>/.knowledge/` when invoked from advisor flows). Fetches Semantic Scholar metadata, downloads PDFs (with SciHub fallback), renders to markdown via `pymupdf4llm`, regenerates `INDEX.md`, appends to the KB's `references.bib`. Supports `--from-bib` for bulk operations on an existing BibTeX.
 - **conversation-dump** — Extracts dialog from Claude Code or Codex CLI session logs, classifies user messages across 6 academic dimensions, outputs tagged dialog reports to `docs/dialog/`.
 - **import-dialog** — Imports `.md` dialog files (Claude.ai exports, custom markdown conversations) to create or update advisor profiles. Adjunct to `incarnate` for users whose conversation history isn't in JSONL form.
 - **soul-extraction** — Reads `/conversation-dump` output, clusters trigger→reaction pairs into `thinking-pattern.md`, detects logic jumps for `master-thinking.md`. Feeds into `incarnate`.
@@ -40,8 +40,8 @@ Fourteen skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter
 
 ```
 <project>/
-  ref.bib                       # cite-key namespace, shared with any LaTeX in this project
   .knowledge/
+    references.bib              # cite-key namespace for this KB (download-ref appends here)
     INDEX.md                    # auto-regenerated table of contents (download-ref/helpers/index.py)
     NOTES.md                    # human-curated: sub-themes, open problems, bottlenecks
     .raw/{arxiv,doi}/<id>.{json,pdf}
@@ -50,8 +50,8 @@ Fourteen skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter
 
 advisors/<slug>/
   profile.md                    # thinking style (committed)
-  ref.bib                       # advisor's private BibTeX namespace (created on first append)
-  .knowledge/                   # gitignored cache; same shape as project KB
+  .knowledge/                   # same shape as project KB; text tracked, .raw/.figures gitignored
+    references.bib              # advisor's private BibTeX namespace (created on first append)
     INDEX.md
     NOTES.md
     .raw/...
@@ -59,7 +59,9 @@ advisors/<slug>/
     <id>_<slug>.md
 ```
 
-`download-ref` owns `INDEX.md`, `ref.bib` (via append), `.raw/`, `.figures/`, and the rendered `<id>_<slug>.md` files. `survey` / `researchstyle` / humans own `NOTES.md`.
+The canonical bib is `$KB/references.bib` — inside the KB, beside `INDEX.md`/`NOTES.md`. (Pre-0.3 notes placed it at the project root as `ref.bib`; that path is retired. To share with project LaTeX, point `\addbibresource`/`bibliography` at `.knowledge/references.bib` or copy it beside the document.)
+
+`download-ref` owns `INDEX.md`, `references.bib` (via append), `.raw/`, `.figures/`, and the rendered `<id>_<slug>.md` files. `survey` / `researchstyle` / humans own `NOTES.md`.
 
 **Advisor library** (`advisors/`): Named advisor profiles generated by `incarnate`. Each profile captures cognitive patterns, attention patterns, reasoning strengths, and conversation dynamics, and may include publication-source links and `edge-tts` voice hints. The brainstorm-ideas skill launches a selected advisor as a subagent and loads their `advisors/<slug>/.knowledge/` literature during brainstorming.
 
@@ -83,7 +85,7 @@ mkdir -p "$PROJ/.knowledge"
 
 # Move a single old registry into the project KB:
 OLD=~/.claude/survey/topological-orders     # adapt path
-mv "$OLD/references.bib" "$PROJ/ref.bib"    # or merge into existing ref.bib
+mv "$OLD/references.bib" "$PROJ/.knowledge/references.bib"   # or merge into existing references.bib
 mv "$OLD/summary.md"     "$PROJ/.knowledge/NOTES.md"
 mv "$OLD"/*.md           "$PROJ/.knowledge/"   2>/dev/null  # rendered papers
 mv "$OLD/.raw"           "$PROJ/.knowledge/.raw"
@@ -101,7 +103,7 @@ rmdir "$OLD"
 
 For advisor caches built by the abandoned 0.2-era `publications.yml` flow: that layout was never populated; nothing to migrate. The new flow builds `advisors/<slug>/.knowledge/` via `/researchstyle` or `/download-ref` invoked from `/incarnate`.
 
-Multiple old registries can be merged into one project KB (run the `mv` block per topic; `ref.bib` accepts appends; `NOTES.md` accepts merges as separate top-level headings).
+Multiple old registries can be merged into one project KB (run the `mv` block per topic; `references.bib` accepts appends; `NOTES.md` accepts merges as separate top-level headings).
 
 ## Installation
 

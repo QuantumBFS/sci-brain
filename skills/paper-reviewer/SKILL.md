@@ -49,8 +49,8 @@ Rank every finding so the user can triage:
 ## Phase 0 — Load & understand (guideline #6)
 
 1. **Resolve the manuscript.** Accept an explicit path; else auto-detect from `articles/<slug>/` or the working directory. Detect format from the extension: **LaTeX (`.tex`) is primary**; Typst (`.typ`) and Markdown (`.md`) are supported.
-2. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$(dirname $KB)/ref.bib`. Handle both; note which one you used.
-3. **Load shared context.** Follow `skills/_shared/writing-workflow.md`: resolve `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$(dirname $KB)/ref.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
+2. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
+3. **Load shared context.** Follow `skills/_shared/writing-workflow.md`: resolve `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
 4. **Emit the story summary + per-section missions.** One paragraph capturing the paper's story, plus a one-line "mission" for each section. **Confirm the story with the user before any critique.** This gate prevents local nitpicks that fight the global narrative — if the reviewer misread the story, fix that before producing findings.
 
 Do not proceed to Phase 1 until the user confirms (or corrects) the story summary.
@@ -86,7 +86,7 @@ Also run a per-section **"did this section deliver its Phase-0 mission?"** check
 
 The standout capability. Follow the repo discipline: **never invent BibTeX from memory**; use the lookup chain **CrossRef → Semantic Scholar → MCP → WebFetch**; verify only what supports the main claims (completeness is not the goal — see `skills/_shared/writing-workflow.md`).
 
-- **References.** For each `\cite` key: confirm the entry exists in the resolved bibliography, then verify authors / year / title / venue against the lookup chain. Flag broken, missing, or mismatched citations. Offer to repair via `/download-ref` (it owns `ref.bib` appends and metadata fetching).
+- **References.** For each `\cite` key: confirm the entry exists in the resolved bibliography, then verify authors / year / title / venue against the lookup chain. Flag broken, missing, or mismatched citations. Offer to repair via `/download-ref` (it owns `references.bib` appends and metadata fetching).
 - **Claim ↔ citation support.** For key claims attached to a citation, best-effort sanity-check that the cited work actually supports the claim. **Flag uncertain — do not assert.**
 - **Standalone factual claims.** Identify checkable factual/numerical claims *not* tied to a citation; verify via WebSearch. **Flag** the uncertain or unsupported — never silently "correct" a claim, and never fabricate a citation to prop one up.
 
