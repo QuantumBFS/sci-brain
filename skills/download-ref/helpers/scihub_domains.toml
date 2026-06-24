@@ -1,0 +1,24 @@
+# Sci-Hub mirror domains for the browser-based fallback in scihub_download.py.
+#
+# Tried in order; the first domain that serves the PDF wins. Mirrors rotate
+# constantly and get DNS-blocked, so this list goes stale. To refresh it:
+#   1. Web-search "working sci-hub mirror domains <year>"
+#      (trackers: lovescihub.wordpress.com, scihub.help, en.wikipedia.org/wiki/Sci-Hub).
+#   2. Edit the `domains` list below. Put domains you have actually seen serve a
+#      PDF first — order is the try order.
+#
+# Initialized 2026-06-24 via web search:
+#   - sci-hub.box      verified serving PDFs that day (behind a DDoS-Guard JS
+#                      challenge, which the browser in scihub_download.py solves).
+#   - sci-hub.ren/.ee  reported working by lovescihub.wordpress.com.
+#   - sci-hub.se/.st/.ru  classic mirrors kept as fallbacks; some were
+#                      DNS-blocked in early 2026, so they may be unreachable.
+
+domains = [
+  "sci-hub.box",
+  "sci-hub.ren",
+  "sci-hub.ee",
+  "sci-hub.se",
+  "sci-hub.st",
+  "sci-hub.ru",
+]

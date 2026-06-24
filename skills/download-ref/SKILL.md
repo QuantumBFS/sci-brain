@@ -32,6 +32,14 @@ If that errors, install for the **same** `python3` the helpers will use:
 python3 -m pip install --user pymupdf4llm
 ```
 
+The Sci-Hub fallback (Step 4b) drives a real browser to clear the mirrors'
+DDoS-Guard challenge, so it needs **Playwright** with a Chromium. Only required
+if you expect to hit paywalled DOIs:
+
+```sh
+python3 -m pip install --user playwright && python3 -m playwright install chromium
+```
+
 ## Inputs
 
 - **One or more arXiv IDs** (e.g. `1806.08734`, `2006.10739`) — strip the `vN` suffix.
@@ -121,24 +129,28 @@ Populates `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}` idempotently. PDFs are download
 
 **Tip:** Set `SEMANTIC_SCHOLAR_API_KEY` in your environment to raise the Semantic Scholar rate limit from ~1 req/s to 100 req/s. Get a free key at https://www.semanticscholar.org/product/api#api-key-form.
 
-### 4b. SciHub fallback for paywalled PDFs
+### 4b. Sci-Hub fallback for paywalled PDFs (script)
 
-If Step 4 reports `miss` for any DOI (no open-access PDF and no arXiv preprint), use the `sci-hub-server` MCP tool. For each missing DOI:
+If Step 4 reports `miss` for any DOI (no open-access PDF and no arXiv preprint),
+run the browser-based Sci-Hub helper. Pass the missed DOIs:
 
-1. Call `mcp__sci-hub-server__get_paper_link` with the DOI to get a direct PDF URL.
-2. Call `mcp__sci-hub-server__download_pdf` and save to `$KB/.raw/doi/<safe>.pdf` (`<safe>` = DOI with `/` → `-`).
-3. Verify the file exists and is > 1 KB.
-
-If the MCP isn't configured, tell the user to add it:
-
-```json
-"mcpServers": {
-  "sci-hub-server": {
-    "command": "npx",
-    "args": ["sci-mcp-server"]
-  }
-}
+```sh
+python3 skills/download-ref/helpers/scihub_download.py --kb "$KB" \
+  --doi 10.1111/j.1467-9280.2006.01693.x \
+  --doi 10.3102/0034654316689306
 ```
+
+It tries each mirror in `helpers/scihub_domains.toml` (in order) until one
+serves the PDF, solving the mirrors' DDoS-Guard JavaScript challenge with a
+headless browser, and saves to `$KB/.raw/doi/<safe>.pdf` (`<safe>` = DOI with
+`/` → `-`) — the same place Step 4 writes, so Step 5 (render) picks it up. It
+prints one `OK` / `MISS` / `SKIP` line per DOI.
+
+- **Requires Playwright** (see Preflight). curl/urllib cannot pass DDoS-Guard.
+- **Mirrors rotate.** If every DOI returns `MISS`, the domain list is likely
+  stale: web-search "working sci-hub mirror domains <year>" and edit
+  `helpers/scihub_domains.toml` (see its header), then re-run.
+- If a stricter challenge blocks the headless browser, retry with `--headed`.
 
 Skip this step if all PDFs were fetched in Step 4.
 
