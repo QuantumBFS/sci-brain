@@ -244,7 +244,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 
 - **Citations and missing references:** Follow `skills/_shared/writing-workflow.md`.
 - **Manuscript format:** Use the target journal's official template when available. Default to Typst (`.typ`) only when no target venue or required template exists; use LaTeX (`.tex`) or Word when the journal requires it; use Markdown only for arXiv-style preprints where the journal accepts it.
-- **Storing the draft:** `articles/YYYY-MM-DD-<paper-slug>/` with `main.typ` (or `.tex`), a bibliography copied from `ref.bib`, and `figures/`.
+- **Storing the draft:** `articles/YYYY-MM-DD-<paper-slug>/` with `main.typ` (or `.tex`), a bibliography copied from `$KB/references.bib`, and `figures/`.
 
 ---
 

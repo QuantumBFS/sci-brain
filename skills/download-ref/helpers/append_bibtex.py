@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """
-Append BibTeX entry to ref.bib for a fetched ref.
+Append BibTeX entry to the KB's references.bib for a fetched ref.
 
 Reads citationStyles.bibtex from .raw/{arxiv,doi}/<id>.json, proposes a cite
 key in `lastname_year_firstword` form, prints both for the caller to confirm
 (via AskUserQuestion in the skill harness), then on confirmation rewrites the
-cite key and appends to ref.bib if not already present.
+cite key and appends to the --bib file if not already present.
+
+The canonical bib is `$KB/references.bib` (inside the KB). The path is passed
+explicitly via --bib; this helper hardcodes no location.
 
 Usage:
   # Step A — propose
@@ -13,7 +16,7 @@ Usage:
 
   # Step B — append (after user confirms key)
   python3 append_bibtex.py append --kb /abs/.knowledge --id 1806.08734 --type arxiv \\
-                                  --key rahaman_2018_spectral --bib /abs/ref.bib
+                                  --key rahaman_2018_spectral --bib /abs/.knowledge/references.bib
 """
 import argparse
 import json

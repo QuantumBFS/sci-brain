@@ -351,14 +351,14 @@ This isn't pressure — it's an honest observation followed by a genuine invitat
 
 **4. Offer to capture new references.**
 
-Scan the conversation log for arXiv IDs / DOIs that surfaced during the session and aren't already in `ref.bib` (if a knowledge base is loaded). If any are found, ask via `AskUserQuestion`:
+Scan the conversation log for arXiv IDs / DOIs that surfaced during the session and aren't already in `references.bib` (if a knowledge base is loaded). If any are found, ask via `AskUserQuestion`:
 
 > "We touched on N papers that aren't in your knowledge base yet. Want to add any now?"
 > - **(a)** Add all — invoke `download-ref` for each
 > - **(b)** Pick a subset — show the list, user multi-selects
 > - **(c)** Skip
 
-For (a) / (b), invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the active knowledge base. The skill handles metadata fetch, cite-key confirmation, BibTeX append to `ref.bib`, PDF render, and `INDEX.md` regeneration per ref.
+For (a) / (b), invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the active knowledge base. The skill handles metadata fetch, cite-key confirmation, BibTeX append to `references.bib`, PDF render, and `INDEX.md` regeneration per ref.
 
 **Options at wrap-up** — ask via `AskUserQuestion`:
 
