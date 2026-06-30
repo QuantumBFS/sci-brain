@@ -1,0 +1,5 @@
+&inputpp
+  outdir = './qe_tmp'
+  prefix = 'qmc_solid'
+  write_psir = .false.
+/

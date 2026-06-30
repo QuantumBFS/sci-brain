@@ -1,0 +1,5 @@
+&INPUT
+  fildyn = 'pdh_fcc_prim_ifc.dyn'
+  flfrc = 'pdh_fcc_prim.fc'
+  zasr = 'crystal'
+/

@@ -1,0 +1,35 @@
+&CONTROL
+  calculation = 'scf'
+  prefix = 'pdh_fcc_prim'
+  outdir = './tmp'
+  pseudo_dir = './pseudo'
+  tstress = .true.
+  tprnfor = .true.
+  verbosity = 'high'
+/
+&SYSTEM
+  ibrav = 0
+  nat = 2
+  ntyp = 2
+  input_dft = 'PBE'
+  ecutwfc = 100
+  ecutrho = 400
+  occupations = 'tetrahedra_opt'
+/
+&ELECTRONS
+  conv_thr = 1.0d-8
+  electron_maxstep = 200
+  mixing_beta = 0.3
+/
+ATOMIC_SPECIES
+Pd 106.42000  Pd_ONCV_PBE-1.0.oncvpsp.upf
+H   1.00784  H_ONCV_PBE-1.0.oncvpsp.upf
+CELL_PARAMETERS angstrom
+      0.0000000000      2.0400000000      2.0400000000
+      2.0400000000      0.0000000000      2.0400000000
+      2.0400000000      2.0400000000      0.0000000000
+ATOMIC_POSITIONS crystal
+Pd    0.0000000000    0.0000000000    0.0000000000
+H     0.5000000000    0.5000000000    0.5000000000
+K_POINTS automatic
+  21 21 21 0 0 0

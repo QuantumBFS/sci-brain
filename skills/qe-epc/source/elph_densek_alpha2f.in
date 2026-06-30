@@ -1,0 +1,24 @@
+PdH fcc primitive EPC lambda tetra
+&INPUTPH
+  prefix = 'pdh_fcc_prim'
+  outdir = './tmp'
+  fildyn = 'pdh_fcc_prim_epc.dyn'
+  fildvscf = 'dvscf'
+  fildrho = 'drho'
+  ldisp = .true.
+  lshift_q = .true.
+  nq1 = 4
+  nq2 = 4
+  nq3 = 4
+  trans = .false.
+  electron_phonon = 'lambda_tetra'
+  nk1 = 21
+  nk2 = 21
+  nk3 = 21
+  k1 = 0
+  k2 = 0
+  k3 = 0
+/
+&INPUTa2F
+  nfreq = 500
+/
