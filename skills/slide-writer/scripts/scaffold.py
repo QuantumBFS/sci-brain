@@ -36,15 +36,15 @@ DECK_TEMPLATE = """\
 
 #let (rail_pull, callout, codebox, quote_pull, figbox, portrait, clip_image,
       stat, stat_row, spec_list, theorem, definition, lemma, example, proof_box,
-      badge, tag, time_badge, data_table, conclusion_grid, key_links, pacing,
-      kicker, progress_dots) = gadgets(pal)
+      badge, tag, time_badge, data_table, conclusion_grid, key_links, toc,
+      pacing, kicker, progress_dots) = gadgets(pal)
 #let (spread, twocol, threecol, hero, band, cards, card, punch,
       centered_figure) = layouts(pal)
 
 #title-slide()
 
 == Outline
-#outline()
+#toc()
 
 = The problem
 == The system breaks in three _places_
@@ -55,9 +55,13 @@ DECK_TEMPLATE = """\
   [One-sentence lead. #rail_pull[The key insight in one line.]],
 )
 
+// #focus-slide[One sentence that must land.]   // full-bleed section punch
+
 = Evidence
 == Time inputs _collapse_
-#stat_row((value: [*13*], label: [weeks]), (value: [*56%*], label: [daily]), (value: [*3*], label: [parts]))
+// Pass plain values — the gadget bolds and colours them ([*13*] would be
+// repainted in theme primary by touying's strong-as-alert rule).
+#stat_row((value: [13], label: [weeks]), (value: [56%], label: [daily]), (value: [3], label: [parts]))
 #v(10pt)
 #data_table(
   ("Metric", "Before", "After"),

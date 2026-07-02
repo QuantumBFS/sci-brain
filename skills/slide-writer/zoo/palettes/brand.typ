@@ -23,6 +23,9 @@
     primary: primary,
     primary_light: pl,
     secondary: sec,
+    // Text on a primary-filled surface. House colors are assumed dark enough
+    // for white; pass a dark override into gadgets manually if yours is pastel.
+    on_primary: rgb("#ffffff"),
     accent: accent-c,
     accent_deep: accent-c.darken(18%),
     ink: ink-c,

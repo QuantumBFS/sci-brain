@@ -4,6 +4,7 @@
   primary: rgb("#2f2f7f"),
   primary_light: rgb("#e8e2f4"),
   secondary: rgb("#4d4da3"),
+  on_primary: rgb("#ffffff"),
   accent: rgb("#9b83ec"),
   accent_deep: rgb("#7c5fdc"),
   ink: rgb("#2f2f7f"),

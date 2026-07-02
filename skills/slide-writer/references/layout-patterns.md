@@ -20,12 +20,15 @@ palette to every gadget and layout.
 // 2. bind gadgets + layouts to that palette (names are stable across themes)
 #let (rail_pull, callout, codebox, quote_pull, figbox, portrait, clip_image,
       stat, stat_row, spec_list, theorem, definition, lemma, example, proof_box,
-      badge, tag, time_badge, data_table, conclusion_grid, key_links, pacing,
-      kicker, progress_dots) = gadgets(pal)
+      badge, tag, time_badge, data_table, conclusion_grid, key_links, toc,
+      pacing, kicker, progress_dots) = gadgets(pal)
 #let (spread, twocol, threecol, hero, band, cards, card, punch,
       centered_figure) = layouts(pal)
 
 #title-slide()
+
+== Outline
+#toc()
 ```
 
 To switch theme, change `palettes.academic` → `palettes.dark` and
@@ -38,7 +41,9 @@ To switch theme, change `palettes.academic` → `palettes.dark` and
 | The slide does this | Use |
 |---|---|
 | Opens the deck | `#title-slide()` |
-| Shows the table of contents | `== Outline` + `#outline()` |
+| Shows the table of contents | `== Outline` + `#toc()` (`#outline()` is a dotted paper TOC — wrong register) |
+| Punches one sentence between sections | `#focus-slide[...]` |
+| Reveals a slide stepwise | `#pause` between blocks (each step = one PDF page) |
 | One figure + commentary (the default talk slide) | `spread` + `figbox` |
 | Side-by-side compare/contrast | `twocol` |
 | Three parallel concepts | `threecol` |
@@ -93,9 +98,9 @@ The default talk slide. Wide figure left, narrow commentary right.
 ```typst
 == Adoption at a glance
 #stat_row(
-  (value: [*13*], label: [weeks]),
-  (value: [*56%*], label: [daily use]),
-  (value: [*3*], label: [modules]),
+  (value: [13], label: [weeks]),      // plain values — the gadget bolds and
+  (value: [56%], label: [daily use]), // colours them; [*13*] would be
+  (value: [3], label: [modules]),     // repainted primary by touying's alert
 )
 ```
 
@@ -111,7 +116,8 @@ The default talk slide. Wide figure left, narrow commentary right.
 ## Pattern: before/after table (`data_table`)
 
 First positional row is the header; `highlight:` is the set of body-row indices
-to emphasise in the accent colour.
+to emphasise in the accent colour. The first column is the row label (sans,
+left-aligned); value columns render in mono automatically.
 
 ```typst
 #data_table(
@@ -150,18 +156,39 @@ Always four cards; the last is dark and carries the call to action.
 )
 ```
 
+## Pattern: outline, focus, and pause
+
+```typst
+== Outline
+#toc()                    // level-1 sections, numbered; toc(columns: 2) for long decks
+
+#focus-slide[One sentence that must land.]   // full-bleed, between sections
+
+== Reveal stepwise
+First the claim.
+#pause
+Then the evidence.       // each #pause step becomes one more PDF page
+```
+
 ## Pattern: CeTZ diagrams (optional)
+
+Node radii are in canvas units, so size follows `length`; keep nodes ≥ 2.5
+units apart. Edges are undirected by default — pass `mark: (end: "straight")`
+for arrows, and connect flowboxes via side anchors so lines stop at borders.
 
 ```typst
 #import "zoo/gadgets_cetz.typ": make as make-cetz
 #import "@preview/cetz:0.4.2": canvas
 #let (tensor, automaton-state, edge, flowbox) = make-cetz(pal)
 
-#canvas(length: 0.6cm, {
+#canvas(length: 1cm, {
   import "@preview/cetz:0.4.2": draw
   tensor((0, 0), "A", [$A$])
-  tensor((2.4, 0.6), "B", [$B$])
-  edge("A", "B")
+  tensor((2.2, 1.1), "B", [$B$])
+  edge("A", "B")                                  // undirected tensor leg
+  flowbox((0, -2.5), "in", [input])
+  flowbox((4, -2.5), "proc", [process])
+  edge("in.east", "proc.west", mark: (end: "straight"))
 })
 ```
 
@@ -183,8 +210,12 @@ A #pin(1)key phrase#pin(2) in the prose.
 - **One figure per slide.** A second figure means you have conflated two slides.
 - **One accent colour for emphasis.** Numbers and `rail_pull` use `accent_deep`;
   don't repaint gadgets by hand.
-- **Numbers in mono.** The data table and `time_badge` already do this; keep new
-  numerals in `DejaVu Sans Mono` via `text(font: ("DejaVu Sans Mono",), ...)`.
+- **Tabular numbers in mono.** `data_table` value columns and `time_badge` do it
+  themselves; big display numerals (`stat`, `punch`) stay in the theme sans.
+- **Nothing below ~11 pt.** Gadget captions/labels bottom out at 10–11 pt; if
+  content only fits smaller, split the slide.
+- **Pass plain values** (`[13]`, not `[*13*]`) — touying repaints `strong` in
+  theme primary; gadgets bold and colour their own numerals.
 - **Captions describe how to *read* the figure**, not what it is.
 - **Pick the theme up front.** Theme-hopping mid-deck reads as inconsistent.
 - **Recompile the gallery** (`typst compile gallery.typ`) whenever you add a

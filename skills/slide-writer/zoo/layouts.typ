@@ -53,19 +53,23 @@
     "card": card,
 
     // Big number (left) + sentence (right). For headline-stat slides.
-    "punch": (number, desc, label: none) => grid(
-      columns: (auto, 1fr), column-gutter: 20pt, align: horizon,
-      align(center)[
-        #text(40pt, weight: "bold", fill: pal.accent_deep)[#number]
-        #if label != none [#linebreak() #text(9pt, fill: pal.text_soft)[#label]]
-      ],
-      text(13pt, fill: pal.text)[#desc],
-    ),
+    // Both columns shrink-wrap so the pair centres as one unit (a 1fr column
+    // would drag the sentence to the far side of the slide).
+    "punch": (number, desc, label: none) => align(center)[
+      #grid(
+        columns: (auto, auto), column-gutter: 26pt, align: horizon,
+        align(center)[
+          #text(54pt, weight: "bold", fill: pal.accent_deep)[#number]
+          #if label != none [#linebreak() #text(12pt, fill: pal.text_soft)[#label]]
+        ],
+        box(width: 13em, align(left, text(20pt, fill: pal.text)[#desc])),
+      )
+    ],
 
     // Captioned figure centred on its own (no commentary rail).
     "centered_figure": (body, caption: none) => align(center)[
       #body
-      #if caption != none [#v(6pt) #text(9pt, fill: pal.text_soft, style: "italic")[#caption]]
+      #if caption != none [#v(6pt) #text(11pt, fill: pal.text_soft, style: "italic")[#caption]]
     ],
   )
 }

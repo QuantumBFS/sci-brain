@@ -44,9 +44,10 @@ the whole catalogue rendered (`typst compile gallery.typ`, or
 |---|---|---|---|
 | **Color themes** | 5 | `zoo/themes/` | academic, dark, minimal, vibrant, brand |
 | **Layouts** (slide-body composers) | 9 | `zoo/layouts.typ` | spread, twocol, threecol, hero, band, cards, punch |
-| **Gadgets** (content components) | ~24 | `zoo/gadgets.typ` | rail_pull, callout, figbox, stat_row, spec_list, theorem, data_table, conclusion_grid, codebox, pacing |
+| **Gadgets** (content components) | ~25 | `zoo/gadgets.typ` | rail_pull, callout, figbox, stat_row, spec_list, theorem, data_table, conclusion_grid, codebox, toc, pacing |
 | **CeTZ diagrams** (optional) | 4 | `zoo/gadgets_cetz.typ` | tensor, automaton-state, edge, flowbox |
 | **Pin annotations** (optional) | 3 | `zoo/gadgets_pin.typ` | pin, highlight, note |
+| **Touying primitives** | — | re-exported by `zoo/lib.typ` | `title-slide`, `focus-slide`, `#pause` |
 
 Palettes (pure color data) live in `zoo/palettes/`; each theme maps its palette
 onto Touying's `config-colors` slots. The single import surface is `zoo/lib.typ`.
@@ -112,7 +113,8 @@ the user (compiled page or markdown form) before moving on.
    ```
    - Every `==` heading is a slide; every `=` is a section divider.
    - Check: titles carry one italic accent, no slide overflows, every figure is
-     cited in the rail, the outline lists the real sections.
+     cited in the rail, the outline (`#toc()`) lists the real sections, and no
+     text sits below ~11 pt.
 
 ### Phase 5 — Figure-taste pass
 
@@ -135,12 +137,15 @@ figure; a figure that survives `figure-taste` survives a projector.
 
 #let (rail_pull, callout, codebox, quote_pull, figbox, portrait, clip_image,
       stat, stat_row, spec_list, theorem, definition, lemma, example, proof_box,
-      badge, tag, time_badge, data_table, conclusion_grid, key_links, pacing,
-      kicker, progress_dots) = gadgets(pal)
+      badge, tag, time_badge, data_table, conclusion_grid, key_links, toc,
+      pacing, kicker, progress_dots) = gadgets(pal)
 #let (spread, twocol, threecol, hero, band, cards, card, punch,
       centered_figure) = layouts(pal)
 
 #title-slide()
+
+== Outline
+#toc()          // deck-register section list; #outline() is a paper TOC
 ```
 
 The two `#let` lines destructure the gadget/layout factories bound to `pal`, so
@@ -168,8 +173,13 @@ pays no extra-package cost:
 - **One figure per slide.** A second figure means two slides conflated.
 - **One accent for emphasis.** Numerals and `rail_pull` use `accent_deep`; do
   not repaint gadgets by hand — read `pal.X` so a theme switch repaints all.
-- **Numbers in mono.** `data_table` and `time_badge` already do; keep new
-  numerals in `DejaVu Sans Mono`.
+- **Tabular numbers in mono.** `data_table` value columns and `time_badge` set
+  it themselves; big display numerals (`stat`, `punch`) stay in the theme sans.
+- **Nothing below ~11 pt.** Gadget captions and labels bottom out at 10–11 pt by
+  design; if content only fits smaller, the slide holds two slides' worth.
+- **Pass plain values to gadgets** (`[13]`, not `[*13*]`): touying show-rules
+  `strong` as an alert and would repaint your bold in theme primary. Gadgets
+  bold and colour their own numerals.
 - **Captions describe how to *read* the figure**, not what it is.
 - **Use the source's own figures.** Pull from `figs/`, README, prior slides.
   Redrawing an author's figure as inline SVG produces a worse copy.
@@ -189,9 +199,11 @@ pays no extra-package cost:
 | Called a gadget as `G.figbox(...)` | Typst needs the destructure form (`figbox(...)`) or `(G.figbox)(...)`. Use the preamble's `#let` destructure. |
 | Mixed two themes in one deck | Pick one; the chrome must stay consistent. |
 | Used `//` inside markup `[...]` | `//` starts a line comment and eats the closing `]`. Drop it or use a raw block. |
+| Wrapped a gadget value in `*...*` | Touying repaints `strong` in theme primary (alert). Pass plain content; the gadget bolds. |
+| Typed a CLI string (`--input`, `<name>`) in prose | Markup turns `--` into – and eats `<name>` as a label. Put literal strings in backticks / `#raw`. |
 | Inline-SVG'd a figure that exists in the source | Stop. Embed the source SVG/PDF instead. |
 | Added CeTZ/pinit to the preamble of a text deck | Import them per-section; the preamble stays dependency-light. |
-| Compile fails on a missing font | The palettes target fonts Typst bundles (DejaVu, New Computer Modern, Noto). Don't switch to fonts you haven't confirmed are installed. |
+| Compile fails on a missing font | The palettes target DejaVu / Noto / New Computer Modern — stock on TeX Live and most Linux installs (Typst itself bundles only NCM, Libertinus, and DejaVu Sans Mono). Confirm with `typst fonts` before switching families. |
 
 ## Integrations
 
