@@ -1,0 +1,38 @@
+---
+name: autoresearch-topics
+description: Use when choosing research topics within a domain that suit autoresearch — brainstorms candidates, scores each on machine-checkable success, cheap per-attempt evaluation, iteration headroom, and publishability, then records the user's picks in topics.md. Stage 1 of the autoresearch pipeline; invoked via the autoresearch dispatcher or directly with a domain.
+---
+
+# Autoresearch Topics
+
+Input: a domain from the user. Output: `<project>/topics.md` plus a STATE.md
+stage advance. A good autoresearch topic is one where a validator — not a
+human — can tell whether an attempt succeeded.
+
+## Procedure
+
+1. **Clarify the domain** with at most one question, only if it is too broad
+   to enumerate concrete topics (e.g. "quantum computing" yes, "exact
+   distance computation for CSS codes" no).
+2. **Generate 5–10 candidates.** Ground each with WebSearch and any available
+   paper MCP servers; every candidate needs at least one recent reference
+   showing the problem is open. No candidate from memory alone.
+3. **Score each candidate 1–5** on the four suitability criteria, one-line
+   justification each:
+   - **Checkable** — success is machine-checkable; a validator can score an
+     attempt with no human judgment.
+   - **Cheap** — one attempt evaluates in minutes on local hardware, not days.
+   - **Headroom** — the search space supports tens-to-hundreds of genuinely
+     distinct attempts, not three obvious ones.
+   - **Publishable** — a clearly stated bar exists whose crossing is a
+     publishable result.
+   Present the scored table; flag any candidate scoring ≤2 on Checkable or
+   Cheap as unsuitable and say why.
+4. **User picks** topics via `AskUserQuestion` (multi-select) from the table.
+5. **Write `topics.md`.** One `## <topic title>` section per chosen topic:
+   problem statement, why autoresearch fits (the four scores), key references
+   (title + arXiv ID/DOI), and an empty `### Metrics` heading with the
+   comment `<!-- filled by autoresearch-metrics -->`.
+6. **Advance state.** Set `stage: metrics` in `research/STATE.md` (create it
+   from `skills/autoresearch/references/state-schema.md` if the dispatcher
+   has not already).

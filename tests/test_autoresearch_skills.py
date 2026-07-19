@@ -65,3 +65,29 @@ def test_state_schema_defines_all_fields():
         assert field in text
     for stage in ["topics", "metrics", "db", "validator", "run", "done"]:
         assert stage in text
+
+
+# ---- autoresearch-topics ----
+
+def test_topics_has_frontmatter():
+    text = _read("autoresearch-topics")
+    assert text.startswith("---\nname: autoresearch-topics\n")
+    assert "description: Use when" in text
+
+
+def test_topics_scores_four_suitability_criteria():
+    text = _read("autoresearch-topics")
+    for criterion in ["Checkable", "Cheap", "Headroom", "Publishable"]:
+        assert criterion in text
+
+
+def test_topics_writes_topics_md_with_metrics_placeholder():
+    text = _read("autoresearch-topics")
+    assert "topics.md" in text
+    assert "### Metrics" in text
+
+
+def test_topics_lets_user_pick_and_advances_stage():
+    text = _read("autoresearch-topics")
+    assert "AskUserQuestion" in text
+    assert "stage: metrics" in text
