@@ -206,3 +206,58 @@ def test_negative_controls_cover_four_cases():
     text = _ref("autoresearch-validator", "negative-controls.md")
     for control in ["cheater", "wrong-answer", "timeout", "env-escape"]:
         assert control in text
+
+
+# ---- autoresearch-run ----
+
+def test_run_has_frontmatter():
+    text = _read("autoresearch-run")
+    assert text.startswith("---\nname: autoresearch-run\n")
+    assert "description: Use when" in text
+
+
+def test_run_refuses_until_both_gates_passed():
+    text = _read("autoresearch-run")
+    assert "survey_gate" in text
+    assert "validator_gate" in text
+    assert "refuse" in text.lower()
+
+
+def test_run_enforces_hard_rules():
+    text = _read("autoresearch-run")
+    assert ".worktrees/attempt-" in text
+    assert "LOG.md" in text
+    assert "time_limit_seconds" in text
+    assert "holdout" in text.lower()
+
+
+def test_run_draws_attempts_from_selected_insights():
+    text = _read("autoresearch-run")
+    assert "research/INSIGHTS.md" in text
+    assert "Selected" in text
+
+
+def test_run_soft_gate_on_authorized_rounds():
+    text = _read("autoresearch-run")
+    assert "authorized_rounds" in text
+    assert "batch_size" in text
+
+
+def test_run_writes_reflection_reports():
+    text = _read("autoresearch-run")
+    assert "docs/discussion/" in text
+    assert "reflection-template.md" in text
+
+
+def test_attempt_protocol_defines_log_and_scoring():
+    text = _ref("autoresearch-run", "attempt-protocol.md")
+    assert "LOG.md" in text
+    assert "validate" in text
+    assert "never silently retried" in text
+
+
+def test_reflection_template_has_code_distance_shape():
+    text = _ref("autoresearch-run", "reflection-template.md")
+    for section in ["Evidence carried forward", "Literature check",
+                    "Decision"]:
+        assert section in text
