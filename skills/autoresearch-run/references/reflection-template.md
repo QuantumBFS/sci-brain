@@ -6,9 +6,20 @@ logs. Required sections:
 
     # Cycle NN reflection — attempts AAA–BBB
 
+    ## Yield
+    Honest denominators, always: "K of N attempts improved the primary
+    metric; best <value> vs prior best <value>." Per attempt, one line:
+    kind (draft/improve/debug), parent, metric, and a one-line causal claim.
+    Rank which single change mattered most — that ranking targets the next
+    batch's improvements.
+
     ## Evidence carried forward
     What the batch established, with numbers from validator reports and
-    LOG.md files. Failures are evidence: say what each rules out.
+    LOG.md files. Failures are evidence: say what each rules out — keep a
+    running blacklist of dead approaches with reasons, so no later batch
+    retries them. Name the standing risk explicitly: dev-set score can
+    improve while holdout performance does not; note whether a budgeted
+    holdout adjudication was spent this cycle and what it said.
 
     ## Literature check
     Re-check the moves against `.knowledge/` and, when needed, fresh search:

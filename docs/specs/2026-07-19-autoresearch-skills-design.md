@@ -151,6 +151,38 @@ Enforced by `autoresearch-run`, not advisory:
 - Structural tests added under `tests/` following existing sci-brainstorm
   conventions.
 
+## SOTA-informed refinements (2026-07-19 survey)
+
+Adopted after surveying evolutionary code-discovery frameworks (FunSearch,
+AlphaEvolve, OpenEvolve, ShinkaEvolve), end-to-end AI-scientist systems
+(Sakana v2, Google co-scientist, CodeScientist, FutureHouse), and
+ML-engineering loops (AIDE, MLE-bench, METR RE-Bench, Meta AIRA):
+
+- **Seal by construction** — validator runs outside the attempt worktree;
+  holdout mounted read-only into the validator environment only; scorer
+  source unreachable from attempts. Hacks are fixed by patching the harness
+  and adding a reproducing negative control, never by prompt instructions.
+- **Budgeted holdout access** — holdout queries are metered by a budget in
+  the validator manifest (default 1 aggregate query per 3 cycles, spent on
+  the cycle's top candidate) to catch dev-set overfitting without turning
+  the holdout into a second dev set.
+- **Cascade evaluation + free `--precheck`** — structure/format validity is
+  checkable without revealing a score; expensive scoring runs only for
+  structurally valid candidates.
+- **Batch composition** — each batch mixes diverse drafts, single-atomic-
+  change improvements on the best known-good ancestor (lineage recorded in
+  LOG.md via `kind` and `parent` fields), and capped debug attempts.
+- **Novelty check before implementation** — candidate hypotheses are
+  compared against all prior attempts' LOG.md hypotheses; near-duplicates
+  are resampled before any compute is spent.
+- **Scoped memory** — drafts see sibling digests (forcing diversity);
+  improvements/debugs see their ancestral chain (preventing undo-redo).
+  Failure artifacts (validator errors, stderr) feed the next batch's
+  planning context.
+- **Honest yield reporting** — reflection reports open with denominators
+  ("K of N attempts improved the metric") and an ablation-style ranking of
+  which change mattered most.
+
 ## Error handling
 
 - Dispatcher: missing or corrupt `STATE.md` → re-derive stage from artifacts

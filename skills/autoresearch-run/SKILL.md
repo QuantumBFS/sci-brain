@@ -30,13 +30,31 @@ gate is never worked around; a user-approved exception goes into
 
 ## Cycle
 
-1. **Plan the batch.** Propose `batch_size` attempts, each a distinct
-   falsifiable hypothesis drawing on `## Selected` entries in
-   `research/INSIGHTS.md` (name the insight in the attempt's LOG.md). Vary
-   the angle across the batch — a batch of near-duplicates wastes the cycle.
+1. **Plan the batch.** Generate a surplus of candidate hypotheses (~2×
+   `batch_size`), each drawing on `## Selected` entries in
+   `research/INSIGHTS.md`, then rank them with a quick rubric (expected
+   information gain, cost, distinctness) and promote the top `batch_size`.
+   Two filters before anything is implemented:
+   - **Novelty check** — compare each candidate against the hypotheses in
+     *all* prior attempts' LOG.md files; a near-duplicate of anything
+     already tried is rejected and resampled. Never re-spend an attempt on
+     a restated old idea.
+   - **Batch composition** — mix *drafts* (genuinely different approaches)
+     with *improvements* (exactly one atomic change to the best-scoring
+     known-good ancestor, so the change's effect is measurable) and at most
+     2 *debug* attempts on a promising-but-broken branch. A failing branch
+     that exhausts its debug cap is abandoned, not nursed.
+   Scope the planning context: drafts see a digest of *sibling* attempts
+   (what was tried, what it scored — do something different); improvements
+   and debugs see their *ancestral* chain (avoid undo-redo loops). Feed
+   forward the failure artifacts (validator `errors[]`, stderr) of the
+   previous batch — failures are data.
 2. **Execute** each attempt per `references/attempt-protocol.md`.
 3. **Reflect.** Write `docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md` per
-   `references/reflection-template.md`; increment `next_cycle`.
+   `references/reflection-template.md`; increment `next_cycle`. Dev-score
+   selection overfits over long runs: if the holdout query budget in the
+   validator manifest allows, adjudicate the cycle's top candidate on the
+   holdout (aggregate result only) and record it.
 4. **Soft gate.** Decrement `authorized_rounds`:
    - if > 0 remain: continue to the next cycle autonomously;
    - if 0: stop, present the report and the proposed next-batch plan, and

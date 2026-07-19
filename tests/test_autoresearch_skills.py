@@ -243,6 +243,49 @@ def test_reflection_template_has_code_distance_shape():
         assert section in text
 
 
+# ---- SOTA-informed hardening (2026-07 survey) ----
+
+def test_validator_seals_by_construction_with_holdout_budget():
+    text = _read("autoresearch-validator")
+    assert "by construction" in text
+    assert "read-only" in text
+    assert "holdout query budget" in text
+
+
+def test_contract_has_precheck_and_cascade():
+    text = _ref("autoresearch-validator", "validator-contract.md")
+    assert "--precheck" in text
+    assert "cascade" in text.lower()
+    assert "budget" in text
+
+
+def test_negative_controls_patch_harness_not_prompts():
+    text = _ref("autoresearch-validator", "negative-controls.md")
+    assert "add a control reproducing the hack" in text
+
+
+def test_run_plans_with_novelty_check_and_batch_composition():
+    text = _read("autoresearch-run")
+    assert "Novelty check" in text
+    for kind in ["draft", "improve", "debug"]:
+        assert kind in text.lower()
+    assert "sibling" in text
+    assert "ancestral" in text
+
+
+def test_attempt_protocol_records_kind_and_parent_lineage():
+    text = _ref("autoresearch-run", "attempt-protocol.md")
+    assert "**kind**" in text
+    assert "**parent**" in text
+    assert "--precheck" in text
+
+
+def test_reflection_template_reports_yield():
+    text = _ref("autoresearch-run", "reflection-template.md")
+    assert "## Yield" in text
+    assert "denominators" in text
+
+
 # ---- registration ----
 
 def test_claude_md_lists_all_autoresearch_skills():

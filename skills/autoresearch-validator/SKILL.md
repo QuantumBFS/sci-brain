@@ -18,8 +18,17 @@ details: `references/validator-contract.md`; strictness self-test:
 2. **Split instances.** Development instances (visible to attempts) vs a
    **sealed holdout** under `research/benchmark/private/`:
    - add `research/benchmark/private/` to `.gitignore`;
+   - seal **by construction, not convention**: the validator runs as a
+     separate process outside the attempt worktree, the holdout is mounted
+     read-only into the validator environment only, and neither the holdout
+     nor the scorer source is reachable from attempt code (agents hack any
+     scorer they can touch — METR measured ~30% hack rates, and "do not
+     cheat" prompts do not work; harden the harness instead);
    - holdout labels are never opened in design context — attempts and
      reflection see only aggregate pass/fail from the validator;
+   - set a **holdout query budget** in `research/validator/manifest.json`
+     (default: 1 aggregate query per 3 cycles); the validator logs every
+     holdout query there and refuses queries beyond budget;
    - record instance provenance (where each came from, how labels were
      obtained) in `research/validator/manifest.json`.
 3. **Build the canonical environment.** A Docker image: pinned dependencies,
@@ -31,7 +40,10 @@ details: `references/validator-contract.md`; strictness self-test:
    never fall back silently.
 4. **Implement the `validate` CLI** per `references/validator-contract.md`,
    under `research/validator/`. Guard metrics from `topics.md` become
-   rejection rules.
+   rejection rules. Include the free `--precheck` mode (structure/format
+   check, no score) and cascade evaluation (cheap checks first, full scoring
+   only for structurally valid candidates) so attempts stop wasting cycles
+   on format bugs.
 5. **Strictness self-test.** Build the four negative controls
    (`cheater`, `wrong-answer`, `timeout`, `env-escape`) per
    `references/negative-controls.md`, plus one per topic-specific gaming

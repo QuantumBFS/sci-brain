@@ -7,11 +7,18 @@ Every attempt, no exceptions:
    immediately; numbers are never reused, even for crashes).
 2. **LOG.md first.** Before writing code, create `LOG.md` in the worktree:
    - attempt number and date;
+   - **kind** — `draft` | `improve` | `debug`;
+   - **parent** — for `improve`/`debug`, the ancestor attempt number this
+     builds on (`none` for drafts). Lineage is how later batches know which
+     branch a result belongs to;
    - **hypothesis** — the idea being tried, naming which `## Selected`
-     insight(s) from `research/INSIGHTS.md` it draws on;
+     insight(s) from `research/INSIGHTS.md` it draws on; for `improve`, the
+     single atomic change being made;
    - **expected evidence** — what result would confirm or kill it.
 3. **Implement** the candidate in the worktree. It may read dev instances
-   and everything in `research/` except `benchmark/private/`.
+   and everything in `research/` except `benchmark/private/`. Use
+   `validate --precheck` freely while developing — it checks structure and
+   format without revealing a score and does not consume anything.
 4. **Score** by invoking the validator CLI (`validate <worktree>`), which
    enforces `time_limit_seconds` and the environment. Nothing else counts
    as a result — no eyeballed timings, no partial credit.

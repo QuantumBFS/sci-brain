@@ -16,6 +16,11 @@ Rules:
 
 - Controls are written *before* the first real attempt and kept working; a
   validator change that stops rejecting any control re-opens the gate.
+- When a new hack is discovered during the run loop, **patch the validator
+  harness and add a control reproducing the hack** — never respond by adding
+  "do not cheat" instructions to attempt prompts (measured to be near-useless
+  against capable agents). The gate re-opens until the new control is
+  rejected.
 - Each control's rejection report is pasted into `manifest.json` under
   `"self_test"` with the date it last passed.
 - When gaming risks in `topics.md` metrics suggest topic-specific cheats,
