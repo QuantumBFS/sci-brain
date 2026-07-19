@@ -1,6 +1,6 @@
 ---
 name: autoresearch-db
-description: Use when building the evidence base for a chosen autoresearch topic — maps the insight areas needed to propose new ideas, downloads references to cover them via download-ref, distills each area into research/INSIGHTS.md for user selection, builds a structured domain database and pinned reference implementations, and catalogs all algorithms/software in research/CATALOG.md. Owns the survey gate. Stage 3 of the autoresearch pipeline.
+description: Use when building the evidence base for a chosen autoresearch topic — maps the insight areas needed to propose new ideas, downloads references to cover them via download-ref, distills each area into research/INSIGHTS.md for user selection, builds a structured domain database and pinned reference implementations, and catalogs all algorithms/software in research/CATALOG.md. Owns the survey gate. Stage 2 of the autoresearch pipeline.
 ---
 
 # Autoresearch DB

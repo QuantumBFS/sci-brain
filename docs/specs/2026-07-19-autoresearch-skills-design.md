@@ -9,14 +9,16 @@ reflection logs in `docs/discussion/`).
 
 ## Goal
 
-Package the autoresearch workflow — domain → topics → metrics → evidence base →
-strict validator → iterative attempt/reflect loop — as a family of reusable
+Package the autoresearch workflow — domain → topics with metrics → evidence
+base → strict validator → iterative attempt/reflect loop — as a family of reusable
 skills, so a new research project can be taken from "here is a domain" to a
 running, publishable-bar-gated research loop without re-inventing the protocol.
 
 ## Skill family
 
-Six skills under `skills/`:
+Five skills under `skills/` (topics and metrics were merged into one stage —
+scoring a topic's "Checkable" criterion already requires identifying its
+metric, and both write to `topics.md` with no independent gate between them):
 
 ### `autoresearch` (dispatcher)
 
@@ -32,16 +34,15 @@ Six skills under `skills/`:
 - Brainstorms candidate research topics scored against autoresearch-suitability
   criteria: machine-checkable success, cheap-enough per-attempt evaluation,
   room for many iterations, publishable if the bar is met.
-- User selects; output written to `<project>/topics.md`.
-
-### `autoresearch-metrics` (stage 2)
-
-- For each chosen topic in `topics.md`, derive candidate metrics / score
+- User selects; then, for each chosen topic, derives candidate metrics / score
   functions ("what is good"): how each is computed, its cost, and its failure
-  modes / gaming risks.
-- Metrics are attached in-place to each item in `topics.md`.
+  modes / gaming risks. Each metric is classified **primary** (enters the
+  score function) or **guard** (anti-gaming side condition); the user approves
+  the set per topic.
+- Output written to `<project>/topics.md`: topic sections with their approved
+  `### Metrics` blocks.
 
-### `autoresearch-db` (stage 3)
+### `autoresearch-db` (stage 2)
 
 - Builds the evidence base for the chosen topic:
   - Papers via the existing `download-ref` skill into `<project>/.knowledge/`.
@@ -69,7 +70,7 @@ Six skills under `skills/`:
   insight areas distilled and user-selected in `research/INSIGHTS.md`,
   reference implementations pinned.
 
-### `autoresearch-validator` (stage 4)
+### `autoresearch-validator` (stage 3)
 
 - Sets the goal ("publishable bar") and builds the validator:
   - Dev instances vs a **sealed holdout** under `research/benchmark/private/`
@@ -86,7 +87,7 @@ Six skills under `skills/`:
   a hard-coded-answers cheater, a wrong-answer candidate, a timeout candidate,
   and an environment-escape attempt.
 
-### `autoresearch-run` (stage 5)
+### `autoresearch-run` (stage 4)
 
 - The research loop. Refuses to start until the survey gate and validator gate
   have both passed (recorded in `STATE.md`).
@@ -120,7 +121,7 @@ Enforced by `autoresearch-run`, not advisory:
 
 ```
 <project>/
-  topics.md                    # stage 1+2 output
+  topics.md                    # stage 1 output (topics + metrics)
   research/
     STATE.md                   # stage, config, gates passed, rounds authorized
     CATALOG.md                 # algorithms/software catalog
@@ -135,7 +136,7 @@ Enforced by `autoresearch-run`, not advisory:
 
 ## Reuse
 
-- Stage 3 delegates paper acquisition to the existing `download-ref` skill.
+- Stage 2 delegates paper acquisition to the existing `download-ref` skill.
 - Stage 1 borrows suitability heuristics from `brainstorm-ideas` conventions
   but is its own skill (different output contract: `topics.md`, not an ideas
   log).

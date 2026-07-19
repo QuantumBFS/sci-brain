@@ -1,6 +1,6 @@
 ---
 name: autoresearch-run
-description: Use when running the autoresearch loop for a project whose survey and validator gates have passed — executes batches of attempts (one git worktree + LOG.md each, scored only by the validator under a hard time limit), then reflects, reports, and re-plans; continues autonomously while authorized_rounds remain, otherwise stops for user review. Stage 5 of the autoresearch pipeline.
+description: Use when running the autoresearch loop for a project whose survey and validator gates have passed — executes batches of attempts (one git worktree + LOG.md each, scored only by the validator under a hard time limit), then reflects, reports, and re-plans; continues autonomously while authorized_rounds remain, otherwise stops for user review. Stage 4 of the autoresearch pipeline.
 ---
 
 # Autoresearch Run

@@ -10,7 +10,6 @@ SKILLS = ROOT / "skills"
 
 STAGE_SKILLS = [
     "autoresearch-topics",
-    "autoresearch-metrics",
     "autoresearch-db",
     "autoresearch-validator",
     "autoresearch-run",
@@ -63,7 +62,7 @@ def test_state_schema_defines_all_fields():
                   "survey_gate:", "validator_gate:", "validator_env:",
                   "overrides:"]:
         assert field in text
-    for stage in ["topics", "metrics", "db", "validator", "run", "done"]:
+    for stage in ["topics", "db", "validator", "run", "done"]:
         assert stage in text
 
 
@@ -87,35 +86,16 @@ def test_topics_writes_topics_md_with_metrics_placeholder():
     assert "### Metrics" in text
 
 
-def test_topics_lets_user_pick_and_advances_stage():
+def test_topics_derives_primary_and_guard_metrics():
     text = _read("autoresearch-topics")
-    assert "AskUserQuestion" in text
-    assert "stage: metrics" in text
-
-
-# ---- autoresearch-metrics ----
-
-def test_metrics_has_frontmatter():
-    text = _read("autoresearch-metrics")
-    assert text.startswith("---\nname: autoresearch-metrics\n")
-    assert "description: Use when" in text
-
-
-def test_metrics_fills_topics_md_in_place():
-    text = _read("autoresearch-metrics")
-    assert "topics.md" in text
-    assert "### Metrics" in text
-
-
-def test_metrics_distinguishes_primary_and_guard():
-    text = _read("autoresearch-metrics")
     assert "primary" in text
     assert "guard" in text
     assert "gaming" in text.lower()
 
 
-def test_metrics_advances_stage_to_db():
-    text = _read("autoresearch-metrics")
+def test_topics_lets_user_pick_and_advances_stage():
+    text = _read("autoresearch-topics")
+    assert "AskUserQuestion" in text
     assert "stage: db" in text
 
 

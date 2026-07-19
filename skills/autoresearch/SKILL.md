@@ -1,11 +1,11 @@
 ---
 name: autoresearch
-description: Use when starting or resuming an autoresearch project — reads research/STATE.md to find the current stage of the pipeline (topics → metrics → db → validator → run), verifies the previous stage's gate artifacts exist on disk, and routes to the matching stage skill. Triggers on "start autoresearch", "resume autoresearch", "autoresearch status", "what stage is my research project at".
+description: Use when starting or resuming an autoresearch project — reads research/STATE.md to find the current stage of the pipeline (topics → db → validator → run), verifies the previous stage's gate artifacts exist on disk, and routes to the matching stage skill. Triggers on "start autoresearch", "resume autoresearch", "autoresearch status", "what stage is my research project at".
 ---
 
 # Autoresearch (dispatcher)
 
-Pipeline: `autoresearch-topics` → `autoresearch-metrics` → `autoresearch-db`
+Pipeline: `autoresearch-topics` → `autoresearch-db`
 → `autoresearch-validator` → `autoresearch-run`. State lives in
 `<project>/research/STATE.md` (schema and template:
 `skills/autoresearch/references/state-schema.md`).
@@ -30,8 +30,7 @@ Pipeline: `autoresearch-topics` → `autoresearch-metrics` → `autoresearch-db`
 | `stage` | required artifacts before entering | route to |
 |---|---|---|
 | topics | — | autoresearch-topics |
-| metrics | `topics.md` with ≥1 chosen topic | autoresearch-metrics |
-| db | a `### Metrics` block under each topic in `topics.md` | autoresearch-db |
+| db | `topics.md` with ≥1 chosen topic, each with a `### Metrics` block | autoresearch-db |
 | validator | survey gate passed: `research/CATALOG.md`, `.knowledge/INDEX.md`, `research/INSIGHTS.md` with a user-selected section | autoresearch-validator |
 | run | validator gate passed: `research/validator/manifest.json` recording self-test results | autoresearch-run |
 | done | final report exists in `docs/discussion/` | report status only |

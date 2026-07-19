@@ -1,6 +1,6 @@
 ---
 name: autoresearch-validator
-description: Use when setting the goal and building the validator for an autoresearch topic — defines the publishable bar with the user, splits dev instances from a sealed gitignored holdout, builds a Docker-canonical strict environment (recorded fallback allowed), implements the validate CLI with rich JSON errors, and passes the strictness self-test against negative controls. Owns the validator gate. Stage 4 of the autoresearch pipeline.
+description: Use when setting the goal and building the validator for an autoresearch topic — defines the publishable bar with the user, splits dev instances from a sealed gitignored holdout, builds a Docker-canonical strict environment (recorded fallback allowed), implements the validate CLI with rich JSON errors, and passes the strictness self-test against negative controls. Owns the validator gate. Stage 3 of the autoresearch pipeline.
 ---
 
 # Autoresearch Validator

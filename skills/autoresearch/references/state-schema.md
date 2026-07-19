@@ -8,7 +8,7 @@ keep them):
 
     # Autoresearch State
 
-    - stage: topics            # topics | metrics | db | validator | run | done
+    - stage: topics            # topics | db | validator | run | done
     - topic: (unset)           # slug of the chosen topic once stage >= db
     - batch_size: 10           # attempts per cycle
     - time_limit_seconds: 300  # hard wall-clock limit per scored run
