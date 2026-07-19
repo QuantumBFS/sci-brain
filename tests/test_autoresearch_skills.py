@@ -117,3 +117,50 @@ def test_metrics_distinguishes_primary_and_guard():
 def test_metrics_advances_stage_to_db():
     text = _read("autoresearch-metrics")
     assert "stage: db" in text
+
+
+# ---- autoresearch-db ----
+
+def test_db_has_frontmatter():
+    text = _read("autoresearch-db")
+    assert text.startswith("---\nname: autoresearch-db\n")
+    assert "description: Use when" in text
+
+
+def test_db_delegates_paper_acquisition_to_download_ref():
+    text = _read("autoresearch-db")
+    assert "download-ref" in text
+    assert ".knowledge" in text
+
+
+def test_db_checks_insight_coverage_before_distilling():
+    text = _read("autoresearch-db")
+    assert "insight area" in text.lower()
+    assert "coverage" in text.lower()
+
+
+def test_db_distills_and_lets_user_select_insights():
+    text = _read("autoresearch-db")
+    assert "research/INSIGHTS.md" in text
+    assert "AskUserQuestion" in text
+    assert "Shelved" in text
+
+
+def test_db_builds_catalog_with_status_vocabulary():
+    text = _read("autoresearch-db")
+    assert "research/CATALOG.md" in text
+    for status in ["reproduced", "pinned", "paper-only"]:
+        assert status in text
+
+
+def test_db_owns_survey_gate():
+    text = _read("autoresearch-db")
+    assert "survey_gate" in text
+    assert "stage: validator" in text
+
+
+def test_insights_template_defines_entry_fields():
+    text = _ref("autoresearch-db", "insights-template.md")
+    for marker in ["## Selected", "## Shelved", "**Technique**",
+                   "**Applies when**", "**Limits**", "**Sources**"]:
+        assert marker in text
