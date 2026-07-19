@@ -261,3 +261,12 @@ def test_reflection_template_has_code_distance_shape():
     for section in ["Evidence carried forward", "Literature check",
                     "Decision"]:
         assert section in text
+
+
+# ---- registration ----
+
+def test_claude_md_lists_all_autoresearch_skills():
+    text = (ROOT / "CLAUDE.md").read_text()
+    assert "**autoresearch**" in text
+    for stage_skill in STAGE_SKILLS:
+        assert stage_skill in text
