@@ -45,12 +45,28 @@ Six skills under `skills/`:
 
 - Builds the evidence base for the chosen topic:
   - Papers via the existing `download-ref` skill into `<project>/.knowledge/`.
+  - **Insight coverage:** the reference set is selected to cover the main
+    insight areas needed to *propose new ideas* — algorithmic techniques,
+    proof/analysis methods, data structures, benchmark practices — not just
+    SOTA results. The skill maps candidate insight areas for the topic and
+    checks each is covered by at least one downloaded reference; gaps trigger
+    further downloads.
+  - **Distillation:** after download, each insight area is distilled from the
+    papers into `research/INSIGHTS.md` — one entry per area with the
+    transferable technique, when it applies, its limits, and source citations.
+    These entries are the "skills to propose new ideas."
+  - **User selection:** the distilled insight areas are presented to the user,
+    who selects which are needed for idea generation on this topic. The
+    selection is recorded in `research/INSIGHTS.md` (selected vs. shelved) and
+    `autoresearch-run` draws on the selected entries when proposing each
+    batch's attempts.
   - A structured domain database (e.g. QEC codes as JSON) under
     `research/database/`.
   - Pinned reference implementations of key algorithms (source-locked).
   - A complete `research/CATALOG.md` of algorithms and software with sources
     and status: `reproduced` / `pinned` / `paper-only`.
 - Passing the **survey gate** means: catalog complete, knowledge base indexed,
+  insight areas distilled and user-selected in `research/INSIGHTS.md`,
   reference implementations pinned.
 
 ### `autoresearch-validator` (stage 4)
@@ -78,7 +94,10 @@ Six skills under `skills/`:
   1. Run the batch of attempts.
   2. Write a reflection report to `docs/discussion/<timestamp>-cycle-NN.md`
      following the code-distance ideas-log shape: evidence carried forward,
-     literature re-check, decision for the next batch.
+     literature re-check, decision for the next batch. Attempt proposals draw
+     on the selected entries in `research/INSIGHTS.md`; reflection may propose
+     promoting shelved insights or distilling new ones (user confirms at the
+     next gate).
   3. Propose an updated plan.
 - **Soft gate with timeout:** `STATE.md` holds `authorized_rounds`. If rounds
   remain, the loop continues autonomously and decrements; otherwise it stops
@@ -105,6 +124,7 @@ Enforced by `autoresearch-run`, not advisory:
   research/
     STATE.md                   # stage, config, gates passed, rounds authorized
     CATALOG.md                 # algorithms/software catalog
+    INSIGHTS.md                # distilled idea-generation insights (selected/shelved)
     database/                  # structured domain data (JSON)
     validator/                 # Dockerfile, validate CLI, manifest, negative controls
     benchmark/private/         # sealed holdout (gitignored)
