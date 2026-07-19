@@ -164,3 +164,45 @@ def test_insights_template_defines_entry_fields():
     for marker in ["## Selected", "## Shelved", "**Technique**",
                    "**Applies when**", "**Limits**", "**Sources**"]:
         assert marker in text
+
+
+# ---- autoresearch-validator ----
+
+def test_validator_has_frontmatter():
+    text = _read("autoresearch-validator")
+    assert text.startswith("---\nname: autoresearch-validator\n")
+    assert "description: Use when" in text
+
+
+def test_validator_defines_publishable_bar_and_sealed_holdout():
+    text = _read("autoresearch-validator")
+    assert "publishable bar" in text.lower()
+    assert "research/benchmark/private/" in text
+    assert "gitignore" in text.lower()
+
+
+def test_validator_docker_default_with_recorded_fallback():
+    text = _read("autoresearch-validator")
+    assert "Docker" in text
+    assert "fallback" in text.lower()
+    assert "manifest.json" in text
+
+
+def test_validator_owns_validator_gate():
+    text = _read("autoresearch-validator")
+    assert "validator_gate" in text
+    assert "stage: run" in text
+
+
+def test_contract_specifies_cli_and_json_report():
+    text = _ref("autoresearch-validator", "validator-contract.md")
+    assert "validate" in text
+    for key in ['"status"', '"score"', '"per_instance"', '"errors"']:
+        assert key in text
+    assert "exit code" in text.lower()
+
+
+def test_negative_controls_cover_four_cases():
+    text = _ref("autoresearch-validator", "negative-controls.md")
+    for control in ["cheater", "wrong-answer", "timeout", "env-escape"]:
+        assert control in text
