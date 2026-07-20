@@ -331,7 +331,7 @@ def test_approval_contract_is_portable_and_auditable():
     assert "platform" in contract.lower()
     assert "pre-authorized" in contract
     assert "never infer" in contract.lower()
-    assert "do not duplicate" in contract.lower()
+    assert "do not duplicate" in " ".join(contract.lower().split())
 
 
 def test_interactive_stages_use_shared_approval_contract():
