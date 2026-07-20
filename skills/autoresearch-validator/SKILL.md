@@ -22,7 +22,15 @@ available user-input mechanism.
    it must hold on. Write it to `research/validator/GOAL.md`.
 2. **Split instances.** Development instances (visible to attempts) vs a
    **sealed holdout** under `research/benchmark/private/`:
-   - add `research/benchmark/private/` to `.gitignore`;
+   - use this layout:
+     - `research/benchmark/dev/` — tracked public inputs;
+     - `research/benchmark/private/` — ignored holdout inputs and labels;
+     - `research/validator/` — tracked public launcher, contract, and
+       manifest; and
+     - `research/validator/private/` — ignored scorer core and expected
+       values;
+   - add both `research/benchmark/private/` and
+     `research/validator/private/` to `.gitignore`;
    - seal **by construction, not convention**: the validator runs as a
      separate process outside the attempt worktree, the holdout is mounted
      read-only into the validator environment only, and neither the holdout
@@ -42,7 +50,10 @@ available user-input mechanism.
    unavailable or unsuitable (e.g. HPC-only toolchain), fall back to a
    locked venv + subprocess sandbox and record
    `validator_env: fallback (<reason>)` in STATE.md and in the manifest —
-   never fall back silently.
+   never fall back silently. Hash the scorer, holdout, and sandbox policy in
+   the manifest. Before opening the gate, run a candidate-process probe for
+   both private roots and network access; if any probe succeeds, **fail closed**.
+   A prompt-only instruction is not a sandbox.
 4. **Implement the `validate` CLI** per `references/validator-contract.md`,
    under `research/validator/`. Guard metrics from `topics.md` become
    rejection rules. Include the free `--precheck` mode (structure/format
@@ -63,6 +74,9 @@ Flip `validator_gate: passed <date>` and set `stage: run` in
 - `GOAL.md` states the bar in terms of the primary metric;
 - the holdout is sealed (gitignored, labels unopened) with provenance in the
   manifest;
+- the scorer and holdout are outside the attempt worktree, their hashes and
+  sandbox policy hash are in the manifest, and the candidate-process privacy
+  probe fails closed on every forbidden read and network attempt;
 - `validate` runs end-to-end on a trivial baseline candidate against dev
   instances;
 - every negative control is rejected with a specific `errors[]` entry;

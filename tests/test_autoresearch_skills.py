@@ -326,3 +326,32 @@ def test_interactive_stages_use_shared_approval_contract():
         assert "approval-contract.md" in text
     state = _ref("autoresearch", "state-schema.md")
     assert "approval_log:" in state
+
+
+# ---- enforceable validator privacy ----
+
+def test_validator_private_layout_is_outside_attempts():
+    text = _read("autoresearch-validator")
+    for marker in [
+        "research/validator/private/",
+        "research/benchmark/private/",
+        "outside the attempt worktree",
+        "fail closed",
+        "policy hash",
+    ]:
+        assert marker in text
+
+
+def test_env_escape_control_probes_both_private_roots():
+    text = _ref("autoresearch-validator", "negative-controls.md")
+    assert "validator/private" in text
+    assert "benchmark/private" in text
+    assert "network" in text
+
+
+def test_contract_records_private_hashes_without_labels():
+    text = _ref("autoresearch-validator", "validator-contract.md")
+    assert "scorer_hash" in text
+    assert "holdout_hash" in text
+    assert "sandbox_policy_hash" in text
+    assert "never labels" in text.lower()

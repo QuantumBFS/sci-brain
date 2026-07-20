@@ -61,3 +61,27 @@ instance, the observed vs expected behavior, and the first thing to check.
 
 Guard metrics from `topics.md` (anti-gaming conditions) are enforced here as
 rejection rules, not reported as soft warnings.
+
+## Private boundary and manifest
+
+The public launcher and manifest live under `research/validator/`. The scorer
+core and private expected values live under
+`research/validator/private/`; holdout inputs and labels live under
+`research/benchmark/private/`. Both private directories are gitignored,
+outside the attempt worktree, and readable only by the validator process.
+
+The manifest records immutable digests without exposing content:
+
+```json
+{
+  "scorer_hash": "sha256:<hex>",
+  "holdout_hash": "sha256:<hex>",
+  "sandbox_policy_hash": "sha256:<hex>"
+}
+```
+
+Attempts and reflection receive aggregate holdout pass/fail, never labels.
+Before the validator gate passes, the `env-escape` control must prove that a
+candidate process cannot read either private root or open a network
+connection. If any forbidden probe succeeds, fail closed and leave the gate
+pending.
