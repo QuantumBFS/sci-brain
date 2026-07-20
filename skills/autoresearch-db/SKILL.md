@@ -20,10 +20,16 @@ available user-input mechanism.
    areas an idea-proposer needs: algorithmic techniques, proof/analysis
    methods, data structures, benchmark practices for this problem class.
    Resolve user approval of the list before downloading anything.
-2. **Download for coverage.** Acquire references with the `download-ref`
-   skill into `<project>/.knowledge/`. Coverage check: every insight area is
-   covered by ≥1 downloaded reference; areas with no coverage trigger
-   further search/downloads. SOTA-results-only coverage is insufficient.
+2. **Download for coverage.** Build the exact reference manifest needed to
+   cover the approved insight areas. Resolve a single approval decision that
+   covers both that manifest and the deterministic cite-key policy: accept
+   `download-ref`'s collision-free proposed keys, but stop on any collision
+   or missing proposal. Record the decision through the shared approval
+   contract, then acquire the references with the `download-ref` skill into
+   `<project>/.knowledge/`. An exact pre-authorized decision is consumed
+   without another prompt. Coverage check: every insight area is covered by
+   ≥1 downloaded reference; areas with no coverage trigger further
+   search/downloads. SOTA-results-only coverage is insufficient.
 3. **Distill.** For each insight area, write one entry in
    `research/INSIGHTS.md` following
    `skills/autoresearch-db/references/insights-template.md` (Technique /

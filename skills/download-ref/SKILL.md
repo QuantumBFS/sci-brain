@@ -177,9 +177,25 @@ PDF backend priority:
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 
-### 6. Propose + confirm cite key (per ref, single-shot mode only)
+### 6. Propose + confirm cite key
 
-In single-shot mode (Step 3a), ask the user to confirm each new cite key. In bulk mode (Step 3b), the keys come from `references.bib` directly — skip this step.
+There are three approval modes:
+
+1. **Single-shot:** ask the user to confirm each new cite key.
+2. **Bulk from BibTeX:** keys already come from `references.bib`; skip this
+   step.
+3. **Pre-authorized direct batch:** a pre-authorized direct batch is one where
+   the caller supplies an auditable approval record naming the exact IDs/DOIs
+   and authorizing the deterministic collision-free proposals produced below.
+   Verify every proposed key is non-empty, unique within the batch, and absent
+   from the existing BibTeX. Then append without per-reference prompting.
+   Record the final mapping of reference ID to cite key in the caller's
+   approval log. A cite-key collision, missing proposal, or manifest mismatch
+   invalidates the batch approval and requires user confirmation; never
+   silently invent a replacement.
+
+Direct input defaults to single-shot mode unless the exact pre-authorized
+direct batch record is present.
 
 ```sh
 python3 skills/download-ref/helpers/append_bibtex.py propose \

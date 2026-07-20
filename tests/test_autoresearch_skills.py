@@ -114,6 +114,24 @@ def test_db_delegates_paper_acquisition_to_download_ref():
     assert ".knowledge" in text
 
 
+def test_preapproved_db_batch_does_not_reprompt_for_each_cite_key():
+    db = _read("autoresearch-db")
+    download = _read("download-ref").lower()
+    for marker in [
+        "exact reference manifest",
+        "deterministic cite-key policy",
+        "single approval decision",
+    ]:
+        assert marker in db
+    for marker in [
+        "pre-authorized direct batch",
+        "without per-reference prompting",
+        "cite-key collision",
+        "record the final mapping",
+    ]:
+        assert marker in download
+
+
 def test_db_checks_insight_coverage_before_distilling():
     text = _read("autoresearch-db")
     assert "insight area" in text.lower()
