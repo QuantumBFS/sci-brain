@@ -1,0 +1,25 @@
+{
+  "article_doi": "10.1038/s41586-025-09641-4",
+  "dataset_doi": "10.22002/4m9sp-yzr58",
+  "files": [
+    {
+      "filename": "fig4a_rabi_duration.npy",
+      "md5": "93c6bd2d084f5c80075c75c8976fe765",
+      "role": "drive duration in seconds",
+      "url": "https://data.caltech.edu/records/4m9sp-yzr58/files/fig4a_rabi_duration.npy?download=1"
+    },
+    {
+      "filename": "fig4a_rabi_pop_1.npy",
+      "md5": "a0432de3d76551610e2a795803eb82dd",
+      "role": "processed state-|1> population",
+      "url": "https://data.caltech.edu/records/4m9sp-yzr58/files/fig4a_rabi_pop_1.npy?download=1"
+    },
+    {
+      "filename": "fig4a_rabi_pop_1_std.npy",
+      "md5": "7b95de05b41d1e05fdba72dc90b20334",
+      "role": "reported one-sigma population uncertainty",
+      "url": "https://data.caltech.edu/records/4m9sp-yzr58/files/fig4a_rabi_pop_1_std.npy?download=1"
+    }
+  ],
+  "source_type": "official processed source data"
+}
