@@ -9,12 +9,17 @@ Goal: once the validator's bar is met, the result is publishable — so the
 validator must be impossible to satisfy by accident or by cheating. Contract
 details: `references/validator-contract.md`; strictness self-test:
 `references/negative-controls.md`.
+Resolve the publishable bar and any environment fallback through
+`skills/autoresearch/references/approval-contract.md`. Consume an exact
+pre-authorized decision without prompting; otherwise use the platform's
+available user-input mechanism.
 
 ## Procedure
 
-1. **Define the publishable bar** with the user: a goal statement naming the
-   primary metric (from `topics.md`), the threshold, and the instance
-   families it must hold on. Write it to `research/validator/GOAL.md`.
+1. **Define the publishable bar.** Resolve the user's exact goal statement
+   through `skills/autoresearch/references/approval-contract.md`; it names the
+   primary metric (from `topics.md`), the threshold, and the instance families
+   it must hold on. Write it to `research/validator/GOAL.md`.
 2. **Split instances.** Development instances (visible to attempts) vs a
    **sealed holdout** under `research/benchmark/private/`:
    - add `research/benchmark/private/` to `.gitignore`;

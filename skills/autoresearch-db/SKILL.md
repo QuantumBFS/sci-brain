@@ -9,13 +9,17 @@ Input: a topic with metrics in `topics.md`. Output: a knowledge base, an
 insight file, a domain database, pinned reference code, a catalog — and the
 survey gate passed. The point is not "papers exist on disk" but "the agent
 holds the insights needed to *propose new ideas*".
+Resolve insight-map and Selected/Shelved choices through
+`skills/autoresearch/references/approval-contract.md`. Consume an exact
+pre-authorized decision without prompting; otherwise use the platform's
+available user-input mechanism.
 
 ## Procedure
 
 1. **Map insight areas.** From the topic and its metrics, list the insight
    areas an idea-proposer needs: algorithmic techniques, proof/analysis
    methods, data structures, benchmark practices for this problem class.
-   Show the list to the user before downloading anything.
+   Resolve user approval of the list before downloading anything.
 2. **Download for coverage.** Acquire references with the `download-ref`
    skill into `<project>/.knowledge/`. Coverage check: every insight area is
    covered by ≥1 downloaded reference; areas with no coverage trigger
@@ -25,10 +29,11 @@ holds the insights needed to *propose new ideas*".
    `skills/autoresearch-db/references/insights-template.md` (Technique /
    Applies when / Limits / Sources). Distill from the rendered papers in
    `.knowledge/`, not from memory.
-4. **User selects.** Present the distilled areas via `AskUserQuestion`
-   (multi-select): which are needed for idea generation on this topic?
-   Selected entries go under `## Selected`, the rest under `## Shelved`.
-   The run loop draws only on Selected.
+4. **User selects.** Resolve which distilled areas are needed for idea
+   generation through
+   `skills/autoresearch/references/approval-contract.md`. Selected entries go
+   under `## Selected`, the rest under `## Shelved`. The run loop draws only
+   on Selected.
 5. **Domain database.** Build the structured dataset the topic needs (e.g.
    QEC codes as JSON) under `research/database/`, with a `README.md`
    documenting schema and provenance of every record.

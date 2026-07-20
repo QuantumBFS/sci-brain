@@ -15,6 +15,7 @@ keep them):
     - authorized_rounds: 0     # cycles the loop may run without user review
     - next_attempt: 1          # next .worktrees/attempt-NNN number
     - next_cycle: 1            # next reflection cycle number
+    - approval_log: research/APPROVALS.md  # append-only explicit decisions
     - gates:
       - survey_gate: pending     # pending | passed YYYY-MM-DD
       - validator_gate: pending  # pending | passed YYYY-MM-DD
@@ -28,5 +29,7 @@ Rules:
   checklist verifies on disk.
 - `overrides:` is append-only. Any deviation from the hard protocol rules must
   be recorded here with a date and reason; skills never deviate silently.
+- `approval_log:` points to the append-only decision record governed by
+  `approval-contract.md`. An approval is not a protocol override.
 - `attempt-NNN` numbering is zero-padded to 3 digits and never reused, even
   for crashed attempts.

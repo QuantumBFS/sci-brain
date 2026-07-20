@@ -9,6 +9,10 @@ Pipeline: `autoresearch-topics` → `autoresearch-db`
 → `autoresearch-validator` → `autoresearch-run`. State lives in
 `<project>/research/STATE.md` (schema and template:
 `skills/autoresearch/references/state-schema.md`).
+Resolve every stage choice through
+`skills/autoresearch/references/approval-contract.md`; exact
+pre-authorizations are consumed without asking again and all decisions are
+recorded in the approval log.
 
 ## Procedure
 
@@ -18,8 +22,9 @@ Pipeline: `autoresearch-topics` → `autoresearch-db`
      `autoresearch-topics`.
    - **Corrupt/unreadable** → re-derive the stage from the artifact table
      below (earliest stage whose required artifacts are missing), show the
-     user the derived state, and confirm with them before overwriting
-     STATE.md. Never overwrite a readable STATE.md.
+     user the derived state, and resolve confirmation through
+     `references/approval-contract.md` before overwriting STATE.md. Never
+     overwrite a readable STATE.md.
 2. **Verify, don't trust.** Check the artifacts the recorded stage implies.
    If any are missing, drop back to the earliest stage whose artifacts are
    missing and tell the user what was expected and not found.

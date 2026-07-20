@@ -95,7 +95,8 @@ def test_topics_derives_primary_and_guard_metrics():
 
 def test_topics_lets_user_pick_and_advances_stage():
     text = _read("autoresearch-topics")
-    assert "AskUserQuestion" in text
+    assert "approval-contract.md" in text
+    assert "user" in text.lower()
     assert "stage: db" in text
 
 
@@ -122,7 +123,8 @@ def test_db_checks_insight_coverage_before_distilling():
 def test_db_distills_and_lets_user_select_insights():
     text = _read("autoresearch-db")
     assert "research/INSIGHTS.md" in text
-    assert "AskUserQuestion" in text
+    assert "approval-contract.md" in text
+    assert "user" in text.lower()
     assert "Shelved" in text
 
 
@@ -293,3 +295,34 @@ def test_claude_md_lists_all_autoresearch_skills():
     assert "**autoresearch**" in text
     for stage_skill in STAGE_SKILLS:
         assert stage_skill in text
+
+
+# ---- portability and auditable stage approvals ----
+
+def test_codex_install_links_real_skill_directories():
+    text = (ROOT / ".codex" / "INSTALL.md").read_text()
+    assert "skills/sci-brain" not in text
+    assert 'for skill in "$HOME/.codex/sci-brain/skills"/*' in text
+    assert 'ln -sfn "$skill"' in text
+
+
+def test_approval_contract_is_portable_and_auditable():
+    contract = _ref("autoresearch", "approval-contract.md")
+    assert "research/APPROVALS.md" in contract
+    assert "current conversation" in contract
+    assert "platform" in contract.lower()
+    assert "pre-authorized" in contract
+    assert "never infer" in contract.lower()
+
+
+def test_interactive_stages_use_shared_approval_contract():
+    for skill in [
+        "autoresearch",
+        "autoresearch-topics",
+        "autoresearch-db",
+        "autoresearch-validator",
+    ]:
+        text = _read(skill)
+        assert "approval-contract.md" in text
+    state = _ref("autoresearch", "state-schema.md")
+    assert "approval_log:" in state

@@ -11,6 +11,10 @@ topic is one where a validator — not a human — can tell whether an attempt
 succeeded; the metrics defined here become that validator's score function in
 the validator stage, so gaming risks identified here turn into negative
 controls there.
+Resolve topic and metric choices through
+`skills/autoresearch/references/approval-contract.md`. Consume an exact
+pre-authorized decision without prompting; otherwise use the platform's
+available user-input mechanism.
 
 ## Procedure
 
@@ -31,7 +35,8 @@ controls there.
      publishable result.
    Present the scored table; flag any candidate scoring ≤2 on Checkable or
    Cheap as unsuitable and say why.
-4. **User picks** topics via `AskUserQuestion` (multi-select) from the table.
+4. **User picks.** Resolve the topic selection through
+   `skills/autoresearch/references/approval-contract.md` from the scored table.
 5. **Derive metrics** for each chosen topic, one at a time. Propose 2–5
    candidate metrics; for each, state:
    - **Definition** — the quantity, precisely enough to implement.
@@ -42,8 +47,8 @@ controls there.
    Classify each as **primary** (enters the score function — usually one per
    topic, e.g. wall-clock speedup at verified-exact output) or **guard**
    (anti-gaming side condition, e.g. exactness on unseen instances, no
-   hard-coded answers). The user approves the metric set per topic
-   (`AskUserQuestion`; amendments welcome).
+   hard-coded answers). Resolve user approval of the metric set per topic
+   through the same approval contract; amendments are welcome.
 6. **Write `topics.md`.** One `## <topic title>` section per chosen topic:
    problem statement, why autoresearch fits (the four scores), key references
    (title + arXiv ID/DOI), and a `### Metrics` block — one bullet per
