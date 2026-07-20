@@ -9,7 +9,8 @@ logs. Required sections:
     ## Yield
     Honest denominators, always: "K of N attempts improved the primary
     metric; best <value> vs prior best <value>." Per attempt, one line:
-    kind (draft/improve/debug), parent, metric, and a one-line causal claim.
+    kind (draft/improve/debug), parent, base/result commits, metric, and a
+    one-line causal claim.
     Rank which single change mattered most — that ranking targets the next
     batch's improvements.
 

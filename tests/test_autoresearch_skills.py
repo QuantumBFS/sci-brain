@@ -355,3 +355,31 @@ def test_contract_records_private_hashes_without_labels():
     assert "holdout_hash" in text
     assert "sandbox_policy_hash" in text
     assert "never labels" in text.lower()
+
+
+# ---- reproducible attempt worktrees ----
+
+def test_state_records_committed_attempt_baseline():
+    text = _ref("autoresearch", "state-schema.md")
+    assert "baseline_commit:" in text
+
+
+def test_run_preflights_worktree_and_clean_baseline():
+    text = _read("autoresearch-run")
+    for marker in [
+        "git check-ignore -q .worktrees",
+        "git status --porcelain",
+        "git merge-base --is-ancestor",
+        "baseline_commit",
+        "public pipeline artifacts",
+        "refuse",
+    ]:
+        assert marker in text
+
+
+def test_attempt_creation_names_branch_and_parent_ref():
+    text = _ref("autoresearch-run", "attempt-protocol.md")
+    assert "git worktree add -b autoresearch/attempt-NNN" in text
+    assert "<parent-ref>" in text
+    assert "**base commit**" in text
+    assert "**result commit**" in text

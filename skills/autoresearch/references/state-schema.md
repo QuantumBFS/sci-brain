@@ -15,6 +15,7 @@ keep them):
     - authorized_rounds: 0     # cycles the loop may run without user review
     - next_attempt: 1          # next .worktrees/attempt-NNN number
     - next_cycle: 1            # next reflection cycle number
+    - baseline_commit: (unset) # immutable candidate-visible public baseline
     - approval_log: research/APPROVALS.md  # append-only explicit decisions
     - gates:
       - survey_gate: pending     # pending | passed YYYY-MM-DD
@@ -31,5 +32,9 @@ Rules:
   be recorded here with a date and reason; skills never deviate silently.
 - `approval_log:` points to the append-only decision record governed by
   `approval-contract.md`. An approval is not a protocol override.
+- `baseline_commit:` is captured from the committed candidate-visible public
+  tree before attempts start. A later clean orchestration commit records that
+  SHA in STATE.md; the baseline must be its ancestor, not a self-referential
+  copy of the orchestration HEAD.
 - `attempt-NNN` numbering is zero-padded to 3 digits and never reused, even
   for crashed attempts.
