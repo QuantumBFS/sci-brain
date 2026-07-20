@@ -7,8 +7,10 @@ Every stage decision is explicit and auditable.
 2. Check `research/APPROVALS.md` when `approval_log:` in `STATE.md` points to
    it. A valid entry records UTC date, stage, decision, scope, and provenance
    (`conversation` or `approval-log`).
-3. If the exact decision is already pre-authorized, copy it into the approval
-   log and continue without asking again.
+3. If the current conversation contains an exact decision that is
+   pre-authorized but not yet logged, append it once and continue. If the
+   exact decision already exists in the approval log, reuse that entry; do
+   not duplicate it.
 4. Otherwise use the platform's available user-input mechanism.
    `AskUserQuestion` is one implementation, not a required tool; plain chat or
    another native picker is valid.

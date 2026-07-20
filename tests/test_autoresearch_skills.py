@@ -331,6 +331,7 @@ def test_approval_contract_is_portable_and_auditable():
     assert "platform" in contract.lower()
     assert "pre-authorized" in contract
     assert "never infer" in contract.lower()
+    assert "do not duplicate" in contract.lower()
 
 
 def test_interactive_stages_use_shared_approval_contract():
@@ -385,7 +386,7 @@ def test_state_records_committed_attempt_baseline():
 def test_run_preflights_worktree_and_clean_baseline():
     text = _read("autoresearch-run")
     for marker in [
-        "git check-ignore -q .worktrees",
+        "git check-ignore -q --no-index .worktrees/",
         "git status --porcelain",
         "git merge-base --is-ancestor",
         "baseline_commit",

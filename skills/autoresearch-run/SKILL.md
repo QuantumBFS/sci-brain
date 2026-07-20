@@ -23,8 +23,9 @@ gate is never worked around; a user-approved exception goes into
 
 Run all checks before planning the first attempt:
 
-1. `git check-ignore -q .worktrees` must succeed. If it fails, refuse to
-   create worktrees until `.worktrees/` is ignored and that rule is committed.
+1. `git check-ignore -q --no-index .worktrees/` must succeed even before the
+   directory exists. If it fails, refuse to create worktrees until
+   `.worktrees/` is ignored and that rule is committed.
 2. `git status --porcelain --untracked-files=all` must be empty. Ignored
    private validator/holdout files do not appear; any uncommitted public pipeline artifacts
    are a refusal condition.
