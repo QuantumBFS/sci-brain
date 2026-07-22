@@ -26,7 +26,10 @@
   align(center)[#text(weight: "semibold", size: 9pt)[#name] #v(0.2em) #text(size: 8pt)[#body]],
 )
 
-// per-approach strengths / limitations (two UNPAIRED bullet lists)
+// per-approach strengths / limitations (two UNPAIRED bullet lists).
+// USE ONLY when the approaches are competing solutions to the SAME problem
+// ("which should I pick?"). For complementary capabilities / platform branches,
+// write a prose assessment paragraph instead and delete this helper.
 #let proscons(pros, cons) = grid(
   columns: (1fr, 1fr), gutter: 0.6em,
   rect(width: 100%, inset: 7pt, radius: 5pt, fill: rgb("eef6ef"), stroke: rgb("bcd9c4"))[

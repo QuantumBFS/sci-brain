@@ -18,7 +18,7 @@ Follow `skills/_shared/writing-workflow.md` for context loading, **source scopin
 - Check `CLAUDE.md`/`AGENTS.md` for a deliverables-location convention before choosing an output path (this repo, for example, puts deliverables under `projects/<topic>/`).
 - Tailor technical depth to the user's role from `docs/discussion/user-profile.md` or memory.
 - Save to `articles/YYYY-MM-DD-<topic>-review.{md,typ,tex}` or a project-specific path if the user prefers.
-- For a Typst report, start from the bundled scaffold `template.typ` (in this skill's directory, with `template.bib`): copy it to the output path and fill it in. It already encodes the § Report structure below and ships helper functions — `section_box`, `stage` (flow/era strips), `proscons` (per-approach unpaired strengths/limitations), `compare_table`, `problem_table`.
+- For a Typst report, start from the bundled scaffold `template.typ` (in this skill's directory, with `template.bib`): copy it to the output path and fill it in. It already encodes the § Report structure below and ships helper functions — `section_box`, `stage` (flow/era strips), `proscons` (per-approach unpaired strengths/limitations — use only when approaches compete for the same problem; see § 2), `compare_table`, `problem_table`. Delete unused helpers from the copy.
 
 ## Gap-Filling Focus
 
@@ -49,7 +49,10 @@ This is the core of the review. Identify the main approaches / method families i
 For each approach, cover three things in order:
 - **What it is** — the mechanism at one level of detail: the representation, objective, or trick that defines it.
 - **State of the art** — the strongest current results, leading groups, and maturity, each with a `@citekey` citation. Lead with the best result, not a chronology.
-- **Pros and cons** — the genuine strengths and limitations *of this approach*, as two short bullet lists (2–4 bullets each), every bullet cited. Do **not** force advantages and limitations into matched pairs or equal counts — list the real ones. This per-approach treatment replaces the old global pros/cons table.
+- **Assessment** — the genuine strengths and limitations *of this approach*, every claim cited. **Choose the form by what the approaches are:**
+  - Use the **pros/cons two-list style** (the `proscons` helper) *only* when the approaches are competing solutions to the *same problem* — the reader's question is "which one should I pick?", and the bullet lists support that decision. Do **not** force advantages and limitations into matched pairs or equal counts — list the real ones.
+  - When the "approaches" are complementary capabilities, platform branches, historical stages, or otherwise *not* alternatives for one decision, write the assessment as a short **prose paragraph** (e.g. a *Character.* paragraph) that weaves strengths and limits together. Boxed pros/cons lists misframe complements as rivals.
+  - Either way, this per-approach treatment replaces the old global pros/cons table.
 
 End the section with an **optional cross-approach comparison table** — rows = approaches, columns = a few shared criteria, cells cited where they make a claim. **Choose the columns adaptively** to the field: pick the criteria that actually discriminate the approaches (e.g. scalability, verifiability/cost, maturity, best-fit use case), not a fixed template. Because the columns adapt, this table can still summarize approaches from different task families — the "best-fit use case" column carries the distinction the side-by-side *figure* could not. Use it as the at-a-glance summary when the field has several approaches worth tabulating; skip it for a single-approach topic.
 
