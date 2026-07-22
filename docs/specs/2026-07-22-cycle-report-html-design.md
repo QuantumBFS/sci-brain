@@ -131,36 +131,37 @@ background only (print/email-safe). Chart colors, mark design, and axis
 rules follow the dataviz skill; the implementer must load that skill before
 writing the chart code.
 
-Organized around the reader's three questions — *what happened, what did
-we learn, what's next* — rather than the md file's five sections (revised
-2026-07-22 after HCI review: the first cut transcribed the reflection
-sections into nine flat headings, scattering each answer across the page
-and duplicating facts between KPIs, table, a separate lineage card, and
-Yield/State prose). Each fact appears exactly once. Top to bottom:
+Organized as a retrospective cycle — **Review** (what we did) → **Think**
+(what happened and why; root cause) → **Next round** (what to do) — the
+user's chosen logic, revised 2026-07-22. (History: the first cut
+transcribed the reflection sections into nine flat headings, scattering
+each answer and duplicating facts between KPIs, table, a separate lineage
+card, and Yield/State prose; an intermediate cut used outcome/evidence/next
+with the yield narrative chart-adjacent — moved to Think because "which
+change mattered" is diagnosis, not fact.) Each fact appears exactly once.
+Top to bottom:
 
-1. **Outcome block** (no heading — the page top is the outcome):
-   - Header — project, "cycle NN", attempts AAA–BBB, date, rounds
-     remaining; `reflection.state` rendered as a muted line beneath it.
-   - KPI strip — four tiles: best this cycle (▲/▼ delta vs prior best),
-     bar value and remaining gap, yield "K/N improved", holdout status.
-   - Trajectory card — inline SVG line chart of best-so-far primary
-     metric vs cycle (from all `cycle-*.json`), GOAL bar as labeled
-     threshold; one small *separate* chart per guard metric (never a
-     second axis); `reflection.yield` prose closes the card as
-     chart-adjacent narrative.
-2. **Attempts & evidence** — one lineage-ordered table carrying both
-   results and parent structure (replaces the chronological table + the
-   separate lineage card of the first cut): rows grouped by chain,
+1. **Summary top** (no heading): header — project, "cycle NN", attempts
+   AAA–BBB, date, rounds remaining; `reflection.state` as a muted line;
+   KPI strip — four tiles: best this cycle (▲/▼ delta vs prior best),
+   bar value and remaining gap, yield "K/N improved", holdout status.
+2. **Review — what we did**: trajectory card — inline SVG line chart of
+   best-so-far primary metric vs cycle (from all `cycle-*.json`), GOAL
+   bar as labeled threshold, one small *separate* chart per guard metric
+   (never a second axis) — then one lineage-ordered attempt table
+   carrying both results and parent structure: rows grouped by chain,
    descendants indented (`└`) under their ancestor, earlier-cycle
    ancestors as grey label rows, chains ordered by earliest attempt id.
    Columns: id (links to `log_path`), kind badge, hypothesis, primary,
-   guard(s), status chip, causal note; best row highlighted. Followed by
-   `reflection.evidence` (with `blacklist_new` highlighted) and
-   Literature check as an h3 subsection.
-3. **Next** — `reflection.decision` (next-batch plan, abandonment
-   condition) with `insight_promotions` in an "awaiting user
+   guard(s), status chip, causal note; best row highlighted.
+3. **Think — what happened and why**: `reflection.yield` (which change
+   mattered, ranked), `reflection.evidence` (root causes, what's ruled
+   out; `blacklist_new` highlighted), Literature check as an h3
+   subsection.
+4. **Next round**: `reflection.decision` (next-batch hypothesis,
+   abandonment condition) with `insight_promotions` in an "awaiting user
    confirmation" box.
-4. **Footer** — `← cycle-(NN-1) · index · cycle-(NN+1) →` (missing
+5. **Footer** — `← cycle-(NN-1) · index · cycle-(NN+1) →` (missing
    neighbors rendered as disabled).
 
 ## `index.html`

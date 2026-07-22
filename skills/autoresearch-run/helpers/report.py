@@ -480,8 +480,6 @@ tr.prior td { color: #898781; background: #f5f5f2; font-size: 12px; }
 td.idcell { white-space: nowrap; }
 .scroll { overflow-x: auto; }
 .state p { color: #52514e; font-size: 13px; margin: 0 0 4px; }
-.yield { border-top: 1px solid #e1e0d9; margin-top: 12px; padding-top: 4px; }
-.yield p { margin: 8px 0 0; }
 .chip { display: inline-block; padding: 1px 8px; border-radius: 9px;
   font-size: 12px; white-space: nowrap; }
 .st-good { background: #e2f3e2; color: #0a5c0a; }
@@ -544,6 +542,7 @@ def render_cycle(data, all_cycles):
 · rounds remaining after this cycle: {data["rounds_remaining"]}</p>
 <div class="state">{md_to_html(refl["state"])}</div>
 {kpi_strip(data, overall_best)}
+<h2>Review — what we did</h2>
 <div class="card">
 <figure><figcaption>best-so-far {esc(metric)} by cycle
 ({'higher' if direction == 'max' else 'lower'} is better; dashed line = bar)</figcaption>
@@ -552,13 +551,13 @@ def render_cycle(data, all_cycles):
                 title=f"best-so-far {metric} by cycle")}
 </figure>
 {guard_charts(all_cycles, data)}
-<div class="yield">{md_to_html(refl["yield"])}</div>
 </div>
-<h2>Attempts &amp; evidence</h2>
 <div class="scroll">{attempt_table(data)}</div>
+<h2>Think — what happened and why</h2>
+{md_to_html(refl["yield"])}
 {md_to_html(refl["evidence"])}{evidence_extra}
 <h3>Literature check</h3>{md_to_html(refl["literature"])}
-<h2>Next</h2>{md_to_html(refl["decision"])}{decision_extra}
+<h2>Next round</h2>{md_to_html(refl["decision"])}{decision_extra}
 <footer>{prev_link}<a href="index.html">index</a>{next_link}</footer>"""
     return page(f"{data['project']} — cycle {nn:02d}", body)
 

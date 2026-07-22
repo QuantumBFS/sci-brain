@@ -213,11 +213,13 @@ class RenderTests(unittest.TestCase):
         # descendants are indented under their ancestor
         self.assertIn("└", html_out)
 
-    def test_two_section_structure(self):
+    def test_review_think_next_structure(self):
         self.run_main(3)
         html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
-        self.assertIn("Attempts &amp; evidence", html_out)
-        self.assertIn("<h2>Next</h2>", html_out)
+        idx = [html_out.index("<h2>Review — what we did</h2>"),
+               html_out.index("<h2>Think — what happened and why</h2>"),
+               html_out.index("<h2>Next round</h2>")]
+        self.assertEqual(idx, sorted(idx))
         for gone in ("<h2>Yield</h2>", "<h2>State</h2>", "<h2>Lineage"):
             self.assertNotIn(gone, html_out)
 
