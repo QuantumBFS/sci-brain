@@ -148,11 +148,12 @@ Top to bottom:
    parent, hypothesis one-liner, primary metric, guard metric(s), status
    chip, causal note. The best row is visually highlighted. Failed/timeout
    rows render the status chip in place of a score.
-5. **Lineage** — small inline SVG tree of *this batch's* parent chains:
-   each improve/debug attempt hanging off its ancestor (ancestors from
-   earlier cycles appear as grey root nodes labeled with their id and
-   score). Full-run DAG is explicitly out of scope (future `index.html`
-   candidate).
+5. **Lineage** — *this batch's* parent chains as an indented HTML tree
+   (chosen over a drawn SVG at implementation time: no label-collision
+   risk, natural reflow — clarity over fancy). Each improve/debug attempt
+   nests under its ancestor; ancestors from earlier cycles appear as grey
+   root nodes labeled with their id. Full-run DAG is explicitly out of
+   scope (future `index.html` candidate).
 6. **Reflection prose** — the five sections rendered from
    `reflection.*`: Yield, Evidence carried forward (entries from
    `blacklist_new` highlighted), Literature check, Decision (with

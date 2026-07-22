@@ -51,13 +51,18 @@ gate is never worked around; a user-approved exception goes into
    previous batch — failures are data.
 2. **Execute** each attempt per `references/attempt-protocol.md`.
 3. **Reflect.** Write `docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md` per
-   `references/reflection-template.md`; increment `next_cycle`. Dev-score
+   `references/reflection-template.md`, then emit `cycle-NN.json`
+   (`references/report-schema.md`) and render the HTML report with
+   `helpers/report.py` (non-fatal on failure — the md is canonical);
+   increment `next_cycle`. Dev-score
    selection overfits over long runs: if the holdout query budget in the
    validator manifest allows, adjudicate the cycle's top candidate on the
    holdout (aggregate result only) and record it.
 4. **Soft gate.** Decrement `authorized_rounds`:
    - if > 0 remain: continue to the next cycle autonomously;
-   - if 0: stop, present the report and the proposed next-batch plan, and
+   - if 0: stop, present the report and the proposed next-batch plan —
+     summarize in the terminal and point the user at
+     `docs/discussion/cycle-NN.html` and `index.html` — and
      wait for the user to re-authorize (set a new `authorized_rounds`),
      amend the plan, or stop. Insight promotions proposed in the report are
      confirmed here.

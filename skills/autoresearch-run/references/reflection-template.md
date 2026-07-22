@@ -35,3 +35,16 @@ logs. Required sections:
     ## State
     Attempts used / remaining this authorization; bar status (distance to
     GOAL.md threshold); any protocol overrides recorded this cycle.
+
+## HTML report (after the markdown)
+
+The markdown above is canonical. After writing it, emit a structured copy
+as `docs/discussion/cycle-NN.json` (fields in `report-schema.md` — no
+timestamp prefix, NN zero-padded to 2) and render it:
+
+    python3 <skill-dir>/helpers/report.py --cycle NN --dir docs/discussion/
+
+This writes `cycle-NN.html` and regenerates `index.html` (the cross-cycle
+view). If the helper exits nonzero it names the bad field — fix the JSON
+and re-run; if it still fails, record the error in the reflection md and
+continue. The HTML must never block a cycle.
