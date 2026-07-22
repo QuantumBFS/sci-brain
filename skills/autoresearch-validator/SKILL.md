@@ -80,4 +80,12 @@ Flip `validator_gate: passed <date>` and set `stage: run` in
 - `validate` runs end-to-end on a trivial baseline candidate against dev
   instances;
 - every negative control is rejected with a specific `errors[]` entry;
-- the manifest records the environment (`docker` or `fallback (<reason>)`).
+- the manifest records the environment (`docker` or `fallback (<reason>)`);
+- everything the run stage needs is **committed to the main branch** —
+  `research/validator/` (GOAL.md, validate CLI, manifest), dev instances,
+  database, INSIGHTS.md, CATALOG.md — with the holdout absent (gitignored).
+  Attempt worktrees branch from main and must see these; committing first
+  also pins the validator version results are reproducible against. The
+  validator that *scores* is always main's copy running in the canonical
+  environment — the copy inside an attempt worktree is inert, so editing
+  it never affects a score.

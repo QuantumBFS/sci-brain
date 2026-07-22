@@ -301,6 +301,26 @@ def test_attempt_protocol_records_kind_and_parent_lineage():
     assert "--precheck" in text
 
 
+def test_attempt_protocol_commits_code_log_and_report_json():
+    text = _ref("autoresearch-run", "attempt-protocol.md")
+    assert "--out" in text
+    assert "report.json" in text
+    assert "Commit" in text
+
+
+def test_run_syncs_worktrees_and_reports_after_each_cycle():
+    text = _read("autoresearch-run")
+    assert "**Sync.**" in text
+    assert "push main" in text
+    assert "never push" in " ".join(text.split()).lower()
+    assert "research/benchmark/private/" in text
+
+
+def test_validator_gate_requires_artifacts_on_main():
+    text = _read("autoresearch-validator")
+    assert "committed to the main branch" in text
+
+
 def test_reflection_template_reports_honest_yield():
     text = _ref("autoresearch-run", "reflection-template.md")
     assert "denominators" in text

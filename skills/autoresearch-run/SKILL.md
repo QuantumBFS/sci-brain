@@ -67,7 +67,17 @@ gate is never worked around; a user-approved exception goes into
    selection overfits over long runs: if the holdout query budget in the
    validator manifest allows, adjudicate the cycle's top candidate on the
    holdout (aggregate result only) and record it.
-5. **Soft gate.** Subtract the cycle's attempts from `authorized_attempts`:
+5. **Sync.** Commit the cycle's artifacts to the main branch — the
+   reflection md/json/html and `index.html`, STATE.md, any INSIGHTS.md
+   changes, and the validator manifest (holdout query log) — then, when a
+   remote is configured, push main plus every `attempt-NNN` branch from
+   this cycle (each carries its generated code, `LOG.md`, and
+   `report.json`, committed per the attempt protocol). This preserves the
+   AI-generated code and results off-machine after every cycle. Never
+   push `research/benchmark/private/` — it stays gitignored, and holdout
+   results appear only as aggregates in the reports. No remote → recommend
+   the user add one, record the skip in the reflection, continue.
+6. **Soft gate.** Subtract the cycle's attempts from `authorized_attempts`:
    - if enough remain for another batch, continue autonomously (a remainder
      smaller than `batch_size` runs as a smaller final batch);
    - if exhausted: stop, present the report and the proposed next-batch

@@ -19,12 +19,17 @@ Every attempt, no exceptions:
    and everything in `research/` except `benchmark/private/`. Use
    `validate --precheck` freely while developing — it checks structure and
    format without revealing a score and does not consume anything.
-4. **Score** by invoking the validator CLI (`validate <worktree>`), which
-   enforces `time_limit_seconds` and the environment. Nothing else counts
-   as a result — no eyeballed timings, no partial credit.
+4. **Score** by invoking the validator CLI
+   (`validate <worktree> --out <worktree>/report.json`), which enforces
+   `time_limit_seconds` and the environment. Nothing else counts as a
+   result — no eyeballed timings, no partial credit. `report.json` stays
+   in the worktree: it is the machine-readable result of the attempt.
 5. **Record outcome** in LOG.md: the validator's JSON summary (score,
    per-instance results, errors), plus what was learned — especially from
    failures. A crash or timeout is recorded as a failed attempt and is
    never silently retried; retrying with a fix is a *new* attempt.
-6. **Leave the worktree intact.** Worktrees are the audit trail; reflection
-   reads their LOG.md files.
+6. **Commit and leave intact.** Commit everything on the worktree's
+   `attempt-NNN` branch — the generated code, `LOG.md`, `report.json` —
+   and leave the worktree in place. Worktrees are the audit trail:
+   reflection reads their LOG.md files, and the cycle-end sync pushes the
+   `attempt-NNN` branches to the remote.
