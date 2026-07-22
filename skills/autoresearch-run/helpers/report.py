@@ -338,66 +338,78 @@ def kpi_strip(data, overall_best):
 
 
 def attempt_table(data):
+    """Lineage-ordered: each chain's rows grouped together, descendants
+    indented under their ancestor; prior-cycle ancestors as grey rows.
+    One representation carries both the results and the parent structure."""
     direction = data["primary_metric"]["direction"]
     best = best_attempt(data)
     best_id = best["id"] if best else None
+    attempts = {a["id"]: a for a in data["attempts"]}
     guard_names = sorted({g for a in data["attempts"]
                           for g in (a.get("guards") or {})})
-    head = ("<tr><th>id</th><th>kind</th><th>parent</th><th>hypothesis</th>"
-            f"<th class=\"num\">{esc(data['primary_metric']['name'])}</th>"
-            + "".join(f'<th class="num">{esc(g)}</th>' for g in guard_names)
-            + "<th>status</th><th>causal note</th></tr>")
+    ncols = 6 + len(guard_names)
+
+    children = {}
+    batch_roots, prior_groups = [], {}
+    for a in data["attempts"]:
+        p = a["parent"]
+        if p is None:
+            batch_roots.append(a["id"])
+        elif p in attempts:
+            children.setdefault(p, []).append(a["id"])
+        else:
+            prior_groups.setdefault(p, []).append(a["id"])  # earlier-cycle parent
+
+    def subtree_min(aid):
+        return min([aid] + [subtree_min(k) for k in children.get(aid, [])])
+
+    # chains in rough chronological order: by the earliest attempt id in each
+    groups = ([("batch", rid, subtree_min(rid)) for rid in batch_roots]
+              + [("prior", pid, min(min(map(subtree_min, kids)), 10 ** 9))
+                 for pid, kids in prior_groups.items()])
+    groups.sort(key=lambda g: g[2])
+
     rows = []
-    for a in sorted(data["attempts"], key=lambda a: a["id"]):
-        cls = ' class="best"' if a["id"] == best_id else ""
+
+    def emit(aid, depth):
+        a = attempts[aid]
+        cls = ' class="best"' if aid == best_id else ""
+        indent = (f'<span style="padding-left:{depth * 16}px">└ </span>'
+                  if depth else "")
         guards = a.get("guards") or {}
         guard_cells = "".join(f'<td class="num">{fmt(guards.get(g))}</td>'
                               for g in guard_names)
-        score = (f'<td class="num">{fmt(a["primary"])}</td>'
-                 if a["primary"] is not None else '<td class="num">—</td>')
         rows.append(
-            f"<tr{cls}><td><a href=\"../../{esc(a['log_path'])}\">"
-            f"{a['id']:03d}</a></td>"
+            f"<tr{cls}><td class=\"idcell\">{indent}"
+            f"<a href=\"../../{esc(a['log_path'])}\">{aid:03d}</a></td>"
             f"<td>{kind_badge(a['kind'])}</td>"
-            f"<td class=\"num\">{'—' if a['parent'] is None else format(a['parent'], '03d')}</td>"
             f"<td class=\"hyp\">{esc(a['hypothesis'])}</td>"
-            f"{score}{guard_cells}"
+            f"<td class=\"num\">{fmt(a['primary'])}</td>{guard_cells}"
             f"<td>{status_chip(a['status'])}</td>"
             f"<td class=\"hyp\">{esc(a.get('causal_note') or '')}</td></tr>")
-    note = ("<p class=\"note\">Chronological order; best row shaded. "
+        for k in sorted(children.get(aid, [])):
+            emit(k, depth + 1)
+
+    for kind, rid, _ in groups:
+        if kind == "batch":
+            emit(rid, 0)
+        else:
+            rows.append(f'<tr class="prior"><td class="idcell">{rid:03d}</td>'
+                        f'<td colspan="{ncols - 1}">ancestor from an earlier '
+                        f'cycle — this batch builds on it below</td></tr>')
+            for k in sorted(prior_groups[rid]):
+                emit(k, 1)
+
+    head = ("<tr><th>id</th><th>kind</th><th>hypothesis</th>"
+            f"<th class=\"num\">{esc(data['primary_metric']['name'])}</th>"
+            + "".join(f'<th class="num">{esc(g)}</th>' for g in guard_names)
+            + "<th>status</th><th>causal note</th></tr>")
+    note = ("<p class=\"note\">Grouped by lineage: └ rows build on the attempt "
+            "above; grey rows are earlier-cycle ancestors. Best row shaded. "
             f"Direction: {'higher' if direction == 'max' else 'lower'} is better. "
             "Attempt ids link to the worktree LOG.md (may dangle if pruned).</p>")
     return (f'<table class="attempts"><thead>{head}</thead>'
             f'<tbody>{"".join(rows)}</tbody></table>{note}')
-
-
-def lineage_tree(data):
-    """This batch's parent chains as a nested list (clearer than a drawn tree)."""
-    attempts = {a["id"]: a for a in data["attempts"]}
-    children = {}
-    roots = []
-    for a in sorted(data["attempts"], key=lambda a: a["id"]):
-        p = a["parent"]
-        if p is not None and p in attempts:
-            children.setdefault(p, []).append(a["id"])
-        else:
-            roots.append((p, a["id"]))  # p is None (draft) or an earlier-cycle id
-
-    def node(aid):
-        a = attempts[aid]
-        kids = "".join(f"<li>{node(k)}</li>" for k in children.get(aid, []))
-        sub = f"<ul>{kids}</ul>" if kids else ""
-        return (f"{kind_badge(a['kind'])} <strong>{aid:03d}</strong> "
-                f"{fmt(a['primary'])} {status_chip(a['status'])}{sub}")
-
-    items = []
-    for parent, aid in roots:
-        prefix = ("" if parent is None
-                  else f'<span class="prior">attempt {parent:03d} (prior cycle)</span>'
-                       "<ul><li>")
-        suffix = "" if parent is None else "</li></ul>"
-        items.append(f"<li>{prefix}{node(aid)}{suffix}</li>")
-    return f'<ul class="tree">{"".join(items)}</ul>'
 
 
 def highlight_box(title, items, cls):
@@ -441,6 +453,7 @@ main { max-width: 960px; margin: 0 auto; padding: 24px 20px 48px; }
 h1 { font-size: 20px; margin: 0 0 2px; }
 h2 { font-size: 16px; margin: 28px 0 8px; border-bottom: 1px solid #e1e0d9;
   padding-bottom: 4px; }
+h3 { font-size: 14px; margin: 18px 0 4px; color: #52514e; }
 h4, h5, h6 { font-size: 14px; margin: 12px 0 4px; }
 a { color: #1c5cab; }
 .meta { color: #52514e; margin: 0 0 16px; }
@@ -463,7 +476,12 @@ td.num, th.num { text-align: right;
   font-variant-numeric: tabular-nums; white-space: nowrap; }
 td.hyp { max-width: 26em; }
 tr.best td { background: #eef4fc; }
+tr.prior td { color: #898781; background: #f5f5f2; font-size: 12px; }
+td.idcell { white-space: nowrap; }
 .scroll { overflow-x: auto; }
+.state p { color: #52514e; font-size: 13px; margin: 0 0 4px; }
+.yield { border-top: 1px solid #e1e0d9; margin-top: 12px; padding-top: 4px; }
+.yield p { margin: 8px 0 0; }
 .chip { display: inline-block; padding: 1px 8px; border-radius: 9px;
   font-size: 12px; white-space: nowrap; }
 .st-good { background: #e2f3e2; color: #0a5c0a; }
@@ -475,10 +493,6 @@ tr.best td { background: #eef4fc; }
 .kind-draft { background: #e5eefb; color: #1c5cab; }
 .kind-improve { background: #ddf2ea; color: #0b6647; }
 .kind-debug { background: #faf0d8; color: #7a5600; }
-.tree, .tree ul { list-style: none; margin: 0; padding-left: 0; }
-.tree ul { padding-left: 22px; border-left: 1px solid #e1e0d9; margin-left: 6px; }
-.tree li { margin: 4px 0; }
-.prior { color: #898781; }
 .box { border-radius: 6px; padding: 10px 14px; margin: 10px 0; }
 .box ul { margin: 6px 0 0; padding-left: 20px; }
 .box-blacklist { background: #fae3e3; border: 1px solid #e8b9b9; }
@@ -528,8 +542,8 @@ def render_cycle(data, all_cycles):
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
 <p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}
 · rounds remaining after this cycle: {data["rounds_remaining"]}</p>
+<div class="state">{md_to_html(refl["state"])}</div>
 {kpi_strip(data, overall_best)}
-<h2>Trajectory</h2>
 <div class="card">
 <figure><figcaption>best-so-far {esc(metric)} by cycle
 ({'higher' if direction == 'max' else 'lower'} is better; dashed line = bar)</figcaption>
@@ -538,16 +552,13 @@ def render_cycle(data, all_cycles):
                 title=f"best-so-far {metric} by cycle")}
 </figure>
 {guard_charts(all_cycles, data)}
+<div class="yield">{md_to_html(refl["yield"])}</div>
 </div>
-<h2>Attempts</h2>
+<h2>Attempts &amp; evidence</h2>
 <div class="scroll">{attempt_table(data)}</div>
-<h2>Lineage (this batch)</h2>
-<div class="card">{lineage_tree(data)}</div>
-<h2>Yield</h2>{md_to_html(refl["yield"])}
-<h2>Evidence carried forward</h2>{md_to_html(refl["evidence"])}{evidence_extra}
-<h2>Literature check</h2>{md_to_html(refl["literature"])}
-<h2>Decision</h2>{md_to_html(refl["decision"])}{decision_extra}
-<h2>State</h2>{md_to_html(refl["state"])}
+{md_to_html(refl["evidence"])}{evidence_extra}
+<h3>Literature check</h3>{md_to_html(refl["literature"])}
+<h2>Next</h2>{md_to_html(refl["decision"])}{decision_extra}
 <footer>{prev_link}<a href="index.html">index</a>{next_link}</footer>"""
     return page(f"{data['project']} — cycle {nn:02d}", body)
 

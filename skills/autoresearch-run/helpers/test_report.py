@@ -202,6 +202,25 @@ class RenderTests(unittest.TestCase):
         c3 = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
         self.assertIn("Shelved insight X", c3)
 
+    def test_lineage_ordered_table(self):
+        self.run_main(3)
+        html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
+        # every batch attempt appears exactly once as a linked id
+        for aid in (31, 32, 33):
+            self.assertEqual(html_out.count(f"attempt-{aid:03d}/LOG.md"), 1)
+        # prior-cycle parents (011, 021) appear as grey ancestor rows
+        self.assertEqual(html_out.count("ancestor from an earlier cycle"), 2)
+        # descendants are indented under their ancestor
+        self.assertIn("└", html_out)
+
+    def test_two_section_structure(self):
+        self.run_main(3)
+        html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
+        self.assertIn("Attempts &amp; evidence", html_out)
+        self.assertIn("<h2>Next</h2>", html_out)
+        for gone in ("<h2>Yield</h2>", "<h2>State</h2>", "<h2>Lineage"):
+            self.assertNotIn(gone, html_out)
+
     def test_malformed_json_exits_nonzero_with_named_field(self):
         bad = make_cycle(4)
         del bad["attempts"][0]["status"]
