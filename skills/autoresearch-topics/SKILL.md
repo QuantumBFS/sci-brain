@@ -1,6 +1,6 @@
 ---
 name: autoresearch-topics
-description: Use when choosing research topics within a domain that suit autoresearch and defining their score metrics — brainstorms candidates, scores each on machine-checkable success, cheap per-attempt evaluation, iteration headroom, and publishability, lets the user pick, then derives primary/guard metrics (with computation cost and gaming risks) for each chosen topic and writes everything to topics.md. Stage 1 of the autoresearch pipeline; invoked via the autoresearch dispatcher or directly with a domain.
+description: Use when choosing research topics within a domain that suit autoresearch and defining their score metrics — brainstorms candidates, scores each on machine-checkable success, cheap per-attempt evaluation, iteration headroom, and publishability, lets the user pick, derives primary/guard metrics (with computation cost and gaming risks), then red-teams and gets user confirmation of a strict acceptance gate per chosen topic, and writes everything to topics.md. Stage 1 of the autoresearch pipeline; invoked via the autoresearch dispatcher or directly with a domain.
 ---
 
 # Autoresearch Topics
@@ -44,12 +44,42 @@ controls there.
    (anti-gaming side condition, e.g. exactness on unseen instances, no
    hard-coded answers). The user approves the metric set per topic
    (`AskUserQuestion`; amendments welcome).
-6. **Write `topics.md`.** One `## <topic title>` section per chosen topic:
+6. **Define the acceptance gate** for each chosen topic — mandatory, never
+   skipped or deferred to a later stage. The **user must state** the
+   condition under which a result counts as *a solid research output that
+   meets the bar of publication*: primary metric, threshold, the instance
+   families it must hold on, and the baseline it must beat. A vague gate
+   ("significantly better", "state of the art-ish") is not acceptable —
+   every term must be checkable by the future validator.
+
+   Then **red-team the gate before accepting it**: list the concrete ways
+   an attempt could satisfy it while being wrong, trivial, or
+   unpublishable. Check at least: overfitting to visible dev instances;
+   lookup tables / hard-coded answers; a baseline too weak to be a
+   publishable comparison; a threshold at or below already-published
+   results (verify against the step-2 references); an instance family
+   narrow or easy enough that the claim doesn't generalize; the metric
+   diverging from the quantity the paper would actually claim; and the
+   topic's own gaming risks from step 5. For each hack, name the
+   strengthening that closes it (holdout family, stronger baseline, raised
+   threshold, added guard metric, wider instances).
+
+   If any hack survives, the gate is **not strict enough**: present the
+   surviving hacks with their strengthenings and ask the user to strengthen
+   the gate (`AskUserQuestion` — the options are the strengthenings, never
+   an "accept as is"). Iterate until no listed hack survives, then get the
+   user's **explicit confirmation** of the final gate (`AskUserQuestion`) —
+   the gate is never inferred, defaulted, or assumed.
+7. **Write `topics.md`.** One `## <topic title>` section per chosen topic:
    problem statement, why autoresearch fits (the four scores), key references
-   (title + arXiv ID/DOI), and a `### Metrics` block — one bullet per
+   (title + arXiv ID/DOI), a `### Metrics` block — one bullet per
    approved metric: `**<name>** (primary|guard): definition; computation +
-   cost; gaming risks`.
-7. **Advance state.** When every chosen topic has an approved metrics block,
-   set `stage: db` in `research/STATE.md` (create it from
+   cost; gaming risks` — and a `### Acceptance gate` block: the
+   user-confirmed condition verbatim, followed by one bullet per considered
+   hack: `**<hack>** — closed by <strengthening>`. These hacks become
+   topic-specific negative controls at the validator stage.
+8. **Advance state.** When every chosen topic has an approved metrics block
+   and a user-confirmed acceptance gate, set `stage: db` in
+   `research/STATE.md` (create it from
    `skills/autoresearch/references/state-schema.md` if the dispatcher has
    not already).

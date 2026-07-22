@@ -24,13 +24,13 @@ Pipeline: `autoresearch-topics` → `autoresearch-db`
    If any are missing, drop back to the earliest stage whose artifacts are
    missing and tell the user what was expected and not found.
 3. **Report and route.** Summarize in a few sentences: stage, gates passed,
-   attempts completed, authorized rounds remaining. Then invoke the stage
+   attempts completed, authorized attempts remaining. Then invoke the stage
    skill.
 
 | `stage` | required artifacts before entering | route to |
 |---|---|---|
 | topics | — | autoresearch-topics |
-| db | `topics.md` with ≥1 chosen topic, each with a `### Metrics` block | autoresearch-db |
+| db | `topics.md` with ≥1 chosen topic, each with a `### Metrics` block and a user-confirmed `### Acceptance gate` block | autoresearch-db |
 | validator | survey gate passed: `research/CATALOG.md`, `.knowledge/INDEX.md`, `research/INSIGHTS.md` with a user-selected section | autoresearch-validator |
 | run | validator gate passed: `research/validator/manifest.json` recording self-test results | autoresearch-run |
 | done | final report exists in `docs/discussion/` | report status only |

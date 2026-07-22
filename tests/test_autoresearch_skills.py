@@ -58,7 +58,7 @@ def test_dispatcher_verifies_gate_artifacts_before_routing():
 def test_state_schema_defines_all_fields():
     text = _ref("autoresearch", "state-schema.md")
     for field in ["stage:", "topic:", "batch_size:", "time_limit_seconds:",
-                  "authorized_rounds:", "next_attempt:", "next_cycle:",
+                  "authorized_attempts:", "next_attempt:", "next_cycle:",
                   "survey_gate:", "validator_gate:", "validator_env:",
                   "overrides:"]:
         assert field in text
@@ -217,10 +217,30 @@ def test_run_draws_attempts_from_selected_insights():
     assert "Selected" in text
 
 
-def test_run_soft_gate_on_authorized_rounds():
+def test_run_soft_gate_on_authorized_attempts():
     text = _read("autoresearch-run")
-    assert "authorized_rounds" in text
+    assert "authorized_attempts" in text
     assert "batch_size" in text
+    assert "How many attempts should I try next?" in text
+
+
+def test_run_confirms_first_batch_plan():
+    text = _read("autoresearch-run")
+    assert "**Confirm the plan.**" in text
+
+
+def test_run_proposals_not_limited_to_selected_insights():
+    text = _read("autoresearch-run")
+    assert "not a fence" in text
+    db = _read("autoresearch-db")
+    assert "not a cap" in db
+
+
+def test_validator_confirms_method_with_user():
+    text = _read("autoresearch-validator")
+    assert "validation method" in text
+    assert "time_limit_seconds" in text
+    assert "5 min" in text
 
 
 def test_run_writes_reflection_reports():
@@ -236,10 +256,11 @@ def test_attempt_protocol_defines_log_and_scoring():
     assert "never silently retried" in text
 
 
-def test_reflection_template_has_code_distance_shape():
+def test_reflection_template_has_review_lessons_next_shape():
     text = _ref("autoresearch-run", "reflection-template.md")
-    for section in ["Evidence carried forward", "Literature check",
-                    "Decision"]:
+    for section in ["## Review — what we did", "## Lessons we learnt",
+                    "### Evidence carried forward", "### Literature check",
+                    "## Next round"]:
         assert section in text
 
 
@@ -280,10 +301,10 @@ def test_attempt_protocol_records_kind_and_parent_lineage():
     assert "--precheck" in text
 
 
-def test_reflection_template_reports_yield():
+def test_reflection_template_reports_honest_yield():
     text = _ref("autoresearch-run", "reflection-template.md")
-    assert "## Yield" in text
     assert "denominators" in text
+    assert "root cause" in text.lower()
 
 
 # ---- registration ----

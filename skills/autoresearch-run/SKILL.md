@@ -1,6 +1,6 @@
 ---
 name: autoresearch-run
-description: Use when running the autoresearch loop for a project whose survey and validator gates have passed — executes batches of attempts (one git worktree + LOG.md each, scored only by the validator under a hard time limit), then reflects, reports, and re-plans; continues autonomously while authorized_rounds remain, otherwise stops for user review. Stage 4 of the autoresearch pipeline.
+description: Use when running the autoresearch loop for a project whose survey and validator gates have passed — executes batches of attempts (one git worktree + LOG.md each, scored only by the validator under a hard time limit), then reflects, reports, and re-plans; continues autonomously while authorized_attempts remain, otherwise stops for user review. Stage 4 of the autoresearch pipeline.
 ---
 
 # Autoresearch Run
@@ -8,7 +8,7 @@ description: Use when running the autoresearch loop for a project whose survey a
 The loop. Protocol per attempt: `references/attempt-protocol.md`. Report per
 cycle: `references/reflection-template.md`. Configuration from
 `research/STATE.md`: `batch_size` (default 10), `time_limit_seconds`,
-`authorized_rounds`, `next_attempt`, `next_cycle`.
+`authorized_attempts`, `next_attempt`, `next_cycle`.
 
 ## Entry check — refuse to start otherwise
 
@@ -31,8 +31,11 @@ gate is never worked around; a user-approved exception goes into
 ## Cycle
 
 1. **Plan the batch.** Generate a surplus of candidate hypotheses (~2×
-   `batch_size`), each drawing on `## Selected` entries in
-   `research/INSIGHTS.md`, then rank them with a quick rubric (expected
+   `batch_size`). `## Selected` entries in `research/INSIGHTS.md` are the
+   default grounding, not a fence — original ideas, cross-insight
+   combinations, and directions from fresh literature search are equally
+   welcome; each hypothesis names its source (insight / literature /
+   original) in the plan. Rank them with a quick rubric (expected
    information gain, cost, distinctness) and promote the top `batch_size`.
    Two filters before anything is implemented:
    - **Novelty check** — compare each candidate against the hypotheses in
@@ -49,8 +52,14 @@ gate is never worked around; a user-approved exception goes into
    and debugs see their *ancestral* chain (avoid undo-redo loops). Feed
    forward the failure artifacts (validator `errors[]`, stderr) of the
    previous batch — failures are data.
-2. **Execute** each attempt per `references/attempt-protocol.md`.
-3. **Reflect.** Write `docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md` per
+2. **Confirm the plan.** The first batch of any authorization — cycle 1
+   especially — executes only after the user confirms the plan: present
+   the promoted hypotheses (one line each, with source) and the batch
+   composition, apply any amendments, then start. Later cycles within the
+   same authorization run autonomously — their direction was confirmed at
+   the previous soft gate alongside the attempts budget.
+3. **Execute** each attempt per `references/attempt-protocol.md`.
+4. **Reflect.** Write `docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md` per
    `references/reflection-template.md`, then emit `cycle-NN.json`
    (`references/report-schema.md`) and render the HTML report with
    `helpers/report.py` (non-fatal on failure — the md is canonical);
@@ -58,14 +67,17 @@ gate is never worked around; a user-approved exception goes into
    selection overfits over long runs: if the holdout query budget in the
    validator manifest allows, adjudicate the cycle's top candidate on the
    holdout (aggregate result only) and record it.
-4. **Soft gate.** Decrement `authorized_rounds`:
-   - if > 0 remain: continue to the next cycle autonomously;
-   - if 0: stop, present the report and the proposed next-batch plan —
-     summarize in the terminal and point the user at
-     `docs/discussion/cycle-NN.html` and `index.html` — and
-     wait for the user to re-authorize (set a new `authorized_rounds`),
-     amend the plan, or stop. Insight promotions proposed in the report are
-     confirmed here.
+5. **Soft gate.** Subtract the cycle's attempts from `authorized_attempts`:
+   - if enough remain for another batch, continue autonomously (a remainder
+     smaller than `batch_size` runs as a smaller final batch);
+   - if exhausted: stop, present the report and the proposed next-batch
+     plan — summarize in the terminal and point the user at
+     `docs/discussion/cycle-NN.html` and `index.html` — then ask one plain
+     question: **"How many attempts should I try next?"** (a number;
+     0 = stop; amendments to the plan welcome as free text). Attempts are
+     the unit the user authorizes; never ask them to reason in rounds or
+     cycles — those are internal bookkeeping. Insight promotions proposed
+     in the report are confirmed here.
 
 ## Termination
 

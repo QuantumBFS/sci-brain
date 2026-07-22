@@ -12,9 +12,25 @@ details: `references/validator-contract.md`; strictness self-test:
 
 ## Procedure
 
-1. **Define the publishable bar** with the user: a goal statement naming the
-   primary metric (from `topics.md`), the threshold, and the instance
-   families it must hold on. Write it to `research/validator/GOAL.md`.
+1. **Formalize the publishable bar** from the topic's `### Acceptance gate`
+   in `topics.md` (defined and red-teamed with the user at the topics
+   stage): a goal statement naming the primary metric, the threshold, the
+   instance families it must hold on, and the baseline. Re-confirm it with
+   the user before writing `research/validator/GOAL.md` — any revision here
+   must itself be red-teamed and explicitly confirmed, never silently
+   weakened. If `topics.md` predates the acceptance-gate requirement and
+   has no such block, run that step now (state the gate, list the hacks,
+   strengthen until none survive, confirm) before proceeding.
+
+   In the same exchange, present the **validation method** for user
+   confirmation before anything is built: the dev/holdout instance
+   families and their provenance, the holdout query budget, the
+   per-attempt wall-clock budget (`time_limit_seconds` in STATE.md —
+   default 300 s = 5 min; the user may adjust it here), the environment
+   (docker or fallback, with reason), and the planned negative controls
+   (the standard four plus the acceptance-gate hacks).
+   Steps 2–5 build what the user confirmed; a later deviation goes back
+   to the user, never in silently.
 2. **Split instances.** Development instances (visible to attempts) vs a
    **sealed holdout** under `research/benchmark/private/`:
    - add `research/benchmark/private/` to `.gitignore`;
@@ -47,7 +63,8 @@ details: `references/validator-contract.md`; strictness self-test:
 5. **Strictness self-test.** Build the four negative controls
    (`cheater`, `wrong-answer`, `timeout`, `env-escape`) per
    `references/negative-controls.md`, plus one per topic-specific gaming
-   risk. Run them; all must be rejected with informative errors. Record
+   risk — including every hack listed in the topic's `### Acceptance gate`
+   block. Run them; all must be rejected with informative errors. Record
    results under `"self_test"` in `research/validator/manifest.json`.
 
 ## Validator gate (owned by this skill)
@@ -55,7 +72,9 @@ details: `references/validator-contract.md`; strictness self-test:
 Flip `validator_gate: passed <date>` and set `stage: run` in
 `research/STATE.md` only when all of:
 
-- `GOAL.md` states the bar in terms of the primary metric;
+- `GOAL.md` states the bar in terms of the primary metric, matching the
+  user-confirmed acceptance gate in `topics.md` (or an explicitly
+  re-confirmed revision of it);
 - the holdout is sealed (gitignored, labels unopened) with provenance in the
   manifest;
 - `validate` runs end-to-end on a trivial baseline candidate against dev

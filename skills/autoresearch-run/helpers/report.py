@@ -22,7 +22,7 @@ SCHEMA_VERSION = 1
 
 REQUIRED_TOP = [
     "schema_version", "cycle", "date_utc", "project", "attempts_range",
-    "rounds_remaining", "primary_metric", "bar", "best_this_cycle",
+    "attempts_remaining", "primary_metric", "bar", "best_this_cycle",
     "best_prior", "holdout", "attempts", "reflection", "lessons",
     "blacklist_new", "insight_promotions",
 ]
@@ -586,7 +586,7 @@ def render_cycle(data, all_cycles):
 
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
 <p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}
-· rounds remaining after this cycle: {data["rounds_remaining"]}</p>
+· attempts remaining after this cycle: {data["attempts_remaining"]}</p>
 {kpi_strip(data, overall_best)}
 <h2>Review — what we did</h2>
 <div class="card">

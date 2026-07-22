@@ -54,7 +54,7 @@ a malformed JSON must never produce a silently incomplete report.
   "date_utc": "2026-07-22T14:03:00Z",
   "project": "code-distance",
   "attempts_range": [21, 35],
-  "rounds_remaining": 2,
+  "attempts_remaining": 20,
   "primary_metric": {"name": "dev score", "direction": "max"},
   "guard_metrics": [{"name": "runtime_s", "direction": "min", "limit": 600}],
   "bar": {"value": 0.90, "source": "GOAL.md"},
@@ -150,7 +150,7 @@ change mattered" is diagnosis, not fact.) Each fact appears exactly once.
 Top to bottom:
 
 1. **Summary top** (no heading): header — project, "cycle NN", attempts
-   AAA–BBB, date, rounds remaining; KPI strip — four tiles: best this
+   AAA–BBB, date, attempts remaining; KPI strip — four tiles: best this
    cycle (▲/▼ delta vs prior best), bar value and remaining gap, yield
    "K/N improved", holdout status.
 2. **Review — what we did**: trajectory card — inline SVG line chart of

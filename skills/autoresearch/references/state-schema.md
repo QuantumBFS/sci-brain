@@ -12,7 +12,9 @@ keep them):
     - topic: (unset)           # slug of the chosen topic once stage >= db
     - batch_size: 10           # attempts per cycle
     - time_limit_seconds: 300  # hard wall-clock limit per scored run
-    - authorized_rounds: 0     # cycles the loop may run without user review
+                               # (default 5 min; user-confirmed, and
+                               # adjustable, at the validator stage)
+    - authorized_attempts: 0   # attempts the loop may run without user review
     - next_attempt: 1          # next .worktrees/attempt-NNN number
     - next_cycle: 1            # next reflection cycle number
     - gates:

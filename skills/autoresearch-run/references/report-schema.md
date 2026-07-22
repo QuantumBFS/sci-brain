@@ -18,7 +18,7 @@ failure never blocks the loop (the md is the record).
   "date_utc": "2026-07-22T14:03:00Z",
   "project": "code-distance",
   "attempts_range": [21, 35],
-  "rounds_remaining": 2,
+  "attempts_remaining": 20,
   "primary_metric": {"name": "dev score", "direction": "max"},
   "guard_metrics": [{"name": "runtime_s", "direction": "min", "limit": 600}],
   "bar": {"value": 0.90, "source": "GOAL.md"},

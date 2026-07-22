@@ -28,7 +28,9 @@ holds the insights needed to *propose new ideas*".
 4. **User selects.** Present the distilled areas via `AskUserQuestion`
    (multi-select): which are needed for idea generation on this topic?
    Selected entries go under `## Selected`, the rest under `## Shelved`.
-   The run loop draws only on Selected.
+   Selected is the run loop's default grounding, not a cap — run-stage
+   hypotheses may go beyond the list, and Shelved entries can be promoted
+   at run-stage gates.
 5. **Domain database.** Build the structured dataset the topic needs (e.g.
    QEC codes as JSON) under `research/database/`, with a `README.md`
    documenting schema and provenance of every record.
