@@ -446,7 +446,7 @@ def lessons_html(lessons):
 <dt>implication</dt><dd>{md_inline(l["implication"])}</dd>
 </dl>
 </div>""")
-    return f'<h3>Lessons we learnt</h3><div class="lessons">{"".join(blocks)}</div>'
+    return f'<div class="lessons">{"".join(blocks)}</div>'
 
 
 def highlight_box(title, items, cls):
@@ -600,7 +600,7 @@ def render_cycle(data, all_cycles):
 </div>
 <div class="scroll">{attempt_table(data)}</div>
 {md_to_html(refl["review"])}
-<h2>Think — what happened and why</h2>
+<h2>Lessons we learnt</h2>
 {lessons_html(data["lessons"])}
 <h3>Evidence carried forward</h3>
 {md_to_html(refl["evidence"])}{evidence_extra}

@@ -164,8 +164,8 @@ Top to bottom:
    guard(s), status chip, causal note; best row highlighted. The section
    closes with `reflection.review` prose (honest denominators, per-attempt
    causal claims, budget state).
-3. **Think — what happened and why**: **Lessons we learnt** — the core
-   of the layer
+3. **Lessons we learnt** (titled thus per user preference; this is the
+   think/diagnose layer — what happened and why) — the core of the page
    (added 2026-07-22 after feedback that Think was too shallow: nothing
    forced root-cause reasoning). A required `lessons` array (≥1 entry;
    validation rejects missing/blank fields) renders as structured blocks:

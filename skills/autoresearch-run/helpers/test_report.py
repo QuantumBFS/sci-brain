@@ -240,19 +240,18 @@ class RenderTests(unittest.TestCase):
         self.assertTrue(any('"lessons[0].confidence"' in e
                             for e in report.validate_cycle(data)))
 
-    def test_lessons_rendered_in_think(self):
+    def test_lessons_rendered(self):
         self.run_main(3)
         html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
-        self.assertIn("Lessons we learnt", html_out)
         self.assertIn("instance size", html_out)  # root cause text
-        think = html_out.index("Think — what happened and why")
-        self.assertGreater(html_out.index("Lessons we learnt"), think)
+        self.assertGreater(html_out.index('class="lessons"'),
+                           html_out.index("<h2>Lessons we learnt</h2>"))
 
     def test_review_think_next_structure(self):
         self.run_main(3)
         html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
         idx = [html_out.index("<h2>Review — what we did</h2>"),
-               html_out.index("<h2>Think — what happened and why</h2>"),
+               html_out.index("<h2>Lessons we learnt</h2>"),
                html_out.index("<h2>Next round</h2>")]
         self.assertEqual(idx, sorted(idx))
         for gone in ("<h2>Yield</h2>", "<h2>State</h2>", "<h2>Lineage"):

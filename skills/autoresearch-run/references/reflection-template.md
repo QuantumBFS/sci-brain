@@ -15,10 +15,9 @@ action. Required structure:
     attempts used / remaining this authorization, distance to the GOAL.md
     bar, any protocol overrides recorded this cycle.
 
-    ## Think — what happened and why
-
-    ### Lessons we learnt
-    The core of the reflection. For the top improvement and for every
+    ## Lessons we learnt
+    The core of the reflection — what happened and why, down to root
+    cause. For the top improvement and for every
     failed or flat branch, one lesson: a why-chain down to an actionable
     root cause —
     - **Observation** — what happened (score moved / didn't / crashed).
