@@ -23,11 +23,13 @@ SCHEMA_VERSION = 1
 REQUIRED_TOP = [
     "schema_version", "cycle", "date_utc", "project", "attempts_range",
     "rounds_remaining", "primary_metric", "bar", "best_this_cycle",
-    "best_prior", "holdout", "attempts", "reflection", "blacklist_new",
-    "insight_promotions",
+    "best_prior", "holdout", "attempts", "reflection", "lessons",
+    "blacklist_new", "insight_promotions",
 ]
 REQUIRED_ATTEMPT = ["id", "kind", "parent", "hypothesis", "primary", "status",
                     "log_path"]
+REQUIRED_LESSON = ["observation", "root_cause", "evidence", "implication"]
+CONFIDENCES = ("confirmed", "suspected")
 REFLECTION_SECTIONS = ["yield", "evidence", "literature", "decision", "state"]
 KINDS = ("draft", "improve", "debug")
 STATUSES = ("improved", "no-change", "failed", "timeout")
@@ -89,6 +91,23 @@ def validate_cycle(data):
                 errors.append(f'"attempts[{i}].status" must be one of {STATUSES}')
     elif "attempts" in data:
         errors.append('"attempts" must be an array')
+    lessons = data.get("lessons")
+    if isinstance(lessons, list):
+        if not lessons:
+            errors.append('"lessons" must contain at least one entry — '
+                          'every cycle has something to diagnose')
+        for i, l in enumerate(lessons):
+            if not isinstance(l, dict):
+                errors.append(f'"lessons[{i}]" is not an object')
+                continue
+            for f in REQUIRED_LESSON:
+                if not (isinstance(l.get(f), str) and l[f].strip()):
+                    errors.append(f'missing required field "lessons[{i}].{f}"')
+            if "confidence" in l and l["confidence"] not in CONFIDENCES:
+                errors.append(f'"lessons[{i}].confidence" must be one of '
+                              f'{CONFIDENCES}')
+    elif "lessons" in data:
+        errors.append('"lessons" must be an array')
     return errors
 
 
@@ -412,6 +431,24 @@ def attempt_table(data):
             f'<tbody>{"".join(rows)}</tbody></table>{note}')
 
 
+def lessons_html(lessons):
+    """Each lesson: observation headline, then the why-chain rows."""
+    blocks = []
+    for l in lessons:
+        conf = l.get("confidence")
+        tag = (f'<span class="conf conf-{esc(conf)}">{esc(conf)}</span>'
+               if conf else "")
+        blocks.append(f"""<div class="lesson">
+<p class="lesson-obs">{md_inline(l["observation"])} {tag}</p>
+<dl>
+<dt>root cause</dt><dd>{md_inline(l["root_cause"])}</dd>
+<dt>evidence</dt><dd>{md_inline(l["evidence"])}</dd>
+<dt>implication</dt><dd>{md_inline(l["implication"])}</dd>
+</dl>
+</div>""")
+    return f'<h3>Lessons we learnt</h3><div class="lessons">{"".join(blocks)}</div>'
+
+
 def highlight_box(title, items, cls):
     lis = "".join(f"<li>{md_inline(i)}</li>" for i in items)
     return f'<div class="box {cls}"><strong>{esc(title)}</strong><ul>{lis}</ul></div>'
@@ -491,6 +528,17 @@ td.idcell { white-space: nowrap; }
 .kind-draft { background: #e5eefb; color: #1c5cab; }
 .kind-improve { background: #ddf2ea; color: #0b6647; }
 .kind-debug { background: #faf0d8; color: #7a5600; }
+.lesson { border-left: 3px solid #c3c2b7; background: #fcfcfb;
+  padding: 8px 14px; margin: 10px 0; }
+.lesson-obs { margin: 0 0 6px; font-weight: 600; }
+.lesson dl { display: grid; grid-template-columns: 7em 1fr; gap: 2px 12px;
+  margin: 0; }
+.lesson dt { color: #898781; font-size: 12px; line-height: 1.7; }
+.lesson dd { margin: 0; }
+.conf { font-size: 11px; padding: 1px 7px; border-radius: 9px;
+  vertical-align: 1px; }
+.conf-confirmed { background: #e2f3e2; color: #0a5c0a; }
+.conf-suspected { background: #f0efec; color: #52514e; }
 .box { border-radius: 6px; padding: 10px 14px; margin: 10px 0; }
 .box ul { margin: 6px 0 0; padding-left: 20px; }
 .box-blacklist { background: #fae3e3; border: 1px solid #e8b9b9; }
@@ -555,6 +603,7 @@ def render_cycle(data, all_cycles):
 <div class="scroll">{attempt_table(data)}</div>
 <h2>Think — what happened and why</h2>
 {md_to_html(refl["yield"])}
+{lessons_html(data["lessons"])}
 {md_to_html(refl["evidence"])}{evidence_extra}
 <h3>Literature check</h3>{md_to_html(refl["literature"])}
 <h2>Next round</h2>{md_to_html(refl["decision"])}{decision_extra}

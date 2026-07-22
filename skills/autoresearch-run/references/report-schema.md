@@ -42,6 +42,17 @@ failure never blocks the loop (the md is the record).
     "yield": "…", "evidence": "…", "literature": "…",
     "decision": "…", "state": "…"
   },
+  "lessons": [
+    {
+      "observation": "improve 031 gained +0.05; siblings 032/033 flat",
+      "root_cause": "the bond-dimension bottleneck, not the optimizer —
+        only the change that raised chi moved any instance",
+      "evidence": "per-instance results: gains concentrated on the 4
+        largest instances; LOG.md of 032 shows identical scores to parent",
+      "implication": "optimizer tweaks blacklisted; next batch varies chi",
+      "confidence": "confirmed"
+    }
+  ],
   "blacklist_new": ["approach ruled out this cycle, with reason"],
   "insight_promotions": ["Shelved insight proposed for promotion"]
 }
@@ -67,5 +78,12 @@ Field notes:
 - `best_this_cycle` / `best_prior` may be `null` (all attempts failed /
   first cycle). `holdout.result` is a short aggregate string when
   `holdout.spent` is true, else `null`.
+- `lessons` (required, at least one entry) is the structured form of the
+  md's "Lessons we learnt" section — the core of the Think layer. Each
+  entry: `observation` (what happened), `root_cause` (the mechanism — a
+  score is a result, not a cause; name something actionable), `evidence`
+  (validator errors, per-instance results, LOG.md), `implication` (what
+  it changes: blacklist entry, revised assumption, debug target),
+  optional `confidence` ∈ `confirmed | suspected`.
 - `blacklist_new` and `insight_promotions` duplicate what the prose already
   says so the template can highlight them; empty arrays are fine.

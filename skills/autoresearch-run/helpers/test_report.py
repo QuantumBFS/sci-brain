@@ -53,6 +53,15 @@ def make_cycle(n, direction="max", attempts=None, best=0.5, prior=None,
             "decision": "Try widening the ansatz. Abandon if two more cycles flatline.",
             "state": "Attempts 15/30 used.",
         },
+        "lessons": [{
+            "observation": f"cycle {n} best stayed at {best}",
+            "root_cause": "the shared bottleneck is instance size, which "
+                          "none of this batch's changes touched",
+            "evidence": "per-instance results: no attempt moved the two "
+                        "largest instances",
+            "implication": "next batch must target the large-instance path",
+            "confidence": "suspected",
+        }],
         "blacklist_new": blacklist if blacklist is not None else [],
         "insight_promotions": [],
     }
@@ -212,6 +221,32 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(html_out.count("ancestor from an earlier cycle"), 2)
         # descendants are indented under their ancestor
         self.assertIn("└", html_out)
+
+    def test_lessons_validation(self):
+        data = make_cycle(1)
+        data["lessons"] = []
+        self.assertTrue(any('"lessons"' in e
+                            for e in report.validate_cycle(data)))
+        data = make_cycle(1)
+        del data["lessons"][0]["root_cause"]
+        errors = report.validate_cycle(data)
+        self.assertTrue(any('"lessons[0].root_cause"' in e for e in errors))
+        data = make_cycle(1)
+        data["lessons"][0]["root_cause"] = "   "  # blank is as bad as missing
+        self.assertTrue(any('"lessons[0].root_cause"' in e
+                            for e in report.validate_cycle(data)))
+        data = make_cycle(1)
+        data["lessons"][0]["confidence"] = "certain"
+        self.assertTrue(any('"lessons[0].confidence"' in e
+                            for e in report.validate_cycle(data)))
+
+    def test_lessons_rendered_in_think(self):
+        self.run_main(3)
+        html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
+        self.assertIn("Lessons we learnt", html_out)
+        self.assertIn("instance size", html_out)  # root cause text
+        think = html_out.index("Think — what happened and why")
+        self.assertGreater(html_out.index("Lessons we learnt"), think)
 
     def test_review_think_next_structure(self):
         self.run_main(3)

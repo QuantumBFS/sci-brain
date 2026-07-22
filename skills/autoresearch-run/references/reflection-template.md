@@ -13,6 +13,24 @@ logs. Required sections:
     Rank which single change mattered most — that ranking targets the next
     batch's improvements.
 
+    ## Lessons we learnt
+    The core of the reflection. For the top improvement and for every
+    failed or flat branch, one lesson: a why-chain down to an actionable
+    root cause —
+    - **Observation** — what happened (score moved / didn't / crashed).
+    - **Root cause** — the mechanism. A score is a *result*, not a cause;
+      "it performed worse" or "the idea didn't work" is a restated
+      observation. Keep asking why until the answer names something you
+      could act on or test (a wrong assumption in the hypothesis, a
+      bottleneck the change didn't touch, a bug class, an insight that
+      doesn't transfer to this regime).
+    - **Evidence** — what supports that cause: validator `errors[]`,
+      per-instance results, LOG.md observations. Mark the cause
+      *confirmed* (evidence pins it) or *suspected* (best explanation;
+      say what would confirm it).
+    - **Implication** — what this changes for the search: blacklist
+      entry, revised assumption, debug target, or promoted direction.
+
     ## Evidence carried forward
     What the batch established, with numbers from validator reports and
     LOG.md files. Failures are evidence: say what each rules out — keep a

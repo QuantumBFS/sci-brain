@@ -81,6 +81,15 @@ a malformed JSON must never produce a silently incomplete report.
     "decision": "markdown string",
     "state": "markdown string"
   },
+  "lessons": [
+    {
+      "observation": "what happened",
+      "root_cause": "the mechanism — must name something actionable",
+      "evidence": "validator errors / per-instance results / LOG.md",
+      "implication": "what it changes for the search",
+      "confidence": "confirmed | suspected (optional)"
+    }
+  ],
   "blacklist_new": ["approach ruled out this cycle, with reason"],
   "insight_promotions": ["Shelved insight proposed for promotion"]
 }
@@ -155,9 +164,16 @@ Top to bottom:
    Columns: id (links to `log_path`), kind badge, hypothesis, primary,
    guard(s), status chip, causal note; best row highlighted.
 3. **Think — what happened and why**: `reflection.yield` (which change
-   mattered, ranked), `reflection.evidence` (root causes, what's ruled
-   out; `blacklist_new` highlighted), Literature check as an h3
-   subsection.
+   mattered, ranked), then **Lessons we learnt** — the core of the layer
+   (added 2026-07-22 after feedback that Think was too shallow: nothing
+   forced root-cause reasoning). A required `lessons` array (≥1 entry;
+   validation rejects missing/blank fields) renders as structured blocks:
+   observation headline + confirmed/suspected tag, then root cause /
+   evidence / implication rows. The md reflection template gains a
+   matching "Lessons we learnt" section with the why-chain rule: a score
+   is a result, not a cause — keep asking why until the answer names
+   something actionable. Then `reflection.evidence` (`blacklist_new`
+   highlighted) and Literature check as an h3 subsection.
 4. **Next round**: `reflection.decision` (next-batch hypothesis,
    abandonment condition) with `insight_promotions` in an "awaiting user
    confirmation" box.
