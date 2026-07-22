@@ -2,18 +2,22 @@
 
 One report per cycle: `docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md`
 (timestamp UTC, NN from `next_cycle`). Modeled on the code-distance ideas
-logs. Required sections:
+logs. Three sections — review the facts, diagnose the causes, plan the
+action. Required structure:
 
     # Cycle NN reflection — attempts AAA–BBB
 
-    ## Yield
-    Honest denominators, always: "K of N attempts improved the primary
-    metric; best <value> vs prior best <value>." Per attempt, one line:
-    kind (draft/improve/debug), parent, metric, and a one-line causal claim.
-    Rank which single change mattered most — that ranking targets the next
-    batch's improvements.
+    ## Review — what we did
+    Facts only, no interpretation. Honest denominators, always: "K of N
+    attempts improved the primary metric; best <value> vs prior best
+    <value>." Per attempt, one line: kind (draft/improve/debug), parent,
+    metric, and a one-line causal claim. Close with the budget state:
+    attempts used / remaining this authorization, distance to the GOAL.md
+    bar, any protocol overrides recorded this cycle.
 
-    ## Lessons we learnt
+    ## Think — what happened and why
+
+    ### Lessons we learnt
     The core of the reflection. For the top improvement and for every
     failed or flat branch, one lesson: a why-chain down to an actionable
     root cause —
@@ -30,8 +34,10 @@ logs. Required sections:
       say what would confirm it).
     - **Implication** — what this changes for the search: blacklist
       entry, revised assumption, debug target, or promoted direction.
+    Rank which single change mattered most — that ranking targets the
+    next batch's improvements.
 
-    ## Evidence carried forward
+    ### Evidence carried forward
     What the batch established, with numbers from validator reports and
     LOG.md files. Failures are evidence: say what each rules out — keep a
     running blacklist of dead approaches with reasons, so no later batch
@@ -39,20 +45,16 @@ logs. Required sections:
     improve while holdout performance does not; note whether a budgeted
     holdout adjudication was spent this cycle and what it said.
 
-    ## Literature check
-    Re-check the moves against `.knowledge/` and, when needed, fresh search:
-    has someone done this; is the emerging claim still novel; do any Shelved
-    insights now look relevant?
+    ### Literature check
+    Re-check the moves against `.knowledge/` and, when needed, fresh
+    search: has someone done this; is the emerging claim still novel; do
+    any Shelved insights now look relevant?
 
-    ## Decision
+    ## Next round
     The next batch's research hypothesis (falsifiable, one paragraph), the
     planned attempts sketched in one line each, and what would make this
-    direction abandoned. If proposing to promote Shelved insights or distill
-    new ones, list them here for user confirmation at the gate.
-
-    ## State
-    Attempts used / remaining this authorization; bar status (distance to
-    GOAL.md threshold); any protocol overrides recorded this cycle.
+    direction abandoned. If proposing to promote Shelved insights or
+    distill new ones, list them here for user confirmation at the gate.
 
 ## HTML report (after the markdown)
 

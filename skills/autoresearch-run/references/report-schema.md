@@ -39,8 +39,7 @@ failure never blocks the loop (the md is the record).
     }
   ],
   "reflection": {
-    "yield": "…", "evidence": "…", "literature": "…",
-    "decision": "…", "state": "…"
+    "review": "…", "evidence": "…", "literature": "…", "next": "…"
   },
   "lessons": [
     {
@@ -72,9 +71,12 @@ Field notes:
   drawn as a threshold line; per-cycle guard charts plot the guard value of
   each cycle's best attempt. `guards` / `causal_note` on an attempt are
   optional (default `{}` / empty).
-- `reflection.*` are the five sections of `cycle-NN.md`, copied verbatim
+- `reflection.*` mirror the md template's prose sections, copied verbatim
   (minimal markdown is rendered: headings, lists, bold/italic/code/links;
-  raw HTML is escaped).
+  raw HTML is escaped): `review` = "Review — what we did" (facts + budget
+  state), `evidence` = "Evidence carried forward", `literature` =
+  "Literature check", `next` = "Next round". The "Lessons we learnt"
+  subsection is carried structured in `lessons` only, never as prose.
 - `best_this_cycle` / `best_prior` may be `null` (all attempts failed /
   first cycle). `holdout.result` is a short aggregate string when
   `holdout.spent` is true, else `null`.

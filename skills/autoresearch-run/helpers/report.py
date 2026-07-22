@@ -30,7 +30,7 @@ REQUIRED_ATTEMPT = ["id", "kind", "parent", "hypothesis", "primary", "status",
                     "log_path"]
 REQUIRED_LESSON = ["observation", "root_cause", "evidence", "implication"]
 CONFIDENCES = ("confirmed", "suspected")
-REFLECTION_SECTIONS = ["yield", "evidence", "literature", "decision", "state"]
+REFLECTION_SECTIONS = ["review", "evidence", "literature", "next"]
 KINDS = ("draft", "improve", "debug")
 STATUSES = ("improved", "no-change", "failed", "timeout")
 DIRECTIONS = ("min", "max")
@@ -516,7 +516,6 @@ tr.best td { background: #eef4fc; }
 tr.prior td { color: #898781; background: #f5f5f2; font-size: 12px; }
 td.idcell { white-space: nowrap; }
 .scroll { overflow-x: auto; }
-.state p { color: #52514e; font-size: 13px; margin: 0 0 4px; }
 .chip { display: inline-block; padding: 1px 8px; border-radius: 9px;
   font-size: 12px; white-space: nowrap; }
 .st-good { background: #e2f3e2; color: #0a5c0a; }
@@ -588,7 +587,6 @@ def render_cycle(data, all_cycles):
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
 <p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}
 · rounds remaining after this cycle: {data["rounds_remaining"]}</p>
-<div class="state">{md_to_html(refl["state"])}</div>
 {kpi_strip(data, overall_best)}
 <h2>Review — what we did</h2>
 <div class="card">
@@ -601,12 +599,13 @@ def render_cycle(data, all_cycles):
 {guard_charts(all_cycles, data)}
 </div>
 <div class="scroll">{attempt_table(data)}</div>
+{md_to_html(refl["review"])}
 <h2>Think — what happened and why</h2>
-{md_to_html(refl["yield"])}
 {lessons_html(data["lessons"])}
+<h3>Evidence carried forward</h3>
 {md_to_html(refl["evidence"])}{evidence_extra}
 <h3>Literature check</h3>{md_to_html(refl["literature"])}
-<h2>Next round</h2>{md_to_html(refl["decision"])}{decision_extra}
+<h2>Next round</h2>{md_to_html(refl["next"])}{decision_extra}
 <footer>{prev_link}<a href="index.html">index</a>{next_link}</footer>"""
     return page(f"{data['project']} — cycle {nn:02d}", body)
 
@@ -634,7 +633,7 @@ def render_index(all_cycles):
             f'<td class="num">{k}/{len(c["attempts"])}</td>'
             f'<td class="num">{fmt(c["best_this_cycle"])}</td>'
             f'<td>{"spent" if c["holdout"]["spent"] else "—"}</td>'
-            f'<td class="hyp">{esc(first_sentence(c["reflection"]["decision"]))}</td></tr>')
+            f'<td class="hyp">{esc(first_sentence(c["reflection"]["next"]))}</td></tr>')
 
     body = f"""<h1>{esc(latest["project"])} — autoresearch cycles</h1>
 <p class="meta">{len(cycles)} cycles · {total_attempts} attempts ·
@@ -650,7 +649,7 @@ def render_index(all_cycles):
 <div class="scroll">
 <table><thead><tr><th>cycle</th><th>date</th><th class="num">attempts</th>
 <th class="num">yield</th><th class="num">best</th><th>holdout</th>
-<th>decision</th></tr></thead><tbody>{"".join(rows)}</tbody></table>
+<th>next</th></tr></thead><tbody>{"".join(rows)}</tbody></table>
 </div>"""
     return page(f"{latest['project']} — autoresearch cycles", body)
 

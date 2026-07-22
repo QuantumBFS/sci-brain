@@ -47,11 +47,11 @@ def make_cycle(n, direction="max", attempts=None, best=0.5, prior=None,
                     "result": "dev 0.84 / holdout 0.81" if holdout_spent else None},
         "attempts": attempts,
         "reflection": {
-            "yield": "3 of 5 attempts **improved** the primary metric.",
+            "review": "3 of 5 attempts **improved** the primary metric. "
+                      "Attempts 15/30 used.",
             "evidence": "Approach `foo` is ruled out.\n\n- bullet one\n- bullet two",
             "literature": "Checked `.knowledge/`; claim still novel.",
-            "decision": "Try widening the ansatz. Abandon if two more cycles flatline.",
-            "state": "Attempts 15/30 used.",
+            "next": "Try widening the ansatz. Abandon if two more cycles flatline.",
         },
         "lessons": [{
             "observation": f"cycle {n} best stayed at {best}",
@@ -111,9 +111,9 @@ class ValidateTests(unittest.TestCase):
 
     def test_missing_reflection_section_is_named(self):
         data = make_cycle(1)
-        del data["reflection"]["decision"]
+        del data["reflection"]["next"]
         errors = report.validate_cycle(data)
-        self.assertTrue(any('"reflection.decision"' in e for e in errors))
+        self.assertTrue(any('"reflection.next"' in e for e in errors))
 
     def test_bad_enums_rejected(self):
         data = make_cycle(1)

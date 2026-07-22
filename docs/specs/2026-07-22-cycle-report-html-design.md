@@ -75,11 +75,10 @@ a malformed JSON must never produce a silently incomplete report.
     }
   ],
   "reflection": {
-    "yield": "markdown string",
+    "review": "markdown string — facts + budget state",
     "evidence": "markdown string",
     "literature": "markdown string",
-    "decision": "markdown string",
-    "state": "markdown string"
+    "next": "markdown string"
   },
   "lessons": [
     {
@@ -151,9 +150,9 @@ change mattered" is diagnosis, not fact.) Each fact appears exactly once.
 Top to bottom:
 
 1. **Summary top** (no heading): header — project, "cycle NN", attempts
-   AAA–BBB, date, rounds remaining; `reflection.state` as a muted line;
-   KPI strip — four tiles: best this cycle (▲/▼ delta vs prior best),
-   bar value and remaining gap, yield "K/N improved", holdout status.
+   AAA–BBB, date, rounds remaining; KPI strip — four tiles: best this
+   cycle (▲/▼ delta vs prior best), bar value and remaining gap, yield
+   "K/N improved", holdout status.
 2. **Review — what we did**: trajectory card — inline SVG line chart of
    best-so-far primary metric vs cycle (from all `cycle-*.json`), GOAL
    bar as labeled threshold, one small *separate* chart per guard metric
@@ -162,18 +161,25 @@ Top to bottom:
    descendants indented (`└`) under their ancestor, earlier-cycle
    ancestors as grey label rows, chains ordered by earliest attempt id.
    Columns: id (links to `log_path`), kind badge, hypothesis, primary,
-   guard(s), status chip, causal note; best row highlighted.
-3. **Think — what happened and why**: `reflection.yield` (which change
-   mattered, ranked), then **Lessons we learnt** — the core of the layer
+   guard(s), status chip, causal note; best row highlighted. The section
+   closes with `reflection.review` prose (honest denominators, per-attempt
+   causal claims, budget state).
+3. **Think — what happened and why**: **Lessons we learnt** — the core
+   of the layer
    (added 2026-07-22 after feedback that Think was too shallow: nothing
    forced root-cause reasoning). A required `lessons` array (≥1 entry;
    validation rejects missing/blank fields) renders as structured blocks:
    observation headline + confirmed/suspected tag, then root cause /
-   evidence / implication rows. The md reflection template gains a
-   matching "Lessons we learnt" section with the why-chain rule: a score
-   is a result, not a cause — keep asking why until the answer names
-   something actionable. Then `reflection.evidence` (`blacklist_new`
-   highlighted) and Literature check as an h3 subsection.
+   evidence / implication rows. The md reflection template carries a
+   matching "Lessons we learnt" subsection with the why-chain rule: a
+   score is a result, not a cause — keep asking why until the answer
+   names something actionable. Then `reflection.evidence`
+   (`blacklist_new` highlighted) and Literature check, both as h3
+   subsections. (2026-07-22: the md template's own sections were renamed
+   to the same three-part logic — Review merges the old Yield + State,
+   Think holds Lessons/Evidence/Literature, Next round is the old
+   Decision — so agent and reader share one structure; `reflection.*`
+   keys became review/evidence/literature/next.)
 4. **Next round**: `reflection.decision` (next-batch hypothesis,
    abandonment condition) with `insight_promotions` in an "awaiting user
    confirmation" box.
