@@ -80,14 +80,19 @@ gate is never worked around; a user-approved exception goes into
 6. **Soft gate.** Subtract the cycle's attempts from `authorized_attempts`:
    - if enough remain for another batch, continue autonomously (a remainder
      smaller than `batch_size` runs as a smaller final batch);
-   - if exhausted: stop, present the report and the proposed next-batch
-     plan — summarize in the terminal and point the user at
-     `docs/discussion/cycle-NN.html` and `index.html` — then ask one plain
-     question: **"How many attempts should I try next?"** (a number;
-     0 = stop; amendments to the plan welcome as free text). Attempts are
-     the unit the user authorizes; never ask them to reason in rounds or
-     cycles — those are internal bookkeeping. Insight promotions proposed
-     in the report are confirmed here.
+   - if exhausted: stop and present the report — summarize in the
+     terminal and point the user at `docs/discussion/cycle-NN.html` and
+     `index.html` — followed by **2–4 candidate directions** for the next
+     batch, grounded in the cycle's lessons: e.g. deepen the winning
+     branch, attack the diagnosed root-cause bottleneck, open an untried
+     direction, or wind down. One line each: what it is, which lesson or
+     root cause motivates it, and what it would settle. The user decides
+     both **which direction(s)** to pursue and **how many attempts** to
+     authorize (a number; 0 = stop; the user's own directions and
+     amendments welcome as free text). Attempts are the unit the user
+     authorizes; never ask them to reason in rounds or cycles — those are
+     internal bookkeeping. Insight promotions proposed in the report are
+     confirmed here.
 
 ## Termination
 

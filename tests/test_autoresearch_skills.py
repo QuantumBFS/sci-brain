@@ -221,7 +221,8 @@ def test_run_soft_gate_on_authorized_attempts():
     text = _read("autoresearch-run")
     assert "authorized_attempts" in text
     assert "batch_size" in text
-    assert "How many attempts should I try next?" in text
+    assert "candidate directions" in text
+    assert "how many attempts" in text
 
 
 def test_run_confirms_first_batch_plan():
