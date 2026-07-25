@@ -35,6 +35,11 @@ action. Required structure:
       entry, revised assumption, debug target, or promoted direction.
     Rank which single change mattered most — that ranking targets the
     next batch's improvements.
+    Also record findings that are off-topic but maybe worth publishing,
+    or may lead to a significant result — an unexpected pattern in the
+    data, a surprising method behavior, a side result with standalone
+    value. One entry each, marked *off-goal* so they inform without
+    steering the next batch.
 
     ### Evidence carried forward
     What the batch established, with numbers from validator reports and

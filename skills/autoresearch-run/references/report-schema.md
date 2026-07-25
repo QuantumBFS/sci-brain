@@ -86,6 +86,9 @@ Field notes:
   score is a result, not a cause; name something actionable), `evidence`
   (validator errors, per-instance results, LOG.md), `implication` (what
   it changes: blacklist entry, revised assumption, debug target),
-  optional `confidence` ∈ `confirmed | suspected`.
+  optional `confidence` ∈ `confirmed | suspected`. Off-goal findings from
+  the md's "Lessons we learnt" — off-topic but maybe worth publishing, or
+  possibly leading to a significant result — go here too, as entries
+  whose `implication` starts with `off-goal:`.
 - `blacklist_new` and `insight_promotions` duplicate what the prose already
   says so the template can highlight them; empty arrays are fine.
