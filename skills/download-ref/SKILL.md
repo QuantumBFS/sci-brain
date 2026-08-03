@@ -54,6 +54,8 @@ needed either way.
 
 `download-ref` writes:
 - `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}`
+- `$KB/.raw/arxiv/<id>-src/` (extracted e-print source tree)
+- `$KB/.raw/arxiv/<id>.tex` (flattened LaTeX)
 - `$KB/.figures/{arxiv__<id>,doi__<safe>}/...`
 - `$KB/<id>_<slug>.md` (rendered paper, one per ref)
 - `$KB/INDEX.md` (regenerated each run)
@@ -122,7 +124,7 @@ When in bulk mode, optionally ask the user:
 
 For (b) and (c), edit `$TMP` accordingly before continuing.
 
-### 4. Fetch metadata + arXiv PDFs
+### 4. Fetch metadata + arXiv PDFs/sources
 
 ```sh
 python3 skills/download-ref/helpers/fetch_metadata.py \
@@ -273,7 +275,7 @@ After the done checklist passes, offer the pipeline's final stage:
 | Mistake | Fix |
 | --- | --- |
 | Passing a relative `--kb` | Always absolute. Helpers don't `cd`; figures depend on absolute paths. |
-| Forgetting `--download-arxiv-pdfs` in Step 4 | Without it `full_text: no` and Step 5 has nothing to render. |
+| Forgetting `--download-arxiv-pdfs` in Step 4 | Without it, refs with no LaTeX source render `full_text: no` — the PDF is the only body for DOIs and PDF-only arXiv submissions. |
 | Using `arXiv:XXXX` with prefix or `vN` suffix | Strip both — manifest takes bare ids: `1806.08734`. |
 | Editing the rendered `.md` and losing it on re-render | Renderer overwrites without warning. Edit `.raw/` source or renderer logic. |
 | Cite-key collision with different content | Helper skips silently — investigate, re-run propose with a different key. |
