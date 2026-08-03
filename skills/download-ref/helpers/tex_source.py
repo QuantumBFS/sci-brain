@@ -195,8 +195,8 @@ def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0") -> str:
         if not tex.strip():
             return "miss"
         raw_dir.mkdir(parents=True, exist_ok=True)
-        out_tex.write_text(tex, encoding="utf-8")
         copy_figures(src_dir, kb / ".figures" / f"arxiv__{arxiv_id}")
+        out_tex.write_text(tex, encoding="utf-8")
         return "ok"
     except Exception:
         return "miss"

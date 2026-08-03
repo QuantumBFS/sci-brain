@@ -168,7 +168,7 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False) -> int:
             meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
             body += ["", "## Full Text (LaTeX source)", "",
-                     tex.read_text(errors="replace").strip()]
+                     tex.read_text(encoding="utf-8", errors="replace").strip()]
         else:
             full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{arxiv_id}") if pdf.exists() else ""
             if full:
