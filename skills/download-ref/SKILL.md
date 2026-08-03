@@ -54,8 +54,8 @@ needed either way.
 
 `download-ref` writes:
 - `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}`
-- `$KB/.raw/arxiv/<id>-src/` (extracted e-print source tree)
-- `$KB/.raw/arxiv/<id>.tex` (flattened LaTeX)
+- `$KB/.raw/{arxiv,doi}/<id>-src/` (extracted e-print source tree)
+- `$KB/.raw/{arxiv,doi}/<id>.tex` (flattened LaTeX; <safe-doi> filenames for DOI entries)
 - `$KB/.figures/{arxiv__<id>,doi__<safe>}/...`
 - `$KB/<id>_<slug>.md` (rendered paper, one per ref)
 - `$KB/INDEX.md` (regenerated each run)
@@ -141,7 +141,9 @@ LaTeX source, extracts it to `.raw/arxiv/<id>-src/`, flattens
 `\input`/`\include` into `.raw/arxiv/<id>.tex`, and copies the source tree's
 figure files into `.figures/arxiv__<id>/`. `src-miss` lines (PDF-only
 submissions, withdrawn papers, fetch failures) are fine — those refs fall
-back to PDF rendering in Step 5.
+back to PDF rendering in Step 5. DOI entries whose Semantic Scholar record
+names an arXiv preprint (`externalIds.ArXiv`) get the same treatment, into
+`.raw/doi/<safe>.tex` and `.figures/doi__<safe>/`.
 
 **Tip:** Set `SEMANTIC_SCHOLAR_API_KEY` in your environment to raise the Semantic Scholar rate limit from ~1 req/s to 100 req/s. Get a free key at https://www.semanticscholar.org/product/api#api-key-form.
 
@@ -189,10 +191,11 @@ PDF backend priority:
 2. `markitdown` — text-only fallback.
 3. `pdftotext -layout` — last-resort fallback.
 
-arXiv refs with a flattened `.raw/arxiv/<id>.tex` are rendered with the raw
-LaTeX as the full-text body (`full_text: latex` in frontmatter) — ground
-truth for equations, read natively by agents. The PDF backends above apply
-only to refs without LaTeX source (DOIs, PDF-only arXiv submissions).
+Refs with a flattened `.tex` beside their metadata (arXiv entries, and DOI
+entries with an arXiv preprint) are rendered with the raw LaTeX as the
+full-text body (`full_text: latex` in frontmatter) — ground truth for
+equations, read natively by agents. The PDF backends above apply only to
+refs without LaTeX source.
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 

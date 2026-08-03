@@ -170,6 +170,23 @@ def main() -> int:
                 print(f"  src-miss arxiv:{aid} ({status})")
             if status != "cached":
                 time.sleep(2)
+        for doi, r in zip(dois, results[len(arxiv_ids):]):
+            if r is None:
+                continue
+            arxiv_pre = (r.get("externalIds") or {}).get("ArXiv")
+            if not arxiv_pre:
+                continue
+            safe = doi.replace("/", "-")
+            status = fetch_arxiv_source(
+                arxiv_pre, args.kb,
+                out_tex=raw / "doi" / f"{safe}.tex",
+                fig_subdir=f"doi__{safe}")
+            if status in ("ok", "cached"):
+                print(f"  ok  doi:{doi} (arxiv={arxiv_pre})" + (" (cached)" if status == "cached" else ""))
+            else:
+                print(f"  src-miss doi:{doi} (arxiv={arxiv_pre}, {status})")
+            if status != "cached":
+                time.sleep(2)
 
     return 0
 

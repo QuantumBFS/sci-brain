@@ -44,3 +44,34 @@ def test_no_tex_no_pdf_stays_abstract_only(tmp_path):
     mod.render_arxiv(kb, kb / ".raw")
     md = (kb / "2401.00001_test-paper.md").read_text()
     assert "full_text: no" in md
+
+
+DOI_S2 = {"title": "Doi Paper", "authors": [{"name": "B. Author"}], "year": 2026,
+          "venue": "J. Test", "abstract": "An abstract.",
+          "externalIds": {"DOI": "10.1000/xyz", "ArXiv": "2401.00001"}}
+
+
+def test_doi_tex_body(tmp_path):
+    mod = _load()
+    kb = tmp_path / "kb"
+    (kb / ".raw" / "doi").mkdir(parents=True)
+    (kb / ".raw" / "doi" / "10.1000-xyz.json").write_text(json.dumps(DOI_S2))
+    (kb / ".raw" / "doi" / "10.1000-xyz.tex").write_text(
+        "\\documentclass{article}\n\\begin{document}\nDOI-TEX-MARKER\n\\end{document}\n" + "x" * 100)
+    n = mod.render_doi(kb, kb / ".raw")
+    assert n == 1
+    md = (kb / "10-1000-xyz.md").read_text()
+    assert "full_text: latex" in md
+    assert "DOI-TEX-MARKER" in md
+    assert "## Full Text (LaTeX source)" in md
+
+
+def test_doi_no_tex_no_pdf_stays_abstract_only(tmp_path):
+    mod = _load()
+    kb = tmp_path / "kb"
+    (kb / ".raw" / "doi").mkdir(parents=True)
+    (kb / ".raw" / "doi" / "10.1000-xyz.json").write_text(json.dumps(DOI_S2))
+    mod.render_doi(kb, kb / ".raw")
+    md = (kb / "10-1000-xyz.md").read_text()
+    assert "full_text: no" in md
+    assert "abstract-only entry" in md

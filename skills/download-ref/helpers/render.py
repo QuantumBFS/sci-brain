@@ -218,15 +218,22 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False) -> int:
             body += ["", f"**arXiv preprint:** [{meta['arxiv_id']}](https://arxiv.org/abs/{meta['arxiv_id']})"]
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
         pdf = doi_dir / f"{safe}.pdf"
-        full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"doi__{safe}") if pdf.exists() else ""
-        if full:
-            meta["full_text"] = "yes"
+        tex = doi_dir / f"{safe}.tex"
+        if tex.exists() and tex.stat().st_size > 100:
+            meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
-            body += ["", "## Full Text", "", full]
+            body += ["", "## Full Text (LaTeX source)", "",
+                     tex.read_text(encoding="utf-8", errors="replace").strip()]
         else:
-            meta["full_text"] = "no"
-            body[0] = render_frontmatter(meta)
-            body += ["", "_Full text not retrieved — abstract-only entry._"]
+            full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"doi__{safe}") if pdf.exists() else ""
+            if full:
+                meta["full_text"] = "yes"
+                body[0] = render_frontmatter(meta)
+                body += ["", "## Full Text", "", full]
+            else:
+                meta["full_text"] = "no"
+                body[0] = render_frontmatter(meta)
+                body += ["", "_Full text not retrieved — abstract-only entry._"]
         (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
         n += 1
     return n

@@ -164,14 +164,21 @@ def copy_figures(src_dir: Path, fig_dir: Path) -> int:
     return n
 
 
-def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0") -> str:
+def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0",
+                       out_tex: Path | None = None,
+                       fig_subdir: str | None = None) -> str:
     """Fetch + flatten one paper's e-print source.
 
     Returns 'ok', 'cached', 'pdf-only' (PDF-only submission), or 'miss'.
     On anything but 'ok'/'cached' the caller's PDF path stays in charge.
+    out_tex/fig_subdir override the destination (used for DOI entries whose
+    S2 record names an arXiv preprint); defaults are the arXiv-entry paths.
     """
-    raw_dir = kb / ".raw" / "arxiv"
-    out_tex = raw_dir / f"{arxiv_id}.tex"
+    if out_tex is None:
+        out_tex = kb / ".raw" / "arxiv" / f"{arxiv_id}.tex"
+    if fig_subdir is None:
+        fig_subdir = f"arxiv__{arxiv_id}"
+    src_dir = out_tex.with_name(out_tex.stem + "-src")
     if out_tex.exists() and out_tex.stat().st_size > 100:
         return "cached"
     try:
@@ -185,7 +192,6 @@ def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0") -> str:
             return "pdf-only"
         if kind != "source":
             return "miss"
-        src_dir = raw_dir / f"{arxiv_id}-src"
         if not extract_source(data, src_dir):
             return "miss"
         main = find_main_tex(src_dir)
@@ -194,8 +200,8 @@ def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0") -> str:
         tex = flatten(main, src_dir)
         if not tex.strip():
             return "miss"
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        copy_figures(src_dir, kb / ".figures" / f"arxiv__{arxiv_id}")
+        out_tex.parent.mkdir(parents=True, exist_ok=True)
+        copy_figures(src_dir, kb / ".figures" / fig_subdir)
         out_tex.write_text(tex, encoding="utf-8")
         return "ok"
     except Exception:

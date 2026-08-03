@@ -246,3 +246,22 @@ def test_fetch_arxiv_source_flatten_error_miss(tmp_path, monkeypatch):
     monkeypatch.setattr(ts, "flatten", flatten_boom)
     assert ts.fetch_arxiv_source("2401.00005", kb) == "miss"
     assert not (kb / ".raw" / "arxiv" / "2401.00005.tex").exists()
+
+
+def test_fetch_arxiv_source_dest_override(tmp_path, monkeypatch):
+    ts = _load()
+    kb = tmp_path / "kb"
+    payload = gzip.compress(_tar_bytes({
+        "main.tex": MAIN_TEX,
+        "sec1.tex": b"SECTION-ONE\n",
+        "fig/plot.png": b"\x89PNG fake",
+    }))
+    _patch_urlopen(monkeypatch, ts, payload)
+    out_tex = kb / ".raw" / "doi" / "10.1000-xyz.tex"
+    status = ts.fetch_arxiv_source("2401.00001", kb,
+                                   out_tex=out_tex, fig_subdir="doi__10.1000-xyz")
+    assert status == "ok"
+    assert "SECTION-ONE" in out_tex.read_text()
+    assert (kb / ".raw" / "doi" / "10.1000-xyz-src" / "main.tex").exists()
+    assert (kb / ".figures" / "doi__10.1000-xyz" / "fig" / "plot.png").exists()
+    assert not (kb / ".raw" / "arxiv").exists()
