@@ -81,7 +81,10 @@ pymupdf4llm PDF path runs unchanged with `full_text: yes` as today.
   final report (`full_text: latex|yes|no` per ref).
 - `CLAUDE.md` (project): one-line update to the download-ref description.
 - `skills/survey/SKILL.md` / `skills/researchstyle/SKILL.md`: add the flag to
-  their fetch invocations.
+  their fetch invocations. *(Found inapplicable during implementation
+  (2026-08-03): neither skill invokes `fetch_metadata.py` — they write
+  `.raw/` JSON themselves and delegate downloads to `download-ref`, so
+  only `download-ref/SKILL.md` needed the flag.)*
 
 ## Migration / rollout
 
