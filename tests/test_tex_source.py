@@ -229,3 +229,20 @@ def test_fetch_arxiv_source_network_error_miss(tmp_path, monkeypatch):
 
     monkeypatch.setattr(ts.urllib.request, "urlopen", boom)
     assert ts.fetch_arxiv_source("2401.00004", tmp_path / "kb") == "miss"
+
+
+def test_fetch_arxiv_source_flatten_error_miss(tmp_path, monkeypatch):
+    ts = _load()
+    kb = tmp_path / "kb"
+    payload = gzip.compress(_tar_bytes({
+        "main.tex": MAIN_TEX,
+        "sec1.tex": b"SECTION-ONE\n",
+    }))
+    _patch_urlopen(monkeypatch, ts, payload)
+
+    def flatten_boom(*a, **k):
+        raise PermissionError("mode 000 file in tarball")
+
+    monkeypatch.setattr(ts, "flatten", flatten_boom)
+    assert ts.fetch_arxiv_source("2401.00005", kb) == "miss"
+    assert not (kb / ".raw" / "arxiv" / "2401.00005.tex").exists()

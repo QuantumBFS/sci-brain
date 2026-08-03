@@ -180,23 +180,23 @@ def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0") -> str:
             headers={"User-Agent": ua})
         with urllib.request.urlopen(req, timeout=120) as r:
             data = r.read()
+        kind = detect_payload(data)
+        if kind == "pdf":
+            return "pdf-only"
+        if kind != "source":
+            return "miss"
+        src_dir = raw_dir / f"{arxiv_id}-src"
+        if not extract_source(data, src_dir):
+            return "miss"
+        main = find_main_tex(src_dir)
+        if main is None:
+            return "miss"
+        tex = flatten(main, src_dir)
+        if not tex.strip():
+            return "miss"
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        out_tex.write_text(tex, encoding="utf-8")
+        copy_figures(src_dir, kb / ".figures" / f"arxiv__{arxiv_id}")
+        return "ok"
     except Exception:
         return "miss"
-    kind = detect_payload(data)
-    if kind == "pdf":
-        return "pdf-only"
-    if kind != "source":
-        return "miss"
-    src_dir = raw_dir / f"{arxiv_id}-src"
-    if not extract_source(data, src_dir):
-        return "miss"
-    main = find_main_tex(src_dir)
-    if main is None:
-        return "miss"
-    tex = flatten(main, src_dir)
-    if not tex.strip():
-        return "miss"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    out_tex.write_text(tex, encoding="utf-8")
-    copy_figures(src_dir, kb / ".figures" / f"arxiv__{arxiv_id}")
-    return "ok"
