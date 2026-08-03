@@ -54,12 +54,19 @@ Failure at any step (404, corrupt tarball, no `\documentclass` found) prints
 a `src-miss` status line and leaves the PDF path in charge. Withdrawn papers
 serve an HTML error page — the magic-byte check catches this.
 
+DOI entries whose Semantic Scholar record names an arXiv preprint
+(`externalIds.ArXiv`) get the same source fetch via that preprint, into
+`.raw/doi/<safe>.tex` / `.raw/doi/<safe>-src/` / `.figures/doi__<safe>/` —
+mirroring the existing arXiv-PDF paywall fallback. *(Extension added
+2026-08-03 during implementation.)*
+
 ### Render (`render.py`)
 
 For an arXiv entry, if `.raw/arxiv/<id>.tex` exists, the body of
 `<id>_<slug>.md` is the raw flattened LaTeX (after the usual frontmatter and
 metadata header), and frontmatter gets `full_text: latex`. Otherwise the
-pymupdf4llm PDF path runs unchanged with `full_text: yes` as today.
+pymupdf4llm PDF path runs unchanged with `full_text: yes` as today. The same
+tex-first branch applies to `render_doi` via `.raw/doi/<safe>.tex`.
 
 - Truthiness contract: any consumer treating `full_text` as yes/no must
   treat `latex` as yes. Audit `index.py` (and quantum.harness's
@@ -121,4 +128,5 @@ step — upgrades happen opportunistically or on demand via the existing
   backend swap would diverge the `.raw/` spec shared with
   quantum.harness/init-harness. Revisit as an optional export/sync if wanted.
 - pandoc tex→Markdown conversion (mangles macro-heavy papers).
-- LaTeX source for non-arXiv refs.
+- LaTeX source for refs with no arXiv version. (DOI refs *with* an arXiv
+  preprint do get LaTeX via the preprint — see the Fetch section.)
