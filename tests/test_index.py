@@ -35,3 +35,23 @@ body
     text = (kb / "INDEX.md").read_text()
     assert "kb/" in text
     assert ".knowledge/" not in text
+
+
+def test_index_counts_latex_as_full_text(tmp_path, monkeypatch, capsys):
+    kb = tmp_path / "kb"
+    kb.mkdir(parents=True)
+    (kb / "paper.md").write_text("""---
+type: arxiv
+title: Tex Paper
+authors: Example Author
+year: 2026
+full_text: latex
+---
+
+body
+""")
+    monkeypatch.setattr(sys, "argv", ["index.py", "--kb", str(kb), "--title", "test refs"])
+    _load().main()
+    index = (kb / "INDEX.md").read_text()
+    row = next(line for line in index.splitlines() if "Tex Paper" in line)
+    assert "✅" in row

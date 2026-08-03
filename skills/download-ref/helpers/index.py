@@ -112,7 +112,7 @@ def main() -> int:
             if len(au) > 60:
                 au = au.split(",")[0] + " et al."
             ven = (r["venue"] or "").replace("|", "\\|")
-            ft = "✅" if r["full_text"] == "yes" else "—"
+            ft = "✅" if r["full_text"] in ("yes", "latex") else "—"
             out.append(
                 f"| [{r['file']}]({r['file']}) | {ttl} | {au} | {r['year']} | {ven} | {ft} |"
             )

@@ -163,14 +163,21 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False) -> int:
             body += ["", f"**DOI:** [{meta['doi']}](https://doi.org/{meta['doi']})"]
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
         pdf = arx_dir / f"{arxiv_id}.pdf"
-        full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{arxiv_id}") if pdf.exists() else ""
-        if full:
-            meta["full_text"] = "yes"
+        tex = arx_dir / f"{arxiv_id}.tex"
+        if tex.exists() and tex.stat().st_size > 100:
+            meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
-            body += ["", "## Full Text", "", full]
+            body += ["", "## Full Text (LaTeX source)", "",
+                     tex.read_text(errors="replace").strip()]
         else:
-            meta["full_text"] = "no"
-            body[0] = render_frontmatter(meta)
+            full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{arxiv_id}") if pdf.exists() else ""
+            if full:
+                meta["full_text"] = "yes"
+                body[0] = render_frontmatter(meta)
+                body += ["", "## Full Text", "", full]
+            else:
+                meta["full_text"] = "no"
+                body[0] = render_frontmatter(meta)
         (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
         n += 1
     return n
