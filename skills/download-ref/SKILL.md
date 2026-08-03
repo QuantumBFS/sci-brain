@@ -40,6 +40,10 @@ if you expect to hit paywalled DOIs:
 python3 -m pip install --user playwright && python3 -m playwright install chromium
 ```
 
+For arXiv LaTeX sources (Step 4), `latexpand` (ships with TeX Live) gives the
+cleanest flattening; if absent, a built-in Python inliner is used — no action
+needed either way.
+
 ## Inputs
 
 - **One or more arXiv IDs** (e.g. `1806.08734`, `2006.10739`) — strip the `vN` suffix.
@@ -124,10 +128,18 @@ For (b) and (c), edit `$TMP` accordingly before continuing.
 python3 skills/download-ref/helpers/fetch_metadata.py \
   --kb "$KB" \
   --manifest "$TMP" \
-  --download-arxiv-pdfs
+  --download-arxiv-pdfs \
+  --download-arxiv-source
 ```
 
 Populates `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}` idempotently. PDFs are downloaded sequentially with 2s sleep between requests to avoid arXiv rate limits. Each PDF is verified for a `%%EOF` trailer; truncated downloads are discarded and retried. For DOIs whose publisher gates the PDF (APS / Nature / IOP / AAAS / ACS), the helper falls back to the arXiv preprint via `externalIds.ArXiv` when present. If even that fails, you'll see a `miss` line — go to Step 4b.
+
+`--download-arxiv-source` additionally fetches each arXiv paper's e-print
+LaTeX source, extracts it to `.raw/arxiv/<id>-src/`, flattens
+`\input`/`\include` into `.raw/arxiv/<id>.tex`, and copies the source tree's
+figure files into `.figures/arxiv__<id>/`. `src-miss` lines (PDF-only
+submissions, withdrawn papers, fetch failures) are fine — those refs fall
+back to PDF rendering in Step 5.
 
 **Tip:** Set `SEMANTIC_SCHOLAR_API_KEY` in your environment to raise the Semantic Scholar rate limit from ~1 req/s to 100 req/s. Get a free key at https://www.semanticscholar.org/product/api#api-key-form.
 
@@ -174,6 +186,11 @@ PDF backend priority:
 1. **`pymupdf4llm`** — markdown + extracted images into `$KB/.figures/`.
 2. `markitdown` — text-only fallback.
 3. `pdftotext -layout` — last-resort fallback.
+
+arXiv refs with a flattened `.raw/arxiv/<id>.tex` are rendered with the raw
+LaTeX as the full-text body (`full_text: latex` in frontmatter) — ground
+truth for equations, read natively by agents. The PDF backends above apply
+only to refs without LaTeX source (DOIs, PDF-only arXiv submissions).
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 
@@ -233,7 +250,7 @@ for id in 1806.08734 2006.10739; do
 done
 ```
 
-Tell the user: new cite key(s), rendered file path(s), `full_text` yes/no per ref.
+Tell the user: new cite key(s), rendered file path(s), `full_text` latex/yes/no per ref.
 
 ## After download — hand off to survey-writer
 
@@ -261,6 +278,7 @@ After the done checklist passes, offer the pipeline's final stage:
 | Editing the rendered `.md` and losing it on re-render | Renderer overwrites without warning. Edit `.raw/` source or renderer logic. |
 | Cite-key collision with different content | Helper skips silently — investigate, re-run propose with a different key. |
 | Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
+| Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |
 
 ## Done checklist
 
@@ -269,4 +287,5 @@ After the done checklist passes, offer the pipeline's final stage:
 - [ ] One new `<id>_<slug>.md` per ref at `$KB/` root, with frontmatter
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
 - [ ] `$KB/references.bib` has the new cite key (no duplicate)
-- [ ] User told cite keys, file names, and `full_text` yes/no per ref
+- [ ] User told cite keys, file names, and `full_text` latex/yes/no per ref
+- [ ] `.raw/arxiv/<id>.tex` exists for every arXiv id (or its `src-miss` reported)
