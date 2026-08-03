@@ -67,6 +67,11 @@ pymupdf4llm PDF path runs unchanged with `full_text: yes` as today.
   implementation; `yes`/`latex` both count as full text.
 - The LaTeX body is embedded raw, not fenced — fencing adds noise and the
   files are consumed by Read/Grep, not by Markdown renderers.
+- The `.md` wrapper stays canonical (rather than `.tex` siblings at the KB
+  root) because the single file-type contract is what `index.py`, the
+  skill's verification loops, downstream skill globs, and the vendored
+  quantum.harness helpers all key on; the pure flattened `.tex` remains
+  available at `.raw/arxiv/<id>.tex`.
 - Read source with UTF-8, falling back to Latin-1.
 
 ### Documentation
