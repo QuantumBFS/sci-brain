@@ -162,3 +162,41 @@ def copy_figures(src_dir: Path, fig_dir: Path) -> int:
         shutil.copy2(p, dest)
         n += 1
     return n
+
+
+def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0") -> str:
+    """Fetch + flatten one paper's e-print source.
+
+    Returns 'ok', 'cached', 'pdf-only' (PDF-only submission), or 'miss'.
+    On anything but 'ok'/'cached' the caller's PDF path stays in charge.
+    """
+    raw_dir = kb / ".raw" / "arxiv"
+    out_tex = raw_dir / f"{arxiv_id}.tex"
+    if out_tex.exists() and out_tex.stat().st_size > 100:
+        return "cached"
+    try:
+        req = urllib.request.Request(
+            f"https://arxiv.org/e-print/{arxiv_id}",
+            headers={"User-Agent": ua})
+        with urllib.request.urlopen(req, timeout=120) as r:
+            data = r.read()
+    except Exception:
+        return "miss"
+    kind = detect_payload(data)
+    if kind == "pdf":
+        return "pdf-only"
+    if kind != "source":
+        return "miss"
+    src_dir = raw_dir / f"{arxiv_id}-src"
+    if not extract_source(data, src_dir):
+        return "miss"
+    main = find_main_tex(src_dir)
+    if main is None:
+        return "miss"
+    tex = flatten(main, src_dir)
+    if not tex.strip():
+        return "miss"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    out_tex.write_text(tex, encoding="utf-8")
+    copy_figures(src_dir, kb / ".figures" / f"arxiv__{arxiv_id}")
+    return "ok"

@@ -158,3 +158,74 @@ def test_find_main_tex_skips_broken_symlink(tmp_path):
     result = ts.find_main_tex(tmp_path)
     assert result is not None
     assert result.name == "good.tex"
+
+
+class _FakeResponse:
+    def __init__(self, data: bytes):
+        self._data = data
+
+    def read(self) -> bytes:
+        return self._data
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
+def _patch_urlopen(monkeypatch, ts, payload: bytes):
+    monkeypatch.setattr(ts.urllib.request, "urlopen",
+                        lambda req, timeout=0: _FakeResponse(payload))
+
+
+def test_fetch_arxiv_source_ok(tmp_path, monkeypatch):
+    ts = _load()
+    kb = tmp_path / "kb"
+    payload = gzip.compress(_tar_bytes({
+        "main.tex": MAIN_TEX,
+        "sec1.tex": b"SECTION-ONE\n",
+        "fig/plot.png": b"\x89PNG fake",
+    }))
+    _patch_urlopen(monkeypatch, ts, payload)
+    assert ts.fetch_arxiv_source("2401.00001", kb) == "ok"
+    tex = (kb / ".raw" / "arxiv" / "2401.00001.tex").read_text()
+    assert "SECTION-ONE" in tex
+    assert (kb / ".figures" / "arxiv__2401.00001" / "fig" / "plot.png").exists()
+
+
+def test_fetch_arxiv_source_cached(tmp_path, monkeypatch):
+    ts = _load()
+    kb = tmp_path / "kb"
+    out = kb / ".raw" / "arxiv" / "2401.00001.tex"
+    out.parent.mkdir(parents=True)
+    out.write_text("\\documentclass{article}" + "x" * 200)
+
+    def boom(*a, **k):
+        raise AssertionError("network must not be touched for cached source")
+
+    monkeypatch.setattr(ts.urllib.request, "urlopen", boom)
+    assert ts.fetch_arxiv_source("2401.00001", kb) == "cached"
+
+
+def test_fetch_arxiv_source_pdf_only(tmp_path, monkeypatch):
+    ts = _load()
+    _patch_urlopen(monkeypatch, ts, b"%PDF-1.5 direct pdf submission")
+    assert ts.fetch_arxiv_source("2401.00002", tmp_path / "kb") == "pdf-only"
+    assert not (tmp_path / "kb" / ".raw" / "arxiv" / "2401.00002.tex").exists()
+
+
+def test_fetch_arxiv_source_html_miss(tmp_path, monkeypatch):
+    ts = _load()
+    _patch_urlopen(monkeypatch, ts, b"<!DOCTYPE html>withdrawn")
+    assert ts.fetch_arxiv_source("2401.00003", tmp_path / "kb") == "miss"
+
+
+def test_fetch_arxiv_source_network_error_miss(tmp_path, monkeypatch):
+    ts = _load()
+
+    def boom(*a, **k):
+        raise OSError("connection refused")
+
+    monkeypatch.setattr(ts.urllib.request, "urlopen", boom)
+    assert ts.fetch_arxiv_source("2401.00004", tmp_path / "kb") == "miss"
