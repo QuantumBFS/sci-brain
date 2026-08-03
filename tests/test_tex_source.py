@@ -265,3 +265,25 @@ def test_fetch_arxiv_source_dest_override(tmp_path, monkeypatch):
     assert (kb / ".raw" / "doi" / "10.1000-xyz-src" / "main.tex").exists()
     assert (kb / ".figures" / "doi__10.1000-xyz" / "fig" / "plot.png").exists()
     assert not (kb / ".raw" / "arxiv").exists()
+
+
+def test_fetch_arxiv_source_dest_override_reuses_arxiv_fetch(tmp_path, monkeypatch):
+    ts = _load()
+    kb = tmp_path / "kb"
+    arxiv_tex = kb / ".raw" / "arxiv" / "2401.00001.tex"
+    arxiv_tex.parent.mkdir(parents=True)
+    arxiv_tex.write_text("\\documentclass{article}\nREUSED-BODY\n" + "x" * 100)
+    figs = kb / ".figures" / "arxiv__2401.00001" / "fig"
+    figs.mkdir(parents=True)
+    (figs / "plot.png").write_bytes(b"\x89PNG fake")
+
+    def boom(*a, **k):
+        raise AssertionError("network must not be touched when the arXiv copy exists")
+
+    monkeypatch.setattr(ts.urllib.request, "urlopen", boom)
+    out_tex = kb / ".raw" / "doi" / "10.1000-xyz.tex"
+    status = ts.fetch_arxiv_source("2401.00001", kb,
+                                   out_tex=out_tex, fig_subdir="doi__10.1000-xyz")
+    assert status == "cached"
+    assert "REUSED-BODY" in out_tex.read_text()
+    assert (kb / ".figures" / "doi__10.1000-xyz" / "fig" / "plot.png").exists()

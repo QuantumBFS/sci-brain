@@ -37,7 +37,7 @@ body
     assert ".knowledge/" not in text
 
 
-def test_index_counts_latex_as_full_text(tmp_path, monkeypatch, capsys):
+def test_index_counts_latex_as_full_text(tmp_path, monkeypatch):
     kb = tmp_path / "kb"
     kb.mkdir(parents=True)
     (kb / "paper.md").write_text("""---

@@ -5,7 +5,9 @@ Used by fetch_metadata.py (--download-arxiv-source). Downloads
 https://arxiv.org/e-print/<id>, detects the payload (tar / gzip / PDF-only),
 extracts to .raw/arxiv/<id>-src/, finds the main .tex, and flattens
 \\input/\\include into .raw/arxiv/<id>.tex. Figure files from the source
-tree are copied into .figures/arxiv__<id>/.
+tree are copied into .figures/arxiv__<id>/. For DOI entries with an arXiv
+preprint the destinations are overridden to the .raw/doi/<safe>.* namespace
+via fetch_arxiv_source's out_tex/fig_subdir arguments.
 
 Flattening uses latexpand when on PATH, else a small built-in inliner.
 Stdlib-only; failures degrade to the PDF render path (see SKILL.md Step 5).
@@ -181,6 +183,21 @@ def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0",
     src_dir = out_tex.with_name(out_tex.stem + "-src")
     if out_tex.exists() and out_tex.stat().st_size > 100:
         return "cached"
+    # Same paper already fetched under the default arXiv paths (the id
+    # appears both as an arXiv manifest entry and as a DOI's preprint):
+    # reuse the flattened tex + figures instead of re-downloading.
+    default_tex = kb / ".raw" / "arxiv" / f"{arxiv_id}.tex"
+    if out_tex != default_tex and default_tex.exists() and default_tex.stat().st_size > 100:
+        try:
+            default_figs = kb / ".figures" / f"arxiv__{arxiv_id}"
+            if default_figs.is_dir():
+                shutil.copytree(default_figs, kb / ".figures" / fig_subdir,
+                                dirs_exist_ok=True)
+            out_tex.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(default_tex, out_tex)
+            return "cached"
+        except Exception:
+            return "miss"
     try:
         req = urllib.request.Request(
             f"https://arxiv.org/e-print/{arxiv_id}",

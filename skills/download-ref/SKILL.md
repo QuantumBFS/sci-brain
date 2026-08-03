@@ -293,4 +293,4 @@ After the done checklist passes, offer the pipeline's final stage:
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
 - [ ] `$KB/references.bib` has the new cite key (no duplicate)
 - [ ] User told cite keys, file names, and `full_text` latex/yes/no per ref
-- [ ] `.raw/arxiv/<id>.tex` exists for every arXiv id (or its `src-miss` reported)
+- [ ] `.raw/arxiv/<id>.tex` exists for every arXiv id, and `.raw/doi/<safe>.tex` for every DOI with an arXiv preprint (or the `src-miss` reported)
