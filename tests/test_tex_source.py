@@ -131,3 +131,30 @@ def test_copy_figures(tmp_path):
     assert (fig_dir / "figs" / "plot.png").exists()
     assert (fig_dir / "figs" / "diag.pdf").exists()
     assert not (fig_dir / "refs.bib").exists()
+
+
+def test_extract_source_mkdir_permission_denied(tmp_path, monkeypatch):
+    ts = _load()
+    # Simulate mkdir raising PermissionError by monkeypatching Path.mkdir
+    original_mkdir = Path.mkdir
+
+    def failing_mkdir(self, *args, **kwargs):
+        if "src" in str(self):
+            raise PermissionError("mock permission denied")
+        return original_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", failing_mkdir)
+    data = gzip.compress(_tar_bytes({"main.tex": MAIN_TEX}))
+    assert ts.extract_source(data, tmp_path / "src") is False
+
+
+def test_find_main_tex_skips_broken_symlink(tmp_path):
+    ts = _load()
+    # Create a valid .tex file with \documentclass
+    (tmp_path / "good.tex").write_text("\\documentclass{article}\n\\begin{document}\nhello\n\\end{document}\n")
+    # Create a broken symlink named .tex
+    (tmp_path / "broken.tex").symlink_to("/nonexistent/path")
+    # Should find good.tex and not raise on the broken symlink
+    result = ts.find_main_tex(tmp_path)
+    assert result is not None
+    assert result.name == "good.tex"

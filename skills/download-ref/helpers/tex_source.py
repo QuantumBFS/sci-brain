@@ -57,7 +57,10 @@ def extract_source(data: bytes, src_dir: Path) -> bool:
             data = gzip.decompress(data)
         except OSError:
             return False
-    src_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        src_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return False
     try:
         with tarfile.open(fileobj=io.BytesIO(data)) as tf:
             members = list(_safe_members(tf, src_dir))
@@ -66,14 +69,17 @@ def extract_source(data: bytes, src_dir: Path) -> bool:
             except TypeError:  # Python < 3.12: no filter kwarg
                 tf.extractall(src_dir, members=members)
         return True
-    except tarfile.TarError:
+    except (tarfile.TarError, OSError):
         pass
     # Single-file source: a bare .tex document.
     text = data.decode("utf-8", errors="replace")
     if "\\documentclass" not in text and "\\begin{document}" not in text:
         return False
-    (src_dir / "main.tex").write_bytes(data)
-    return True
+    try:
+        (src_dir / "main.tex").write_bytes(data)
+        return True
+    except OSError:
+        return False
 
 
 def read_tex(path: Path) -> str:
@@ -86,11 +92,22 @@ def read_tex(path: Path) -> str:
 
 def find_main_tex(src_dir: Path) -> Path | None:
     """The .tex containing \\documentclass; prefer one that also has \\begin{document}."""
-    cands = [p for p in sorted(src_dir.rglob("*.tex"))
-             if "\\documentclass" in read_tex(p)]
+    cands = []
+    for p in sorted(src_dir.rglob("*.tex")):
+        try:
+            if "\\documentclass" in read_tex(p):
+                cands.append(p)
+        except (OSError, UnicodeDecodeError):
+            continue
     if not cands:
         return None
-    with_begin = [p for p in cands if "\\begin{document}" in read_tex(p)]
+    with_begin = []
+    for p in cands:
+        try:
+            if "\\begin{document}" in read_tex(p):
+                with_begin.append(p)
+        except (OSError, UnicodeDecodeError):
+            continue
     return (with_begin or cands)[0]
 
 
