@@ -21,7 +21,7 @@ def _load():
 
 
 def _metadata(title, *, authors=None, year=2024, venue="Journal of Tests",
-              volume="7", pages="10-20", doi=None, arxiv=None):
+              venue_aliases=None, volume="7", pages="10-20", doi=None, arxiv=None):
     external = {}
     if doi:
         external["DOI"] = doi
@@ -33,6 +33,10 @@ def _metadata(title, *, authors=None, year=2024, venue="Journal of Tests",
         "authors": [{"name": author} for author in (authors or ["Ada Lovelace"])],
         "year": year,
         "venue": venue,
+        "publicationVenue": {
+            "name": venue,
+            "alternate_names": venue_aliases or [],
+        },
         "journal": {"name": venue, "volume": volume, "pages": pages},
         "externalIds": external,
     }
@@ -46,6 +50,7 @@ def test_parse_bib_handles_nested_braces_and_all_real_entries():
   title = {A {Nested {Quantum}} Title},
   author = {Lovelace, Ada and {The ATLAS Collaboration}},
   journal = jtest,
+  note = {A 3" disk},
   year = 2024,
 }
 @inproceedings(quoted,
@@ -57,6 +62,18 @@ def test_parse_bib_handles_nested_braces_and_all_real_entries():
     assert [entry["key"] for entry in entries] == ["nested", "quoted"]
     assert entries[0]["fields"]["title"] == "A {Nested {Quantum}} Title"
     assert entries[0]["fields"]["journal"] == "Journal of Tests"
+    assert entries[0]["fields"]["note"] == 'A 3" disk'
+
+
+def test_parser_ignores_email_addresses_between_entries():
+    mod = _load()
+    entries = mod.parse_bib('''
+@article{one, title={First}}
+Contact author@example.com for details.
+@article{two, title={Second}}
+''')
+
+    assert [entry["key"] for entry in entries] == ["one", "two"]
 
 
 def test_identifier_prefers_normalized_doi_then_arxiv_then_title():
@@ -121,6 +138,58 @@ def test_incomplete_metadata_is_unverifiable_not_ok():
         ("authors", "unverifiable"),
         ("year", "unverifiable"),
     ]
+
+
+def test_comparison_accepts_venue_abbreviations_and_truncated_authors():
+    mod = _load()
+    entry = {
+        "key": "abbreviated",
+        "type": "article",
+        "fields": {
+            "title": "Abbreviated Metadata",
+            "author": "Ada Lovelace and others",
+            "year": "2024",
+            "journal": "Phys. Rev. Lett.",
+        },
+    }
+    metadata = _metadata(
+        "Abbreviated Metadata",
+        authors=["Ada Lovelace", "Grace Hopper"],
+        venue="Physical Review Letters",
+        venue_aliases=["Phys Rev Lett"],
+        volume=None,
+        pages=None,
+    )
+
+    result = mod.compare_entry(entry, metadata, {"type": "title", "value": "Abbreviated Metadata", "source": "title"})
+
+    assert result["status"] == "ok"
+    assert result["findings"] == []
+
+
+def test_search_title_unwraps_live_response_shape_and_rejects_wrong_match(monkeypatch):
+    mod = _load()
+
+    class Response:
+        def __init__(self, payload):
+            self.payload = payload
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(self.payload).encode()
+
+    exact = _metadata("Exact Paper", doi="10.1000/exact") | {"matchScore": 177.0}
+    monkeypatch.setattr(mod.urllib.request, "urlopen", lambda *args, **kwargs: Response({"data": [exact]}))
+    assert mod.search_title("Exact-Paper!") == exact
+
+    wrong = _metadata("Different Paper", doi="10.1000/wrong") | {"matchScore": 170.0}
+    monkeypatch.setattr(mod.urllib.request, "urlopen", lambda *args, **kwargs: Response({"data": [wrong]}))
+    assert mod.search_title("Requested Paper") is None
 
 
 def test_verify_uses_cache_batch_and_title_lookup_for_every_entry(tmp_path, monkeypatch):

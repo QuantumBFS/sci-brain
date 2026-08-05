@@ -51,7 +51,7 @@ The eight-guideline review rubric backing `paper-reviewer/SKILL.md`, expanded in
 
 - [ ] `verify_bib.py` was run against the resolved bibliography; **every entry**, including uncited entries, appears in its report.
 - [ ] Title / authors / year / venue or journal / volume / pages / DOI were screened against cached and batched Semantic Scholar metadata.
-- [ ] Every `mismatch` or `unverifiable` record was manually confirmed through CrossRef → Semantic Scholar → MCP → WebFetch before reporting it.
+- [ ] Every `unverifiable` record and every `mismatch` with a high/medium finding was manually confirmed through CrossRef → Semantic Scholar → MCP → WebFetch before reporting it; low-severity missing fields remain completion suggestions.
 - [ ] Every `\cite` key resolves to an entry in the bibliography that was actually used.
 - [ ] Broken / missing / mismatched citations flagged; repair offered via `/download-ref`.
 - [ ] Key claims attached to a citation sanity-checked against the cited work; uncertain ones flagged, not asserted.

@@ -64,7 +64,6 @@ class BibParseError(ValueError):
 
 def _balanced_end(text: str, start: int, opening: str, closing: str) -> int:
     depth = 1
-    quoted = False
     escaped = False
     for i in range(start + 1, len(text)):
         char = text[i]
@@ -73,11 +72,6 @@ def _balanced_end(text: str, start: int, opening: str, closing: str) -> int:
             continue
         if char == "\\":
             escaped = True
-            continue
-        if char == '"':
-            quoted = not quoted
-            continue
-        if quoted:
             continue
         if char == opening:
             depth += 1
@@ -210,6 +204,9 @@ def parse_bib(text: str) -> list[dict[str, Any]]:
             return entries
         match = re.match(r"@([A-Za-z]+)\s*([({])", text[at:])
         if not match:
+            if at > 0 and (text[at - 1].isalnum() or text[at - 1] in "._+-"):
+                pos = at + 1
+                continue
             raise BibParseError(f"malformed BibTeX declaration at character {at}")
         entry_type = match.group(1).lower()
         opening = match.group(2)
@@ -357,7 +354,7 @@ def _load_cache(path: Path) -> dict[str, Any] | None:
 
 
 def search_title(title: str) -> dict[str, Any] | None:
-    """Return Semantic Scholar's closest title match, with bounded retries."""
+    """Return an exact normalized title match, with bounded retries."""
     query = urllib.parse.urlencode({"query": title.replace("-", " "), "fields": S2_FIELDS})
     headers = {"User-Agent": "sci-brain-verify-bib/1.0"}
     if S2_API_KEY:
@@ -368,7 +365,15 @@ def search_title(title: str) -> dict[str, Any] | None:
         try:
             with urllib.request.urlopen(request, timeout=60) as response:
                 data = json.loads(response.read())
-            return data if isinstance(data, dict) and data.get("paperId") else None
+            matches = data.get("data") if isinstance(data, dict) else None
+            candidate = matches[0] if isinstance(matches, list) and matches else None
+            if (
+                isinstance(candidate, dict)
+                and candidate.get("paperId")
+                and normalize_text(candidate.get("title")) == normalize_text(title)
+            ):
+                return candidate
+            return None
         except urllib.error.HTTPError as error:
             if error.code == 404:
                 return None
@@ -448,12 +453,19 @@ def resolve_metadata(
 
 def _source_fields(metadata: dict[str, Any]) -> dict[str, Any]:
     journal = metadata.get("journal") or {}
+    publication_venue = metadata.get("publicationVenue") or {}
     external = metadata.get("externalIds") or {}
+    venues = [
+        journal.get("name"),
+        metadata.get("venue"),
+        publication_venue.get("name"),
+        *(publication_venue.get("alternate_names") or []),
+    ]
     return {
         "title": metadata.get("title"),
         "authors": metadata.get("authors") or [],
         "year": str(metadata.get("year")) if metadata.get("year") is not None else None,
-        "venue": journal.get("name") or metadata.get("venue"),
+        "venue": list(dict.fromkeys(venue for venue in venues if venue)),
         "volume": journal.get("volume"),
         "pages": journal.get("pages"),
         "doi": external.get("DOI"),
@@ -473,14 +485,39 @@ def _bib_fields(entry: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _normalized(field: str, value: Any) -> Any:
+def _authors_match(bib_value: Any, source_value: Any) -> bool:
+    bib_authors = normalize_authors(bib_value)
+    source_authors = normalize_authors(source_value)
+    if bib_authors and bib_authors[-1] == "others":
+        return source_authors[:len(bib_authors) - 1] == bib_authors[:-1]
+    return bib_authors == source_authors
+
+
+def _venues_match(bib_value: Any, source_value: Any) -> bool:
+    bib_tokens = normalize_text(bib_value).split()
+    candidates = source_value if isinstance(source_value, list) else [source_value]
+    for candidate in candidates:
+        source_tokens = normalize_text(candidate).split()
+        if bib_tokens == source_tokens:
+            return True
+        if len(bib_tokens) == len(source_tokens) and all(
+            left.startswith(right) or right.startswith(left)
+            for left, right in zip(bib_tokens, source_tokens)
+        ):
+            return True
+    return False
+
+
+def _values_match(field: str, bib_value: Any, source_value: Any) -> bool:
     if field == "authors":
-        return normalize_authors(value)
+        return _authors_match(bib_value, source_value)
+    if field == "venue":
+        return _venues_match(bib_value, source_value)
     if field == "pages":
-        return normalize_pages(value)
+        return normalize_pages(bib_value) == normalize_pages(source_value)
     if field == "doi":
-        return normalize_doi(value)
-    return normalize_text(value)
+        return normalize_doi(bib_value) == normalize_doi(source_value)
+    return normalize_text(bib_value) == normalize_text(source_value)
 
 
 def compare_entry(
@@ -532,7 +569,7 @@ def compare_entry(
             })
             continue
         compared.append(field)
-        if _normalized(field, bib_value) != _normalized(field, source_value):
+        if not _values_match(field, bib_value, source_value):
             findings.append({
                 "field": field,
                 "kind": "mismatch",
