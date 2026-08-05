@@ -27,7 +27,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-S2_FIELDS = "title,abstract,authors,year,venue,journal,externalIds,citationStyles,openAccessPdf"
+S2_FIELDS = "title,abstract,authors,year,venue,publicationVenue,journal,externalIds,citationStyles,openAccessPdf"
 S2_BATCH_URL = f"https://api.semanticscholar.org/graph/v1/paper/batch?fields={S2_FIELDS}"
 
 S2_API_KEY = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "")

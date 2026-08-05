@@ -84,9 +84,11 @@ Also run a per-section **"did this section deliver its Phase-0 mission?"** check
 
 ## Phase 2 — Fact & reference verification (guideline #8)
 
-The standout capability. Follow the repo discipline: **never invent BibTeX from memory**; use the lookup chain **CrossRef → Semantic Scholar → MCP → WebFetch**; verify only what supports the main claims (completeness is not the goal — see `skills/_shared/writing-workflow.md`).
+The standout capability. Follow the repo discipline: **never invent BibTeX from memory**. Bibliography metadata gets a complete automated screening pass; claim verification stays focused on what supports the main claims (see `skills/_shared/writing-workflow.md`).
 
-- **References.** For each `\cite` key: confirm the entry exists in the resolved bibliography, then verify authors / year / title / venue against the lookup chain. Flag broken, missing, or mismatched citations. Offer to repair via `/download-ref` (it owns `references.bib` appends and metadata fetching).
+- **Screen every bibliography entry.** Run `python3 skills/download-ref/helpers/verify_bib.py --bib "$BIB" --kb "$KB" --json` against the bibliography resolved in Phase 0. This checks uncited entries too and compares title, authors, year, venue/journal, volume, pages, and DOI using cached metadata plus Semantic Scholar's batch API.
+- **Confirm actionable records.** Use the helper's severity-ranked output as the starting point for the reference / fact-check table. Manually confirm every `unverifiable` entry and every `mismatch` with a high- or medium-severity finding through **CrossRef → Semantic Scholar → MCP → WebFetch** before reporting it; retain low-severity missing-field findings as metadata-completion suggestions without forcing the full lookup chain. Semantic Scholar is a screening source, not the final authority. Flag broken, missing, or confirmed mismatches and offer repair via `/download-ref` (it owns `references.bib` appends and metadata fetching).
+- **Citation resolution.** For each `\cite` key, confirm that an entry exists in the resolved bibliography. Uncited entries remain in the metadata scan; cited keys additionally participate in the claim-support check below.
 - **Claim ↔ citation support.** For key claims attached to a citation, best-effort sanity-check that the cited work actually supports the claim. **Flag uncertain — do not assert.**
 - **Standalone factual claims.** Identify checkable factual/numerical claims *not* tied to a citation; verify via WebSearch. **Flag** the uncertain or unsupported — never silently "correct" a claim, and never fabricate a citation to prop one up.
 
