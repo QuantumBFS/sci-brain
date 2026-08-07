@@ -40,7 +40,10 @@ def extract_bibtex(meta: dict) -> str:
     return bib.strip()
 
 
-def propose_key(meta: dict) -> str:
+STOPWORDS = {"a", "an", "the", "of", "on", "for", "and", "to", "is", "in", "with"}
+
+
+def propose_key(meta: dict, bib_path=None) -> str:
     authors = meta.get("authors") or []
     last = "anon"
     if authors:
@@ -50,10 +53,22 @@ def propose_key(meta: dict) -> str:
             last = re.sub(r"[^a-z]", "", last) or "anon"
     year = str(meta.get("year") or "0000")
     title = (meta.get("title") or "").lower()
-    stop = {"a", "an", "the", "of", "on", "for", "and", "to", "is", "in", "with"}
-    words = [w for w in re.findall(r"[a-z]+", title) if w not in stop]
-    kw = words[0] if words else "ref"
-    return f"{last}_{year}_{kw}"
+    words = [w for w in re.findall(r"[a-z]+", title) if w not in STOPWORDS] or ["ref"]
+    # Collision rule: when `lastname_year_firstword` is already in the bib,
+    # walk to the NEXT content word of the title until the key is unique —
+    # keys stay mnemonic and keep their three-part shape, and the existing
+    # key is never renamed (renaming would break citations already written).
+    if bib_path is not None:
+        for w in words:
+            key = f"{last}_{year}_{w}"
+            if not already_in_bib(bib_path, key):
+                return key
+        # Identical titles (all words exhausted): letter suffix as a last resort.
+        for suffix in "bcdefgh":
+            key = f"{last}_{year}_{words[0]}{suffix}"
+            if not already_in_bib(bib_path, key):
+                return key
+    return f"{last}_{year}_{words[0]}"
 
 
 def replace_key(bibtex: str, new_key: str) -> str:
@@ -69,7 +84,7 @@ def already_in_bib(bib_path: Path, key: str) -> bool:
 def cmd_propose(args):
     meta = load_meta(Path(args.kb), args.type, args.id)
     bib = extract_bibtex(meta)
-    key = propose_key(meta)
+    key = propose_key(meta, Path(args.bib) if args.bib else None)
     out = {
         "id": args.id,
         "type": args.type,
@@ -103,6 +118,8 @@ def main():
     pr.add_argument("--kb", required=True)
     pr.add_argument("--id", required=True)
     pr.add_argument("--type", required=True, choices=["arxiv", "doi"])
+    pr.add_argument("--bib", default=None,
+                    help="existing bib to disambiguate against (collision rule)")
     pr.set_defaults(func=cmd_propose)
     ap = sp.add_parser("append")
     ap.add_argument("--kb", required=True)

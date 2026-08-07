@@ -183,10 +183,10 @@ In single-shot mode (Step 3a), ask the user to confirm each new cite key. In bul
 
 ```sh
 python3 skills/download-ref/helpers/append_bibtex.py propose \
-  --kb "$KB" --id 1806.08734 --type arxiv
+  --kb "$KB" --id 1806.08734 --type arxiv --bib "$KB/references.bib"
 ```
 
-Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `authors`, `year`, `bibtex_with_proposed_key`. Show the user via `AskUserQuestion`:
+Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `authors`, `year`, `bibtex_with_proposed_key`. With `--bib`, a key already present in the bib is disambiguated by walking to the next content word of the title (existing keys are never renamed). Show the user via `AskUserQuestion`:
 - Accept the proposed key
 - Use a custom key (free-text)
 - Skip this entry
@@ -259,7 +259,7 @@ After the done checklist passes, offer the pipeline's final stage:
 | Forgetting `--download-arxiv-pdfs` in Step 4 | Without it `full_text: no` and Step 5 has nothing to render. |
 | Using `arXiv:XXXX` with prefix or `vN` suffix | Strip both — manifest takes bare ids: `1806.08734`. |
 | Editing the rendered `.md` and losing it on re-render | Renderer overwrites without warning. Edit `.raw/` source or renderer logic. |
-| Cite-key collision with different content | Helper skips silently — investigate, re-run propose with a different key. |
+| Cite-key collision with different content | `append` skips silently. Propose with `--bib` so the key is disambiguated up front (next content word of the title). |
 | Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
 
 ## Done checklist
