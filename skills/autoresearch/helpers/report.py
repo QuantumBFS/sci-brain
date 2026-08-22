@@ -620,7 +620,15 @@ def render_index(all_cycles, campaign_href=None):
     latest = cycles[-1]
     direction = latest["primary_metric"]["direction"]
     metric = latest["primary_metric"]["name"]
-    series = best_so_far(cycles, direction)
+    # Only cycles scored under the latest concrete definition share an axis;
+    # older cycles used different metrics/references and must not shape the
+    # best-so-far trajectory or the headline "best" number. The metric name
+    # (not the formula — that is mathematically identical across eras) is the
+    # reliable discriminator here.
+    axis = ([c for c in cycles
+             if c.get("primary_metric", {}).get("name") == metric]
+            if metric else cycles)
+    series = best_so_far(axis, direction)
     overall_best = series[-1][1] if series else None
     total_attempts = sum(len(c["attempts"]) for c in cycles)
     total_blacklist = sum(len(c["blacklist_new"]) for c in cycles)

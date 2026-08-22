@@ -64,7 +64,11 @@ Field notes:
   identifies the best attempt in the table, and drives the cross-cycle
   best-so-far trajectory in `index.html`. The cycle page itself plots every
   scored attempt's raw `primary` value from that cycle — never a cumulative
-  or best-so-far value. Never assume higher-is-better.
+  or best-so-far value. Never assume higher-is-better. The index trajectory
+  includes only cycles whose `primary_metric.name` matches the latest cycle's
+  — earlier cycles scored under different definitions stay in the table but
+  are excluded from the chart and the headline "best" (they are not
+  comparable).
 - `bar.value` is the target score from `bar.source`; it may be `null` when no
   target is defined. The cycle chart always draws the current cycle's best
   scored attempt as a dotted reference and draws the target as a dashed line
