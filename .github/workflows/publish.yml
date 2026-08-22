@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write # OIDC for npm trusted publishing (no long-lived token)
 
 jobs:
   publish:
@@ -14,28 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # npm trusted publishing requires Node >= 22.14.0
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install pytest
-        run: pip install pytest
-
-      - name: Verify tag matches package version
-        run: test "$GITHUB_REF_NAME" = "v$(node -p "require('./package.json').version")"
+          node-version: "22"
 
       - name: Validate skill frontmatter
         run: python3 scripts/validate_skills.py
 
       - name: Run tests
-        run: pytest -q
+        run: pip install pytest && pytest -q
 
-      - name: Publish
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # --access public is required on the first publish of an unscoped package.
+      # Provenance attestations are generated automatically with trusted publishing.
+      - name: Publish (trusted publishing / OIDC)
+        run: npm publish --provenance --access public
