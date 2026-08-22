@@ -142,7 +142,13 @@ def best_so_far(cycles, direction):
 
 
 def fmt_date(date_utc):
-    return date_utc.replace("T", " ").replace("Z", " UTC")
+    """YYYY-MM-DD[Thh:mm[:ss]Z] -> 'YYYY-MM-DD hh:mm UTC' (seconds dropped)."""
+    s = date_utc.replace("Z", "")
+    if "T" in s:
+        date, time = s.split("T", 1)
+        time = ":".join(time.split(":")[:2])
+        return f"{date} {time} UTC"
+    return s
 
 
 def first_sentence(md_text):
@@ -615,23 +621,18 @@ def render_index(all_cycles, campaign_href=None):
     total_attempts = sum(len(c["attempts"]) for c in cycles)
     total_blacklist = sum(len(c["blacklist_new"]) for c in cycles)
     bar = latest["bar"]["value"]
-    any_holdout = any(c["holdout"]["spent"] for c in cycles)
-    holdout_head = '<th>holdout</th>' if any_holdout else ''
 
     rows = []
     for c in cycles:
         n = c["cycle"]
         k = sum(1 for a in c["attempts"] if a["status"] == "improved")
         lo, hi = c["attempts_range"]
-        holdout_cell = (f'<td>{"spent" if c["holdout"]["spent"] else "—"}</td>'
-                        if any_holdout else '')
         rows.append(
             f'<tr><td><a href="cycle-{n:02d}.html">cycle {n:02d}</a></td>'
             f'<td>{esc(c["date_utc"][:10])}</td>'
             f'<td class="num">{lo:03d}–{hi:03d}</td>'
             f'<td class="num">{k}/{len(c["attempts"])}</td>'
             f'<td class="num">{fmt(c["best_this_cycle"])}</td>'
-            f'{holdout_cell}'
             f'<td class="hyp">{esc(first_sentence(c["reflection"]["next"]))}</td></tr>')
 
     campaign_link = (f'<footer><a href="{esc(campaign_href)}">'
@@ -650,7 +651,7 @@ def render_index(all_cycles, campaign_href=None):
 </div>
 <div class="scroll">
 <table><thead><tr><th>cycle</th><th>date</th><th class="num">attempts</th>
-<th class="num">yield</th><th class="num">best</th>{holdout_head}
+<th class="num">yield</th><th class="num">best</th>
 <th>next</th></tr></thead><tbody>{"".join(rows)}</tbody></table>
 </div>
 {campaign_link}"""

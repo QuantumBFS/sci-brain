@@ -221,12 +221,14 @@ class RenderTests(unittest.TestCase):
         for n in (1, 2, 3):
             self.assertIn(f"cycle-{n:02d}.html", index)
 
-    def test_index_hides_holdout_column_until_one_is_spent(self):
+    def test_index_never_shows_holdout_column(self):
         cycles = three_cycle_fixture()
         never_spent = report.render_index(cycles[:2])
         self.assertNotIn("<th>holdout</th>", never_spent)
+        # removed even when a cycle spent its holdout — the cycle page
+        # carries the result instead
         after_spend = report.render_index(cycles)
-        self.assertIn("<th>holdout</th>", after_spend)
+        self.assertNotIn("<th>holdout</th>", after_spend)
 
     def test_attempt_statuses_render_without_headline_kpis(self):
         self.run_main(2)

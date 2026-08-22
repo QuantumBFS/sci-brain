@@ -142,7 +142,7 @@ def render(cycles, extra_attempts, records_note, out):
         srows.append(
             f'<tr><td><a href="{c["_file"]}">cycle {c["cycle"]:02d}</a></td>'
             f'<td>{c["date_utc"][:10]}</td><td class="num">{lo:03d}–{hi:03d}</td>'
-            f'<td class="num">{k}/{n}</td><td class="num">{len(c["blacklist_new"])}</td>'
+            f'<td class="num">{k}/{n}</td>'
             f'<td class="hyp">{html.escape(R.first_sentence(c["reflection"]["next"]))}</td></tr>')
 
     yield_pts = []
@@ -157,7 +157,6 @@ def render(cycles, extra_attempts, records_note, out):
     total = len(rows)
     cycle_listed = sum(1 for r in rows if r["cycle"] is not None)
     improved = sum(1 for r in rows if r["status"] == "improved")
-    blacklisted = sum(len(c["blacklist_new"]) for c in cycles)
     project = cycles[-1]["project"]
     note_extra = (f" Records: {html.escape(records_note)}."
                   if records_note else "")
@@ -174,14 +173,14 @@ def render(cycles, extra_attempts, records_note, out):
     body = f"""
 <h1>{html.escape(project)} — full campaign</h1>
 <p class="meta">{len(cycles)} cycles · {total} worktree attempts
-({cycle_listed} cycle-listed) · {improved} improved · {blacklisted} blacklisted approaches</p>
+({cycle_listed} cycle-listed) · {improved} improved</p>
 <div class="card">
 <figure><figcaption>yield by cycle (fraction of attempts that improved)</figcaption>{chart}</figure>
 </div>
 <h2>Cycles</h2>
 <div class="scroll"><table>
 <thead><tr><th>cycle</th><th>date</th><th class="num">attempts</th><th class="num">yield</th>
-<th class="num">blacklist</th><th>next</th></tr></thead>
+<th>next</th></tr></thead>
 <tbody>{''.join(srows)}</tbody></table></div>
 <h2>All attempts ({total})</h2>
 <div class="scroll"><table>
