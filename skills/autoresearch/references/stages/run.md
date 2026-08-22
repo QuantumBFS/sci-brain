@@ -120,6 +120,12 @@ gate is never worked around; a user-approved exception goes into
    (`../report-schema.md`) and render the HTML report with
    `../../helpers/report.py` (non-fatal on failure — the md is canonical);
    increment `next_cycle`.
+   Once per campaign (or when the cross-cycle view needs refreshing),
+   `../../helpers/gen_campaign.py --dir docs/discussion/ [--records "..."]`
+   writes `campaign.html` — one page listing EVERY attempt across all
+   cycles (per-cycle summary + complete table with LOG links; worktree-only
+   attempts go in its `WORKTREE_ONLY` map). Non-fatal on failure, like
+   report.py.
 
    Before writing **Next round**, perform a deliberate recommendation pass —
    do not stop at the first plausible continuation. Re-read the gap to the
