@@ -38,7 +38,7 @@ skill folders.
 ## Verify
 
 ```bash
-find ~/.agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -print | sort
+find -L ~/.agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -print | sort
 ```
 
 You should see the sci-brain skill entry points, including

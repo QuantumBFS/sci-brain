@@ -47,6 +47,10 @@ def test_install_guides_discover_individual_skill_folders():
         assert 'skill_dir in "$SCI_BRAIN_DIR"/skills/*' in text
         assert '[ -f "$skill_dir/SKILL.md" ]' in text
         assert "skills/sci-brain" not in text
+    # The Codex verify step lists SKILL.md through symlinked skill folders, so
+    # `find` must follow links or it prints nothing after a successful install.
+    codex = (ROOT / ".codex" / "INSTALL.md").read_text()
+    assert "find -L ~/.agents/skills" in codex
 
 
 def test_retired_public_skill_names_do_not_reappear():
