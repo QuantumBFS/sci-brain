@@ -64,8 +64,33 @@ def test_retired_public_skill_names_do_not_reappear():
         assert "researchstyle" not in path.read_text(), path
 
 
+def test_folded_stage_names_do_not_reappear_in_public_docs_or_skills():
+    retired = ("survey-writer", "idea-writer", "import-dialog", "soul-extraction")
+    current_files = [
+        ROOT / "CLAUDE.md",
+        *SKILLS.glob("*/SKILL.md"),
+        *SKILLS.glob("_shared/*.md"),
+    ]
+    offenders = {
+        str(path.relative_to(ROOT)): [name for name in retired if name in path.read_text()]
+        for path in current_files
+        if any(name in path.read_text() for name in retired)
+    }
+    assert offenders == {}
+
+    readme = (ROOT / "README.md").read_text()
+    expected_migrations = {
+        "/survey-writer": "/survey",
+        "/idea-writer": "/brainstorm-ideas",
+        "/import-dialog": "/incarnate",
+        "/soul-extraction": "/incarnate",
+    }
+    for old, new in expected_migrations.items():
+        assert re.search(rf"\| `{re.escape(old)}` \| `{re.escape(new)}`", readme)
+
+
 def test_report_templates_name_the_canonical_bibliography():
     for filename in ("template.typ", "template.bib"):
-        text = (SKILLS / "survey-writer" / filename).read_text()
+        text = (SKILLS / "survey" / filename).read_text()
         assert ".knowledge/references.bib" in text
         assert "project's ref.bib" not in text

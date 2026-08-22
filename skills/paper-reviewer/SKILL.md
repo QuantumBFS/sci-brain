@@ -1,13 +1,13 @@
 ---
 name: paper-reviewer
-description: Use when reviewing, critiquing, commenting on, or fact-checking an existing scientific manuscript — "comment on my paper", "review my draft", "check my references", "verify my claims", or a referee-style read of a .tex/.typ/.md paper. Not for drafting from scratch (use paper-writer) or for technology/field assessments (use survey-writer).
+description: Use when reviewing, critiquing, commenting on, or fact-checking an existing scientific manuscript — "comment on my paper", "review my draft", "check my references", "verify my claims", or a referee-style read of a .tex/.typ/.md paper. Not for drafting from scratch (use paper-writer) or for technology/field assessments (use survey report mode).
 ---
 
 # Paper Reviewer
 
 Run a structured **review-and-enhance** pass over an *existing* scientific manuscript. The skill reads the whole paper, produces **location-anchored comments first**, then applies only the edits the user approves and re-checks that the manuscript still compiles.
 
-**Scope note.** This is the *reviewing/revising* counterpart to `paper-writer` (which *drafts* a manuscript figures-first). It is **not** `survey-writer`, which writes technology/field-assessment reports from a literature survey. Use `paper-reviewer` when a manuscript already exists and the user wants comments, a referee-style critique, reference/fact verification, or guideline-driven polish. If no manuscript exists yet, redirect to `paper-writer`.
+**Scope note.** This is the *reviewing/revising* counterpart to `paper-writer` (which *drafts* a manuscript figures-first). It is **not** `survey` report mode, which writes technology/field-assessment reports from a literature survey. Use `paper-reviewer` when a manuscript already exists and the user wants comments, a referee-style critique, reference/fact verification, or guideline-driven polish. If no manuscript exists yet, redirect to `paper-writer`.
 
 The eight guidelines below come from a manuscript-quality rubric. Where a rule is already defined as an *authoring* rule in `paper-writer/SKILL.md` (sentence/notation/figure discipline), this skill **references** it rather than restating it — consult `skills/paper-writer/SKILL.md` and `skills/paper-writer/references.md` for the *why* behind a rule. The full rubric lives in `skills/paper-reviewer/checklist.md`.
 

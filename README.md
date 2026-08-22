@@ -20,19 +20,16 @@ Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
 
 ## Start Here: Survey a Field
 
-The core of sci-brain is a three-skill pipeline — **search → fetch → write**:
+The core of sci-brain is a two-skill pipeline — **search → fetch → write**:
 
 ```
-/survey            search the literature, pick directions, get verified BibTeX
-/download-ref      download the PDFs, render full text into the knowledge base
-/survey-writer     write a structured review from what was collected
+/survey            search, curate, and write a structured review when ready
+/download-ref      fetch PDFs and render full text between collection and writing
 ```
 
-**`/survey`** asks one question to narrow your topic, then searches in parallel with up to seven strategies — landscape mapping, adjacent subfields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks. You pick which directions are worth keeping; only those go into the knowledge base. Every BibTeX entry is verified against CrossRef or Semantic Scholar — never invented from memory.
+**`/survey`** asks one question to narrow your topic, then searches in parallel with up to seven strategies — landscape mapping, adjacent subfields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks. You pick which directions are worth keeping; only those go into the knowledge base. Every BibTeX entry is verified against CrossRef or Semantic Scholar — never invented from memory. After full text is fetched, the same skill can turn the populated knowledge base into a structured assessment: what the technology is and why it matters, the main approaches with their state of the art and trade-offs, and the key open problems. It can also enter report mode directly for an existing KB.
 
 **`/download-ref`** fetches the papers behind those entries: metadata from Semantic Scholar, PDFs from arXiv (with a Sci-Hub fallback for paywalled DOIs), and optionally arXiv LaTeX sources. It renders each paper to markdown so later skills can read and quote the full text. It also works standalone — just say "add arXiv:2401.12345 to the KB".
-
-**`/survey-writer`** turns the populated knowledge base into a structured assessment: what the technology is and why it matters, the main approaches with state of the art and trade-offs per approach, and the key open problems. Output in Markdown, Typst, or LaTeX.
 
 Everything lands in one folder inside your project:
 
@@ -64,7 +61,6 @@ If you ran `/survey` first, the brainstorm automatically picks up the knowledge 
 
 | Skill | What it does |
 |-------|--------------|
-| `/idea-writer` | Turn a brainstorming session into a structured ideas report with its reasoning trail |
 | `/autoresearch` | Run the topics → evidence → validator → attempt loop; cycle size is configured up front as adjustable guidance |
 | `/paper-writer` | Draft a real manuscript: figures first → telegram outline → body → polish |
 | `/paper-reviewer` | Review an existing manuscript against writing guidelines; verifies references |
@@ -73,9 +69,7 @@ If you ran `/survey` first, the brainstorm automatically picks up the knowledge 
 | `/flow` | Autonomous deep-thinker that attacks one hard goal via a search loop |
 | `/know-me-better` | Index your Zotero / PDF folder / Google Scholar collection into the KB |
 | `/conversation-dump` | Extract and classify research conversations from Claude Code or Codex histories |
-| `/import-dialog` | Import Markdown conversation exports into the advisor workflow |
-| `/soul-extraction` | Distill reasoning patterns from classified conversations |
-| `/incarnate` | Capture your thinking style as a reusable advisor profile |
+| `/incarnate` | Import JSONL or Markdown conversations, distill thinking patterns, and capture a reusable advisor profile |
 
 ## Where Things Are Saved
 
@@ -100,6 +94,15 @@ The whole process is interactive — you review everything before it's published
 ## Upgrading from ≤ 0.2
 
 > ⚠️ **Breaking change in v0.3.** Knowledge bases moved from per-topic registries (`~/.claude/survey/<topic>/` with `summary.md` + `references.bib`) to one `<project>/.knowledge/` per project, with `references.bib` living *inside* the KB. The `fetch-papers` skill was folded into `download-ref --from-bib`. See [`CLAUDE.md`](./CLAUDE.md) § "Migrating from the pre-0.3 layout" for `mv` commands.
+
+Four internal stages are now modes of their goal-level skill. Update explicit command references as follows:
+
+| Previous command | Current entry point |
+|------------------|---------------------|
+| `/survey-writer` | `/survey` in Survey Report mode |
+| `/idea-writer` | `/brainstorm-ideas` in Ideas Report mode |
+| `/import-dialog` | `/incarnate` with Markdown dialog input |
+| `/soul-extraction` | `/incarnate` in analysis-only mode |
 
 ## Contributors
 

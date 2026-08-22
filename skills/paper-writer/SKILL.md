@@ -7,7 +7,7 @@ description: Use when drafting or revising a scientific manuscript with real res
 
 A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. Both source documents are preserved at `skills/paper-writer/references.md` and `skills/paper-writer/sources/` — consult them when this SKILL.md leaves a question open.
 
-**Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `idea-writer`. If the user has not yet finished the work, push back: a paper requires results.
+**Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `brainstorm-ideas` report mode. If the user has not yet finished the work, push back: a paper requires results.
 
 Use `skills/_shared/writing-workflow.md` for KB loading, citation handling, missing references, output formats, and Typst/diagram mechanics. The manuscript-specific rules below override shared defaults when venue templates or figure-first sequencing require it.
 
