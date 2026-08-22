@@ -34,6 +34,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
+          elif [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            git diff --check HEAD~1..HEAD || git diff --check "$(git hash-object -t tree /dev/null)" HEAD
           else
             git diff --check "${{ github.event.before }}..${{ github.sha }}"
           fi
