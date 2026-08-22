@@ -229,6 +229,8 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
     pts = [(x, y) for x, y in points if y is not None]
     ml, mr, mt, mb = 52, 96, 18, 30
     pw, ph = width - ml - mr, height - mt - mb
+    LABEL_GAP = 16  # min vertical separation between reference labels
+    label_ys = []
     references = []
     if current_best is not None:
         references.append({
@@ -308,10 +310,16 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
 
     for ref in references:
         ry = Y(ref["value"])
+        ly = ry
+        # nudge labels apart so nearby reference lines' labels never collide
+        for prev in label_ys:
+            if abs(ly - prev) < LABEL_GAP:
+                ly = prev - LABEL_GAP if ly < prev else prev + LABEL_GAP
+        label_ys.append(ly)
         parts.append(f'<line x1="{ml}" y1="{ry:.1f}" x2="{ml + pw}" y2="{ry:.1f}" '
                      f'stroke="{ref["color"]}" stroke-width="1" '
                      f'stroke-dasharray="{ref["dash"]}"/>')
-        parts.append(f'<text x="{ml + pw + 6}" y="{ry:.1f}" dominant-baseline="middle" '
+        parts.append(f'<text x="{ml + pw + 6}" y="{ly:.1f}" dominant-baseline="middle" '
                      f'fill="{ref["color"]}" font-size="11">'
                      f'{esc(ref["label"])}</text>')
 
@@ -323,9 +331,15 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
         parts.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" fill="{color}">'
                      f'<title>{esc(x_label)} {x}: {fmt(y)}</title></circle>')
     lx, ly = pts[-1]
-    parts.append(f'<text x="{X(lx) + 9:.1f}" y="{Y(ly):.1f}" dominant-baseline="middle" '
+    label_x, label_y, label_txt = X(lx) + 9, Y(ly), fmt(ly)
+    # halo first so reference lines crossing the last-point label stay legible
+    parts.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" dominant-baseline="middle" '
+                 f'stroke="#f9f9f7" stroke-width="3" paint-order="stroke" '
+                 f'font-size="12" font-weight="600" '
+                 f'font-variant-numeric="tabular-nums">{label_txt}</text>')
+    parts.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" dominant-baseline="middle" '
                  f'fill="{INK}" font-size="12" font-weight="600" '
-                 f'font-variant-numeric="tabular-nums">{fmt(ly)}</text>')
+                 f'font-variant-numeric="tabular-nums">{label_txt}</text>')
     parts.append("</svg>")
     return "\n".join(parts)
 
@@ -467,6 +481,8 @@ h4, h5, h6 { font-size: 14px; margin: 12px 0 4px; }
 a { color: #1c5cab; }
 .meta { color: #52514e; margin: 0 0 16px; }
 .note { color: #898781; font-size: 12px; margin: 6px 0 0; }
+.score-formula { margin: 0 0 8px; font-size: 12px; color: #52514e;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .card { background: #fcfcfb; border: 1px solid rgba(11,11,11,0.10);
   border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
 table { border-collapse: collapse; width: 100%; background: #fcfcfb; }
@@ -552,12 +568,15 @@ def render_cycle(data, all_cycles):
     holdout_extra = (f'<p class="note"><strong>Holdout:</strong> '
                      f'{esc(data["holdout"]["result"])}</p>'
                      if data["holdout"]["spent"] else "")
+    score_formula = data.get("score_formula")
+    formula_html = (f'<p class="score-formula">{md_inline(score_formula)}</p>'
+                    if score_formula else "")
 
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
-<p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}
-· attempts remaining after this cycle: {data["attempts_remaining"]}</p>
+<p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}</p>
 <h2>Review — what we did</h2>
 <div class="card">
+{formula_html}
 <figure><figcaption>current-cycle {esc(metric)} by attempt
 ({'higher' if direction == 'max' else 'lower'} is better; dotted = current best;
 dashed = target when set)</figcaption>
@@ -592,19 +611,23 @@ def render_index(all_cycles, campaign_href=None):
     total_attempts = sum(len(c["attempts"]) for c in cycles)
     total_blacklist = sum(len(c["blacklist_new"]) for c in cycles)
     bar = latest["bar"]["value"]
+    any_holdout = any(c["holdout"]["spent"] for c in cycles)
+    holdout_head = '<th>holdout</th>' if any_holdout else ''
 
     rows = []
     for c in cycles:
         n = c["cycle"]
         k = sum(1 for a in c["attempts"] if a["status"] == "improved")
         lo, hi = c["attempts_range"]
+        holdout_cell = (f'<td>{"spent" if c["holdout"]["spent"] else "—"}</td>'
+                        if any_holdout else '')
         rows.append(
             f'<tr><td><a href="cycle-{n:02d}.html">cycle {n:02d}</a></td>'
             f'<td>{esc(c["date_utc"][:10])}</td>'
             f'<td class="num">{lo:03d}–{hi:03d}</td>'
             f'<td class="num">{k}/{len(c["attempts"])}</td>'
             f'<td class="num">{fmt(c["best_this_cycle"])}</td>'
-            f'<td>{"spent" if c["holdout"]["spent"] else "—"}</td>'
+            f'{holdout_cell}'
             f'<td class="hyp">{esc(first_sentence(c["reflection"]["next"]))}</td></tr>')
 
     campaign_link = (f'<footer><a href="{esc(campaign_href)}">'
@@ -623,7 +646,7 @@ def render_index(all_cycles, campaign_href=None):
 </div>
 <div class="scroll">
 <table><thead><tr><th>cycle</th><th>date</th><th class="num">attempts</th>
-<th class="num">yield</th><th class="num">best</th><th>holdout</th>
+<th class="num">yield</th><th class="num">best</th>{holdout_head}
 <th>next</th></tr></thead><tbody>{"".join(rows)}</tbody></table>
 </div>
 {campaign_link}"""
