@@ -119,7 +119,23 @@ gate is never worked around; a user-approved exception goes into
    `../reflection-template.md`, then emit `cycle-NN.json`
    (`../report-schema.md`) and render the HTML report with
    `../../helpers/report.py` (non-fatal on failure — the md is canonical);
-   increment `next_cycle`. Dev-score
+   increment `next_cycle`.
+
+   Before writing **Next round**, perform a deliberate recommendation pass —
+   do not stop at the first plausible continuation. Re-read the gap to the
+   GOAL.md bar, every lesson and root-cause confidence, per-instance evidence,
+   the cumulative blacklist, relevant INSIGHTS/CATALOG entries, the literature
+   check, and attempt cost. Generate 4–6 materially distinct candidates, remove
+   anything contradicted by evidence, already tried, weak against the diagnosed
+   bottleneck, or merely a parameter tweak, then rank the survivors by expected
+   gap closure × distinctness (cost remains a constraint). Put the best 2–4 in
+   the report and explicitly recommend the top choice. For each direction give:
+   the falsifiable mechanism, the concrete evidence/reason it is promising, its
+   relation to prior art and prior attempts, the first discriminating attempt,
+   and the result that would support or kill it. If wind-down/pivot ranks first,
+   say so honestly rather than manufacturing another experiment.
+
+   Dev-score
    selection overfits over long runs: if the holdout query budget in the
    validator manifest allows, adjudicate the cycle's top candidate on the
    holdout (aggregate result only) and record it.
@@ -138,11 +154,9 @@ gate is never worked around; a user-approved exception goes into
      again from the recommendation, evidence, and remaining authorization;
    - if exhausted: stop and present the report — summarize in the
      terminal and point the user at `docs/discussion/cycle-NN.html` and
-     `index.html` — followed by **2–4 candidate directions** for the next
-     batch, grounded in the cycle's lessons: e.g. deepen the winning
-     branch, attack the diagnosed root-cause bottleneck, open an untried
-     direction, or wind down. One line each: what it is, which lesson or
-     root cause motivates it, and what it would settle. The user decides
+     `index.html` — followed by the same **2–4 ranked directions** from the
+     report, not a newly improvised list. State which one the agent recommends
+     and why it outranks the alternatives. The user decides
      both **which direction(s)** to pursue and **how many attempts** to
      authorize (a number; 0 = stop; the user's own directions and
      amendments welcome as free text). Attempts are the unit the user

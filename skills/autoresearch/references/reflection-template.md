@@ -57,10 +57,30 @@ action. Required structure:
     any Shelved insights now look relevant?
 
     ## Next round
-    The next batch's research hypothesis (falsifiable, one paragraph), the
-    planned attempts sketched in one line each, and what would make this
-    direction abandoned. If proposing to promote Shelved insights or
-    distill new ones, list them here for user confirmation at the gate.
+    Think hard before recommending: compare the goal gap, root-cause
+    diagnoses and their confidence, per-instance evidence, cumulative
+    blacklist, relevant insights/catalog entries, literature check, and
+    attempt cost. Generate 4–6 materially distinct candidates, reject those
+    already tried or contradicted by evidence, then rank the best **2–4
+    promising directions** by expected gap closure × distinctness (with cost
+    as a constraint). Do not pad the list with cosmetic variants.
+
+    For every ranked direction include:
+    - **Hypothesis and mechanism** — falsifiable, against the current gap.
+    - **Why promising** — the specific lesson, root cause, validator evidence,
+      or prior art that supports it; reasons such as "worth trying" are not
+      sufficient.
+    - **Novelty / relation to attempts** — why it is not a repeat and what it
+      borrows or rejects from prior work.
+    - **First discriminating attempt** — the cheapest attempt that separates
+      this explanation from alternatives.
+    - **Decision signal** — what result would strengthen it, kill it, or force
+      a pivot.
+
+    End with **Recommendation:** name the top direction and explain why it
+    outranks the alternatives now. A well-supported wind-down/pivot is a valid
+    recommendation. If proposing to promote Shelved insights or distill new
+    ones, list them here for user confirmation at the gate.
 
 ## HTML report (after the markdown)
 

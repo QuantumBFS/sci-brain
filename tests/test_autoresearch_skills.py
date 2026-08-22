@@ -229,7 +229,7 @@ def test_run_soft_gate_on_authorized_attempts():
     text = _stage("run")
     assert "authorized_attempts" in text
     assert "recommended_cycle_size" in text
-    assert "candidate directions" in text
+    assert "ranked directions" in text
     assert "how many attempts" in text
 
 
@@ -283,6 +283,19 @@ def test_reflection_template_has_review_lessons_next_shape():
                     "### Evidence carried forward", "### Literature check",
                     "## Next round"]:
         assert section in text
+
+
+def test_next_round_report_ranks_evidence_grounded_directions():
+    template = _ref("reflection-template.md")
+    run = _stage("run")
+    schema = _ref("report-schema.md")
+    for marker in ["2–4", "Why promising", "First discriminating attempt",
+                   "Decision signal", "Recommendation:"]:
+        assert marker in template
+    assert "Generate 4–6 materially distinct candidates" in template
+    assert "do not stop at the first plausible continuation" in run
+    assert "same **2–4 ranked directions** from the" in run
+    assert "explicit top recommendation" in schema
 
 
 # ---- SOTA-informed hardening (2026-07 survey) ----

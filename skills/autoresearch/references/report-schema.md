@@ -75,7 +75,10 @@ Field notes:
   (minimal markdown is rendered: headings, lists, bold/italic/code/links;
   raw HTML is escaped): `review` = "Review — what we did" (facts + budget
   state), `evidence` = "Evidence carried forward", `literature` =
-  "Literature check", `next` = "Next round". The "Lessons we learnt"
+  "Literature check", `next` = "Next round". `next` contains the ranked 2–4
+  promising directions, evidence-backed reasons, discriminating attempts,
+  decision signals, and explicit top recommendation required by the reflection
+  template. The "Lessons we learnt"
   subsection is carried structured in `lessons` only, never as prose.
 - `best_this_cycle` / `best_prior` may be `null` (all attempts failed /
   first cycle). `holdout.result` is a short aggregate string when

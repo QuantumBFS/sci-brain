@@ -61,7 +61,7 @@ If you ran `/survey` first, the brainstorm automatically picks up the knowledge 
 
 | Skill | What it does |
 |-------|--------------|
-| `/autoresearch` | Run the topics → evidence → validator → attempt loop; cycle size is configured up front as adjustable guidance |
+| `/autoresearch` | Run the topics → evidence → validator → attempt loop; cycle size is adjustable guidance and each report ranks evidence-grounded next directions |
 | `/paper-writer` | Draft a real manuscript: figures first → telegram outline → body → polish |
 | `/paper-reviewer` | Review an existing manuscript against writing guidelines; verifies references |
 | `/slide-writer` | Build Typst + Touying slide decks from a browsable theme/layout/gadget zoo |
