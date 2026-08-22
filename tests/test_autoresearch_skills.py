@@ -268,6 +268,16 @@ def test_run_writes_reflection_reports():
     text = _stage("run")
     assert "docs/discussion/" in text
     assert "reflection-template.md" in text
+    assert "gen_campaign.py" in text
+    assert "campaign.html" in text
+
+
+def test_campaign_helper_is_documented_and_tested():
+    assert (AR / "helpers" / "gen_campaign.py").exists()
+    assert (AR / "helpers" / "test_gen_campaign.py").exists()
+    assert "helpers/gen_campaign.py" in _skill()
+    assert "campaign.html" in _ref("reflection-template.md")
+    assert "helpers/gen_campaign.py" in _ref("report-schema.md")
 
 
 def test_attempt_protocol_defines_log_and_scoring():

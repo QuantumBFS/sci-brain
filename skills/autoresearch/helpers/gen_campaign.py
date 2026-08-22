@@ -3,6 +3,7 @@
 
 Usage:
     python3 gen_campaign.py --dir docs/discussion/ [--out campaign.html]
+        [--extra docs/discussion/campaign-extra.json]
 
 Reads every cycle-*.json in --dir (siblings of the per-cycle reports),
 renders a single campaign.html listing ALL attempts across ALL cycles
@@ -10,13 +11,13 @@ renders a single campaign.html listing ALL attempts across ALL cycles
 attempt's id to its worktree LOG.md. Reuses report.py for CSS/charts/
 escaping. Deterministic: same inputs give byte-identical output.
 
-Attempts consumed by dev campaigns without validator scoring (worktree
-present, no cycle listing) can be described in WORKTREE_ONLY below; they
-render with an "unscored" chip so the campaign table stays complete.
+Attempts consumed outside a scored cycle can be supplied with `--extra`;
+they render with an "unscored" chip so the campaign table stays complete.
+The extra file is a JSON array whose entries contain `id`, `kind`, `parent`,
+`hypothesis`, and `causal_note`, plus optional `log_path`.
 """
 
 import argparse
-import glob
 import html
 import json
 import sys
@@ -24,20 +25,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import report as R
-
-# id -> (kind, parent, hypothesis, causal_note) for worktree-only attempts
-# that no cycle JSON lists (dev campaigns, pre-scoring era). Keys are ints.
-WORKTREE_ONLY = {
-    25: dict(kind=None, parent=None,
-             hypothesis="worktree attempt-025 exists but holds no LOG.md / report.json — no record preserved",
-             causal_note="no LOG.md, no report.json, no cycle listing"),
-    57: dict(kind="draft", parent=38,
-             hypothesis="scalable quotient-graph VE seed (AMD-style elimination order) — fixes 038's heap-freeze at 4k+ labels",
-             causal_note="dev campaign (057/058): seeds emitted in tens of ms at 30k-70k tensors (vs 84 s before); relational_4 tc 108.97 vs ~202 floor; not validator-scored"),
-    58: dict(kind="improve", parent=53,
-             hypothesis="bounded cheap-first VE peel, adaptive ladder + racing fallback (053 falsified at nqueens; new annealer-immobile regime)",
-             causal_note="confirmed on the immobile regime: decisive win is unbounded VE rung + library-greedy-hang fix; finite rungs carry linkage/reg3; not validator-scored"),
-}
 
 KIND_CLS = {"draft": "kind-draft", "improve": "kind-improve", "debug": "kind-debug"}
 ST_CLS = {"improved": "st-good", "no-change": "st-neutral",
@@ -64,6 +51,7 @@ def fmt(v):
 
 def load(directory):
     cycles = []
+    invalid = []
     for f in sorted(directory.glob("cycle-*.json")):
         try:
             d = json.loads(f.read_text(encoding="utf-8"))
@@ -71,14 +59,51 @@ def load(directory):
         except (json.JSONDecodeError, OSError) as e:
             d, errs = None, [str(e)]
         if errs:
-            print(f"gen_campaign.py: skipping {f.name}: {errs[0]}", file=sys.stderr)
-            continue
-        d["_file"] = f.name.replace(".json", ".html")
-        cycles.append(d)
+            invalid.append(f"{f.name}: {errs[0]}")
+        else:
+            d["_file"] = f.name.replace(".json", ".html")
+            cycles.append(d)
+    if invalid:
+        raise ValueError("invalid cycle data: " + "; ".join(invalid))
     return cycles
 
 
-def render(cycles, records_note, out):
+def load_extra(path):
+    """Load optional unscored attempts without baking campaign data into code."""
+    if path is None:
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        raise ValueError(f"cannot read extra attempts: {e}") from e
+    if not isinstance(data, list):
+        raise ValueError("extra attempts must be a JSON array")
+    required = ("id", "kind", "parent", "hypothesis", "causal_note")
+    rows = []
+    for i, entry in enumerate(data):
+        if not isinstance(entry, dict):
+            raise ValueError(f"extra[{i}] must be an object")
+        missing = [field for field in required if field not in entry]
+        if missing:
+            raise ValueError(f"extra[{i}] missing {', '.join(missing)}")
+        if not isinstance(entry["id"], int):
+            raise ValueError(f"extra[{i}].id must be an integer")
+        if entry["kind"] is not None and entry["kind"] not in R.KINDS:
+            raise ValueError(f"extra[{i}].kind must be one of {R.KINDS} or null")
+        if entry["parent"] is not None and not isinstance(entry["parent"], int):
+            raise ValueError(f"extra[{i}].parent must be an integer or null")
+        for field in ("hypothesis", "causal_note"):
+            if not isinstance(entry[field], str):
+                raise ValueError(f"extra[{i}].{field} must be a string")
+        row = dict(entry)
+        row.setdefault("log_path", f".worktrees/attempt-{entry['id']:03d}/LOG.md")
+        if not isinstance(row["log_path"], str):
+            raise ValueError(f"extra[{i}].log_path must be a string")
+        rows.append(row)
+    return rows
+
+
+def render(cycles, extra_attempts, records_note, out):
     rows = []
     for c in cycles:
         for a in c["attempts"]:
@@ -86,18 +111,20 @@ def render(cycles, records_note, out):
             if isinstance(a.get("parent"), str):
                 a["parent"] = int(a["parent"])
             rows.append(dict(a, cycle=c["cycle"], _file=c["_file"]))
-    for n, e in WORKTREE_ONLY.items():
-        rows.append(dict(id=n, cycle=None, kind=e["kind"], parent=e["parent"],
-                         hypothesis=e["hypothesis"], primary=None, status=None,
-                         causal_note=e["causal_note"],
-                         log_path=f".worktrees/attempt-{n:03d}/LOG.md", _file=None))
+    for entry in extra_attempts:
+        rows.append(dict(entry, cycle=None, primary=None, status=None, _file=None))
     rows.sort(key=lambda r: r["id"])
+    ids = [r["id"] for r in rows]
+    duplicates = sorted({attempt_id for attempt_id in ids if ids.count(attempt_id) > 1})
+    if duplicates:
+        raise ValueError(f"duplicate attempt ids: {duplicates}")
 
     trows = []
     for r in rows:
         cyc = (f'<a href="{r["_file"]}">c{r["cycle"]:02d}</a>'
                if r["cycle"] is not None else '<span class="note">—</span>')
-        log = f'<a href="../../{r["log_path"]}">{r["id"]:03d}</a>'
+        log_path = html.escape(r["log_path"], quote=True)
+        log = f'<a href="../../{log_path}">{r["id"]:03d}</a>'
         parent = f'{r["parent"]:03d}' if r["parent"] is not None else "—"
         trows.append(
             f'<tr><td class="idcell">{log}</td><td>{cyc}</td>'
@@ -118,23 +145,36 @@ def render(cycles, records_note, out):
             f'<td class="num">{k}/{n}</td><td class="num">{len(c["blacklist_new"])}</td>'
             f'<td class="hyp">{html.escape(R.first_sentence(c["reflection"]["next"]))}</td></tr>')
 
-    yield_pts = [(c["cycle"],
-                  sum(1 for a in c["attempts"] if a["status"] == "improved") / len(c["attempts"]))
-                 for c in cycles]
+    yield_pts = []
+    for c in cycles:
+        count = len(c["attempts"])
+        improved_count = sum(1 for a in c["attempts"]
+                             if a["status"] == "improved")
+        yield_pts.append((c["cycle"], improved_count / count if count else None))
     chart = R.svg_line_chart(yield_pts, title="yield (fraction improved) by cycle",
                              width=720, height=200)
 
     total = len(rows)
-    scored = sum(1 for r in rows if r["primary"] is not None)
+    cycle_listed = sum(1 for r in rows if r["cycle"] is not None)
     improved = sum(1 for r in rows if r["status"] == "improved")
     blacklisted = sum(len(c["blacklist_new"]) for c in cycles)
     project = cycles[-1]["project"]
-    note_extra = (f" Records: {records_note}." if records_note else "")
+    note_extra = (f" Records: {html.escape(records_note)}."
+                  if records_note else "")
+    metric_defs = {(c["primary_metric"]["name"],
+                    c["primary_metric"]["direction"]) for c in cycles}
+    if len(metric_defs) == 1:
+        metric_name, metric_direction = next(iter(metric_defs))
+        metric_note = (f"Primary = {html.escape(metric_name)} "
+                       f"({'higher' if metric_direction == 'max' else 'lower'} is better).")
+    else:
+        metric_note = ("Primary metric definitions vary across cycles; each cycle page "
+                       "records its own metric and direction.")
 
     body = f"""
 <h1>{html.escape(project)} — full campaign</h1>
 <p class="meta">{len(cycles)} cycles · {total} worktree attempts
-({scored} validator-scored) · {improved} improved · {blacklisted} blacklisted approaches</p>
+({cycle_listed} cycle-listed) · {improved} improved · {blacklisted} blacklisted approaches</p>
 <div class="card">
 <figure><figcaption>yield by cycle (fraction of attempts that improved)</figcaption>{chart}</figure>
 </div>
@@ -148,14 +188,15 @@ def render(cycles, records_note, out):
 <thead><tr><th>id</th><th>cycle</th><th>kind</th><th class="num">parent</th>
 <th class="num">primary</th><th>status</th><th>hypothesis</th><th>causal note</th></tr></thead>
 <tbody>{''.join(trows)}</tbody></table></div>
-<p class="note">Primary = validator score (mean tc delta vs record; higher better). Score scales
-may differ across metric-axis changes between cycles — direction (max) is the same; each cycle's
-page carries its own axis. Attempts listed without a cycle were consumed by dev campaigns
-without validator scoring (their worktrees document them).{note_extra}</p>
+<p class="note">{metric_note} Attempts listed without a cycle came from the optional
+extra-attempt records and were not cycle-scored.{note_extra}</p>
 <footer><a href="index.html">index</a></footer>
 """
     out.write_text(R.page(f"{project} — full campaign", body), encoding="utf-8")
-    print(f"wrote {out}")
+    index_path = out.parent / "index.html"
+    index_path.write_text(R.render_index(cycles, campaign_href=out.name),
+                          encoding="utf-8")
+    print(f"wrote {out}\nwrote {index_path}")
 
 
 def main(argv=None):
@@ -166,16 +207,22 @@ def main(argv=None):
                     help="output filename inside --dir (default campaign.html)")
     ap.add_argument("--records", default="",
                     help="optional one-line records summary appended to the note")
+    ap.add_argument("--extra", type=Path,
+                    help="optional JSON array of unscored/worktree-only attempts")
     args = ap.parse_args(argv)
     directory = Path(args.dir)
     if not directory.is_dir():
         print(f"gen_campaign.py: no such directory: {directory}", file=sys.stderr)
         sys.exit(1)
-    cycles = load(directory)
-    if not cycles:
-        print("gen_campaign.py: no valid cycle-*.json found", file=sys.stderr)
+    try:
+        cycles = load(directory)
+        if not cycles:
+            raise ValueError("no valid cycle-*.json found")
+        extra_attempts = load_extra(args.extra)
+        render(cycles, extra_attempts, args.records, directory / args.out)
+    except ValueError as e:
+        print(f"gen_campaign.py: {e}", file=sys.stderr)
         sys.exit(1)
-    render(cycles, args.records, directory / args.out)
 
 
 if __name__ == "__main__":

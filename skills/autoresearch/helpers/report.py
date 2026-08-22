@@ -610,7 +610,7 @@ def render_cycle(data, all_cycles):
     return page(f"{data['project']} — cycle {nn:02d}", body)
 
 
-def render_index(all_cycles):
+def render_index(all_cycles, campaign_href=None):
     cycles = sorted(all_cycles, key=lambda c: c["cycle"])
     latest = cycles[-1]
     direction = latest["primary_metric"]["direction"]
@@ -635,6 +635,9 @@ def render_index(all_cycles):
             f'<td>{"spent" if c["holdout"]["spent"] else "—"}</td>'
             f'<td class="hyp">{esc(first_sentence(c["reflection"]["next"]))}</td></tr>')
 
+    campaign_link = (f'<footer><a href="{esc(campaign_href)}">'
+                     'full campaign overview</a></footer>'
+                     if campaign_href else "")
     body = f"""<h1>{esc(latest["project"])} — autoresearch cycles</h1>
 <p class="meta">{len(cycles)} cycles · {total_attempts} attempts ·
 {total_blacklist} blacklisted approaches · best {esc(metric)}
@@ -650,7 +653,8 @@ def render_index(all_cycles):
 <table><thead><tr><th>cycle</th><th>date</th><th class="num">attempts</th>
 <th class="num">yield</th><th class="num">best</th><th>holdout</th>
 <th>next</th></tr></thead><tbody>{"".join(rows)}</tbody></table>
-</div>"""
+</div>
+{campaign_link}"""
     return page(f"{latest['project']} — autoresearch cycles", body)
 
 
@@ -703,7 +707,9 @@ def main(argv=None):
     cycle_path = directory / f"cycle-{args.cycle:02d}.html"
     cycle_path.write_text(render_cycle(target, all_cycles), encoding="utf-8")
     index_path = directory / "index.html"
-    index_path.write_text(render_index(all_cycles), encoding="utf-8")
+    campaign_href = "campaign.html" if (directory / "campaign.html").is_file() else None
+    index_path.write_text(render_index(all_cycles, campaign_href=campaign_href),
+                          encoding="utf-8")
     print(f"wrote {cycle_path}\nwrote {index_path}")
 
 

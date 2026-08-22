@@ -91,6 +91,12 @@ timestamp prefix, NN zero-padded to 2) and render it:
     python3 <skill-dir>/helpers/report.py --cycle NN --dir docs/discussion/
 
 This writes `cycle-NN.html` and regenerates `index.html` (the cross-cycle
-view). If the helper exits nonzero it names the bad field — fix the JSON
-and re-run; if it still fails, record the error in the reflection md and
-continue. The HTML must never block a cycle.
+trajectory). Then refresh the complete attempt inventory:
+
+    python3 <skill-dir>/helpers/gen_campaign.py --dir docs/discussion/
+
+This writes `campaign.html`, linked from `index.html`. Use `--extra <path>`
+only for a project-owned JSON array of attempts that are not represented in
+any cycle JSON. If either helper exits nonzero, fix the named field and re-run;
+if it still fails, record the error in the reflection md and continue. HTML
+generation must never block a cycle.

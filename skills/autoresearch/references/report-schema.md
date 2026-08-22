@@ -2,8 +2,9 @@
 
 Written by the agent during the Reflect step, *after* the canonical
 `cycle-NN.md`. Rendered by `helpers/report.py` into `cycle-NN.html` +
-`index.html` (see `report.py --help`). The markdown stays canonical; this
-JSON is a structured copy for presentation only. Filenames carry no
+`index.html`, and aggregated by `helpers/gen_campaign.py` into
+`campaign.html` (see each helper's `--help`). The markdown stays canonical;
+this JSON is a structured copy for presentation only. Filenames carry no
 timestamp prefix (`cycle-03.json`, zero-padded to 2 digits) so prior cycles
 are globbable without date parsing.
 

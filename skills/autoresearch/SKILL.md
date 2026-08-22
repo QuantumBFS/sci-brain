@@ -21,7 +21,8 @@ Supporting references: `references/insights-template.md` (db),
 `references/validator-contract.md` + `references/negative-controls.md`
 (validator), `references/attempt-protocol.md` +
 `references/reflection-template.md` + `references/report-schema.md` (run),
-`helpers/report.py` (HTML cycle reports).
+`helpers/report.py` (HTML cycle reports) and `helpers/gen_campaign.py`
+(cross-cycle full-campaign overview).
 
 ## Procedure
 

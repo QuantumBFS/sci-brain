@@ -120,12 +120,13 @@ gate is never worked around; a user-approved exception goes into
    (`../report-schema.md`) and render the HTML report with
    `../../helpers/report.py` (non-fatal on failure — the md is canonical);
    increment `next_cycle`.
-   Once per campaign (or when the cross-cycle view needs refreshing),
+   After every cycle, also run
    `../../helpers/gen_campaign.py --dir docs/discussion/ [--records "..."]`
-   writes `campaign.html` — one page listing EVERY attempt across all
-   cycles (per-cycle summary + complete table with LOG links; worktree-only
-   attempts go in its `WORKTREE_ONLY` map). Non-fatal on failure, like
-   report.py.
+   to refresh `campaign.html` — one page listing every attempt across all
+   cycles (per-cycle summary + complete table with LOG links). If a campaign
+   has worktree-only attempts outside the cycle JSON, record them in a
+   project-owned JSON array and pass `--extra <path>`; never hard-code campaign
+   data into the shared helper. Non-fatal on failure, like `report.py`.
 
    Before writing **Next round**, perform a deliberate recommendation pass —
    do not stop at the first plausible continuation. Re-read the gap to the
@@ -146,7 +147,7 @@ gate is never worked around; a user-approved exception goes into
    validator manifest allows, adjudicate the cycle's top candidate on the
    holdout (aggregate result only) and record it.
 5. **Sync.** Commit the cycle's artifacts to the main branch — the
-   reflection md/json/html and `index.html`, STATE.md, any INSIGHTS.md
+   reflection md/json/html, `index.html`, `campaign.html`, STATE.md, any INSIGHTS.md
    changes, and the validator manifest (holdout query log) — then, when a
    remote is configured, push main plus every `attempt-NNN` branch from
    this cycle (each carries its generated code, `LOG.md`, and
