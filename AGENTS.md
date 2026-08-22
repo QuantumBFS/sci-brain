@@ -10,4 +10,5 @@ Repository-wide checks:
   name, and keep the containing directory, documentation, and tests aligned.
 - Preserve the canonical knowledge-base layout under `.knowledge/`, including
   `.knowledge/references.bib`.
-- Run `pytest -q` and `git diff --check` before opening a pull request.
+- Run `python3 scripts/validate_skills.py`, `pytest -q`, and `git diff --check`
+  before opening a pull request (the same checks CI runs in `.github/workflows/ci.yml`).
