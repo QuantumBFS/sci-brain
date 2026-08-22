@@ -1,13 +1,13 @@
 ---
 name: bump-version
-description: Use when the user asks to tag, release, or bump the version of the sci-brain plugin (e.g. "tag a version", "cut a release", "bump to 0.3.0", "release v0.x"). Handles the two-file version sync, commit, annotated tag, push, and GitHub release.
+description: Use when the user asks to tag, release, or bump the version of the sci-brain plugin (e.g. "tag a version", "cut a release", "bump to 0.3.0", "release v0.x"). Handles the three-manifest version sync, commit, annotated tag, push, and GitHub release.
 ---
 
 # Bump Version
 
 ## Overview
 
-sci-brain is a Claude Code plugin. Its version is declared in **two** JSON files that must stay in lockstep — the marketplace reads it from `marketplace.json`, plugin tooling reads it from `plugin.json`. A release is: bump both files → commit → annotated tag → push → GitHub release.
+sci-brain is a Claude Code plugin. Its version is declared in **three** JSON files that must stay in lockstep — the marketplace reads it from `marketplace.json`, plugin tooling reads it from `plugin.json`, and npm/pi read it from `package.json`. CI (`scripts/validate_skills.py`) fails if they diverge, and `.github/workflows/publish.yml` refuses to publish unless the pushed tag equals `v` + `package.json`'s version. A release is: bump all three files → commit → annotated tag → push → GitHub release.
 
 ## Version Source of Truth
 
@@ -15,8 +15,9 @@ sci-brain is a Claude Code plugin. Its version is declared in **two** JSON files
 |---|---|
 | `.claude-plugin/plugin.json` | `.version` |
 | `.claude-plugin/marketplace.json` | `.plugins[0].version` |
+| `package.json` | `.version` |
 
-Both MUST match. If they diverge, the marketplace and the installed plugin will report different versions.
+All three MUST match. If they diverge, CI's version-sync check fails, the npm publish tag gate rejects the release, and the marketplace and the installed plugin report different versions.
 
 ## When to Use
 
@@ -40,16 +41,18 @@ If the user didn't specify, ask which bump type (patch/minor/major) before conti
 
 ## Procedure
 
-1. **Read current version** from `.claude-plugin/plugin.json` and confirm `marketplace.json` matches. If they already disagree, stop and flag it — don't paper over the drift.
+1. **Read current version** from `.claude-plugin/plugin.json` and confirm `marketplace.json` and `package.json` match. If they already disagree, stop and flag it — don't paper over the drift.
 
-2. **Edit both files** to the new version. Use the `Edit` tool, not `sed`, so the diff is reviewable.
+2. **Edit all three files** to the new version. Use the `Edit` tool, not `sed`, so the diff is reviewable.
 
 3. **Commit + tag locally** (one shell call):
    ```bash
-   git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
+   python3 scripts/validate_skills.py
+   git add .claude-plugin/plugin.json .claude-plugin/marketplace.json package.json
    git commit -m "chore: bump version to X.Y.Z"
    git tag -a vX.Y.Z -m "Release vX.Y.Z"
    ```
+   - `validate_skills.py` is the same sync check CI runs; it must pass before committing.
    - Annotated tag (`-a`), not lightweight. The annotation is what `gh release` and changelog tools read.
    - Tag is `vX.Y.Z` (with `v` prefix). Version field in JSON is `X.Y.Z` (no `v`).
 
@@ -73,7 +76,8 @@ If the user didn't specify, ask which bump type (patch/minor/major) before conti
 
 | Pitfall | Why it bites | Fix |
 |---|---|---|
-| Edited only `plugin.json` | Marketplace will still show old version to new installs | Always edit both files in the same commit |
+| Edited only `plugin.json` | Marketplace will still show old version to new installs | Always edit all three files in the same commit |
+| Skipped `package.json` | CI sync check fails and `publish.yml` rejects the tag, so nothing is published to npm | Bump `package.json` too; run `scripts/validate_skills.py` before committing |
 | Lightweight tag (`git tag vX.Y.Z`) | `gh release --generate-notes` and some tools miss the annotation | Use `git tag -a vX.Y.Z -m "..."` |
 | Tag prefix mismatch (`0.2.0` vs `v0.2.0`) | Inconsistent with existing tags, breaks tooling that filters `v*` | JSON = `0.2.0`, git tag = `v0.2.0` |
 | Pushed tag without bumping JSON first | Released artifact reports stale version | Bump → commit → tag, in that order |
@@ -84,11 +88,12 @@ If the user didn't specify, ask which bump type (patch/minor/major) before conti
 
 ```bash
 # Inspect
-grep -H version .claude-plugin/plugin.json .claude-plugin/marketplace.json
+grep -H '"version"' .claude-plugin/plugin.json .claude-plugin/marketplace.json package.json
 git tag --sort=-creatordate | head -5
 
-# Release (after editing both JSON files to NEW_VERSION)
-git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
+# Release (after editing all three JSON files to NEW_VERSION)
+python3 scripts/validate_skills.py
+git add .claude-plugin/plugin.json .claude-plugin/marketplace.json package.json
 git commit -m "chore: bump version to NEW_VERSION"
 git tag -a vNEW_VERSION -m "Release vNEW_VERSION"
 git push origin vNEW_VERSION

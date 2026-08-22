@@ -69,16 +69,17 @@ def main() -> int:
 
         if not name:
             errors.append(f"{skill_md}: missing frontmatter `name`")
-        elif d.name != name:
-            errors.append(
-                f"{skill_md}: directory '{d.name}' != public name '{name}' "
-                "(required by the Agent Skills spec)"
-            )
-        elif not NAME_RE.match(name) or len(name) > MAX_NAME_LEN:
-            errors.append(
-                f"{skill_md}: invalid name '{name}' — 1-{MAX_NAME_LEN} chars, "
-                "lowercase a-z / 0-9 / single hyphens"
-            )
+        else:
+            if d.name != name:
+                errors.append(
+                    f"{skill_md}: directory '{d.name}' != public name '{name}' "
+                    "(required by the Agent Skills spec)"
+                )
+            if not NAME_RE.match(name) or len(name) > MAX_NAME_LEN:
+                errors.append(
+                    f"{skill_md}: invalid name '{name}' — 1-{MAX_NAME_LEN} chars, "
+                    "lowercase a-z / 0-9 / single hyphens"
+                )
 
         if not desc:
             errors.append(f"{skill_md}: missing frontmatter `description`")

@@ -304,7 +304,7 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
         parts.append(f'<text x="{ml - 8}" y="{Y(t):.1f}" text-anchor="end" '
                      f'dominant-baseline="middle" fill="{MUTED}" font-size="11" '
                      f'font-variant-numeric="tabular-nums">{fmt(t)}</text>')
-    every = 1 if len(xs) <= 12 else 2
+    every = max(1, -(-(xhi - xlo + 1) // 12))
     for x in range(xlo, xhi + 1):
         if (x - xlo) % every == 0:
             parts.append(f'<text x="{X(x):.1f}" y="{height - mb + 16}" '
