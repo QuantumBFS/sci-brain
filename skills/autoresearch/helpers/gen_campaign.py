@@ -43,12 +43,6 @@ def badge(k):
     return f'<span class="badge {KIND_CLS.get(k, "")}">{html.escape(k)}</span>'
 
 
-def fmt(v):
-    if v is None:
-        return "—"
-    return f"{v:.4g}" if isinstance(v, float) else str(v)
-
-
 def load(directory):
     cycles = []
     invalid = []
@@ -129,7 +123,7 @@ def render(cycles, extra_attempts, records_note, out):
         trows.append(
             f'<tr><td class="idcell">{log}</td><td>{cyc}</td>'
             f'<td>{badge(r["kind"])}</td>'
-            f'<td class="num">{parent}</td><td class="num">{fmt(r["primary"])}</td>'
+            f'<td class="num">{parent}</td><td class="num">{R.fmt(r["primary"])}</td>'
             f'<td>{chip(r["status"])}</td>'
             f'<td class="hyp">{html.escape(r["hypothesis"] or "")}</td>'
             f'<td class="hyp">{html.escape(r["causal_note"] or "")}</td></tr>')
