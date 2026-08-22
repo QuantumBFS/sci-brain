@@ -1,6 +1,5 @@
 """Tests for report.py — run with:  python3 -m unittest discover helpers"""
 
-import copy
 import json
 import os
 import sys
