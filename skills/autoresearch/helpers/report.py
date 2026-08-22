@@ -446,7 +446,6 @@ def attempt_table(data):
             + "<th>status</th><th>causal note</th></tr>")
     note = ("<p class=\"note\">Grouped by lineage: └ rows build on the attempt "
             "above; grey rows are earlier-cycle ancestors. Best row shaded. "
-            f"Direction: {'higher' if direction == 'max' else 'lower'} is better. "
             "Attempt ids link to the worktree LOG.md (may dangle if pruned).</p>")
     return (f'<table class="attempts"><thead>{head}</thead>'
             f'<tbody>{"".join(rows)}</tbody></table>{note}')
@@ -582,18 +581,24 @@ def render_cycle(data, all_cycles):
     formula_html = (f'<p class="score-formula">{md_inline(score_formula)}</p>'
                     if score_formula else "")
 
+    direction_word = 'higher' if direction == 'max' else 'lower'
+    legend = []
+    if attempt_scores:
+        legend.append('dotted: current best')
+    if data["bar"]["value"] is not None:
+        legend.append('dashed: target')
+    legend_txt = ('; ' + '; '.join(legend)) if legend else ''
+
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
 <p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}</p>
 <h2>Review — what we did</h2>
 <div class="card">
 {formula_html}
-<figure><figcaption>current-cycle {esc(metric)} by attempt
-({'higher' if direction == 'max' else 'lower'} is better; dotted = current best;
-dashed = target when set)</figcaption>
+<figure><figcaption>{esc(metric)} by attempt — {direction_word} is better{legend_txt}</figcaption>
 {svg_line_chart(attempt_scores, bar=data["bar"]["value"],
                 bar_label=(f'target {fmt(data["bar"]["value"])}'
                            if data["bar"]["value"] is not None else None),
-                title=f"current-cycle {metric} by attempt", x_label="attempt",
+                title=f"{metric} by attempt", x_label="attempt",
                 current_best=current_best,
                 current_best_label=f'current best {fmt(current_best)}')}
 </figure>
@@ -643,8 +648,8 @@ def render_index(all_cycles, campaign_href=None):
 {total_blacklist} blacklisted approaches · best {esc(metric)}
 {fmt(overall_best)} vs bar {fmt(bar)}</p>
 <div class="card">
-<figure><figcaption>best-so-far {esc(metric)} by cycle
-({'higher' if direction == 'max' else 'lower'} is better; dashed = target when set)</figcaption>
+<figure><figcaption>best-so-far {esc(metric)} by cycle —
+{'higher' if direction == 'max' else 'lower'} is better; dashed: target</figcaption>
 {svg_line_chart(series, bar=bar, bar_label=f'target {fmt(bar)}',
                 title=f"best-so-far {metric} by cycle")}
 </figure>
