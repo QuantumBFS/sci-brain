@@ -1,9 +1,4 @@
----
-name: autoresearch-db
-description: Use when building the evidence base for a chosen autoresearch topic — maps the insight areas needed to propose new ideas, downloads references to cover them via download-ref, distills each area into research/INSIGHTS.md for user selection, builds a structured domain database and pinned reference implementations, and catalogs all algorithms/software in research/CATALOG.md. Owns the survey gate. Stage 2 of the autoresearch pipeline.
----
-
-# Autoresearch DB
+# Stage 2: DB (evidence base)
 
 Input: a topic with metrics in `topics.md`. Output: a knowledge base, an
 insight file, a domain database, pinned reference code, a catalog — and the
@@ -22,7 +17,7 @@ holds the insights needed to *propose new ideas*".
    further search/downloads. SOTA-results-only coverage is insufficient.
 3. **Distill.** For each insight area, write one entry in
    `research/INSIGHTS.md` following
-   `skills/autoresearch-db/references/insights-template.md` (Technique /
+   `../insights-template.md` (Technique /
    Applies when / Limits / Sources). Distill from the rendered papers in
    `.knowledge/`, not from memory.
 4. **User selects.** Present the distilled areas via `AskUserQuestion`
@@ -43,7 +38,7 @@ holds the insights needed to *propose new ideas*".
    status `reproduced` (we ran it) / `pinned` (source-locked, not yet run) /
    `paper-only` (no code exists), and notes.
 
-## Survey gate (owned by this skill)
+## Survey gate (owned by this stage)
 
 Flip `survey_gate: passed <date>` and set `stage: validator` in
 `research/STATE.md` only when all of:

@@ -57,7 +57,7 @@ def test_download_ref_mentions_notes_md_belongs_to_humans():
 
 def test_download_ref_uses_vendored_helpers_path():
     text = _read("download-ref")
-    # All four helpers should be invoked from skills/download-ref/helpers/
+    # Operational helpers should be invoked from skills/download-ref/helpers/.
     for helper in ("fetch_metadata.py", "render.py", "index.py", "append_bibtex.py"):
         assert helper in text
     # No more cross-skill reference into fetch-papers/helpers/
@@ -209,6 +209,14 @@ def test_paper_reviewer_mentions_verification_chain():
     text = _read("paper-reviewer")
     assert "CrossRef" in text
     assert "Semantic Scholar" in text
+
+
+def test_paper_reviewer_verifies_every_bib_entry_with_helper():
+    text = _read("paper-reviewer")
+    assert "verify_bib.py" in text
+    assert "every bibliography entry" in text.lower()
+    for field in ("title", "authors", "year", "venue", "volume", "pages", "DOI"):
+        assert field in text
 
 
 def test_paper_reviewer_is_comment_first_then_apply():

@@ -1,9 +1,4 @@
----
-name: autoresearch-topics
-description: Use when choosing research topics within a domain that suit autoresearch and defining their score metrics — brainstorms candidates, scores each on machine-checkable success, cheap per-attempt evaluation, iteration headroom, and publishability, lets the user pick, derives primary/guard metrics (with computation cost and gaming risks), then red-teams and gets user confirmation of a strict acceptance gate per chosen topic, and writes everything to topics.md. Stage 1 of the autoresearch pipeline; invoked via the autoresearch dispatcher or directly with a domain.
----
-
-# Autoresearch Topics
+# Stage 1: Topics
 
 Input: a domain from the user. Output: `<project>/topics.md` — chosen topics
 *with* their metrics — plus a STATE.md stage advance. A good autoresearch
@@ -81,5 +76,5 @@ controls there.
 8. **Advance state.** When every chosen topic has an approved metrics block
    and a user-confirmed acceptance gate, set `stage: db` in
    `research/STATE.md` (create it from
-   `skills/autoresearch/references/state-schema.md` if the dispatcher has
+   `../state-schema.md` if the dispatcher has
    not already).

@@ -69,7 +69,7 @@
 
 // ---- title --------------------------------------------------------------
 
-#heading(numbering: none)[#title]
+#align(center)[#heading(numbering: none)[#title]]
 
 #align(center)[
   #text(size: 12pt, weight: "semibold")[State-of-the-Art Review]

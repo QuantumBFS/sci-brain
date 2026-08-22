@@ -14,7 +14,7 @@ The KB directory name defaults to `.knowledge` and can be overridden via
 the `SCIBRAIN_KB_DIRNAME` environment variable (e.g. `kb`, `papers`).
 
 This is the single source of truth for "where does the KB live" across
-download-ref, survey, researchstyle, ideas, and incarnate.
+download-ref, survey, know-me-better, ideas, and incarnate.
 
 CLI:
     python3 resolve_kb.py [--start DIR] [--advisor SLUG]

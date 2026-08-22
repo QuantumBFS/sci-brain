@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render per-cycle HTML reports for autoresearch-run.
+"""Render per-cycle HTML reports for the autoresearch run stage.
 
 Usage:
     python3 report.py --cycle NN --dir docs/discussion/

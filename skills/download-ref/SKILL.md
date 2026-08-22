@@ -62,7 +62,7 @@ inliner is used — no action needed either way.
 - Appends entries to `$KB/references.bib`
 
 `download-ref` **never touches**:
-- `$KB/NOTES.md` — owned by `survey` / `researchstyle` / humans (sub-themes, open problems, bottlenecks).
+- `$KB/NOTES.md` — owned by `survey` / `know-me-better` / humans (sub-themes, open problems, bottlenecks).
 
 The canonical bib is `$KB/references.bib` — it lives inside the KB, beside `INDEX.md` and `NOTES.md`. (Older notes may say `$(dirname $KB)/ref.bib`; that project-root path is retired.)
 
@@ -224,10 +224,10 @@ In single-shot mode (Step 3a), ask the user to confirm each new cite key. In bul
 
 ```sh
 python3 skills/download-ref/helpers/append_bibtex.py propose \
-  --kb "$KB" --id 1806.08734 --type arxiv
+  --kb "$KB" --id 1806.08734 --type arxiv --bib "$KB/references.bib"
 ```
 
-Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `authors`, `year`, `bibtex_with_proposed_key`. Show the user via `AskUserQuestion`:
+Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `authors`, `year`, `bibtex_with_proposed_key`. With `--bib`, a key already present in the bib is disambiguated by walking to the next content word of the title (existing keys are never renamed). Show the user via `AskUserQuestion`:
 - Accept the proposed key
 - Use a custom key (free-text)
 - Skip this entry
@@ -288,9 +288,9 @@ After the done checklist passes, offer the pipeline's final stage:
 
 - **`/survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$KB/references.bib`, regenerates `$KB/INDEX.md`, then hands off to `/download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
 - **`/survey-writer`** (downstream): consumes the rendered KB (full-text `.md` files + `$KB/references.bib`) to produce a structured technology assessment report.
-- **`/survey` / `/researchstyle`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
+- **`/survey` / `/know-me-better`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`/brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
-- **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
+- **`/incarnate`**: invokes `/download-ref` (or `/know-me-better`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
 
 ## Common mistakes
 
@@ -300,7 +300,7 @@ After the done checklist passes, offer the pipeline's final stage:
 | Forgetting `--download-arxiv-pdfs` in Step 4 | Without it, refs with no LaTeX source render `full_text: no` — the PDF is the only body for DOIs and PDF-only arXiv submissions. |
 | Using `arXiv:XXXX` with prefix or `vN` suffix | Strip both — manifest takes bare ids: `1806.08734`. |
 | Editing the rendered `.md` and losing it on re-render | Renderer overwrites without warning. Edit `.raw/` source or renderer logic. |
-| Cite-key collision with different content | Helper skips silently — investigate, re-run propose with a different key. |
+| Cite-key collision with different content | `append` skips silently. Propose with `--bib` so the key is disambiguated up front (next content word of the title). |
 | Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
 | Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |
 | Rendered from PDF despite a `.tex` in `.raw/` | PDF is the default. To use LaTeX bodies, pass `--tex-source` in Step 5 (and `--download-arxiv-source` in Step 4). |
