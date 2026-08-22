@@ -229,15 +229,6 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
     pts = [(x, y) for x, y in points if y is not None]
     ml, mr, mt, mb = 52, 96, 18, 30
     pw, ph = width - ml - mr, height - mt - mb
-    parts = [f'<svg viewBox="0 0 {width} {height}" width="{width}" height="{height}"'
-             f' role="img" aria-label="{esc(title)}" '
-             'font-family="system-ui,-apple-system,\'Segoe UI\',sans-serif">']
-    if not pts:
-        parts.append(f'<text x="{width / 2}" y="{height / 2}" text-anchor="middle" '
-                     f'fill="{MUTED}" font-size="13">no scored '
-                     f'{esc(x_label)}s yet</text></svg>')
-        return "\n".join(parts)
-
     references = []
     if current_best is not None:
         references.append({
@@ -260,6 +251,33 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
                 "color": MUTED,
                 "dash": "5 4",
             })
+
+    parts = [f'<svg viewBox="0 0 {width} {height}" width="{width}" height="{height}"'
+             f' role="img" aria-label="{esc(title)}" '
+             'font-family="system-ui,-apple-system,\'Segoe UI\',sans-serif">']
+    if not pts:
+        if references:
+            spacing = min(28, height / (len(references) + 2))
+            start_y = height / 2 - spacing * (len(references) - 1) / 2
+            for i, ref in enumerate(references):
+                ry = start_y + i * spacing
+                parts.append(
+                    f'<line x1="{ml}" y1="{ry:.1f}" x2="{ml + pw}" '
+                    f'y2="{ry:.1f}" stroke="{ref["color"]}" stroke-width="1" '
+                    f'stroke-dasharray="{ref["dash"]}"/>'
+                )
+                parts.append(
+                    f'<text x="{ml + pw + 6}" y="{ry:.1f}" '
+                    f'dominant-baseline="middle" fill="{ref["color"]}" '
+                    f'font-size="11">{esc(ref["label"])}</text>'
+                )
+            message_y = min(height - 12, start_y + len(references) * spacing)
+        else:
+            message_y = height / 2
+        parts.append(f'<text x="{width / 2}" y="{message_y:.1f}" text-anchor="middle" '
+                     f'fill="{MUTED}" font-size="13">no scored '
+                     f'{esc(x_label)}s yet</text></svg>')
+        return "\n".join(parts)
 
     ys = [y for _, y in pts] + [ref["value"] for ref in references]
     ticks, ylo, yhi = _ticks(min(ys), max(ys))

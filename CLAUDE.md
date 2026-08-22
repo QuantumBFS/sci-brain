@@ -108,7 +108,7 @@ Multiple old registries can be merged into one project KB (run the `mv` block pe
 ## Key Files
 
 - `.claude-plugin/plugin.json` / `.claude-plugin/marketplace.json` — Plugin metadata for Claude Code marketplace
-- `package.json` — npm/pi package metadata; release tags publish through `.github/workflows/publish.yml`
+- `package.json` — npm/pi package metadata; matching `v<version>` release tags publish through `.github/workflows/publish.yml` after all three manifest versions are validated as synchronized
 - `AGENTS.md` / `CLAUDE.md` — Agent entry point and canonical repository guide
 - `skills/*/SKILL.md` — Skill entry points; supporting scripts and references live beside them
 - `tests/` — Structural and helper tests; run with `pytest -q`

@@ -224,6 +224,16 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("target 0.9", html_out)
         self.assertIn("dev 0.84 / holdout 0.81", html_out)
 
+    def test_all_failed_cycle_still_shows_available_target(self):
+        attempts = [make_attempt(11, primary=None, status="failed"),
+                    make_attempt(12, primary=None, status="failed")]
+        cycle = make_cycle(1, attempts=attempts, best=None)
+        html_out = report.render_cycle(cycle, [cycle])
+        self.assertIn("no scored attempts yet", html_out)
+        self.assertIn("target 0.9", html_out)
+        self.assertIn('stroke-dasharray="5 4"', html_out)
+        self.assertNotIn('stroke-dasharray="2 3"', html_out)
+
     def test_blacklist_and_promotions_highlighted(self):
         self.run_main(1)
         c1 = (self.dir / "cycle-01.html").read_text(encoding="utf-8")

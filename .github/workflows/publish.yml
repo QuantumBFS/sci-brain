@@ -19,6 +19,9 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Verify tag matches package version
+        run: test "$GITHUB_REF_NAME" = "v$(node -p "require('./package.json').version")"
+
       - name: Validate skill frontmatter
         run: python3 scripts/validate_skills.py
 

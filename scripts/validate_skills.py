@@ -9,6 +9,7 @@ Checks (mirrors what pi / Claude Code / Codex enforce at load time):
      required for Claude Code and Codex discovery).
   4. `description` is non-empty and <= 1024 chars.
   5. Manifests (package.json, .claude-plugin/*.json) parse as JSON.
+  6. npm, Claude plugin, and marketplace versions are synchronized.
 
 Non-skill directories such as skills/_shared/ (helper docs, no SKILL.md)
 are intentionally skipped.
@@ -51,6 +52,7 @@ def parse_frontmatter(path: Path) -> dict:
 
 def main() -> int:
     errors = []
+    manifest_data = {}
 
     skill_dirs = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir())
     if not skill_dirs:
@@ -90,9 +92,30 @@ def main() -> int:
             errors.append(f"{manifest}: missing (npm/plugin packaging requires it)")
             continue
         try:
-            json.loads(manifest.read_text(encoding="utf-8"))
+            manifest_data[manifest] = json.loads(
+                manifest.read_text(encoding="utf-8")
+            )
         except json.JSONDecodeError as exc:
             errors.append(f"{manifest}: invalid JSON — {exc}")
+
+    if len(manifest_data) == len(MANIFESTS):
+        package, plugin, marketplace = (manifest_data[path] for path in MANIFESTS)
+        marketplace_plugins = marketplace.get("plugins", [])
+        marketplace_entry = next(
+            (item for item in marketplace_plugins
+             if isinstance(item, dict) and item.get("name") == "sci-brain"),
+            {},
+        )
+        versions = {
+            "package.json": package.get("version"),
+            ".claude-plugin/plugin.json": plugin.get("version"),
+            ".claude-plugin/marketplace.json": marketplace_entry.get("version"),
+        }
+        if any(not isinstance(version, str) or not version
+               for version in versions.values()):
+            errors.append(f"missing manifest version(s): {versions}")
+        elif len(set(versions.values())) != 1:
+            errors.append(f"manifest versions are not synchronized: {versions}")
 
     if errors:
         print(f"FAIL: {len(errors)} problem(s) found:")

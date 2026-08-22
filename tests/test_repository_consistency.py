@@ -1,5 +1,6 @@
 """Cross-file invariants for skill discovery and public documentation."""
 
+import json
 import re
 from pathlib import Path
 
@@ -94,3 +95,26 @@ def test_report_templates_name_the_canonical_bibliography():
         text = (SKILLS / "survey" / filename).read_text()
         assert ".knowledge/references.bib" in text
         assert "project's ref.bib" not in text
+
+
+def test_release_manifests_share_one_version_and_tag_gate_checks_it():
+    package = json.loads((ROOT / "package.json").read_text())
+    plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
+    marketplace = json.loads(
+        (ROOT / ".claude-plugin" / "marketplace.json").read_text()
+    )
+    marketplace_version = next(
+        item["version"] for item in marketplace["plugins"]
+        if item["name"] == "sci-brain"
+    )
+    assert package["version"] == plugin["version"] == marketplace_version
+
+    publish = (ROOT / ".github" / "workflows" / "publish.yml").read_text()
+    assert "GITHUB_REF_NAME" in publish
+    assert "require('./package.json').version" in publish
+
+
+def test_ci_whitespace_check_compares_committed_range():
+    workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text()
+    assert "fetch-depth: 0" in workflow
+    assert 'git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"' in workflow
