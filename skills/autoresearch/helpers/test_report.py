@@ -178,6 +178,10 @@ class RenderTests(unittest.TestCase):
         self.assertIn("current-cycle dev score by attempt", html_out)
         for attempt, score in ((31, "0.75"), (32, "0.66"), (33, "0.55")):
             self.assertIn(f"<title>attempt {attempt}: {score}</title>", html_out)
+        self.assertIn("current best 0.75", html_out)
+        self.assertIn("target 0.9", html_out)
+        self.assertIn('stroke-dasharray="2 3"', html_out)
+        self.assertIn('stroke-dasharray="5 4"', html_out)
         self.assertNotIn("best-so-far", html_out)
         self.assertNotIn('class="kpis"', html_out)
         self.assertNotIn("attempts improved", html_out)
@@ -210,6 +214,15 @@ class RenderTests(unittest.TestCase):
         c2 = (self.dir / "cycle-02.html").read_text(encoding="utf-8")
         self.assertIn("timeout", c2)
         self.assertNotIn('class="kpis"', c2)
+
+    def test_target_line_is_optional_and_spent_holdout_result_is_preserved(self):
+        cycles = three_cycle_fixture()
+        cycles[2]["bar"]["value"] = None
+        html_out = report.render_cycle(cycles[2], cycles)
+        self.assertIn("current best 0.75", html_out)
+        self.assertNotIn('stroke-dasharray="5 4"', html_out)
+        self.assertNotIn("target 0.9", html_out)
+        self.assertIn("dev 0.84 / holdout 0.81", html_out)
 
     def test_blacklist_and_promotions_highlighted(self):
         self.run_main(1)

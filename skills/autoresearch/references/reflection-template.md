@@ -91,8 +91,9 @@ timestamp prefix, NN zero-padded to 2) and render it:
     python3 <skill-dir>/helpers/report.py --cycle NN --dir docs/discussion/
 
 This writes `cycle-NN.html` (one raw primary-score point per scored attempt in
-this cycle, with no cumulative headline KPIs) and regenerates `index.html`
-(the cross-cycle trajectory). Then refresh the complete attempt inventory:
+this cycle, with no cumulative headline KPIs; reference lines show the current
+best and, when defined, the target) and regenerates `index.html` (the
+cross-cycle trajectory). Then refresh the complete attempt inventory:
 
     python3 <skill-dir>/helpers/gen_campaign.py --dir docs/discussion/
 

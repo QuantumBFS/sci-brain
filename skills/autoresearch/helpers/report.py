@@ -223,7 +223,8 @@ def _ticks(lo, hi, n=4):
 
 
 def svg_line_chart(points, *, bar=None, bar_label=None, title,
-                   width=720, height=220, color=SERIES, x_label="cycle"):
+                   width=720, height=220, color=SERIES, x_label="cycle",
+                   current_best=None, current_best_label=None):
     """One series, one axis. points: [(x:int, y:float)] with y != None."""
     pts = [(x, y) for x, y in points if y is not None]
     ml, mr, mt, mb = 52, 96, 18, 30
@@ -237,7 +238,30 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
                      f'{esc(x_label)}s yet</text></svg>')
         return "\n".join(parts)
 
-    ys = [y for _, y in pts] + ([bar] if bar is not None else [])
+    references = []
+    if current_best is not None:
+        references.append({
+            "value": current_best,
+            "label": current_best_label or f"current best {fmt(current_best)}",
+            "color": color,
+            "dash": "2 3",
+        })
+    if bar is not None:
+        target_label = bar_label or f"target {fmt(bar)}"
+        if current_best is not None and bar == current_best:
+            references[-1]["label"] = (
+                f"{references[-1]['label']} / {target_label}"
+            )
+            references[-1]["dash"] = "5 4"
+        else:
+            references.append({
+                "value": bar,
+                "label": target_label,
+                "color": MUTED,
+                "dash": "5 4",
+            })
+
+    ys = [y for _, y in pts] + [ref["value"] for ref in references]
     ticks, ylo, yhi = _ticks(min(ys), max(ys))
     yspan = yhi - ylo
     ylo, yhi = ylo - 0.05 * yspan, yhi + 0.05 * yspan
@@ -264,12 +288,14 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
     parts.append(f'<line x1="{ml}" y1="{mt + ph}" x2="{ml + pw}" y2="{mt + ph}" '
                  f'stroke="{AXIS}" stroke-width="1"/>')
 
-    if bar is not None:
-        by = Y(bar)
-        parts.append(f'<line x1="{ml}" y1="{by:.1f}" x2="{ml + pw}" y2="{by:.1f}" '
-                     f'stroke="{MUTED}" stroke-width="1" stroke-dasharray="5 4"/>')
-        parts.append(f'<text x="{ml + pw + 6}" y="{by:.1f}" dominant-baseline="middle" '
-                     f'fill="{MUTED}" font-size="11">{esc(bar_label or f"bar {fmt(bar)}")}</text>')
+    for ref in references:
+        ry = Y(ref["value"])
+        parts.append(f'<line x1="{ml}" y1="{ry:.1f}" x2="{ml + pw}" y2="{ry:.1f}" '
+                     f'stroke="{ref["color"]}" stroke-width="1" '
+                     f'stroke-dasharray="{ref["dash"]}"/>')
+        parts.append(f'<text x="{ml + pw + 6}" y="{ry:.1f}" dominant-baseline="middle" '
+                     f'fill="{ref["color"]}" font-size="11">'
+                     f'{esc(ref["label"])}</text>')
 
     if len(pts) > 1:
         poly = " ".join(f"{X(x):.1f},{Y(y):.1f}" for x, y in pts)
@@ -482,6 +508,9 @@ def render_cycle(data, all_cycles):
     metric = data["primary_metric"]["name"]
     attempt_scores = [(a["id"], a["primary"]) for a in data["attempts"]
                       if a.get("primary") is not None]
+    current_best_attempt = best_attempt(data)
+    current_best = (current_best_attempt["primary"]
+                    if current_best_attempt else None)
     a_lo, a_hi = data["attempts_range"]
     nn = data["cycle"]
 
@@ -502,6 +531,9 @@ def render_cycle(data, all_cycles):
                                     "confirmation at the gate",
                                     data["insight_promotions"], "box-promote")
                       if data["insight_promotions"] else "")
+    holdout_extra = (f'<p class="note"><strong>Holdout:</strong> '
+                     f'{esc(data["holdout"]["result"])}</p>'
+                     if data["holdout"]["spent"] else "")
 
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
 <p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}
@@ -509,13 +541,18 @@ def render_cycle(data, all_cycles):
 <h2>Review — what we did</h2>
 <div class="card">
 <figure><figcaption>current-cycle {esc(metric)} by attempt
-({'higher' if direction == 'max' else 'lower'} is better; dashed line = bar)</figcaption>
+({'higher' if direction == 'max' else 'lower'} is better; dotted = current best;
+dashed = target when set)</figcaption>
 {svg_line_chart(attempt_scores, bar=data["bar"]["value"],
-                bar_label=f'bar {fmt(data["bar"]["value"])}',
-                title=f"current-cycle {metric} by attempt", x_label="attempt")}
+                bar_label=(f'target {fmt(data["bar"]["value"])}'
+                           if data["bar"]["value"] is not None else None),
+                title=f"current-cycle {metric} by attempt", x_label="attempt",
+                current_best=current_best,
+                current_best_label=f'current best {fmt(current_best)}')}
 </figure>
 </div>
 <div class="scroll">{attempt_table(data)}</div>
+{holdout_extra}
 {md_to_html(refl["review"])}
 <h2>Lessons we learnt</h2>
 {lessons_html(data["lessons"])}
@@ -561,8 +598,8 @@ def render_index(all_cycles, campaign_href=None):
 {fmt(overall_best)} vs bar {fmt(bar)}</p>
 <div class="card">
 <figure><figcaption>best-so-far {esc(metric)} by cycle
-({'higher' if direction == 'max' else 'lower'} is better; dashed line = bar)</figcaption>
-{svg_line_chart(series, bar=bar, bar_label=f'bar {fmt(bar)}',
+({'higher' if direction == 'max' else 'lower'} is better; dashed = target when set)</figcaption>
+{svg_line_chart(series, bar=bar, bar_label=f'target {fmt(bar)}',
                 title=f"best-so-far {metric} by cycle")}
 </figure>
 </div>

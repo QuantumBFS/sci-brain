@@ -65,6 +65,10 @@ Field notes:
   best-so-far trajectory in `index.html`. The cycle page itself plots every
   scored attempt's raw `primary` value from that cycle — never a cumulative
   or best-so-far value. Never assume higher-is-better.
+- `bar.value` is the target score from `bar.source`; it may be `null` when no
+  target is defined. The cycle chart always draws the current cycle's best
+  scored attempt as a dotted reference and draws the target as a dashed line
+  only when this value is present.
 - `kind` ∈ `draft | improve | debug`; `parent` is the ancestor attempt id
   for improve/debug, `null` for drafts.
 - `status` ∈ `improved | no-change | failed | timeout`. `improved` means
