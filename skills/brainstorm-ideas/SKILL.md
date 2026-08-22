@@ -161,7 +161,7 @@ Use this for moments where the advisor's specific perspective, instinct, or expe
 
 If no advisor is selected or no advisors exist, proceed with default mentor behavior.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `researchstyle` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `know-me-better` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
 **Session picker.** If previous session logs exist, present them as an interactive choice via `AskUserQuestion` before proceeding:
 
@@ -210,7 +210,7 @@ If no existing profile or knowledge base is found, ask via `AskUserQuestion`:
 > - **(b)** Zotero library — I'll index your papers to understand your work
 > - **(c)** Google Scholar profile — give me your URL
 
-For **(b)** or **(c)**: follow the `researchstyle` skill instructions (read `skills/researchstyle/SKILL.md`) to build a project knowledge base, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
+For **(b)** or **(c)**: follow the `know-me-better` skill instructions (read `skills/researchstyle/SKILL.md`) to build a project knowledge base, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
 
 **For (a) only — one follow-up question (if not already answered):**
 

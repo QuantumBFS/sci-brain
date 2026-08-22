@@ -68,12 +68,12 @@ If you ran `/survey` first, the brainstorm automatically picks up the knowledge 
 | `/slide-writer` | Build Typst + Touying slide decks from a browsable theme/layout/gadget zoo |
 | `/figure-taste` | Score a figure's visual design against an 18-rule rubric |
 | `/flow` | Autonomous deep-thinker that attacks one hard goal via a search loop |
-| `/researchstyle` | Index your Zotero / PDF folder / Google Scholar collection into the KB |
+| `/know-me-better` | Index your Zotero / PDF folder / Google Scholar collection into the KB |
 | `/incarnate` | Capture your thinking style as a reusable advisor profile |
 
 ## Where Things Are Saved
 
-- **Project knowledge base** — `<project>/.knowledge/` (see layout above). Populated by `/survey`, `/download-ref`, `/researchstyle`.
+- **Project knowledge base** — `<project>/.knowledge/` (see layout above). Populated by `/survey`, `/download-ref`, `/know-me-better`.
 - **Advisor knowledge bases** — `advisors/<slug>/.knowledge/` — each advisor's private literature cache, same layout.
 - **Conversation logs** — `docs/discussion/` — timestamped per session; the next session picks up where you left off.
 - **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file.
