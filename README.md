@@ -1,6 +1,6 @@
 # sci-brain
 
-Research skills for [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), and [OpenCode](https://github.com/opencode-ai/opencode). Point it at a research topic — it surveys the literature, builds a citable knowledge base on your disk, writes grounded reports, and brainstorms research ideas with you.
+Research skills for [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), [OpenCode](https://github.com/opencode-ai/opencode), and [pi](https://github.com/earendil-works/pi). Point it at a research topic — it surveys the literature, builds a citable knowledge base on your disk, writes grounded reports, and brainstorms research ideas with you.
 
 Skill question styles inspired by [superpowers](https://github.com/obra/superpowers).
 
@@ -16,6 +16,12 @@ Skill question styles inspired by [superpowers](https://github.com/obra/superpow
 
 ```
 Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
+```
+
+**pi:** install the npm package:
+
+```
+pi install npm:sci-brain
 ```
 
 ## Start Here: Survey a Field
@@ -61,7 +67,7 @@ If you ran `/survey` first, the brainstorm automatically picks up the knowledge 
 
 | Skill | What it does |
 |-------|--------------|
-| `/autoresearch` | Run the topics → evidence → validator → attempt loop; reports include a full-campaign overview and ranked evidence-grounded next directions |
+| `/autoresearch` | Run the topics → evidence → validator → attempt loop; each cycle plots every attempt's raw score, while reports also include a full-campaign overview and ranked evidence-grounded next directions |
 | `/paper-writer` | Draft a real manuscript: figures first → telegram outline → body → polish |
 | `/paper-reviewer` | Review an existing manuscript against writing guidelines; verifies references |
 | `/slide-writer` | Build Typst + Touying slide decks from a browsable theme/layout/gadget zoo |

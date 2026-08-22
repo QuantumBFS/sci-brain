@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Read and follow [CLAUDE.md](CLAUDE.md) before changing this repository. It is
-the canonical project guide shared by Claude Code, Codex, and OpenCode; do not
+the canonical project guide shared by Claude Code, Codex, OpenCode, and pi; do not
 duplicate its skill catalog here.
 
 Repository-wide checks:
