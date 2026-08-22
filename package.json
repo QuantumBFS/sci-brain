@@ -1,0 +1,37 @@
+{
+  "name": "sci-brain",
+  "version": "0.3.1",
+  "description": "Scientific research brainstorming skills: survey literature, download references, write papers, review figures, and brainstorm ideas. Skills for Claude Code, Codex, OpenCode, and pi.",
+  "keywords": [
+    "pi-package",
+    "skills",
+    "science",
+    "research",
+    "literature-review",
+    "brainstorming",
+    "claude-code",
+    "codex"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Jin-Guo Liu"
+  },
+  "homepage": "https://github.com/QuantumBFS/sci-brain",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuantumBFS/sci-brain.git"
+  },
+  "bugs": {
+    "url": "https://github.com/QuantumBFS/sci-brain/issues"
+  },
+  "files": [
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
+  }
+}
