@@ -1,14 +1,9 @@
----
-name: autoresearch-validator
-description: Use when setting the goal and building the validator for an autoresearch topic — defines the publishable bar with the user, splits dev instances from a sealed gitignored holdout, builds a Docker-canonical strict environment (recorded fallback allowed), implements the validate CLI with rich JSON errors, and passes the strictness self-test against negative controls. Owns the validator gate. Stage 3 of the autoresearch pipeline.
----
-
-# Autoresearch Validator
+# Stage 3: Validator
 
 Goal: once the validator's bar is met, the result is publishable — so the
 validator must be impossible to satisfy by accident or by cheating. Contract
-details: `references/validator-contract.md`; strictness self-test:
-`references/negative-controls.md`.
+details: `../validator-contract.md`; strictness self-test:
+`../negative-controls.md`.
 
 ## Procedure
 
@@ -54,7 +49,7 @@ details: `references/validator-contract.md`; strictness self-test:
    locked venv + subprocess sandbox and record
    `validator_env: fallback (<reason>)` in STATE.md and in the manifest —
    never fall back silently.
-4. **Implement the `validate` CLI** per `references/validator-contract.md`,
+4. **Implement the `validate` CLI** per `../validator-contract.md`,
    under `research/validator/`. Guard metrics from `topics.md` become
    rejection rules. Include the free `--precheck` mode (structure/format
    check, no score) and cascade evaluation (cheap checks first, full scoring
@@ -62,12 +57,12 @@ details: `references/validator-contract.md`; strictness self-test:
    on format bugs.
 5. **Strictness self-test.** Build the four negative controls
    (`cheater`, `wrong-answer`, `timeout`, `env-escape`) per
-   `references/negative-controls.md`, plus one per topic-specific gaming
+   `../negative-controls.md`, plus one per topic-specific gaming
    risk — including every hack listed in the topic's `### Acceptance gate`
    block. Run them; all must be rejected with informative errors. Record
    results under `"self_test"` in `research/validator/manifest.json`.
 
-## Validator gate (owned by this skill)
+## Validator gate (owned by this stage)
 
 Flip `validator_gate: passed <date>` and set `stage: run` in
 `research/STATE.md` only when all of:

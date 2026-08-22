@@ -1,8 +1,11 @@
 # INSIGHTS.md template
 
 `<project>/research/INSIGHTS.md` holds the distilled "skills to propose new
-ideas". Two sections: `## Selected` (entries the run loop may draw on) and
-`## Shelved` (distilled but not selected; promotable at a cycle gate).
+ideas". Three sections: `## Selected` (entries the run loop draws on by
+default), `## Candidate` (added by a stuck-triggered insight refresh during
+the run stage; usable immediately, promoted or shelved at the next soft
+gate), and `## Shelved` (distilled but not selected; promotable at a cycle
+gate). `## Candidate` may be absent until the first refresh.
 
 Entry format — one `###` per insight area, all four lines required:
 
@@ -14,7 +17,12 @@ Entry format — one `###` per insight area, all four lines required:
     - **Applies when**: preconditions — problem structure, size regime, data
       available.
     - **Limits**: where it breaks down, known failure modes, complexity walls.
-    - **Sources**: citation keys from ref.bib, e.g. [smith2025exact].
+    - **Sources**: citation keys from references.bib, e.g. [smith2025exact].
+
+    ## Candidate
+
+    ### <insight area>
+    - ... same four lines, plus **Added**: cycle NN refresh, YYYY-MM-DD ...
 
     ## Shelved
 
@@ -26,5 +34,5 @@ Rules:
 - Every entry's **Sources** must cite at least one reference present in
   `.knowledge/INDEX.md` — no from-memory insights.
 - Moving an entry between Selected and Shelved is a user decision, made
-  during stage 3 selection or at a run-loop cycle gate; record the date in
+  during db-stage selection or at a run-loop soft gate; record the date in
   the entry when moved.
