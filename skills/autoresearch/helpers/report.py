@@ -381,7 +381,6 @@ def attempt_table(data):
     """Lineage-ordered: each chain's rows grouped together, descendants
     indented under their ancestor; prior-cycle ancestors as grey rows.
     One representation carries both the results and the parent structure."""
-    direction = data["primary_metric"]["direction"]
     best = best_attempt(data)
     best_id = best["id"] if best else None
     attempts = {a["id"]: a for a in data["attempts"]}
@@ -626,6 +625,8 @@ def render_index(all_cycles, campaign_href=None):
     total_attempts = sum(len(c["attempts"]) for c in cycles)
     total_blacklist = sum(len(c["blacklist_new"]) for c in cycles)
     bar = latest["bar"]["value"]
+    target_meta = f" vs target {fmt(bar)}" if bar is not None else ""
+    target_legend = "; dashed: target" if bar is not None else ""
 
     rows = []
     for c in cycles:
@@ -646,11 +647,12 @@ def render_index(all_cycles, campaign_href=None):
     body = f"""<h1>{esc(latest["project"])} — autoresearch cycles</h1>
 <p class="meta">{len(cycles)} cycles · {total_attempts} attempts ·
 {total_blacklist} blacklisted approaches · best {esc(metric)}
-{fmt(overall_best)} vs bar {fmt(bar)}</p>
+{fmt(overall_best)}{target_meta}</p>
 <div class="card">
 <figure><figcaption>best-so-far {esc(metric)} by cycle —
-{'higher' if direction == 'max' else 'lower'} is better; dashed: target</figcaption>
-{svg_line_chart(series, bar=bar, bar_label=f'target {fmt(bar)}',
+{'higher' if direction == 'max' else 'lower'} is better{target_legend}</figcaption>
+{svg_line_chart(series, bar=bar,
+                bar_label=f'target {fmt(bar)}' if bar is not None else None,
                 title=f"best-so-far {metric} by cycle")}
 </figure>
 </div>
