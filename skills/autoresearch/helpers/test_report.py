@@ -189,6 +189,18 @@ class RenderTests(unittest.TestCase):
         index = (self.dir / "index.html").read_text(encoding="utf-8")
         self.assertIn("best-so-far dev score by cycle", index)
 
+    def test_optional_score_formula_replaces_remaining_attempt_headline(self):
+        cycles = three_cycle_fixture()
+        cycles[2]["score_formula"] = "score = **mean** candidate improvement"
+        html_out = report.render_cycle(cycles[2], cycles)
+        self.assertIn('class="score-formula"', html_out)
+        self.assertIn("score = <strong>mean</strong> candidate improvement", html_out)
+        self.assertNotIn("attempts remaining after this cycle", html_out)
+
+        cycles[2]["score_formula"] = 42
+        self.assertTrue(any('"score_formula" must be a non-empty string' in error
+                            for error in report.validate_cycle(cycles[2])))
+
     def test_single_cycle_fallback_has_point_but_no_line(self):
         solo = tempfile.TemporaryDirectory()
         try:
@@ -208,6 +220,13 @@ class RenderTests(unittest.TestCase):
         index = (self.dir / "index.html").read_text(encoding="utf-8")
         for n in (1, 2, 3):
             self.assertIn(f"cycle-{n:02d}.html", index)
+
+    def test_index_hides_holdout_column_until_one_is_spent(self):
+        cycles = three_cycle_fixture()
+        never_spent = report.render_index(cycles[:2])
+        self.assertNotIn("<th>holdout</th>", never_spent)
+        after_spend = report.render_index(cycles)
+        self.assertIn("<th>holdout</th>", after_spend)
 
     def test_attempt_statuses_render_without_headline_kpis(self):
         self.run_main(2)

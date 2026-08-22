@@ -76,6 +76,10 @@ def validate_cycle(data):
                 errors.append(f'missing required field "reflection.{f}"')
     elif "reflection" in data:
         errors.append('"reflection" must be an object')
+    if "score_formula" in data and not (
+        isinstance(data["score_formula"], str) and data["score_formula"].strip()
+    ):
+        errors.append('"score_formula" must be a non-empty string when present')
     attempts = data.get("attempts")
     if isinstance(attempts, list):
         for i, a in enumerate(attempts):
