@@ -109,5 +109,4 @@ Multiple old registries can be merged into one project KB (run the `mv` block pe
 - `.claude-plugin/plugin.json` / `.claude-plugin/marketplace.json` — Plugin metadata for Claude Code marketplace
 - `AGENTS.md` / `CLAUDE.md` — Agent entry point and canonical repository guide
 - `skills/*/SKILL.md` — Skill entry points; supporting scripts and references live beside them
-- `docs/specs/` — Current design documents for interaction protocols
 - `tests/` — Structural and helper tests; run with `pytest -q`
