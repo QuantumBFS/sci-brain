@@ -1,8 +1,6 @@
 # sci-brain
 
-Research skills for [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), [OpenCode](https://github.com/opencode-ai/opencode), and [pi](https://github.com/earendil-works/pi). Point it at a research topic — it surveys the literature, builds a citable knowledge base on your disk, writes grounded reports, and brainstorms research ideas with you.
-
-Skill question styles inspired by [superpowers](https://github.com/obra/superpowers).
+Research skills for [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), [OpenCode](https://github.com/opencode-ai/opencode), and [pi](https://github.com/earendil-works/pi). Give it a research topic — it surveys the literature into a citable knowledge base on your disk, brainstorms ideas with you, and writes the paper.
 
 ## Install
 
@@ -26,16 +24,50 @@ pi install npm:sci-brain
 
 ## Start Here: Survey a Field
 
-The core of sci-brain is a two-skill pipeline — **search → fetch → write**:
-
 ```
-/survey            search, curate, and write a structured review when ready
-/download-ref      fetch PDFs and render full text between collection and writing
+/survey
 ```
 
-**`/survey`** asks one question to narrow your topic, then searches in parallel with up to seven strategies — landscape mapping, adjacent subfields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks. You pick which directions are worth keeping; only those go into the knowledge base. Every BibTeX entry is verified against CrossRef or Semantic Scholar — never invented from memory. After full text is fetched, the same skill can turn the populated knowledge base into a structured assessment: what the technology is and why it matters, the main approaches with their state of the art and trade-offs, and the key open problems. It can also enter report mode directly for an existing KB.
+Asks one question to narrow your topic, then searches the literature with up to seven parallel strategies. You pick which directions to keep; every BibTeX entry is verified against CrossRef or Semantic Scholar — never invented from memory. Once full text is fetched, the same skill writes a structured assessment of the field: approaches, state of the art, trade-offs, open problems.
 
-**`/download-ref`** fetches the papers behind those entries: metadata from Semantic Scholar, PDFs from arXiv (with a Sci-Hub fallback for paywalled DOIs), and optionally arXiv LaTeX sources. It renders each paper to markdown so later skills can read and quote the full text. It also works standalone — just say "add arXiv:2401.12345 to the KB".
+> **One-time setup** for PDF rendering: `python3 -m pip install --user pymupdf4llm`.
+
+## Then: Brainstorm Ideas
+
+```
+/brainstorm-ideas
+```
+
+A Socratic research mentor. It learns your background (self-description, Zotero, or Google Scholar), picks up the knowledge base from `/survey`, and helps you find a problem worth attacking. Optionally invite an **advisor** — a domain expert distilled from [real scientists' conversations](advisors/) — who joins as a subagent and challenges your thinking. Ends with a structured ideas report.
+
+## Then: Run Autonomous Research
+
+```
+/autoresearch
+```
+
+Turns an idea into a machine-checkable research campaign: choose topics with score metrics, build the evidence base, seal a Docker-canonical validator, then loop validator-scored attempts with reflection reports — you authorize each cycle.
+
+## Finally: Write Papers & Slides
+
+```
+/paper-writer      figures first → outline → body → abstract last
+/slide-writer      Typst + Touying decks from a browsable theme/layout zoo
+```
+
+## More Skills
+
+| Skill | What it does |
+|-------|--------------|
+| `/download-ref` | Add arXiv IDs / DOIs to the KB — fetches metadata, PDFs, and renders full text |
+| `/paper-reviewer` | Review an existing manuscript against writing guidelines; verifies references |
+| `/figure-taste` | Score a figure's visual design against an 18-rule rubric |
+| `/flow` | Autonomous deep-thinker that attacks one hard goal via a search loop |
+| `/know-me-better` | Index your Zotero / PDF folder / Google Scholar collection into the KB |
+| `/conversation-dump` | Extract and classify research conversations from Claude Code or Codex histories |
+| `/incarnate` | Import JSONL or Markdown conversations, distill thinking patterns, and capture a reusable advisor profile |
+
+## Where Things Are Saved
 
 Everything lands in one folder inside your project:
 
@@ -49,37 +81,7 @@ Everything lands in one folder inside your project:
   .figures/           extracted figures (gitignored)
 ```
 
-> **One-time setup** for PDF rendering: `python3 -m pip install --user pymupdf4llm`. Add `playwright` (`python3 -m playwright install chromium`) only if you need the Sci-Hub fallback for paywalled DOIs.
-
-## Then: Brainstorm Ideas
-
-```
-/brainstorm-ideas
-```
-
-A Socratic research mentor. It first asks about your background — describe yourself, or point it at your Zotero library or Google Scholar profile so it can learn from your own papers. The better it knows you, the better its recommendations.
-
-You can also pick a domain expert **advisor** (distilled from *real* scientists' conversations with AI — see the [advisor list](advisors/)) who joins the session as a subagent and challenges your thinking.
-
-If you ran `/survey` first, the brainstorm automatically picks up the knowledge base and grounds the conversation in it. At wrap-up it can write a structured ideas report with the full reasoning trail.
-
-## More Skills
-
-| Skill | What it does |
-|-------|--------------|
-| `/autoresearch` | Run the topics → evidence → validator → attempt loop; each cycle plots every attempt's raw score, while reports also include a full-campaign overview and ranked evidence-grounded next directions |
-| `/paper-writer` | Draft a real manuscript: figures first → telegram outline → body → polish |
-| `/paper-reviewer` | Review an existing manuscript against writing guidelines; verifies references |
-| `/slide-writer` | Build Typst + Touying slide decks from a browsable theme/layout/gadget zoo |
-| `/figure-taste` | Score a figure's visual design against an 18-rule rubric |
-| `/flow` | Autonomous deep-thinker that attacks one hard goal via a search loop |
-| `/know-me-better` | Index your Zotero / PDF folder / Google Scholar collection into the KB |
-| `/conversation-dump` | Extract and classify research conversations from Claude Code or Codex histories |
-| `/incarnate` | Import JSONL or Markdown conversations, distill thinking patterns, and capture a reusable advisor profile |
-
-## Where Things Are Saved
-
-- **Project knowledge base** — `<project>/.knowledge/` (see layout above). Populated by `/survey`, `/download-ref`, `/know-me-better`.
+- **Project knowledge base** — `<project>/.knowledge/` (layout above). Populated by `/survey`, `/download-ref`, `/know-me-better`.
 - **Advisor knowledge bases** — `advisors/<slug>/.knowledge/` — each advisor's private literature cache, same layout.
 - **Conversation logs** — `docs/discussion/` — timestamped per session; the next session picks up where you left off.
 - **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file.
