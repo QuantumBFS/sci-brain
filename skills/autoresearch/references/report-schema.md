@@ -68,7 +68,15 @@ Field notes:
 - `bar.value` is the target score from `bar.source`; it may be `null` when no
   target is defined. The cycle chart always draws the current cycle's best
   scored attempt as a dotted reference and draws the target as a dashed line
-  only when this value is present.
+  only when this value is present. The index's holdout column renders only
+  when at least one cycle spent its holdout adjudication; an all-"never
+  spent" column is dead weight.
+- `score_formula` (optional) is a one-line string rendered above the cycle
+  plot, explaining how the primary score is computed (e.g. "score = mean
+  over instances of (pre-run record tc − candidate tc)"). Omit for no note;
+  plain text with markdown inline styles is supported.
+- `attempts_remaining` is recorded for loop bookkeeping (soft-gate arithmetic)
+  but is not rendered on the HTML pages.
 - `kind` ∈ `draft | improve | debug`; `parent` is the ancestor attempt id
   for improve/debug, `null` for drafts.
 - `status` ∈ `improved | no-change | failed | timeout`. `improved` means
