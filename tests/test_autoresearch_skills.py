@@ -74,7 +74,7 @@ def test_state_schema_defines_all_fields():
         assert stage in text
 
 
-# ---- autoresearch-topics ----
+# ---- stage: topics ----
 
 def test_topics_stage_file_has_no_frontmatter():
     text = _stage("topics")
@@ -107,7 +107,7 @@ def test_topics_lets_user_pick_and_advances_stage():
     assert "stage: db" in text
 
 
-# ---- autoresearch-db ----
+# ---- stage: db ----
 
 def test_db_stage_file_has_no_frontmatter():
     text = _stage("db")
@@ -154,7 +154,7 @@ def test_insights_template_defines_entry_fields():
         assert marker in text
 
 
-# ---- autoresearch-validator ----
+# ---- stage: validator ----
 
 def test_validator_stage_file_has_no_frontmatter():
     text = _stage("validator")
@@ -196,7 +196,7 @@ def test_negative_controls_cover_four_cases():
         assert control in text
 
 
-# ---- autoresearch-run ----
+# ---- stage: run ----
 
 def test_run_stage_file_has_no_frontmatter():
     text = _stage("run")

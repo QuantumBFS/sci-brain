@@ -1,7 +1,7 @@
 # SOTA autoresearch frameworks — survey and adopted lessons (2026-07-19)
 
 Three parallel web surveys informed the hardening of the autoresearch skill
-family (see spec `docs/specs/2026-07-19-autoresearch-skills-design.md`,
+family (see spec `docs/specs/2026-08-22-autoresearch-design.md`,
 section "SOTA-informed refinements").
 
 ## Landscape
@@ -44,7 +44,7 @@ trace logs + code raised auditor detection accuracy 55%→82%.
 ## Lessons adopted into the skills
 
 1. Seal by construction (validator process/holdout outside attempt reach;
-   patch harness + add reproducing control on any hack) — `autoresearch-validator`.
+   patch harness + add reproducing control on any hack) — the validator stage.
 2. Budgeted holdout access (default 1 aggregate query / 3 cycles, metered in
    the manifest) to catch dev-set overfitting without unsealing — user
    decision 2026-07-19.
@@ -52,7 +52,7 @@ trace logs + code raised auditor detection accuracy 55%→82%.
    validator contract.
 4. Batch composition: diverse drafts + atomic improvements on the best
    ancestor + capped debug; lineage (`kind`, `parent`) in LOG.md —
-   `autoresearch-run`.
+   the run stage.
 5. Novelty check against all prior attempt hypotheses before implementing —
    emphasized per user; agents' improved ability makes plausible duplicates
    the main waste.

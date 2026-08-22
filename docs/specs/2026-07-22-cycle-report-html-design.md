@@ -1,12 +1,12 @@
-# Per-cycle HTML report for autoresearch-run
+# Per-cycle HTML report for the autoresearch run stage
 
 **Date:** 2026-07-22
 **Status:** approved design, not yet implemented
-**Scope:** `skills/autoresearch-run/` only (template, helper script, SKILL.md wiring)
+**Scope:** `skills/autoresearch/` run stage only (template, helper script, stage-file wiring)
 
 ## Problem
 
-A round (cycle) of autoresearch-run contains 5–20 attempts. The current
+A cycle of the autoresearch run stage contains 5–20 attempts. The current
 per-cycle artifact is a prose markdown reflection
 (`docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md`), which handles lineage
 tables, score comparisons, and cross-round trends poorly. The soft gate says
@@ -107,7 +107,7 @@ Field notes:
 - `blacklist_new` and `insight_promotions` are duplicated out of the prose
   so the template can highlight them; the prose remains the full record.
 
-## Helper: `skills/autoresearch-run/helpers/report.py`
+## Helper: `skills/autoresearch/helpers/report.py`
 
 ```
 python3 helpers/report.py --cycle NN --dir docs/discussion/
