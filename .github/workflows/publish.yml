@@ -26,6 +26,14 @@ jobs:
       - name: Run tests
         run: pip install pytest && pytest -q
 
+      - name: Check tag matches package version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match package.json version v${version}"
+            exit 1
+          fi
+
       # --access public is required on the first publish of an unscoped package.
       # Provenance attestations are generated automatically with trusted publishing.
       - name: Publish (trusted publishing / OIDC)
