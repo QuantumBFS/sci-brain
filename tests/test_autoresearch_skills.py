@@ -65,7 +65,7 @@ def test_dispatcher_verifies_gate_artifacts_before_routing():
 
 def test_state_schema_defines_all_fields():
     text = _ref("state-schema.md")
-    for field in ["stage:", "topic:", "batch_size:", "time_limit_seconds:",
+    for field in ["stage:", "topic:", "recommended_cycle_size:", "time_limit_seconds:",
                   "authorized_attempts:", "next_attempt:", "next_cycle:",
                   "survey_gate:", "validator_gate:", "validator_env:",
                   "overrides:"]:
@@ -228,9 +228,21 @@ def test_run_draws_attempts_from_selected_insights():
 def test_run_soft_gate_on_authorized_attempts():
     text = _stage("run")
     assert "authorized_attempts" in text
-    assert "batch_size" in text
+    assert "recommended_cycle_size" in text
     assert "candidate directions" in text
     assert "how many attempts" in text
+
+
+def test_cycle_size_is_configured_up_front_but_adjustable_by_agent():
+    dispatcher = _skill()
+    schema = _ref("state-schema.md")
+    run = _stage("run")
+    assert "ask the user for a recommended number of" in dispatcher
+    assert "attempts per cycle" in dispatcher
+    assert "guidance, not a cap" in schema
+    assert "choose the actual `cycle_size`" in " ".join(run.split())
+    assert "never exceed remaining `authorized_attempts`" in run
+    assert "batch_size" not in run
 
 
 def test_run_confirms_first_batch_plan():

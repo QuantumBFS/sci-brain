@@ -23,8 +23,8 @@ def test_download_ref_targets_dot_knowledge():
     assert "<project>/.knowledge" in text or "$KB" in text
     # No more references to <registry-root>/<slug>/
     assert "<registry-root>" not in text
-    assert "references.bib" not in text  # the inside-KB bib path is gone
-    assert "summary.md" not in text       # superseded by NOTES.md + INDEX.md
+    assert "$KB/references.bib" in text
+    assert "summary.md" not in text  # superseded by NOTES.md + INDEX.md
 
 
 def test_download_ref_writes_index_md_via_helper():
@@ -33,10 +33,10 @@ def test_download_ref_writes_index_md_via_helper():
     assert "index.py" in text
 
 
-def test_download_ref_appends_to_ref_bib_at_repo_root():
+def test_download_ref_appends_to_canonical_bib_inside_kb():
     text = _read("download-ref")
-    # ref.bib is the new bib filename, at $(dirname $KB)
-    assert "ref.bib" in text
+    assert "The canonical bib is `$KB/references.bib`" in text
+    assert "project-root path is retired" in text
 
 
 def test_download_ref_has_scihub_fallback_step():
@@ -112,38 +112,38 @@ def test_survey_transition_uses_download_ref_from_bib():
     assert "--from-bib" in text
 
 
-# ---- researchstyle ----
+# ---- know-me-better ----
 
-def test_researchstyle_targets_dot_knowledge():
-    text = _read("researchstyle")
+def test_know_me_better_targets_dot_knowledge():
+    text = _read("know-me-better")
     assert ".knowledge" in text
     assert "<registry-root>" not in text
 
 
-def test_researchstyle_writes_notes_md_not_summary_md():
-    text = _read("researchstyle")
+def test_know_me_better_writes_notes_md_not_summary_md():
+    text = _read("know-me-better")
     assert "NOTES.md" in text
     assert "summary.md" not in text
 
 
-def test_researchstyle_writes_dot_raw_json():
-    text = _read("researchstyle")
+def test_know_me_better_writes_dot_raw_json():
+    text = _read("know-me-better")
     assert ".raw/" in text
 
 
-def test_researchstyle_invokes_append_bibtex():
-    text = _read("researchstyle")
+def test_know_me_better_invokes_append_bibtex():
+    text = _read("know-me-better")
     assert "append_bibtex.py" in text
 
 
-def test_researchstyle_regenerates_index():
-    text = _read("researchstyle")
+def test_know_me_better_regenerates_index():
+    text = _read("know-me-better")
     assert "index.py" in text
 
-# ---- ideas ----
+# ---- brainstorm-ideas ----
 
-def test_ideas_uses_dot_knowledge_paths():
-    text = _read("ideas")
+def test_brainstorm_ideas_uses_dot_knowledge_paths():
+    text = _read("brainstorm-ideas")
     assert "<project>/.knowledge" in text or ".knowledge" in text
     assert "advisors/<slug>/.knowledge" in text
     # Old paths gone
@@ -152,20 +152,20 @@ def test_ideas_uses_dot_knowledge_paths():
     assert "<registry-root>" not in text
 
 
-def test_ideas_still_launches_advisor_subagent():
-    text = _read("ideas")
+def test_brainstorm_ideas_still_launches_advisor_subagent():
+    text = _read("brainstorm-ideas")
     assert "launch a dedicated advisor subagent" in text
 
 
-def test_ideas_loads_advisor_kb_from_dot_knowledge():
-    text = _read("ideas")
+def test_brainstorm_ideas_loads_advisor_kb_from_dot_knowledge():
+    text = _read("brainstorm-ideas")
     # The advisor's literature comes from .knowledge/, no longer publications.yml
     assert "publications.yml" not in text
     assert "papers/*.md" not in text
 
 
-def test_ideas_operational_instructions_use_resolved_kb_variables():
-    text = _read("ideas")
+def test_brainstorm_ideas_operational_instructions_use_resolved_kb_variables():
+    text = _read("brainstorm-ideas")
     assert "Resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`" in text
     assert "ADVISOR_KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)" in text
     assert "project knowledge base at `<project>/.knowledge/`" not in text
@@ -185,10 +185,10 @@ def test_incarnate_keeps_profile_md_unchanged():
     assert "profile.md" in text
 
 
-def test_incarnate_invokes_researchstyle_or_download_ref():
+def test_incarnate_invokes_know_me_better_or_download_ref():
     text = _read("incarnate")
-    # The advisor KB is populated by /researchstyle or /download-ref
-    assert "researchstyle" in text or "download-ref" in text
+    # The advisor KB is populated by /know-me-better or /download-ref
+    assert "know-me-better" in text or "download-ref" in text
 
 
 # ---- paper-reviewer ----

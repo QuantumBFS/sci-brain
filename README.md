@@ -12,7 +12,7 @@ Skill question styles inspired by [superpowers](https://github.com/obra/superpow
 /plugin marketplace add QuantumBFS/sci-brain
 ```
 
-**Codex / OpenCode:** clone this repo and symlink it as a skill folder — see [`.codex/INSTALL.md`](.codex/INSTALL.md) or [`.opencode/INSTALL.md`](.opencode/INSTALL.md). Or simply tell your agent:
+**Codex / OpenCode:** clone this repo and symlink its skill directories into your agent's discovery path — see [`.codex/INSTALL.md`](.codex/INSTALL.md) or [`.opencode/INSTALL.md`](.opencode/INSTALL.md). Or simply tell your agent:
 
 ```
 Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
@@ -30,7 +30,7 @@ The core of sci-brain is a three-skill pipeline — **search → fetch → write
 
 **`/survey`** asks one question to narrow your topic, then searches in parallel with up to seven strategies — landscape mapping, adjacent subfields, cross-vocabulary, cross-method, historical lineage, negative results, and benchmarks. You pick which directions are worth keeping; only those go into the knowledge base. Every BibTeX entry is verified against CrossRef or Semantic Scholar — never invented from memory.
 
-**`/download-ref`** fetches the papers behind those entries: metadata from Semantic Scholar, PDFs from arXiv (with a Sci-Hub fallback for paywalled DOIs), each rendered to markdown so later skills can read and quote the full text. It also works standalone — just say "add arXiv:2401.12345 to the KB".
+**`/download-ref`** fetches the papers behind those entries: metadata from Semantic Scholar, PDFs from arXiv (with a Sci-Hub fallback for paywalled DOIs), and optionally arXiv LaTeX sources. It renders each paper to markdown so later skills can read and quote the full text. It also works standalone — just say "add arXiv:2401.12345 to the KB".
 
 **`/survey-writer`** turns the populated knowledge base into a structured assessment: what the technology is and why it matters, the main approaches with state of the art and trade-offs per approach, and the key open problems. Output in Markdown, Typst, or LaTeX.
 
@@ -42,7 +42,8 @@ Everything lands in one folder inside your project:
   INDEX.md            auto-generated table of contents
   NOTES.md            curated sub-themes, open problems, bottlenecks
   <id>_<slug>.md      full-text papers rendered to markdown
-  .raw/               original PDFs + metadata (gitignored)
+  .raw/               original PDFs, metadata, and optional sources (gitignored)
+  .figures/           extracted figures (gitignored)
 ```
 
 > **One-time setup** for PDF rendering: `python3 -m pip install --user pymupdf4llm`. Add `playwright` (`python3 -m playwright install chromium`) only if you need the Sci-Hub fallback for paywalled DOIs.
@@ -63,12 +64,17 @@ If you ran `/survey` first, the brainstorm automatically picks up the knowledge 
 
 | Skill | What it does |
 |-------|--------------|
+| `/idea-writer` | Turn a brainstorming session into a structured ideas report with its reasoning trail |
+| `/autoresearch` | Run the topics → evidence → validator → attempt loop; cycle size is configured up front as adjustable guidance |
 | `/paper-writer` | Draft a real manuscript: figures first → telegram outline → body → polish |
 | `/paper-reviewer` | Review an existing manuscript against writing guidelines; verifies references |
 | `/slide-writer` | Build Typst + Touying slide decks from a browsable theme/layout/gadget zoo |
 | `/figure-taste` | Score a figure's visual design against an 18-rule rubric |
 | `/flow` | Autonomous deep-thinker that attacks one hard goal via a search loop |
 | `/know-me-better` | Index your Zotero / PDF folder / Google Scholar collection into the KB |
+| `/conversation-dump` | Extract and classify research conversations from Claude Code or Codex histories |
+| `/import-dialog` | Import Markdown conversation exports into the advisor workflow |
+| `/soul-extraction` | Distill reasoning patterns from classified conversations |
 | `/incarnate` | Capture your thinking style as a reusable advisor profile |
 
 ## Where Things Are Saved

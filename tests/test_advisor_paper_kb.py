@@ -3,8 +3,8 @@
 The advisor KB layout mirrors the project KB:
     advisors/<slug>/
       profile.md           # always present (committed)
-      ref.bib              # advisor's BibTeX namespace (optional; created on first append)
       .knowledge/          # gitignored cache (optional; populated by know-me-better/download-ref)
+        references.bib     # advisor's BibTeX namespace (created on first append)
         INDEX.md
         NOTES.md
         .raw/{arxiv,doi}/...

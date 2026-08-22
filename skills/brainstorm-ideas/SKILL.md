@@ -210,7 +210,7 @@ If no existing profile or knowledge base is found, ask via `AskUserQuestion`:
 > - **(b)** Zotero library — I'll index your papers to understand your work
 > - **(c)** Google Scholar profile — give me your URL
 
-For **(b)** or **(c)**: follow the `know-me-better` skill instructions (read `skills/researchstyle/SKILL.md`) to build a project knowledge base, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
+For **(b)** or **(c)**: follow the `know-me-better` skill instructions (read `skills/know-me-better/SKILL.md`) to build a project knowledge base, then continue. The indexed data (publication count, topics, recency, citation patterns) reveals the user's experience level — no need to ask explicitly.
 
 **For (a) only — one follow-up question (if not already answered):**
 

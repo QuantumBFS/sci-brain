@@ -1,6 +1,6 @@
 ---
 name: download-ref
-description: Use when adding one or many new references (arXiv ID or DOI) to a sci-brain knowledge base — `<project>/.knowledge/` by default, or `advisors/<slug>/.knowledge/` when invoked from an advisor flow. Fetches metadata via Semantic Scholar, downloads PDFs (with SciHub fallback), renders to markdown, regenerates `INDEX.md`, and appends to the KB's `references.bib`. Handles both single refs and bulk-from-bib batches.
+description: Use when adding one or many new references (arXiv ID or DOI) to a sci-brain knowledge base — the project KB by default, or an advisor KB when invoked from an advisor flow. Fetches metadata via Semantic Scholar, downloads PDFs (with SciHub fallback), renders to markdown, regenerates `INDEX.md`, and appends to the KB's `references.bib`. Handles both single refs and bulk-from-bib batches.
 ---
 
 # download-ref

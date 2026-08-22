@@ -13,7 +13,9 @@ action. Required structure:
     <value>." Per attempt, one line: kind (draft/improve/debug), parent,
     metric, and a one-line causal claim. Close with the budget state:
     attempts used / remaining this authorization, distance to the GOAL.md
-    bar, any protocol overrides recorded this cycle.
+    bar, the actual cycle size and why it differed from
+    `recommended_cycle_size` (if it did), and any protocol overrides recorded
+    this cycle.
 
     ## Lessons we learnt
     The core of the reflection — what happened and why, down to root

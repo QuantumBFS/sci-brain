@@ -2,7 +2,7 @@
 
 The loop. Protocol per attempt: `../attempt-protocol.md`. Report per
 cycle: `../reflection-template.md`. Configuration from
-`research/STATE.md`: `batch_size` (default 10), `time_limit_seconds`,
+`research/STATE.md`: `recommended_cycle_size`, `time_limit_seconds`,
 `authorized_attempts`, `next_attempt`, `next_cycle`.
 
 ## Entry check — refuse to start otherwise
@@ -27,7 +27,8 @@ gate is never worked around; a user-approved exception goes into
 
 0. **Stuck?** Skip on cycle 1. **Stuck** means either (a) after the
    novelty and triviality checks of the previous planning pass the pool
-   held fewer than `batch_size` drafts + improvements, or (b) two
+   held fewer useful drafts + improvements than that cycle planned to run,
+   or (b) two
    consecutive cycles produced no improvement in best dev score. When
    stuck, refresh insights before planning:
    - take the diagnosed bottleneck / root cause from the latest
@@ -45,8 +46,15 @@ gate is never worked around; a user-approved exception goes into
    At most one refresh per cycle. If a refresh adds nothing and the loop
    is still stuck, the next soft gate presents "wind down / pivot" as a
    direction instead of spending more attempts.
-1. **Plan the batch.** Generate a surplus of candidate hypotheses (~2×
-   `batch_size`). `## Selected` entries in `research/INSIGHTS.md` are the
+1. **Plan the cycle.** Start from `recommended_cycle_size`, then choose the
+   actual `cycle_size` for this cycle. Adjust it when the remaining authorized
+   budget is smaller, the post-filter candidate pool is unusually thin or
+   rich, attempts are unusually expensive, uncertainty favors a shorter
+   feedback loop, or independent hypotheses make more parallel work useful.
+   State the chosen size and the reason in the plan. This is agent judgment,
+   not a protocol override; never exceed remaining `authorized_attempts`.
+
+   Generate a surplus of candidate hypotheses (~2× `cycle_size`). `## Selected` entries in `research/INSIGHTS.md` are the
    default grounding, not a fence — `## Candidate` entries (from a
    stuck-triggered refresh, step 0), original ideas, cross-insight
    combinations, and directions from fresh literature search are equally
@@ -70,7 +78,9 @@ gate is never worked around; a user-approved exception goes into
    Rank candidates by **expected gap closure × distinctness**. Cost is a
    constraint (the attempt must fit `time_limit_seconds`), never a score
    term — ranking on cost is how cheap tweaks crowd out real ideas.
-   Promote the top `batch_size` after three filters:
+   Promote the top `cycle_size` after three filters. If the filters leave
+   fewer genuinely useful candidates, reduce `cycle_size` instead of padding
+   the cycle with weak or duplicate work:
    - **Novelty check** — compare each candidate against the hypotheses in
      *all* prior attempts' LOG.md files; a near-duplicate of anything
      already tried is rejected and resampled. Never re-spend an attempt on
@@ -97,7 +107,8 @@ gate is never worked around; a user-approved exception goes into
 2. **Confirm the plan.** The first batch of any authorization — cycle 1
    especially — executes only after the user confirms the plan: present
    the promoted hypotheses (one line each: kind, source, mechanism, prior
-   art) and the batch composition, apply any amendments, then start. Later cycles within the
+   art), the chosen `cycle_size` with any deviation from the recommendation,
+   and the batch composition; apply any amendments, then start. Later cycles within the
    same authorization run autonomously — their direction was confirmed at
    the previous soft gate alongside the attempts budget.
 3. **Execute** each attempt per `../attempt-protocol.md`.
@@ -120,8 +131,8 @@ gate is never worked around; a user-approved exception goes into
    results appear only as aggregates in the reports. No remote → recommend
    the user add one, record the skip in the reflection, continue.
 6. **Soft gate.** Subtract the cycle's attempts from `authorized_attempts`:
-   - if enough remain for another batch, continue autonomously (a remainder
-     smaller than `batch_size` runs as a smaller final batch);
+   - if any remain, continue autonomously; choose the next cycle's actual size
+     again from the recommendation, evidence, and remaining authorization;
    - if exhausted: stop and present the report — summarize in the
      terminal and point the user at `docs/discussion/cycle-NN.html` and
      `index.html` — followed by **2–4 candidate directions** for the next

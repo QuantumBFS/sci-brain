@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parse a Zotero SQLite database and produce a personal survey registry.
+"""Parse a Zotero SQLite database into a scratch export.
 
 Usage:
     python parse_zotero.py <zotero.sqlite> <output_dir>

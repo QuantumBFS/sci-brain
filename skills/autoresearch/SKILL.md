@@ -26,9 +26,17 @@ Supporting references: `references/insights-template.md` (db),
 ## Procedure
 
 1. **Locate state.** Read `<project>/research/STATE.md`.
-   - **Missing** → new project: create `research/STATE.md` from the template
-     in `references/state-schema.md` (stage `topics`), then follow
+   - **Missing** → new project: ask the user for a recommended number of
+     attempts per cycle (suggest 10). Explain that this is a planning default,
+     not a fixed batch size: the agent may choose a smaller or larger cycle
+     when the evidence, candidate pool, cost, or available parallelism calls
+     for it, without exceeding the authorized attempt budget. Create
+     `research/STATE.md` from `references/state-schema.md` (stage `topics`),
+     record the answer as `recommended_cycle_size`, then follow
      `references/stages/topics.md`.
+   - **Readable legacy state with `batch_size`** → preserve its value by
+     migrating it to `recommended_cycle_size` on the next state write. Treat
+     it as guidance, not a hard protocol rule.
    - **Corrupt/unreadable** → re-derive the stage from the artifact table
      below (earliest stage whose required artifacts are missing), show the
      user the derived state, and confirm with them before overwriting

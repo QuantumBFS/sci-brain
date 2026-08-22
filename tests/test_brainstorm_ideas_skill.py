@@ -1,16 +1,16 @@
 from pathlib import Path
 
 
-IDEAS_SKILL = Path(__file__).resolve().parents[1] / "skills" / "ideas" / "SKILL.md"
+BRAINSTORM_IDEAS_SKILL = Path(__file__).resolve().parents[1] / "skills" / "brainstorm-ideas" / "SKILL.md"
 
 
-def test_ideas_skill_requires_advisor_subagent_workflow():
-    text = IDEAS_SKILL.read_text()
+def test_brainstorm_ideas_skill_requires_advisor_subagent_workflow():
+    text = BRAINSTORM_IDEAS_SKILL.read_text()
 
     required_phrases = [
         "launch a dedicated advisor subagent",
         "advisors/<slug>/.knowledge",
-        "loaded into the advisor subagent context",
+        "seed context loaded into the advisor subagent",
         "edge-tts",
     ]
 
@@ -18,8 +18,8 @@ def test_ideas_skill_requires_advisor_subagent_workflow():
         assert phrase in text, f"missing required phrase: {phrase!r}"
 
 
-def test_ideas_skill_drops_old_advisor_cache_terms():
-    text = IDEAS_SKILL.read_text()
+def test_brainstorm_ideas_skill_drops_old_advisor_cache_terms():
+    text = BRAINSTORM_IDEAS_SKILL.read_text()
     forbidden = [
         "10 representative publications",
         "advisor survey index",

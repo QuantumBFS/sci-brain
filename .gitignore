@@ -16,18 +16,16 @@ Thumbs.db
 # Local agent settings
 .claude/settings.local.json
 
-# Generated image artifact
-images/flowchart.png
 articles/
 __pycache__/
 
-# Project KB (populated by /survey, /researchstyle, /download-ref)
+# Project KB (populated by /survey, /know-me-better, /download-ref)
 .knowledge/
 
-# Advisor literature caches (per-advisor .knowledge/, populated by /researchstyle or /download-ref):
+# Advisor literature caches (per-advisor .knowledge/, populated by /know-me-better or /download-ref):
 # track the queryable text (rendered papers + INDEX.md + NOTES.md) so advisors ship with their
 # library, but keep the heavy / copyright-encumbered binaries (raw PDFs, JSON, extracted figures)
-# out of git — those are rebuildable from ref.bib via download-ref.
+# out of git — those are rebuildable from references.bib via download-ref.
 !advisors/*/.knowledge/
 advisors/*/.knowledge/.raw/
 advisors/*/.knowledge/.figures/

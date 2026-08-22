@@ -1,18 +1,18 @@
 ---
 name: incarnate
-description: Use when onboarding a contributor as an advisor — guides them through providing their background and conversation history, runs conversation-dump and soul-extraction, then synthesizes a named advisor profile for the ideas skill's advisor library
+description: Use when onboarding a contributor as an advisor — guides them through providing their background and conversation history, runs conversation-dump and soul-extraction, then synthesizes a named advisor profile for the brainstorm-ideas skill's advisor library
 ---
 
 ## Advisor Profile Generation
 
-Onboard a contributor and create a named advisor profile. The profile captures how a real person thinks — their cognitive style, attention patterns, reasoning strengths, and conversation dynamics — so the ideas skill can launch them as a subagent collaborator rather than a thin inline persona.
+Onboard a contributor and create a named advisor profile. The profile captures how a real person thinks — their cognitive style, attention patterns, reasoning strengths, and conversation dynamics — so the brainstorm-ideas skill can launch them as a subagent collaborator rather than a thin inline persona.
 
 ### Step 1 — Personal Profile
 
 Ask the contributor to provide their academic/professional background:
 
 - **(a)** Tell me yourself (field, experience, what you've worked on)
-- **(b)** Zotero library — follow the `know-me-better` skill instructions (`skills/researchstyle/SKILL.md`) to index publications
+- **(b)** Zotero library — follow the `know-me-better` skill instructions (`skills/know-me-better/SKILL.md`) to index publications
 - **(c)** Google Scholar profile — follow the `know-me-better` skill instructions to index publications
 
 From the response, extract:
