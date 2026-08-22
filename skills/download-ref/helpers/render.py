@@ -4,6 +4,8 @@
 Reads:
 - .raw/{arxiv,doi}/<id>.json — Semantic Scholar metadata (from fetch_metadata.py)
 - .raw/{arxiv,doi}/<id>.pdf — original PDFs (optional; rendered as full-text section)
+- .raw/{arxiv,doi}/<id>.tex — flattened arXiv LaTeX source (optional; used as the
+  full-text body ONLY with --tex-source; otherwise PDF->markdown is the default)
 - .raw/repos/<owner>-<repo>/ — shallow clones (rendered as README + ls-tree)
 - .raw/web/<slug>.html or .raw/web/<slug>/ subdir — web page or local source dir
 - A manifest JSON describing web entries and bib stubs (titles/sources/notes)
@@ -16,6 +18,7 @@ Manifest schema (web/stub only — arxiv/doi/github are auto-discovered from .ra
 
 Usage:
     render.py --kb /abs/path/.knowledge --manifest manifest.json
+    render.py --kb /abs/path/.knowledge --tex-source   # prefer LaTeX bodies when .tex exists
 """
 from __future__ import annotations
 
@@ -130,7 +133,7 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
     return text.strip()
 
 
-def render_arxiv(kb: Path, raw: Path, only_missing: bool = False) -> int:
+def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = False) -> int:
     n = 0
     arx_dir = raw / "arxiv"
     if not arx_dir.exists():
@@ -163,20 +166,27 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False) -> int:
             body += ["", f"**DOI:** [{meta['doi']}](https://doi.org/{meta['doi']})"]
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
         pdf = arx_dir / f"{arxiv_id}.pdf"
-        full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{arxiv_id}") if pdf.exists() else ""
-        if full:
-            meta["full_text"] = "yes"
+        tex = arx_dir / f"{arxiv_id}.tex"
+        if use_tex and tex.exists() and tex.stat().st_size > 100:
+            meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
-            body += ["", "## Full Text", "", full]
+            body += ["", "## Full Text (LaTeX source)", "",
+                     tex.read_text(encoding="utf-8", errors="replace").strip()]
         else:
-            meta["full_text"] = "no"
-            body[0] = render_frontmatter(meta)
+            full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{arxiv_id}") if pdf.exists() else ""
+            if full:
+                meta["full_text"] = "yes"
+                body[0] = render_frontmatter(meta)
+                body += ["", "## Full Text", "", full]
+            else:
+                meta["full_text"] = "no"
+                body[0] = render_frontmatter(meta)
         (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
         n += 1
     return n
 
 
-def render_doi(kb: Path, raw: Path, only_missing: bool = False) -> int:
+def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = False) -> int:
     n = 0
     doi_dir = raw / "doi"
     if not doi_dir.exists():
@@ -211,15 +221,22 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False) -> int:
             body += ["", f"**arXiv preprint:** [{meta['arxiv_id']}](https://arxiv.org/abs/{meta['arxiv_id']})"]
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
         pdf = doi_dir / f"{safe}.pdf"
-        full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"doi__{safe}") if pdf.exists() else ""
-        if full:
-            meta["full_text"] = "yes"
+        tex = doi_dir / f"{safe}.tex"
+        if use_tex and tex.exists() and tex.stat().st_size > 100:
+            meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
-            body += ["", "## Full Text", "", full]
+            body += ["", "## Full Text (LaTeX source)", "",
+                     tex.read_text(encoding="utf-8", errors="replace").strip()]
         else:
-            meta["full_text"] = "no"
-            body[0] = render_frontmatter(meta)
-            body += ["", "_Full text not retrieved — abstract-only entry._"]
+            full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"doi__{safe}") if pdf.exists() else ""
+            if full:
+                meta["full_text"] = "yes"
+                body[0] = render_frontmatter(meta)
+                body += ["", "## Full Text", "", full]
+            else:
+                meta["full_text"] = "no"
+                body[0] = render_frontmatter(meta)
+                body += ["", "_Full text not retrieved — abstract-only entry._"]
         (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
         n += 1
     return n
@@ -340,12 +357,15 @@ def main() -> int:
                    help="Optional JSON manifest for web entries and bib stubs")
     p.add_argument("--only-missing", action="store_true",
                    help="Skip rendering papers that already have a non-trivial .md file (>500 bytes)")
+    p.add_argument("--tex-source", action="store_true",
+                   help="Render from flattened arXiv LaTeX source (.raw/*/<id>.tex) when available; "
+                        "default is PDF->markdown for every ref")
     args = p.parse_args()
     raw = args.kb / ".raw"
     m = json.loads(args.manifest.read_text()) if args.manifest else {}
     om = args.only_missing
-    print(f"arxiv:  {render_arxiv(args.kb, raw, only_missing=om)}")
-    print(f"doi:    {render_doi(args.kb, raw, only_missing=om)}")
+    print(f"arxiv:  {render_arxiv(args.kb, raw, only_missing=om, use_tex=args.tex_source)}")
+    print(f"doi:    {render_doi(args.kb, raw, only_missing=om, use_tex=args.tex_source)}")
     print(f"github: {render_github(args.kb, raw)}")
     print(f"web:    {render_web(args.kb, raw, m)}")
     print(f"stub:   {render_stubs(args.kb, m)}")

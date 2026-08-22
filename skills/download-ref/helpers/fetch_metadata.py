@@ -102,6 +102,8 @@ def main() -> int:
                    help="JSON file with {arxiv: [ids], doi: [dois]}")
     p.add_argument("--download-arxiv-pdfs", action="store_true",
                    help="Also fetch arXiv preprint PDFs (incl. preprints of paywalled DOIs)")
+    p.add_argument("--download-arxiv-source", action="store_true",
+                   help="Also fetch arXiv e-print LaTeX sources, flattened to .raw/arxiv/<id>.tex")
     args = p.parse_args()
 
     raw = args.kb / ".raw"
@@ -156,6 +158,35 @@ def main() -> int:
                 ok = fetch_pdf(f"https://arxiv.org/pdf/{arxiv_pre}.pdf", out)
             print(f"  {'ok  ' if ok else 'miss'} doi:{doi} (arxiv={arxiv_pre or '-'})")
             time.sleep(2)
+
+    if args.download_arxiv_source:
+        from tex_source import fetch_arxiv_source
+        print("\nfetching LaTeX sources (sequential with 2s sleep to avoid arXiv rate limits)...")
+        for aid in arxiv_ids:
+            status = fetch_arxiv_source(aid, args.kb)
+            if status in ("ok", "cached"):
+                print(f"  ok  arxiv:{aid}" + (" (cached)" if status == "cached" else ""))
+            else:
+                print(f"  src-miss arxiv:{aid} ({status})")
+            if status != "cached":
+                time.sleep(2)
+        for doi, r in zip(dois, results[len(arxiv_ids):]):
+            if r is None:
+                continue
+            arxiv_pre = (r.get("externalIds") or {}).get("ArXiv")
+            if not arxiv_pre:
+                continue
+            safe = doi.replace("/", "-")
+            status = fetch_arxiv_source(
+                arxiv_pre, args.kb,
+                out_tex=raw / "doi" / f"{safe}.tex",
+                fig_subdir=f"doi__{safe}")
+            if status in ("ok", "cached"):
+                print(f"  ok  doi:{doi} (arxiv={arxiv_pre})" + (" (cached)" if status == "cached" else ""))
+            else:
+                print(f"  src-miss doi:{doi} (arxiv={arxiv_pre}, {status})")
+            if status != "cached":
+                time.sleep(2)
 
     return 0
 

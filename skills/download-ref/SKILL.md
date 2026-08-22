@@ -40,6 +40,10 @@ if you expect to hit paywalled DOIs:
 python3 -m pip install --user playwright && python3 -m playwright install chromium
 ```
 
+For arXiv LaTeX sources (optional, Step 4 — only when the user opts in), `latexpand`
+(ships with TeX Live) gives the cleanest flattening; if absent, a built-in Python
+inliner is used — no action needed either way.
+
 ## Inputs
 
 - **One or more arXiv IDs** (e.g. `1806.08734`, `2006.10739`) — strip the `vN` suffix.
@@ -50,6 +54,8 @@ python3 -m pip install --user playwright && python3 -m playwright install chromi
 
 `download-ref` writes:
 - `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}`
+- `$KB/.raw/{arxiv,doi}/<id>-src/` (extracted e-print source tree — only when LaTeX sources requested)
+- `$KB/.raw/{arxiv,doi}/<id>.tex` (flattened LaTeX; <safe-doi> filenames for DOI entries — only when LaTeX sources requested)
 - `$KB/.figures/{arxiv__<id>,doi__<safe>}/...`
 - `$KB/<id>_<slug>.md` (rendered paper, one per ref)
 - `$KB/INDEX.md` (regenerated each run)
@@ -120,6 +126,14 @@ For (b) and (c), edit `$TMP` accordingly before continuing.
 
 ### 4. Fetch metadata + arXiv PDFs
 
+Ask the user whether they want LaTeX sources too:
+
+> "Fetch arXiv LaTeX sources as full text for these refs?"
+> - **(a)** PDF only (default) — bodies come from the PDF in Step 5.
+> - **(b)** Also fetch LaTeX sources — Step 4 adds `--download-arxiv-source`, Step 5 adds `--tex-source`; refs with source render `full_text: latex`.
+
+Default command (option **a**):
+
 ```sh
 python3 skills/download-ref/helpers/fetch_metadata.py \
   --kb "$KB" \
@@ -127,7 +141,26 @@ python3 skills/download-ref/helpers/fetch_metadata.py \
   --download-arxiv-pdfs
 ```
 
+Option **(b)** adds the source fetch:
+
+```sh
+python3 skills/download-ref/helpers/fetch_metadata.py \
+  --kb "$KB" \
+  --manifest "$TMP" \
+  --download-arxiv-pdfs \
+  --download-arxiv-source
+```
+
 Populates `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}` idempotently. PDFs are downloaded sequentially with 2s sleep between requests to avoid arXiv rate limits. Each PDF is verified for a `%%EOF` trailer; truncated downloads are discarded and retried. For DOIs whose publisher gates the PDF (APS / Nature / IOP / AAAS / ACS), the helper falls back to the arXiv preprint via `externalIds.ArXiv` when present. If even that fails, you'll see a `miss` line — go to Step 4b.
+
+`--download-arxiv-source` additionally fetches each arXiv paper's e-print
+LaTeX source, extracts it to `.raw/arxiv/<id>-src/`, flattens
+`\input`/`\include` into `.raw/arxiv/<id>.tex`, and copies the source tree's
+figure files into `.figures/arxiv__<id>/`. `src-miss` lines (PDF-only
+submissions, withdrawn papers, fetch failures) are fine — those refs fall
+back to PDF rendering in Step 5. DOI entries whose Semantic Scholar record
+names an arXiv preprint (`externalIds.ArXiv`) get the same treatment, into
+`.raw/doi/<safe>.tex` and `.figures/doi__<safe>/`.
 
 **Tip:** Set `SEMANTIC_SCHOLAR_API_KEY` in your environment to raise the Semantic Scholar rate limit from ~1 req/s to 100 req/s. Get a free key at https://www.semanticscholar.org/product/api#api-key-form.
 
@@ -168,12 +201,20 @@ Add `--only-missing` to skip papers that already have a rendered `.md` file (>50
 python3 skills/download-ref/helpers/render.py --kb "$KB" --only-missing
 ```
 
+When the user opted into LaTeX sources (Step 4, option **b**), add `--tex-source`:
+
+```sh
+python3 skills/download-ref/helpers/render.py --kb "$KB" --tex-source
+```
+
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
 
-PDF backend priority:
-1. **`pymupdf4llm`** — markdown + extracted images into `$KB/.figures/`.
-2. `markitdown` — text-only fallback.
-3. `pdftotext -layout` — last-resort fallback.
+**PDF is the default body.** `--tex-source` is the only switch that prefers a
+flattened `.tex` (arXiv entries, and DOI entries with an arXiv preprint) as
+the full-text body (`full_text: latex` in frontmatter) — ground truth for
+equations, read natively by agents. Without it, every ref renders from its
+PDF, even when a `.tex` sits in `.raw/`. The PDF backends below apply to all
+refs not rendered from LaTeX:
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 
@@ -233,7 +274,7 @@ for id in 1806.08734 2006.10739; do
 done
 ```
 
-Tell the user: new cite key(s), rendered file path(s), `full_text` yes/no per ref.
+Tell the user: new cite key(s), rendered file path(s), `full_text` latex/yes/no per ref.
 
 ## After download — hand off to survey-writer
 
@@ -256,11 +297,13 @@ After the done checklist passes, offer the pipeline's final stage:
 | Mistake | Fix |
 | --- | --- |
 | Passing a relative `--kb` | Always absolute. Helpers don't `cd`; figures depend on absolute paths. |
-| Forgetting `--download-arxiv-pdfs` in Step 4 | Without it `full_text: no` and Step 5 has nothing to render. |
+| Forgetting `--download-arxiv-pdfs` in Step 4 | Without it, refs with no LaTeX source render `full_text: no` — the PDF is the only body for DOIs and PDF-only arXiv submissions. |
 | Using `arXiv:XXXX` with prefix or `vN` suffix | Strip both — manifest takes bare ids: `1806.08734`. |
 | Editing the rendered `.md` and losing it on re-render | Renderer overwrites without warning. Edit `.raw/` source or renderer logic. |
 | Cite-key collision with different content | `append` skips silently. Propose with `--bib` so the key is disambiguated up front (next content word of the title). |
 | Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
+| Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |
+| Rendered from PDF despite a `.tex` in `.raw/` | PDF is the default. To use LaTeX bodies, pass `--tex-source` in Step 5 (and `--download-arxiv-source` in Step 4). |
 
 ## Done checklist
 
@@ -269,4 +312,5 @@ After the done checklist passes, offer the pipeline's final stage:
 - [ ] One new `<id>_<slug>.md` per ref at `$KB/` root, with frontmatter
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
 - [ ] `$KB/references.bib` has the new cite key (no duplicate)
-- [ ] User told cite keys, file names, and `full_text` yes/no per ref
+- [ ] User told cite keys, file names, and `full_text` latex/yes/no per ref
+- [ ] If the user requested LaTeX sources: `.raw/arxiv/<id>.tex` exists for every arXiv id, and `.raw/doi/<safe>.tex` for every DOI with an arXiv preprint (or the `src-miss` reported)
