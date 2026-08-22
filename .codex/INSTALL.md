@@ -66,4 +66,4 @@ done
 
 Optionally delete the clone: `rm -rf ~/.codex/sci-brain`.
 
-See the [official Codex skill-discovery documentation](https://learn.chatgpt.com/codex/build-skills#where-codex-loads-local-skills) for supported locations.
+See the [official Codex skill-discovery documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) for supported locations.

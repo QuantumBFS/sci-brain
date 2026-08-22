@@ -27,9 +27,12 @@ gate is never worked around; a user-approved exception goes into
 
 0. **Stuck?** Skip on cycle 1. **Stuck** means either (a) after the
    novelty and triviality checks of the previous planning pass the pool
-   held fewer useful drafts + improvements than that cycle planned to run,
-   or (b) two
-   consecutive cycles produced no improvement in best dev score. When
+   held fewer useful drafts + improvements than that cycle's initial
+   target — the `cycle_size` it started from in step 1 (normally
+   `recommended_cycle_size`) *before* any reduction made because the pool
+   was thin — or (b) two consecutive cycles produced no improvement in
+   best dev score. Shrinking `cycle_size` to fit a thin pool does not
+   clear condition (a); the cycle still counts as stuck. When
    stuck, refresh insights before planning:
    - take the diagnosed bottleneck / root cause from the latest
      reflection report;

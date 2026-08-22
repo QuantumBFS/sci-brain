@@ -97,7 +97,7 @@ via `.raw/doi/<safe>.tex`.
   render behavior in Step 5, update the done checklist and the final report
   (`full_text: latex|yes|no` per ref).
 - `CLAUDE.md` (project): one-line update to the download-ref description.
-- `skills/survey/SKILL.md` / `skills/researchstyle/SKILL.md`: add the flag to
+- `skills/survey/SKILL.md` / `skills/know-me-better/SKILL.md`: add the flag to
   their fetch invocations. *(Found inapplicable during implementation
   (2026-08-03): neither skill invokes `fetch_metadata.py` — they write
   `.raw/` JSON themselves and delegate downloads to `download-ref`, so
