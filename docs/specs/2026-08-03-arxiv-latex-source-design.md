@@ -20,16 +20,22 @@ full-text body for arXiv papers whenever source is available.
   `.raw/` / `.figures/` layout must not change shape.
 - No new hard dependencies. The flattener is pure Python; `latexpand` (TeX
   Live) is used opportunistically when installed.
-- PDF→Markdown remains the path for DOI refs, PDF-only arXiv submissions,
-  and any source-fetch failure.
+- PDF→Markdown remains the default full-text path. LaTeX source is an
+  opt-in upgrade: fetched only when the user requests it
+  (`--download-arxiv-source`) and used only when the renderer is asked
+  (`--tex-source`). DOI refs, PDF-only arXiv submissions, and any
+  source-fetch failure always render from the PDF.
 
 ## Design
 
 ### Fetch (extend `fetch_metadata.py`)
 
 New flag `--download-arxiv-source`, used alongside the existing
-`--download-arxiv-pdfs` (PDFs are still fetched — they remain the fallback
-and the `.figures/` source for the PDF path):
+`--download-arxiv-pdfs` (PDFs are still fetched — they remain the default
+body and the `.figures/` source for the PDF path). The flag is **opt-in**:
+`download-ref` asks the user ("PDF only" vs. "also fetch LaTeX sources") and
+adds the flag only when requested. Old behavior — PDFs only, no source
+fetch — is the default:
 
 1. Download `https://arxiv.org/e-print/<id>` with the same sequential 2 s
    rate-limit loop as PDF downloads. Idempotent: skip when
@@ -62,11 +68,13 @@ mirroring the existing arXiv-PDF paywall fallback. *(Extension added
 
 ### Render (`render.py`)
 
-For an arXiv entry, if `.raw/arxiv/<id>.tex` exists, the body of
-`<id>_<slug>.md` is the raw flattened LaTeX (after the usual frontmatter and
-metadata header), and frontmatter gets `full_text: latex`. Otherwise the
-pymupdf4llm PDF path runs unchanged with `full_text: yes` as today. The same
-tex-first branch applies to `render_doi` via `.raw/doi/<safe>.tex`.
+For an arXiv entry, if `.raw/arxiv/<id>.tex` exists **and** the renderer
+was invoked with `--tex-source`, the body of `<id>_<slug>.md` is the raw
+flattened LaTeX (after the usual frontmatter and metadata header), and
+frontmatter gets `full_text: latex`. Otherwise the pymupdf4llm PDF path runs
+unchanged with `full_text: yes`/`no` as today — even when a `.tex` exists
+(PDF is the default body). The same tex-first branch applies to `render_doi`
+via `.raw/doi/<safe>.tex`.
 
 - Truthiness contract: any consumer treating `full_text` as yes/no must
   treat `latex` as yes. Audit `index.py` (and quantum.harness's
@@ -83,9 +91,11 @@ tex-first branch applies to `render_doi` via `.raw/doi/<safe>.tex`.
 
 ### Documentation
 
-- `skills/download-ref/SKILL.md`: add the flag to Step 4, describe the
-  latex-vs-pdf render behavior in Step 5, update the done checklist and the
-  final report (`full_text: latex|yes|no` per ref).
+- `skills/download-ref/SKILL.md`: ask the user in Step 4 ("PDF only" vs.
+  "also fetch LaTeX sources"), add `--download-arxiv-source` to the fetch
+  command only when requested, describe the PDF-default / `--tex-source`
+  render behavior in Step 5, update the done checklist and the final report
+  (`full_text: latex|yes|no` per ref).
 - `CLAUDE.md` (project): one-line update to the download-ref description.
 - `skills/survey/SKILL.md` / `skills/researchstyle/SKILL.md`: add the flag to
   their fetch invocations. *(Found inapplicable during implementation

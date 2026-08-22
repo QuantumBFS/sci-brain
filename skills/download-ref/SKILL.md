@@ -40,9 +40,9 @@ if you expect to hit paywalled DOIs:
 python3 -m pip install --user playwright && python3 -m playwright install chromium
 ```
 
-For arXiv LaTeX sources (Step 4), `latexpand` (ships with TeX Live) gives the
-cleanest flattening; if absent, a built-in Python inliner is used — no action
-needed either way.
+For arXiv LaTeX sources (optional, Step 4 — only when the user opts in), `latexpand`
+(ships with TeX Live) gives the cleanest flattening; if absent, a built-in Python
+inliner is used — no action needed either way.
 
 ## Inputs
 
@@ -54,8 +54,8 @@ needed either way.
 
 `download-ref` writes:
 - `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}`
-- `$KB/.raw/{arxiv,doi}/<id>-src/` (extracted e-print source tree)
-- `$KB/.raw/{arxiv,doi}/<id>.tex` (flattened LaTeX; <safe-doi> filenames for DOI entries)
+- `$KB/.raw/{arxiv,doi}/<id>-src/` (extracted e-print source tree — only when LaTeX sources requested)
+- `$KB/.raw/{arxiv,doi}/<id>.tex` (flattened LaTeX; <safe-doi> filenames for DOI entries — only when LaTeX sources requested)
 - `$KB/.figures/{arxiv__<id>,doi__<safe>}/...`
 - `$KB/<id>_<slug>.md` (rendered paper, one per ref)
 - `$KB/INDEX.md` (regenerated each run)
@@ -124,7 +124,24 @@ When in bulk mode, optionally ask the user:
 
 For (b) and (c), edit `$TMP` accordingly before continuing.
 
-### 4. Fetch metadata + arXiv PDFs/sources
+### 4. Fetch metadata + arXiv PDFs
+
+Ask the user whether they want LaTeX sources too:
+
+> "Fetch arXiv LaTeX sources as full text for these refs?"
+> - **(a)** PDF only (default) — bodies come from the PDF in Step 5.
+> - **(b)** Also fetch LaTeX sources — Step 4 adds `--download-arxiv-source`, Step 5 adds `--tex-source`; refs with source render `full_text: latex`.
+
+Default command (option **a**):
+
+```sh
+python3 skills/download-ref/helpers/fetch_metadata.py \
+  --kb "$KB" \
+  --manifest "$TMP" \
+  --download-arxiv-pdfs
+```
+
+Option **(b)** adds the source fetch:
 
 ```sh
 python3 skills/download-ref/helpers/fetch_metadata.py \
@@ -184,18 +201,20 @@ Add `--only-missing` to skip papers that already have a rendered `.md` file (>50
 python3 skills/download-ref/helpers/render.py --kb "$KB" --only-missing
 ```
 
+When the user opted into LaTeX sources (Step 4, option **b**), add `--tex-source`:
+
+```sh
+python3 skills/download-ref/helpers/render.py --kb "$KB" --tex-source
+```
+
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
 
-PDF backend priority:
-1. **`pymupdf4llm`** — markdown + extracted images into `$KB/.figures/`.
-2. `markitdown` — text-only fallback.
-3. `pdftotext -layout` — last-resort fallback.
-
-Refs with a flattened `.tex` beside their metadata (arXiv entries, and DOI
-entries with an arXiv preprint) are rendered with the raw LaTeX as the
-full-text body (`full_text: latex` in frontmatter) — ground truth for
-equations, read natively by agents. The PDF backends above apply only to
-refs without LaTeX source.
+**PDF is the default body.** `--tex-source` is the only switch that prefers a
+flattened `.tex` (arXiv entries, and DOI entries with an arXiv preprint) as
+the full-text body (`full_text: latex` in frontmatter) — ground truth for
+equations, read natively by agents. Without it, every ref renders from its
+PDF, even when a `.tex` sits in `.raw/`. The PDF backends below apply to all
+refs not rendered from LaTeX:
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 
@@ -284,6 +303,7 @@ After the done checklist passes, offer the pipeline's final stage:
 | Cite-key collision with different content | Helper skips silently — investigate, re-run propose with a different key. |
 | Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
 | Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |
+| Rendered from PDF despite a `.tex` in `.raw/` | PDF is the default. To use LaTeX bodies, pass `--tex-source` in Step 5 (and `--download-arxiv-source` in Step 4). |
 
 ## Done checklist
 
@@ -293,4 +313,4 @@ After the done checklist passes, offer the pipeline's final stage:
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
 - [ ] `$KB/references.bib` has the new cite key (no duplicate)
 - [ ] User told cite keys, file names, and `full_text` latex/yes/no per ref
-- [ ] `.raw/arxiv/<id>.tex` exists for every arXiv id, and `.raw/doi/<safe>.tex` for every DOI with an arXiv preprint (or the `src-miss` reported)
+- [ ] If the user requested LaTeX sources: `.raw/arxiv/<id>.tex` exists for every arXiv id, and `.raw/doi/<safe>.tex` for every DOI with an arXiv preprint (or the `src-miss` reported)

@@ -1,4 +1,4 @@
-"""render.py: arXiv entries with .raw/arxiv/<id>.tex get a LaTeX body."""
+"""render.py: arXiv entries with .raw/arxiv/<id>.tex get a LaTeX body (with --tex-source)."""
 import importlib.util
 import json
 import sys
@@ -30,12 +30,26 @@ def test_tex_body_wins_over_pdf(tmp_path):
     kb = _kb(tmp_path)
     (kb / ".raw" / "arxiv" / "2401.00001.tex").write_text(
         "\\documentclass{article}\n\\begin{document}\nTEX-BODY-MARKER\n\\end{document}\n" + "x" * 100)
-    n = mod.render_arxiv(kb, kb / ".raw")
+    n = mod.render_arxiv(kb, kb / ".raw", use_tex=True)
     assert n == 1
     md = (kb / "2401.00001_test-paper.md").read_text()
     assert "full_text: latex" in md
     assert "TEX-BODY-MARKER" in md
     assert "## Full Text (LaTeX source)" in md
+
+
+def test_tex_ignored_without_flag_pdf_default(tmp_path):
+    """Without --tex-source, a present .tex must NOT change the body (PDF default)."""
+    mod = _load()
+    kb = _kb(tmp_path)
+    (kb / ".raw" / "arxiv" / "2401.00001.tex").write_text(
+        "\\documentclass{article}\n\\begin{document}\nTEX-BODY-MARKER\n\\end{document}\n" + "x" * 100)
+    n = mod.render_arxiv(kb, kb / ".raw")  # no use_tex
+    assert n == 1
+    md = (kb / "2401.00001_test-paper.md").read_text()
+    assert "full_text: no" in md  # no PDF present either -> abstract-only
+    assert "TEX-BODY-MARKER" not in md
+    assert "## Full Text (LaTeX source)" not in md
 
 
 def test_no_tex_no_pdf_stays_abstract_only(tmp_path):
@@ -58,7 +72,7 @@ def test_doi_tex_body(tmp_path):
     (kb / ".raw" / "doi" / "10.1000-xyz.json").write_text(json.dumps(DOI_S2))
     (kb / ".raw" / "doi" / "10.1000-xyz.tex").write_text(
         "\\documentclass{article}\n\\begin{document}\nDOI-TEX-MARKER\n\\end{document}\n" + "x" * 100)
-    n = mod.render_doi(kb, kb / ".raw")
+    n = mod.render_doi(kb, kb / ".raw", use_tex=True)
     assert n == 1
     md = (kb / "10-1000-xyz.md").read_text()
     assert "full_text: latex" in md
