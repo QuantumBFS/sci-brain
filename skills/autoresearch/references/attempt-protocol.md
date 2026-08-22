@@ -7,13 +7,18 @@ Every attempt, no exceptions:
    immediately; numbers are never reused, even for crashes).
 2. **LOG.md first.** Before writing code, create `LOG.md` in the worktree:
    - attempt number and date;
-   - **kind** — `draft` | `improve` | `debug`;
+   - **kind** — `draft` | `improve` | `debug` | `baseline`;
    - **parent** — for `improve`/`debug`, the ancestor attempt number this
      builds on (`none` for drafts). Lineage is how later batches know which
      branch a result belongs to;
    - **hypothesis** — the idea being tried, naming which `## Selected`
      insight(s) from `research/INSIGHTS.md` it draws on; for `improve`, the
      single atomic change being made;
+   - **mechanism** — for `draft`: the bottleneck removed and the
+     effect-size ceiling against the gap to the GOAL.md bar (copied from
+     the batch plan); for `improve`/`debug`: inherited from the parent;
+     for `baseline`: `n/a (reproduction)`;
+   - **prior art** — `none found`, or the citation checked at planning;
    - **expected evidence** — what result would confirm or kill it.
 3. **Implement** the candidate in the worktree. It may read dev instances
    and everything in `research/` except `benchmark/private/`. Use

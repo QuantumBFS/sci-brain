@@ -1,12 +1,7 @@
----
-name: autoresearch-run
-description: Use when running the autoresearch loop for a project whose survey and validator gates have passed — executes batches of attempts (one git worktree + LOG.md each, scored only by the validator under a hard time limit), then reflects, reports, and re-plans; continues autonomously while authorized_attempts remain, otherwise stops for user review. Stage 4 of the autoresearch pipeline.
----
+# Stage 4: Run (the loop)
 
-# Autoresearch Run
-
-The loop. Protocol per attempt: `references/attempt-protocol.md`. Report per
-cycle: `references/reflection-template.md`. Configuration from
+The loop. Protocol per attempt: `../attempt-protocol.md`. Report per
+cycle: `../reflection-template.md`. Configuration from
 `research/STATE.md`: `batch_size` (default 10), `time_limit_seconds`,
 `authorized_attempts`, `next_attempt`, `next_cycle`.
 
@@ -30,23 +25,70 @@ gate is never worked around; a user-approved exception goes into
 
 ## Cycle
 
+0. **Stuck?** Skip on cycle 1. **Stuck** means either (a) after the
+   novelty and triviality checks of the previous planning pass the pool
+   held fewer than `batch_size` drafts + improvements, or (b) two
+   consecutive cycles produced no improvement in best dev score. When
+   stuck, refresh insights before planning:
+   - take the diagnosed bottleneck / root cause from the latest
+     reflection report;
+   - invoke the `survey` skill scoped to that bottleneck (or
+     `download-ref` for specific IDs already known) into
+     `<project>/.knowledge/`;
+   - distill what is new into `research/INSIGHTS.md` under `## Candidate`
+     (entry format per `../insights-template.md`). Candidate entries are
+     valid grounding for hypotheses immediately — the loop is not blocked
+     on user confirmation; they are promoted to Selected or moved to
+     Shelved at the next soft gate;
+   - record the refresh (query, what was added, what it unblocked) in this
+     cycle's reflection report.
+   At most one refresh per cycle. If a refresh adds nothing and the loop
+   is still stuck, the next soft gate presents "wind down / pivot" as a
+   direction instead of spending more attempts.
 1. **Plan the batch.** Generate a surplus of candidate hypotheses (~2×
    `batch_size`). `## Selected` entries in `research/INSIGHTS.md` are the
-   default grounding, not a fence — original ideas, cross-insight
+   default grounding, not a fence — `## Candidate` entries (from a
+   stuck-triggered refresh, step 0), original ideas, cross-insight
    combinations, and directions from fresh literature search are equally
    welcome; each hypothesis names its source (insight / literature /
-   original) in the plan. Rank them with a quick rubric (expected
-   information gain, cost, distinctness) and promote the top `batch_size`.
-   Two filters before anything is implemented:
+   original) in the plan.
+
+   Every **draft** hypothesis must also carry two lines, written before
+   it is ranked:
+   - **mechanism** — the bottleneck it removes (named from the latest
+     reflection's root-cause diagnosis where one exists) and a rough
+     effect-size ceiling, stated against the **gap** = GOAL.md threshold −
+     current best dev score. "Might help" is not a mechanism.
+   - **prior art** — checked against `.knowledge/INDEX.md` +
+     `research/INSIGHTS.md` and one quick web search: `none found`, or a
+     citation. If the technique is already published *for this problem*,
+     the hypothesis is relabeled kind `baseline` (below) — it never
+     counts as a draft.
+   `improve` and `debug` attempts inherit their ancestor's mechanism and
+   state only the atomic change.
+
+   Rank candidates by **expected gap closure × distinctness**. Cost is a
+   constraint (the attempt must fit `time_limit_seconds`), never a score
+   term — ranking on cost is how cheap tweaks crowd out real ideas.
+   Promote the top `batch_size` after three filters:
    - **Novelty check** — compare each candidate against the hypotheses in
      *all* prior attempts' LOG.md files; a near-duplicate of anything
      already tried is rejected and resampled. Never re-spend an attempt on
      a restated old idea.
+   - **Triviality check** — a draft is rejected and resampled if its
+     mechanism cannot plausibly close a measurable fraction of the gap
+     (say why in one line); if it is a parameter, config, or constant
+     change (those are only ever `improve` on a scored ancestor); or if
+     its prior art is a published application to this problem and it was
+     not relabeled `baseline`.
    - **Batch composition** — mix *drafts* (genuinely different approaches)
      with *improvements* (exactly one atomic change to the best-scoring
-     known-good ancestor, so the change's effect is measurable) and at most
-     2 *debug* attempts on a promising-but-broken branch. A failing branch
-     that exhausts its debug cap is abandoned, not nursed.
+     known-good ancestor, so the change's effect is measurable), at most
+     2 *debug* attempts on a promising-but-broken branch, and at most one
+     *baseline* per batch (a reproduction of a published technique,
+     scored like any attempt; allowed only while no scored baseline for
+     that technique exists in any prior LOG.md). A failing branch that
+     exhausts its debug cap is abandoned, not nursed.
    Scope the planning context: drafts see a digest of *sibling* attempts
    (what was tried, what it scored — do something different); improvements
    and debugs see their *ancestral* chain (avoid undo-redo loops). Feed
@@ -54,15 +96,15 @@ gate is never worked around; a user-approved exception goes into
    previous batch — failures are data.
 2. **Confirm the plan.** The first batch of any authorization — cycle 1
    especially — executes only after the user confirms the plan: present
-   the promoted hypotheses (one line each, with source) and the batch
-   composition, apply any amendments, then start. Later cycles within the
+   the promoted hypotheses (one line each: kind, source, mechanism, prior
+   art) and the batch composition, apply any amendments, then start. Later cycles within the
    same authorization run autonomously — their direction was confirmed at
    the previous soft gate alongside the attempts budget.
-3. **Execute** each attempt per `references/attempt-protocol.md`.
+3. **Execute** each attempt per `../attempt-protocol.md`.
 4. **Reflect.** Write `docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md` per
-   `references/reflection-template.md`, then emit `cycle-NN.json`
-   (`references/report-schema.md`) and render the HTML report with
-   `helpers/report.py` (non-fatal on failure — the md is canonical);
+   `../reflection-template.md`, then emit `cycle-NN.json`
+   (`../report-schema.md`) and render the HTML report with
+   `../../helpers/report.py` (non-fatal on failure — the md is canonical);
    increment `next_cycle`. Dev-score
    selection overfits over long runs: if the holdout query budget in the
    validator manifest allows, adjudicate the cycle's top candidate on the
@@ -91,8 +133,9 @@ gate is never worked around; a user-approved exception goes into
      authorize (a number; 0 = stop; the user's own directions and
      amendments welcome as free text). Attempts are the unit the user
      authorizes; never ask them to reason in rounds or cycles — those are
-     internal bookkeeping. Insight promotions proposed in the report are
-     confirmed here.
+     internal bookkeeping. Insight promotions proposed in the report — including every
+     `## Candidate` entry added by a refresh (promote to Selected or move
+     to Shelved) — are confirmed here.
 
 ## Termination
 

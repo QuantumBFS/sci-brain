@@ -25,8 +25,8 @@ keep them):
 
 Rules:
 
-- A gate flips to `passed` only by the skill that owns it (`autoresearch-db`
-  for `survey_gate`, `autoresearch-validator` for `validator_gate`), after its
+- A gate flips to `passed` only by the stage that owns it (`db`
+  for `survey_gate`, `validator` for `validator_gate`), after its
   checklist verifies on disk.
 - `overrides:` is append-only. Any deviation from the hard protocol rules must
   be recorded here with a date and reason; skills never deviate silently.

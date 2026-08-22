@@ -1,3 +1,5 @@
+> **Superseded layout (2026-08-22):** the four stage skills described here were merged into a single `skills/autoresearch/` skill with stage files under `references/stages/`, and the run stage gained an anti-triviality filter and stuck-triggered insight refresh. See `docs/superpowers/specs/2026-08-22-autoresearch-consolidation-design.md`.
+
 # Autoresearch skill family — design
 
 **Date:** 2026-07-19
