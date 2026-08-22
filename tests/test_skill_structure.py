@@ -5,9 +5,6 @@ landed (presence of new layout markers, absence of old layout markers).
 """
 from pathlib import Path
 
-import pytest
-
-
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 

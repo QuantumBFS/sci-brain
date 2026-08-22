@@ -16,7 +16,6 @@ is gitignored if/when it exists.
 """
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 ADVISORS_DIR = ROOT / "advisors"
 

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 BRAINSTORM_IDEAS_SKILL = Path(__file__).resolve().parents[1] / "skills" / "brainstorm-ideas" / "SKILL.md"
 
 
