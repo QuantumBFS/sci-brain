@@ -37,7 +37,7 @@ Before drafting, gather the materials that should inform the paper. Cheap to do 
 
 1. **Shared writing context.** Follow `skills/_shared/writing-workflow.md`. Use `$KB/NOTES.md` as the spine for prior work, gap statement, motivation, and conclusions.
 2. **Ideas / brainstorming log.** Look for `docs/discussion/*-brainstorm-ideas-log.md` from a prior `/brainstorm-ideas` session. If present, read it for: the original motivation, what cross-field connections were surfaced, what minimum viable experiment was planned, and what the success/hope/pivot signals were. This is the *why* behind the paper and feeds the introduction's contribution claim.
-3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `researchstyle` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to avoid re-citing the user's own work incorrectly.
+3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `know-me-better` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to avoid re-citing the user's own work incorrectly.
 4. **Existing draft.** If a partial manuscript already exists under `articles/`, read it before proposing new prose — pick up where the user left off rather than starting from a blank slate.
 
 If none of these exist, name what's missing and ask the user to either point at the files or run `/survey` first. A paper without a literature foundation will read like one.

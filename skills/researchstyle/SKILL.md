@@ -1,9 +1,9 @@
 ---
-name: researchstyle
+name: know-me-better
 description: Use when indexing a paper collection (your own or another researcher's) into a knowledge base — supports Zotero library, a PDF folder, or a Google Scholar profile
 ---
 
-# Researchstyle
+# Know Me Better
 
 Turn an existing paper collection into a structured knowledge base under `<project>/.knowledge/` (or an advisor KB). The output uses the same KB format as the `survey` and `download-ref` skills — project and advisor KBs can coexist cleanly.
 
@@ -99,7 +99,7 @@ Auto-accept the proposed key — per-paper confirmation is unworkable at 100+ pa
 python3 skills/download-ref/helpers/index.py \
   --kb "$KB" \
   --title "<advisor-slug or 'project'> — researcher index" \
-  --source-note "Built by /researchstyle on $(date -u +%Y-%m-%d)."
+  --source-note "Built by /know-me-better on $(date -u +%Y-%m-%d)."
 ```
 
 ## Step 6 — Write NOTES.md
@@ -112,7 +112,7 @@ Write or extend `$KB/NOTES.md` with:
 
 Reference papers as `[@<cite-key>]`. If `NOTES.md` exists, extend rather than overwrite.
 
-## After researchstyle — transition checkpoint
+## After know-me-better — transition checkpoint
 
 After Steps 3–6 complete, the KB is populated with metadata but PDFs aren't downloaded yet. Ask the user via `AskUserQuestion`:
 

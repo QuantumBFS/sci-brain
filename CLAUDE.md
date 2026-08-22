@@ -10,7 +10,7 @@ sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, 
 
 Fifteen skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter + instructions:
 
-- **brainstorm-ideas** — The main entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. When an advisor is selected, `/brainstorm-ideas` launches that advisor as a subagent and loads literature from `advisors/<slug>/.knowledge/`. The project's shared knowledge base is `<project>/.knowledge/`. Auto-calls `researchstyle` (Phase 0, if user chooses Zotero/Scholar) and `idea-writer` (Phase 3, if user wants a report).
+- **brainstorm-ideas** — The main entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. When an advisor is selected, `/brainstorm-ideas` launches that advisor as a subagent and loads literature from `advisors/<slug>/.knowledge/`. The project's shared knowledge base is `<project>/.knowledge/`. Auto-calls `know-me-better` (Phase 0, if user chooses Zotero/Scholar) and `idea-writer` (Phase 3, if user wants a report).
 - **survey** — Parallel literature search via 7 strategies, populates `<project>/.knowledge/` with `.raw/` JSON, appends to `<project>/.knowledge/references.bib` via `download-ref`'s helpers, regenerates `INDEX.md`, writes curated `NOTES.md` (sub-themes, open problems, bottlenecks). Run before `/brainstorm-ideas` for deeper literature grounding.
 - **idea-writer** — Produces a structured ideas report (Typst/LaTeX/Markdown) with full reasoning trail. Auto-called from `/brainstorm-ideas` at wrap-up, or run standalone on a past session's log.
 - **survey-writer** — Produces a structured technology assessment from a populated KB (what it is, pros/cons, state of the art, key problems, optional business relevance). The write-up stage of the `survey` → `download-ref` → `survey-writer` pipeline.
@@ -24,12 +24,12 @@ Fifteen skills in `skills/`, each defined by a `SKILL.md` with YAML frontmatter 
 - **autoresearch-validator** — Stage 3: publishable bar in `GOAL.md` (formalizing the topics-stage acceptance gate) and the validation method (holdout split, budget, environment, negative controls) both user-confirmed; sealed gitignored holdout, Docker-canonical `validate` CLI with rich JSON errors, negative-control strictness self-test. Owns the validator gate.
 - **autoresearch-run** — Stage 4: the loop — batches of attempts (worktree + `LOG.md` each, validator-scored under a hard time limit), reflection reports in `docs/discussion/`, first batch plan confirmed with the user before execution, soft-gated by `authorized_attempts` (at each gate the skill proposes 2–4 lesson-grounded next directions; the user picks direction(s) and authorizes a number of attempts, never rounds/cycles). Hypotheses ground in Selected insights by default but are not limited to them. Each attempt commits its code + `LOG.md` + validator `report.json` on its `attempt-NNN` branch; a cycle-end sync pushes those branches plus main (reports, STATE.md) to the remote.
 - **flow** — Autonomous deep-thinker that conquers one hard goal via a CDCL/DPLL-style search loop: a **preflight gate** (is the goal testable? are all context/KB facts loaded?), then iterate *decide* (**what-if**: assume a condition, test "closer to goal?" + "easier to achieve?") → *propagate* (**simulate**: run consequences forward, reflect; may fan out 2–3 subagents on wide forks) → *learn* (note a reusable clause after **every** trial) → *backjump* (non-chronological, to the real cause) → *pivot* (meta-restart: re-aim to an equally-valuable easier goal when stuck, keeping all notes). Domain-agnostic and KB-optional. Writes a per-trial journal to `docs/flow/<goal-slug>.md` (template in `skills/flow/journal-template.md`). Terminates SOLVED / PIVOTED-SOLVED / EXHAUSTED (≤3 pivots). Distinct from `brainstorm-ideas` (open-ended, collaborative) — `flow` is goal-locked and autonomous.
-- **researchstyle** — Indexes a paper collection (Zotero / PDF folder / Google Scholar) into the active KB. Default target is `<project>/.knowledge/`; when invoked from `/incarnate` targets `advisors/<slug>/.knowledge/`. Writes `.raw/` JSON, delegates `references.bib` writes via `download-ref` helpers.
+- **know-me-better** — Indexes a paper collection (Zotero / PDF folder / Google Scholar) into the active KB. Default target is `<project>/.knowledge/`; when invoked from `/incarnate` targets `advisors/<slug>/.knowledge/`. Writes `.raw/` JSON, delegates `references.bib` writes via `download-ref` helpers.
 - **download-ref** — Adds one or many new arXiv IDs / DOIs to a knowledge base (`<project>/.knowledge/` by default; `advisors/<slug>/.knowledge/` when invoked from advisor flows). Fetches Semantic Scholar metadata, downloads PDFs (with SciHub fallback), renders to markdown via `pymupdf4llm`, regenerates `INDEX.md`, appends to the KB's `references.bib`. Supports `--from-bib` for bulk operations on an existing BibTeX.
 - **conversation-dump** — Extracts dialog from Claude Code or Codex CLI session logs, classifies user messages across 6 academic dimensions, outputs tagged dialog reports to `docs/dialog/`.
 - **import-dialog** — Imports `.md` dialog files (Claude.ai exports, custom markdown conversations) to create or update advisor profiles. Adjunct to `incarnate` for users whose conversation history isn't in JSONL form.
 - **soul-extraction** — Reads `/conversation-dump` output, clusters trigger→reaction pairs into `thinking-pattern.md`, detects logic jumps for `master-thinking.md`. Feeds into `incarnate`.
-- **incarnate** — Onboards a contributor as a named advisor. Guides them through background, runs conversation-dump and soul-extraction, synthesizes `advisors/<slug>/profile.md`. The advisor's literature cache lives at `advisors/<slug>/.knowledge/` (populated via `/researchstyle` or `/download-ref` against that KB).
+- **incarnate** — Onboards a contributor as a named advisor. Guides them through background, runs conversation-dump and soul-extraction, synthesizes `advisors/<slug>/profile.md`. The advisor's literature cache lives at `advisors/<slug>/.knowledge/` (populated via `/know-me-better` or `/download-ref` against that KB).
 
 ## Architecture
 
@@ -67,7 +67,7 @@ advisors/<slug>/
 
 The canonical bib is `$KB/references.bib` — inside the KB, beside `INDEX.md`/`NOTES.md`. (Pre-0.3 notes placed it at the project root as `ref.bib`; that path is retired. To share with project LaTeX, point `\addbibresource`/`bibliography` at `.knowledge/references.bib` or copy it beside the document.)
 
-`download-ref` owns `INDEX.md`, `references.bib` (via append), `.raw/`, `.figures/`, and the rendered `<id>_<slug>.md` files. `survey` / `researchstyle` / humans own `NOTES.md`.
+`download-ref` owns `INDEX.md`, `references.bib` (via append), `.raw/`, `.figures/`, and the rendered `<id>_<slug>.md` files. `survey` / `know-me-better` / humans own `NOTES.md`.
 
 **Advisor library** (`advisors/`): Named advisor profiles generated by `incarnate`. Each profile captures cognitive patterns, attention patterns, reasoning strengths, and conversation dynamics, and may include publication-source links and `edge-tts` voice hints. The brainstorm-ideas skill launches a selected advisor as a subagent and loads their `advisors/<slug>/.knowledge/` literature during brainstorming.
 
@@ -107,7 +107,7 @@ python3 skills/download-ref/helpers/index.py \
 rmdir "$OLD"
 ```
 
-For advisor caches built by the abandoned 0.2-era `publications.yml` flow: that layout was never populated; nothing to migrate. The new flow builds `advisors/<slug>/.knowledge/` via `/researchstyle` or `/download-ref` invoked from `/incarnate`.
+For advisor caches built by the abandoned 0.2-era `publications.yml` flow: that layout was never populated; nothing to migrate. The new flow builds `advisors/<slug>/.knowledge/` via `/know-me-better` or `/download-ref` invoked from `/incarnate`.
 
 Multiple old registries can be merged into one project KB (run the `mv` block per topic; `references.bib` accepts appends; `NOTES.md` accepts merges as separate top-level headings).
 

@@ -56,7 +56,7 @@ python3 -m pip install --user playwright && python3 -m playwright install chromi
 - Appends entries to `$KB/references.bib`
 
 `download-ref` **never touches**:
-- `$KB/NOTES.md` — owned by `survey` / `researchstyle` / humans (sub-themes, open problems, bottlenecks).
+- `$KB/NOTES.md` — owned by `survey` / `know-me-better` / humans (sub-themes, open problems, bottlenecks).
 
 The canonical bib is `$KB/references.bib` — it lives inside the KB, beside `INDEX.md` and `NOTES.md`. (Older notes may say `$(dirname $KB)/ref.bib`; that project-root path is retired.)
 
@@ -247,9 +247,9 @@ After the done checklist passes, offer the pipeline's final stage:
 
 - **`/survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$KB/references.bib`, regenerates `$KB/INDEX.md`, then hands off to `/download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
 - **`/survey-writer`** (downstream): consumes the rendered KB (full-text `.md` files + `$KB/references.bib`) to produce a structured technology assessment report.
-- **`/survey` / `/researchstyle`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
+- **`/survey` / `/know-me-better`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`/brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
-- **`/incarnate`**: invokes `/download-ref` (or `/researchstyle`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
+- **`/incarnate`**: invokes `/download-ref` (or `/know-me-better`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
 
 ## Common mistakes
 
