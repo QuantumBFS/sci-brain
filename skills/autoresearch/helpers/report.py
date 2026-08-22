@@ -137,12 +137,6 @@ def best_so_far(cycles, direction):
     return series
 
 
-def is_improvement(new, old, direction):
-    if new is None or old is None:
-        return False
-    return new > old if direction == "max" else new < old
-
-
 def fmt_date(date_utc):
     return date_utc.replace("T", " ").replace("Z", " UTC")
 
@@ -214,7 +208,6 @@ def md_to_html(text):
 # Palette: validated reference instance (dataviz skill), light mode only —
 # the report is deliberately print/email-safe.
 SERIES = "#2a78d6"        # categorical slot 1 (blue)
-SERIES_GUARD = "#256abf"  # blue 500 — guards get their own separate charts
 INK = "#0b0b0b"
 MUTED = "#898781"
 GRID = "#e1e0d9"
@@ -230,8 +223,8 @@ def _ticks(lo, hi, n=4):
 
 
 def svg_line_chart(points, *, bar=None, bar_label=None, title,
-                   width=720, height=220, color=SERIES):
-    """One series, one axis. points: [(x:int cycle, y:float)] with y != None."""
+                   width=720, height=220, color=SERIES, x_label="cycle"):
+    """One series, one axis. points: [(x:int, y:float)] with y != None."""
     pts = [(x, y) for x, y in points if y is not None]
     ml, mr, mt, mb = 52, 96, 18, 30
     pw, ph = width - ml - mr, height - mt - mb
@@ -240,7 +233,8 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
              'font-family="system-ui,-apple-system,\'Segoe UI\',sans-serif">']
     if not pts:
         parts.append(f'<text x="{width / 2}" y="{height / 2}" text-anchor="middle" '
-                     f'fill="{MUTED}" font-size="13">no scored cycles yet</text></svg>')
+                     f'fill="{MUTED}" font-size="13">no scored '
+                     f'{esc(x_label)}s yet</text></svg>')
         return "\n".join(parts)
 
     ys = [y for _, y in pts] + ([bar] if bar is not None else [])
@@ -283,7 +277,7 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
                      'stroke-width="2" stroke-linejoin="round"/>')
     for x, y in pts:
         parts.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" fill="{color}">'
-                     f'<title>cycle {x}: {fmt(y)}</title></circle>')
+                     f'<title>{esc(x_label)} {x}: {fmt(y)}</title></circle>')
     lx, ly = pts[-1]
     parts.append(f'<text x="{X(lx) + 9:.1f}" y="{Y(ly):.1f}" dominant-baseline="middle" '
                  f'fill="{INK}" font-size="12" font-weight="600" '
@@ -313,47 +307,6 @@ def best_attempt(cycle):
         return None
     pick = max if direction == "max" else min
     return pick(scored, key=lambda a: a["primary"])
-
-
-def kpi_strip(data, overall_best):
-    direction = data["primary_metric"]["direction"]
-    best, prior = data["best_this_cycle"], data["best_prior"]
-    if best is not None and prior is not None:
-        delta = best - prior
-        arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "=")
-        cls = "delta-good" if is_improvement(best, prior, direction) else "delta-flat"
-        delta_html = (f'<span class="{cls}">{arrow} {delta:+.4g} vs prior '
-                      f'best {fmt(prior)}</span>')
-    elif best is not None:
-        delta_html = '<span class="delta-flat">first scored cycle</span>'
-    else:
-        delta_html = '<span class="delta-flat">no scored attempt</span>'
-
-    bar = data["bar"]["value"]
-    if overall_best is None:
-        bar_note = "no scored attempt yet"
-    else:
-        gap = (bar - overall_best) if direction == "max" else (overall_best - bar)
-        bar_note = ("<strong>bar met</strong>" if gap <= 0
-                    else f"gap {fmt(gap)} ({'higher' if direction == 'max' else 'lower'} is better)")
-
-    n = len(data["attempts"])
-    k = sum(1 for a in data["attempts"] if a["status"] == "improved")
-    holdout = data["holdout"]
-    holdout_note = (esc(holdout["result"]) if holdout["spent"]
-                    else "not spent this cycle")
-    metric = esc(data["primary_metric"]["name"])
-    return f"""<div class="kpis">
-<div class="kpi"><div class="kpi-label">best {metric} this cycle</div>
-<div class="kpi-value">{fmt(best)}</div><div class="kpi-note">{delta_html}</div></div>
-<div class="kpi"><div class="kpi-label">bar ({esc(data["bar"]["source"])})</div>
-<div class="kpi-value">{fmt(bar)}</div><div class="kpi-note">{bar_note}</div></div>
-<div class="kpi"><div class="kpi-label">yield</div>
-<div class="kpi-value">{k}/{n}</div><div class="kpi-note">attempts improved</div></div>
-<div class="kpi"><div class="kpi-label">holdout</div>
-<div class="kpi-value">{"spent" if holdout["spent"] else "—"}</div>
-<div class="kpi-note">{holdout_note}</div></div>
-</div>"""
 
 
 def attempt_table(data):
@@ -454,31 +407,6 @@ def highlight_box(title, items, cls):
     return f'<div class="box {cls}"><strong>{esc(title)}</strong><ul>{lis}</ul></div>'
 
 
-def guard_charts(all_cycles, data):
-    """One small separate chart per guard metric (never a second axis)."""
-    out = []
-    for gm in data.get("guard_metrics") or []:
-        name = gm["name"]
-        points = []
-        for c in sorted(all_cycles, key=lambda c: c["cycle"]):
-            b = best_attempt(c)
-            if b and (b.get("guards") or {}).get(name) is not None:
-                points.append((c["cycle"], b["guards"][name]))
-        if not points:
-            continue
-        limit = gm.get("limit")
-        out.append(f'<figure><figcaption>{esc(name)} of each cycle’s best '
-                   f'attempt</figcaption>'
-                   + svg_line_chart(points, bar=limit,
-                                    bar_label=None if limit is None else f"limit {fmt(limit)}",
-                                    title=f"{name} per cycle", width=340,
-                                    height=150, color=SERIES_GUARD)
-                   + "</figure>")
-    if not out:
-        return ""
-    return '<div class="guards">' + "".join(out) + "</div>"
-
-
 # -------------------------------------------------------------------- pages
 
 CSS = """
@@ -497,14 +425,6 @@ a { color: #1c5cab; }
 .note { color: #898781; font-size: 12px; margin: 6px 0 0; }
 .card { background: #fcfcfb; border: 1px solid rgba(11,11,11,0.10);
   border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
-.kpis { display: flex; flex-wrap: wrap; gap: 12px; }
-.kpi { flex: 1 1 180px; background: #fcfcfb;
-  border: 1px solid rgba(11,11,11,0.10); border-radius: 6px; padding: 10px 14px; }
-.kpi-label { color: #52514e; font-size: 12px; }
-.kpi-value { font-size: 24px; font-weight: 650; margin: 2px 0; }
-.kpi-note { font-size: 12px; color: #52514e; }
-.delta-good { color: #006300; font-weight: 600; }
-.delta-flat { color: #52514e; }
 table { border-collapse: collapse; width: 100%; background: #fcfcfb; }
 th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #e1e0d9;
   vertical-align: top; }
@@ -544,7 +464,6 @@ td.idcell { white-space: nowrap; }
 .box-promote { background: #faf0d8; border: 1px solid #e3cf94; }
 figure { margin: 0; }
 figcaption { color: #52514e; font-size: 12px; margin-bottom: 2px; }
-.guards { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 10px; }
 svg { max-width: 100%; height: auto; }
 footer { margin-top: 32px; color: #52514e; display: flex; gap: 16px; }
 footer .disabled { color: #c3c2b7; }
@@ -561,8 +480,8 @@ def page(title, body):
 def render_cycle(data, all_cycles):
     direction = data["primary_metric"]["direction"]
     metric = data["primary_metric"]["name"]
-    series = best_so_far(all_cycles, direction)
-    overall_best = series[-1][1] if series else None
+    attempt_scores = [(a["id"], a["primary"]) for a in data["attempts"]
+                      if a.get("primary") is not None]
     a_lo, a_hi = data["attempts_range"]
     nn = data["cycle"]
 
@@ -587,16 +506,14 @@ def render_cycle(data, all_cycles):
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
 <p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}
 · attempts remaining after this cycle: {data["attempts_remaining"]}</p>
-{kpi_strip(data, overall_best)}
 <h2>Review — what we did</h2>
 <div class="card">
-<figure><figcaption>best-so-far {esc(metric)} by cycle
+<figure><figcaption>current-cycle {esc(metric)} by attempt
 ({'higher' if direction == 'max' else 'lower'} is better; dashed line = bar)</figcaption>
-{svg_line_chart(series, bar=data["bar"]["value"],
+{svg_line_chart(attempt_scores, bar=data["bar"]["value"],
                 bar_label=f'bar {fmt(data["bar"]["value"])}',
-                title=f"best-so-far {metric} by cycle")}
+                title=f"current-cycle {metric} by attempt", x_label="attempt")}
 </figure>
-{guard_charts(all_cycles, data)}
 </div>
 <div class="scroll">{attempt_table(data)}</div>
 {md_to_html(refl["review"])}

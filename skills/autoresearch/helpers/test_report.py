@@ -170,11 +170,20 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("<script>alert", html_out)
         self.assertIn("&lt;script&gt;", html_out)
 
-    def test_trajectory_svg_with_multiple_cycles(self):
+    def test_current_cycle_chart_uses_each_attempts_raw_score(self):
         self.run_main(3)
         html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
         self.assertIn("<svg", html_out)
         self.assertIn("<polyline", html_out)
+        self.assertIn("current-cycle dev score by attempt", html_out)
+        for attempt, score in ((31, "0.75"), (32, "0.66"), (33, "0.55")):
+            self.assertIn(f"<title>attempt {attempt}: {score}</title>", html_out)
+        self.assertNotIn("best-so-far", html_out)
+        self.assertNotIn('class="kpis"', html_out)
+        self.assertNotIn("attempts improved", html_out)
+
+        index = (self.dir / "index.html").read_text(encoding="utf-8")
+        self.assertIn("best-so-far dev score by cycle", index)
 
     def test_single_cycle_fallback_has_point_but_no_line(self):
         solo = tempfile.TemporaryDirectory()
@@ -186,6 +195,7 @@ class RenderTests(unittest.TestCase):
             html_out = (d / "cycle-01.html").read_text(encoding="utf-8")
             self.assertIn("<svg", html_out)
             self.assertNotIn("<polyline", html_out)
+            self.assertIn("<title>attempt 11: 0.5</title>", html_out)
         finally:
             solo.cleanup()
 
@@ -195,13 +205,11 @@ class RenderTests(unittest.TestCase):
         for n in (1, 2, 3):
             self.assertIn(f"cycle-{n:02d}.html", index)
 
-    def test_status_and_holdout_rendered(self):
-        self.run_main(3)
-        html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
-        self.assertIn("holdout", html_out.lower())
+    def test_attempt_statuses_render_without_headline_kpis(self):
         self.run_main(2)
         c2 = (self.dir / "cycle-02.html").read_text(encoding="utf-8")
         self.assertIn("timeout", c2)
+        self.assertNotIn('class="kpis"', c2)
 
     def test_blacklist_and_promotions_highlighted(self):
         self.run_main(1)

@@ -60,18 +60,19 @@ failure never blocks the loop (the md is the record).
 
 Field notes:
 
-- `direction` is `"min"` or `"max"`; it drives the trajectory's
-  best-so-far accumulation and the ▲/▼ delta coloring. Never assume
-  higher-is-better.
+- `direction` is `"min"` or `"max"`; it labels which direction is better,
+  identifies the best attempt in the table, and drives the cross-cycle
+  best-so-far trajectory in `index.html`. The cycle page itself plots every
+  scored attempt's raw `primary` value from that cycle — never a cumulative
+  or best-so-far value. Never assume higher-is-better.
 - `kind` ∈ `draft | improve | debug`; `parent` is the ancestor attempt id
   for improve/debug, `null` for drafts.
 - `status` ∈ `improved | no-change | failed | timeout`. `improved` means
   strictly better than the pre-cycle best on the primary metric. `primary`
   is `null` for failed/timeout attempts.
-- `guard_metrics` (optional, default `[]`): each entry may carry a `limit`
-  drawn as a threshold line; per-cycle guard charts plot the guard value of
-  each cycle's best attempt. `guards` / `causal_note` on an attempt are
-  optional (default `{}` / empty).
+- `guard_metrics` (optional, default `[]`) defines the guard columns shown in
+  the attempt table; each entry may carry a `limit` for interpretation.
+  `guards` / `causal_note` on an attempt are optional (default `{}` / empty).
 - `reflection.*` mirror the md template's prose sections, copied verbatim
   (minimal markdown is rendered: headings, lists, bold/italic/code/links;
   raw HTML is escaped): `review` = "Review — what we did" (facts + budget
