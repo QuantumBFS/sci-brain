@@ -341,15 +341,19 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
         parts.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" fill="{color}">'
                      f'<title>{esc(x_label)} {x}: {fmt(y)}</title></circle>')
     lx, ly = pts[-1]
-    label_x, label_y, label_txt = X(lx) + 9, Y(ly), fmt(ly)
-    # halo first so reference lines crossing the last-point label stay legible
-    parts.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" dominant-baseline="middle" '
-                 f'stroke="#f9f9f7" stroke-width="3" paint-order="stroke" '
-                 f'font-size="12" font-weight="600" '
-                 f'font-variant-numeric="tabular-nums">{label_txt}</text>')
-    parts.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" dominant-baseline="middle" '
-                 f'fill="{INK}" font-size="12" font-weight="600" '
-                 f'font-variant-numeric="tabular-nums">{label_txt}</text>')
+    if X(lx) <= ml + pw - 40:
+        # keep clear of the right-margin reference labels; the value stays
+        # readable via the y-axis, tooltip, and the "current best"/"target"
+        # labels when the last point is one of them
+        label_x, label_y, label_txt = X(lx) + 9, Y(ly), fmt(ly)
+        # halo first so reference lines crossing the last-point label stay legible
+        parts.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" dominant-baseline="middle" '
+                     f'stroke="#f9f9f7" stroke-width="3" paint-order="stroke" '
+                     f'font-size="12" font-weight="600" '
+                     f'font-variant-numeric="tabular-nums">{label_txt}</text>')
+        parts.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" dominant-baseline="middle" '
+                     f'fill="{INK}" font-size="12" font-weight="600" '
+                     f'font-variant-numeric="tabular-nums">{label_txt}</text>')
     parts.append("</svg>")
     return "\n".join(parts)
 
