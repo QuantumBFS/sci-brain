@@ -581,19 +581,13 @@ def render_cycle(data, all_cycles):
                     if score_formula else "")
 
     direction_word = 'higher' if direction == 'max' else 'lower'
-    legend = []
-    if attempt_scores:
-        legend.append('dotted: current best')
-    if data["bar"]["value"] is not None:
-        legend.append('dashed: target')
-    legend_txt = ('; ' + '; '.join(legend)) if legend else ''
 
     body = f"""<h1>{esc(data["project"])} — cycle {nn:02d}</h1>
 <p class="meta">attempts {a_lo:03d}–{a_hi:03d} · {esc(fmt_date(data["date_utc"]))}</p>
 <h2>Review — what we did</h2>
 <div class="card">
 {formula_html}
-<figure><figcaption>{esc(metric)} by attempt — {direction_word} is better{legend_txt}</figcaption>
+<figure><figcaption>{esc(metric)} — {direction_word} is better</figcaption>
 {svg_line_chart(attempt_scores, bar=data["bar"]["value"],
                 bar_label=(f'target {fmt(data["bar"]["value"])}'
                            if data["bar"]["value"] is not None else None),
@@ -634,7 +628,6 @@ def render_index(all_cycles, campaign_href=None):
     total_blacklist = sum(len(c["blacklist_new"]) for c in cycles)
     bar = latest["bar"]["value"]
     target_meta = f" vs target {fmt(bar)}" if bar is not None else ""
-    target_legend = "; dashed: target" if bar is not None else ""
 
     rows = []
     for c in cycles:
@@ -657,8 +650,8 @@ def render_index(all_cycles, campaign_href=None):
 {total_blacklist} blacklisted approaches · best {esc(metric)}
 {fmt(overall_best)}{target_meta}</p>
 <div class="card">
-<figure><figcaption>best-so-far {esc(metric)} by cycle —
-{'higher' if direction == 'max' else 'lower'} is better{target_legend}</figcaption>
+<figure><figcaption>best-so-far {esc(metric)} —
+{'higher' if direction == 'max' else 'lower'} is better</figcaption>
 {svg_line_chart(series, bar=bar,
                 bar_label=f'target {fmt(bar)}' if bar is not None else None,
                 title=f"best-so-far {metric} by cycle")}

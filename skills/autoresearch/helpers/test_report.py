@@ -175,7 +175,7 @@ class RenderTests(unittest.TestCase):
         html_out = (self.dir / "cycle-03.html").read_text(encoding="utf-8")
         self.assertIn("<svg", html_out)
         self.assertIn("<polyline", html_out)
-        self.assertIn("dev score by attempt", html_out)
+        self.assertIn("dev score — higher is better", html_out)
         for attempt, score in ((31, "0.75"), (32, "0.66"), (33, "0.55")):
             self.assertIn(f"<title>attempt {attempt}: {score}</title>", html_out)
         self.assertIn("current best 0.75", html_out)
