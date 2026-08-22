@@ -237,8 +237,7 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
                    current_best=None, current_best_label=None):
     """One series, one axis. points: [(x:int, y:float)] with y != None."""
     pts = [(x, y) for x, y in points if y is not None]
-    ml, mr, mt, mb = 52, 96, 18, 30
-    pw, ph = width - ml - mr, height - mt - mb
+    ml, mt, mb = 52, 18, 30
     LABEL_GAP = 16  # min vertical separation between reference labels
     label_ys = []
     references = []
@@ -263,6 +262,12 @@ def svg_line_chart(points, *, bar=None, bar_label=None, title,
                 "color": MUTED,
                 "dash": "5 4",
             })
+
+    # right margin sized so the longest reference label never clips at the
+    # SVG edge (labels start at ml + pw + 6; ~6.2 px per glyph at font 11)
+    longest_label = max((len(r["label"]) for r in references), default=0)
+    mr = max(96, int(longest_label * 6.2) + 24)
+    pw, ph = width - ml - mr, height - mt - mb
 
     parts = [f'<svg viewBox="0 0 {width} {height}" width="{width}" height="{height}"'
              f' role="img" aria-label="{esc(title)}" '
