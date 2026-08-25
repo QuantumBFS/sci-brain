@@ -51,7 +51,7 @@ Rank every finding so the user can triage:
 1. **Resolve the manuscript.** Accept an explicit path; else auto-detect from `articles/<slug>/` or the working directory. Detect format from the extension: **LaTeX (`.tex`) is primary**; Typst (`.typ`) and Markdown (`.md`) are supported.
 2. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
 3. **Load shared context.** Follow `skills/_shared/writing-workflow.md`: resolve `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
-4. **Emit the story summary + per-section missions.** One paragraph capturing the paper's story, plus a one-line "mission" for each section. **Confirm the story with the user before any critique.** This gate prevents local nitpicks that fight the global narrative — if the reviewer misread the story, fix that before producing findings.
+4. **Write the story summary + per-section missions.** One paragraph capturing the paper's story, plus a one-line "mission" for each section. **Confirm the story with the user before any critique.** This gate prevents local nitpicks that fight the global narrative — if the reviewer misread the story, fix that before producing findings.
 
 Do not proceed to Phase 1 until the user confirms (or corrects) the story summary.
 
@@ -68,6 +68,8 @@ Walk the manuscript and produce findings. Each finding has this shape:
   problem:   what's wrong, in one sentence,
   fix:       a concrete suggested edit }
 ```
+
+Calibrate every `fix` against the model paper — Ho et al., PRL 122, 040603 (2019), at `skills/paper-writer/sources/1807.01815_Ho2019_quantum-scars.md`, move-by-move walkthrough in `skills/paper-writer/references.md` §C. A good rewrite reads like that letter: one concept per sentence, symbols defined at first use and then read back in plain words, each section opening with its job, main results named as such. When unsure whether a sentence deserves a finding, ask whether it could appear in the model paper unchanged.
 
 Checks:
 
@@ -141,5 +143,6 @@ Then present a short summary to the user and ask which findings to apply.
 
 - **Context, citations, output mechanics:** `skills/_shared/writing-workflow.md`.
 - **Rule definitions (sentence/notation/figure):** `skills/paper-writer/SKILL.md` + `skills/paper-writer/references.md`.
+- **Model paper (style calibration for fixes):** `skills/paper-writer/sources/1807.01815_Ho2019_quantum-scars.md`, distilled in `skills/paper-writer/references.md` §C.
 - **Reference repair / adding a missing paper:** `/download-ref`.
 - **Full rubric checklist:** `skills/paper-reviewer/checklist.md`.

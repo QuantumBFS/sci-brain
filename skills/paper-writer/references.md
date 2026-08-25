@@ -226,3 +226,18 @@ A sequence of tasks that defeats perfectionism-induced writer's block.
 6. State main results explicitly: at least one sentence per major result, clearly labeled.
 7. External feedback is essential.
 8. Practice and iterate: early feedback and many revision passes prevent late catastrophes.
+
+---
+
+## C. Model paper — Ho, Choi, Pichler & Lukin, PRL 122, 040603 (2019)
+
+*Periodic orbits, entanglement and quantum many-body scars in constrained models: matrix product state approach.* Rendered to markdown from arXiv:1807.01815 (v2, matching the accepted manuscript) at `sources/1807.01815_Ho2019_quantum-scars.md`, supplementary material included. This letter executes the rules in sections A and B. Read it before drafting a letter, and imitate it when a style judgment call is open.
+
+What to imitate, with locations:
+
+- **Abstract: one move per sentence.** Four sentences: the system ("We analyze quantum dynamics of strongly interacting, kinetically constrained many-body systems"), the experimentally motivated method ("Motivated by recent experiments demonstrating surprising long-lived, periodic revivals…, we introduce a manifold of locally entangled spin states… and derive equations of motions for them"), the finding ("We find that they feature isolated, unstable periodic orbits, which capture the recurrences"), the implication ("Our results provide a theoretical framework…").
+- **The four introduction beats, in order.** (a) A one-sentence field hook: "Understanding non-equilibrium dynamics in closed quantum many-body systems is of fundamental importance." (b) Prior work compressed to its role — ETH, integrable systems, many-body localization — each cited, none re-derived. (c) The gap in one explicit sentence: "However, to date, a firm connection to the theory of single-particle quantum scars [36] has not been established." (d) A contribution paragraph opening "In this Letter, we develop…" that names the method, the finding, and points at Fig. 1(a,b).
+- **Run-in headers that name each section's job.** "Kinetically constrained spin models. — We consider a family of interacting, constrained spin models and demonstrate that they show atypical thermalization behavior…". The first sentence after every header says what the section will do.
+- **Define at first use, then interpret in plain words.** The Hamiltonian, Eq. (1), is followed immediately by "Here, a basis on each site i is spanned by…", defining every symbol, and then by a physical reading: "The Hamiltonian (1) has a simple interpretation: each spin rotates freely about the x-axis if both its neighbors are in the state |0⟩, while its dynamics is frozen otherwise."
+- **Figures carry the story from page one.** Fig. 1 contrasts the two behaviors the whole letter explains — periodic orbit vs. relaxation to a saddle point. Its caption defines the plotted quantities, names the trend, and states the extracted period.
+- **Signpost words at every turn.** "Specifically," "Conversely," "Most surprisingly," "Furthermore," "therefore" — the reader always knows whether a sentence narrows, contrasts, or escalates the argument.

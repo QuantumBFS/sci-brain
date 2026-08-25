@@ -5,7 +5,7 @@ description: Use when drafting or revising a scientific manuscript with real res
 
 # Paper Writer
 
-A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. Both source documents are preserved at `skills/paper-writer/references.md` and `skills/paper-writer/sources/` — consult them when this SKILL.md leaves a question open.
+A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. Both source documents are preserved at `skills/paper-writer/references.md` and `skills/paper-writer/sources/` — consult them when this SKILL.md leaves a question open. A model letter that executes these rules, Ho et al., PRL 122, 040603 (2019), sits beside them; imitate it when a style judgment call is open (see Source material).
 
 **Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `brainstorm-ideas` report mode. If the user has not yet finished the work, push back: a paper requires results.
 
@@ -36,8 +36,8 @@ A correct ordering of effort that defeats writer's block. Do not reorder — the
 Before drafting, gather the materials that should inform the paper. Cheap to do once; expensive to skip.
 
 1. **Shared writing context.** Follow `skills/_shared/writing-workflow.md`. Use `$KB/NOTES.md` as the spine for prior work, gap statement, motivation, and conclusions.
-2. **Ideas / brainstorming log.** Look for `docs/discussion/*-brainstorm-ideas-log.md` from a prior `/brainstorm-ideas` session. If present, read it for: the original motivation, what cross-field connections were surfaced, what minimum viable experiment was planned, and what the success/hope/pivot signals were. This is the *why* behind the paper and feeds the introduction's contribution claim.
-3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `know-me-better` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to avoid re-citing the user's own work incorrectly.
+2. **Ideas / brainstorming log.** Look for `docs/discussion/*-brainstorm-ideas-log.md` from a prior `/brainstorm-ideas` session. If present, read it for the original motivation, the cross-field connections it surfaced, the planned minimum viable experiment, and the success/hope/pivot signals. This is the *why* behind the paper and feeds the introduction's contribution claim.
+3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `know-me-better` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to cite the user's earlier work correctly.
 4. **Existing draft.** If a partial manuscript already exists under `articles/`, read it before proposing new prose — pick up where the user left off rather than starting from a blank slate.
 
 If none of these exist, name what's missing and ask the user to either point at the files or run `/survey` first. A paper without a literature foundation will read like one.
@@ -86,7 +86,7 @@ Before the telegram outline, stop and discuss the paper's narrative with the use
 1. **Methods / Theory** — easiest to write; gets you over the activation barrier.
 2. **Results** — walk the reader through the figures in order. For each figure: state what was varied (x-axis), what was measured (y-axis), what trend appears, where errors come from. Data is obvious to you, not the reader.
 3. **Analysis** — explain how the data matches (or stretches) the theory. Plot data as points, theory as lines, on the same axes; arrange so theory lies on straight lines whenever possible. Discuss deviations larger than error bars *and* deviations much smaller than them (both are problems).
-4. **Introduction (rough draft).** Do not perfect it yet. Hit four beats: (a) field-level question and why it matters, (b) prior work and what was missing, (c) what *this* paper does, (d) where the main results live (figure / equation pointers). Move on even if it feels weak.
+4. **Introduction (rough draft).** Do not perfect it yet. Hit four beats: (a) field-level question and why it matters, (b) prior work and what was missing, (c) what *this* paper does, (d) where the main results live (figure / equation pointers). The model letter executes all four in as many paragraphs, closing with "In this Letter, we develop…" — see `references.md` §C. Move on even if it feels weak.
 5. **Conclusions.** Often a re-statement of the introduction in newly technical language — the reader now has the apparatus to absorb it. Add one paragraph on implications, applications, and follow-up directions. Acknowledgments and funding here.
 
 ### Phase 4 — Iterate the body
@@ -96,7 +96,7 @@ Before the telegram outline, stop and discuss the paper's narrative with the use
 
 ### Phase 5 — Polish the high-leverage sections last
 
-- **Abstract:** one paragraph, 5–10 lines, ~one sentence per body section. Write it last, when you finally understand what the paper says.
+- **Abstract:** one paragraph, 5–10 lines, ~one sentence per body section. The model paper does it in four moves — system, method, finding, implication — one move per sentence. Write it last, when you finally understand what the paper says.
 - **Title:** descriptive, specific, scannable. Rewrite several times.
 - **Introduction:** sharpen the opening hook, the gap statement, the contribution claim, and the forward-pointers to figures.
 - **Conclusions:** make the take-home messages crisp and quotable.
@@ -179,7 +179,7 @@ Notation is the reader's interface to the math. Treat it with the same care as a
 - **Active voice for actions.** "We measured" beats "measurements were performed." Reserve passive only for things genuinely without an agent.
 - **Concrete verbs over nominalizations.** "We adopt the new notation" beats "Adoption of the new notation is undertaken."
 - **Parallel structure for parallel ideas.** Lists, comparisons, and contrasts read 2× faster when grammatically parallel.
-- **Signposting.** Use phrases like *"This is our main result," "We now turn to," "In summary,"* to orient the reader. The reader cannot tell which sentence carries the punchline unless you say so.
+- **Signposting.** Use phrases like *"This is our main result," "We now turn to," "In summary,"* to orient the reader. The reader cannot tell which sentence carries the punchline unless you say so. The model paper signposts every turn — *"Specifically," "Conversely," "Most surprisingly,"* — so the reader always knows whether a sentence narrows, contrasts, or escalates.
 - **Each paragraph: one job.** Topic sentence at the top, supporting detail in the middle, transition or stress at the end.
 
 ---
@@ -250,8 +250,9 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 
 ## Source material
 
-- `references.md` — distilled rule lists from Martinis (2012) and von Delft (style guide).
+- `references.md` — distilled rule lists from Martinis (2012) and von Delft (style guide), plus a walkthrough of the model paper (§C).
 - `sources/NotesOnWritingPaper12.pdf` — the original Martinis notes.
+- `sources/1807.01815_Ho2019_quantum-scars.md` — the model paper: Ho, Choi, Pichler & Lukin, *Periodic orbits, entanglement and quantum many-body scars in constrained models*, PRL 122, 040603 (2019), rendered to markdown from arXiv:1807.01815. A letter that practices what the rules preach: one move per abstract sentence, the four introduction beats in order, run-in headers whose first sentence names the section's job, symbols defined at first use and then read back in plain words, figures that carry the story from page one. Skim it before drafting; imitate it on judgment calls. `references.md` §C maps each move to its location in the paper.
 - von Delft's *Style Guide* online: <https://homepages.physik.uni-muenchen.de/~vondelft/JansStyleGuide.html>
 
 Consult the references when this SKILL.md leaves a judgment call open. The point of the references is to preserve the *reasons* behind the rules.
