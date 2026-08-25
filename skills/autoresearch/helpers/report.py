@@ -30,7 +30,7 @@ REQUIRED_ATTEMPT = ["id", "kind", "parent", "hypothesis", "primary", "status",
                     "log_path"]
 REQUIRED_LESSON = ["observation", "root_cause", "evidence", "implication"]
 CONFIDENCES = ("confirmed", "suspected")
-REFLECTION_SECTIONS = ["review", "evidence", "literature", "next"]
+REFLECTION_SECTIONS = ["review", "evidence", "literature", "todo", "next"]
 KINDS = ("draft", "improve", "debug")
 STATUSES = ("improved", "no-change", "failed", "timeout")
 DIRECTIONS = ("min", "max")
@@ -613,6 +613,7 @@ def render_cycle(data, all_cycles):
 <h3>Evidence carried forward</h3>
 {md_to_html(refl["evidence"])}{evidence_extra}
 <h3>Literature check</h3>{md_to_html(refl["literature"])}
+<h2>TODO — worth checking</h2>{md_to_html(refl["todo"])}
 <h2>Next round</h2>{md_to_html(refl["next"])}{decision_extra}
 <footer>{prev_link}<a href="index.html">index</a>{next_link}</footer>"""
     return page(f"{data['project']} — cycle {nn:02d}", body)

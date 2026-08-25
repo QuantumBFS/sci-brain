@@ -291,8 +291,23 @@ def test_reflection_template_has_review_lessons_next_shape():
     text = _ref("reflection-template.md")
     for section in ["## Review — what we did", "## Lessons we learnt",
                     "### Evidence carried forward", "### Literature check",
-                    "## Next round"]:
+                    "## TODO — worth checking", "## Next round"]:
         assert section in text
+
+
+def test_todo_checks_are_surveyed_before_next_round():
+    template = _ref("reflection-template.md")
+    run = _stage("run")
+    schema = _ref("report-schema.md")
+    todo_at = template.index("## TODO — worth checking")
+    assert todo_at < template.index("## Next round")
+    todo = template[todo_at:template.index("## Next round")]
+    assert "survey" in todo and "download-ref" in todo
+    assert "remains open" in todo
+    assert "TODO — worth checking" in run
+    assert run.index("TODO — worth checking") < run.index(
+        "Before writing **Next round**")
+    assert '"todo"' in schema
 
 
 def test_next_round_report_ranks_evidence_grounded_directions():
@@ -306,6 +321,24 @@ def test_next_round_report_ranks_evidence_grounded_directions():
     assert "do not stop at the first plausible continuation" in run
     assert "same **2–4 ranked directions** from the" in run
     assert "explicit top recommendation" in schema
+
+
+def test_directions_carry_intuition_and_value_justification():
+    template = _ref("reflection-template.md")
+    run = _stage("run")
+    why = template[template.index("**Why promising**"):]
+    why = why[:why.index("**Novelty")]
+    assert "2–3 sentences" in why
+    assert "intuition" in why and "value" in why
+    assert "2–3 sentence" in run
+
+
+def test_report_style_follows_unslop_principles():
+    template = _ref("reflection-template.md")
+    assert "## Report style" in template
+    for marker in ["lab notebook", "Numbers over adjectives", "active voice",
+                   "One idea per sentence"]:
+        assert marker in template
 
 
 # ---- SOTA-informed hardening (2026-07 survey) ----

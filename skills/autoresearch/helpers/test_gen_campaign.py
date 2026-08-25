@@ -38,6 +38,7 @@ def make_cycle(number, attempt_id, *, metric="dev score", direction="max"):
             "review": "1 of 1 improved.",
             "evidence": "The gain was repeatable.",
             "literature": "No duplicate found.",
+            "todo": "Nothing worth checking this cycle.",
             "next": "Direction 1: test the mechanism.",
         },
         "lessons": [{

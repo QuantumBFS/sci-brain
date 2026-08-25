@@ -50,6 +50,8 @@ def make_cycle(n, direction="max", attempts=None, best=0.5, prior=None,
                       "Attempts 15/30 used.",
             "evidence": "Approach `foo` is ruled out.\n\n- bullet one\n- bullet two",
             "literature": "Checked `.knowledge/`; claim still novel.",
+            "todo": "Surveyed contraction-order heuristics; nothing beats "
+                    "ours on this regime. Scaling law question remains open.",
             "next": "Try widening the ansatz. Abandon if two more cycles flatline.",
         },
         "lessons": [{

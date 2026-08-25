@@ -46,7 +46,10 @@ gate is never worked around; a user-approved exception goes into
      Shelved at the next soft gate;
    - record the refresh (query, what was added, what it unblocked) in this
      cycle's reflection report.
-   At most one refresh per cycle. If a refresh adds nothing and the loop
+   At most one refresh per cycle. Skip the refresh when the previous
+   reflection's TODO check already covered the diagnosed bottleneck —
+   reuse its findings instead of re-running the same query.
+   If a refresh adds nothing and the loop
    is still stuck, the next soft gate presents "wind down / pivot" as a
    direction instead of spending more attempts.
 1. **Plan the cycle.** Start from `recommended_cycle_size`, then choose the
@@ -128,18 +131,28 @@ gate is never worked around; a user-approved exception goes into
    project-owned JSON array and pass `--extra <path>`; never hard-code campaign
    data into the shared helper. Non-fatal on failure, like `report.py`.
 
+   The report's last section before **Next round** is
+   **TODO — worth checking** (see the template): mark the open questions this cycle
+   surfaced that `.knowledge/` and INSIGHTS.md cannot answer, then check
+   them now — invoke the `survey` skill scoped to those items (or
+   `download-ref` for known IDs) into `<project>/.knowledge/`, distill
+   what is new into `research/INSIGHTS.md` under `## Candidate`, and
+   record under each item what the check found or that it `remains open`.
+   Only after the TODO checks, write **Next round**.
+
    Before writing **Next round**, perform a deliberate recommendation pass —
    do not stop at the first plausible continuation. Re-read the gap to the
    GOAL.md bar, every lesson and root-cause confidence, per-instance evidence,
    the cumulative blacklist, relevant INSIGHTS/CATALOG entries, the literature
-   check, and attempt cost. Generate 4–6 materially distinct candidates, remove
+   check, the TODO check findings, and attempt cost. Generate 4–6 materially distinct candidates, remove
    anything contradicted by evidence, already tried, weak against the diagnosed
    bottleneck, or merely a parameter tweak, then rank the survivors by expected
    gap closure × distinctness (cost remains a constraint). Put the best 2–4 in
    the report and explicitly recommend the top choice. For each direction give:
-   the falsifiable mechanism, the concrete evidence/reason it is promising, its
-   relation to prior art and prior attempts, the first discriminating attempt,
-   and the result that would support or kill it. If wind-down/pivot ranks first,
+   the falsifiable mechanism, a 2–3 sentence justification of the intuition
+   (the specific evidence behind it) and the value (what it buys if it works),
+   its relation to prior art and prior attempts, the first discriminating
+   attempt, and the result that would support or kill it. If wind-down/pivot ranks first,
    say so honestly rather than manufacturing another experiment.
 
    Dev-score

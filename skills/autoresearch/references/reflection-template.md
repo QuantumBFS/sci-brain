@@ -2,8 +2,8 @@
 
 One report per cycle: `docs/discussion/YYYY-MM-DD-HHMMSS-cycle-NN.md`
 (timestamp UTC, NN from `next_cycle`). Modeled on the code-distance ideas
-logs. Three sections — review the facts, diagnose the causes, plan the
-action. Required structure:
+logs. Four sections — review the facts, diagnose the causes, check the
+open questions, plan the action. Required structure:
 
     # Cycle NN reflection — attempts AAA–BBB
 
@@ -56,20 +56,40 @@ action. Required structure:
     search: has someone done this; is the emerging claim still novel; do
     any Shelved insights now look relevant?
 
+    ## TODO — worth checking
+    Mark, then check — the last section written before Next round. List
+    what this cycle surfaced that `.knowledge/` and INSIGHTS.md cannot
+    yet answer: an unexplained result, a suspected root cause that needs
+    prior art, a technique someone may already have published, a Shelved
+    insight that may have become relevant. One line per item — what to
+    check and why it matters to the gap. Then resolve the list now:
+    invoke the `survey` skill scoped to the items (or `download-ref` for
+    specific known IDs) into `<project>/.knowledge/`, distill anything
+    new into `research/INSIGHTS.md` under `## Candidate`, and record
+    under each item what the check found. An item too large to settle
+    this cycle is marked `remains open` and carried into the next
+    cycle's TODO. No open questions is stated explicitly ("nothing worth
+    checking this cycle" — rare after an honest lessons pass), never
+    silently omitted. Next round is written only after these checks, so
+    the ranked directions can build on what they surfaced.
+
     ## Next round
     Think hard before recommending: compare the goal gap, root-cause
     diagnoses and their confidence, per-instance evidence, cumulative
-    blacklist, relevant insights/catalog entries, literature check, and
-    attempt cost. Generate 4–6 materially distinct candidates, reject those
+    blacklist, relevant insights/catalog entries, literature check, TODO
+    check findings, and attempt cost. Generate 4–6 materially distinct candidates, reject those
     already tried or contradicted by evidence, then rank the best **2–4
     promising directions** by expected gap closure × distinctness (with cost
     as a constraint). Do not pad the list with cosmetic variants.
 
     For every ranked direction include:
     - **Hypothesis and mechanism** — falsifiable, against the current gap.
-    - **Why promising** — the specific lesson, root cause, validator evidence,
-      or prior art that supports it; reasons such as "worth trying" are not
-      sufficient.
+    - **Why promising** — 2–3 sentences justifying the intuition and the
+      value. First the intuition: what makes this mechanism likely to work
+      here, named from a specific lesson, root cause, validator number, or
+      prior-art result (not "worth trying"). Then the value: what it buys
+      if it works — roughly how much of the gap it closes, or what
+      competing explanation it kills.
     - **Novelty / relation to attempts** — why it is not a repeat and what it
       borrows or rejects from prior work.
     - **First discriminating attempt** — the cheapest attempt that separates
@@ -81,6 +101,26 @@ action. Required structure:
     outranks the alternatives now. A well-supported wind-down/pivot is a valid
     recommendation. If proposing to promote Shelved insights or distill new
     ones, list them here for user confirmation at the gate.
+
+## Report style
+
+Write like a lab notebook, not a press release. The report is read by the
+next planning pass and by the user deciding where to spend attempts, so
+every sentence must hand them a fact, a number, or a decision.
+
+- Numbers over adjectives. Never "improved significantly"; write the
+  measured delta. A claim with no number and no citation is cut or marked
+  *suspected*.
+- Plain words, active voice. "We varied chi", not "chi was varied"; "use",
+  not "leverage"; no "delve", "showcase", "landscape", "pivotal",
+  "crucial".
+- One idea per sentence. If a sentence needs a second read, split it.
+- Have opinions. Say which result surprised you and which number you
+  distrust, and why. A neutral list of pros and cons hides the diagnosis.
+- Cut filler and stacked hedges. "It is important to note that" says
+  nothing; "could potentially possibly" collapses to "may".
+- Specific beats generic. A sentence that could appear unchanged in
+  another project's report says nothing about this one; delete it.
 
 ## HTML report (after the markdown)
 

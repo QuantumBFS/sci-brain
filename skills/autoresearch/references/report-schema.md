@@ -40,7 +40,8 @@ failure never blocks the loop (the md is the record).
     }
   ],
   "reflection": {
-    "review": "…", "evidence": "…", "literature": "…", "next": "…"
+    "review": "…", "evidence": "…", "literature": "…", "todo": "…",
+    "next": "…"
   },
   "lessons": [
     {
@@ -93,7 +94,9 @@ Field notes:
   (minimal markdown is rendered: headings, lists, bold/italic/code/links;
   raw HTML is escaped): `review` = "Review — what we did" (facts + budget
   state), `evidence` = "Evidence carried forward", `literature` =
-  "Literature check", `next` = "Next round". `next` contains the ranked 2–4
+  "Literature check", `todo` = "TODO — worth checking" (the open
+  questions marked this cycle, each with what the survey/download-ref
+  check found or `remains open`), `next` = "Next round". `next` contains the ranked 2–4
   promising directions, evidence-backed reasons, discriminating attempts,
   decision signals, and explicit top recommendation required by the reflection
   template. The "Lessons we learnt"
