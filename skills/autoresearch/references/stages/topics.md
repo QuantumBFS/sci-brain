@@ -20,8 +20,11 @@ controls there.
    - **Checkable** — success is machine-checkable; a validator can score an
      attempt with no human judgment.
    - **Cheap** — one attempt evaluates in minutes on local hardware, not days.
-   - **Headroom** — the search space supports tens-to-hundreds of genuinely
-     distinct attempts, not three obvious ones.
+   - **Diverse strategies** — many genuinely different *kinds* of approach
+     could plausibly work (different mechanisms, not different parameter
+     settings of one method), and it is not known in advance which one
+     will. A topic whose only freedom is a parameter sweep or a fixed,
+     enumerable search space scores low here even if that space is large.
    - **Publishable** — a clearly stated bar exists whose crossing is a
      publishable result.
    Present the scored table; flag any candidate scoring ≤2 on Checkable or

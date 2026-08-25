@@ -84,7 +84,7 @@ def test_topics_stage_file_has_no_frontmatter():
 
 def test_topics_scores_four_suitability_criteria():
     text = _stage("topics")
-    for criterion in ["Checkable", "Cheap", "Headroom", "Publishable"]:
+    for criterion in ["Checkable", "Cheap", "Diverse strategies", "Publishable"]:
         assert criterion in text
 
 
