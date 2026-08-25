@@ -174,9 +174,19 @@ pays no extra-package cost:
 - **One accent for emphasis.** Numerals and `rail_pull` use `accent_deep`; do
   not repaint gadgets by hand — read `pal.X` so a theme switch repaints all.
 - **Tabular numbers in mono.** `data_table` value columns and `time_badge` set
-  it themselves; big display numerals (`stat`, `punch`) stay in the theme sans.
-- **Nothing below ~11 pt.** Gadget captions and labels bottom out at 10–11 pt by
-  design; if content only fits smaller, the slide holds two slides' worth.
+  it themselves; emphasised quantities (`stat`, `punch`) stay in the theme sans.
+- **A number is emphasised as a statement, not a dashboard numeral.** `stat`,
+  `stat_row`, and `punch` set the full quantity ("13 weeks", via `unit:`) in
+  bold accent at the same scale as its meaning — never a giant bare "13" over
+  a small caption.
+- **Three text sizes, deck-wide.** The whole zoo draws from `sizes` in
+  `zoo/scale.typ` — `xlarge` (30 pt, the one hero statement; also the title,
+  section, and focus slides), `large` (24 pt,
+  emphasised statements and slogans), `normal` (20 pt, everything else —
+  bodies, labels, captions, table cells, chrome). Hierarchy comes from weight,
+  colour, and case, never from smaller type. Use `sizes.X` (exported by
+  `zoo/lib.typ`) for hand-rolled text; if content only fits smaller, the slide
+  holds two slides' worth.
 - **Pass plain values to gadgets** (`[13]`, not `[*13*]`): touying show-rules
   `strong` as an alert and would repaint your bold in theme primary. Gadgets
   bold and colour their own numerals.
@@ -221,7 +231,8 @@ pays no extra-package cost:
 | Path | Purpose |
 |---|---|
 | `gallery.typ` | Visual index of the whole zoo; compile to browse. `--input theme=<name>` rethemes. |
-| `zoo/lib.typ` | Single import surface: palettes, themes, gadget/layout factories, touying slide primitives. |
+| `zoo/lib.typ` | Single import surface: palettes, themes, gadget/layout factories, `sizes` type scale, touying slide primitives. |
+| `zoo/scale.typ` | The three deck-wide text sizes (`xlarge`/`large`/`normal`); every zoo text call uses one. |
 | `zoo/palettes/` | Five pure-data color modules (+ `brand.typ`'s `build(primary)` generator). |
 | `zoo/themes/` | Five thin metropolis overlays mapping palettes → touying `config-colors`. |
 | `zoo/gadgets.typ` | ~24 palette-aware content components (callouts, stats, theory, structure, chrome). |

@@ -17,6 +17,8 @@
 //   2. Gadgets bold via `text(weight: "bold")`, never `*...*` markup: touying
 //      show-rules `strong` as an alert and would repaint it in theme primary.
 
+#import "scale.typ": sizes
+
 // Running pacing counter, shared across all gadget dicts in this document.
 #let _clock = state("slide-writer-clock", 0)
 
@@ -29,9 +31,9 @@
   width: 100%, radius: 3pt, inset: (x: 12pt, y: 9pt),
   stroke: (left: 3pt + border), fill: _tint(pal, border, 10%),
 )[
-  #text(11pt, weight: "bold", fill: border)[#upper(label)#if title != none [ · #title]]
+  #text(sizes.normal, weight: "bold", fill: border)[#upper(label)#if title != none [ · #title]]
   #v(3pt)
-  #text(13pt, fill: pal.text)[#body]
+  #text(sizes.normal, fill: pal.text)[#body]
 ]
 
 #let make(pal) = {
@@ -52,40 +54,40 @@
     "rail_pull": (body) => block(
       width: 100%, inset: (left: 12pt, y: 6pt),
       stroke: (left: 3pt + pal.accent),
-    )[#text(17pt, style: "italic", fill: pal.ink)[#body]],
+    )[#text(sizes.large, style: "italic", fill: pal.ink)[#body]],
 
     "callout": (label, body, kind: "info") => {
       let c = kind-color.at(kind, default: pal.accent)
       block(width: 100%, radius: 3pt, inset: 10pt,
         stroke: (left: 3pt + c), fill: tint(c, 12%))[
         // Label pulls toward ink so pale accents stay legible at small sizes.
-        #text(11pt, weight: "bold", fill: color.mix((c, 65%), (pal.ink, 35%)))[#upper(label)]
+        #text(sizes.normal, weight: "bold", fill: color.mix((c, 65%), (pal.ink, 35%)))[#upper(label)]
         #v(2pt)
-        #text(13pt, fill: pal.text)[#body]
+        #text(sizes.normal, fill: pal.text)[#body]
       ]
     },
 
-    "codebox": (body, size: 14pt) => block(
+    "codebox": (body, size: sizes.normal) => block(
       width: 100%, radius: 4pt, inset: 12pt,
       fill: tint(pal.primary, 7%),
       stroke: 0.5pt + pal.hairline,
     )[#text(font: mono, size: size, fill: pal.text)[#body]],
 
     "quote_pull": (body, source: none) => block(width: 100%, inset: (left: 16pt, y: 8pt))[
-      #text(18pt, style: "italic", fill: pal.ink)[#quote[#body]]
-      #if source != none [#linebreak() #text(12pt, fill: pal.text_soft)[— #source]]
+      #text(sizes.large, style: "italic", fill: pal.ink)[#quote[#body]]
+      #if source != none [#linebreak() #text(sizes.normal, fill: pal.text_soft)[— #source]]
     ],
 
     // ── Figure ────────────────────────────────────────────────
     "figbox": (title, body, caption: none) => block(width: 100%, inset: 0pt)[
       #block(width: 100%, stroke: (bottom: 0.5pt + pal.hairline), inset: (bottom: 6pt))[
-        #text(12pt, weight: "bold", fill: pal.ink)[#title]
+        #text(sizes.normal, weight: "bold", fill: pal.ink)[#title]
       ]
       #v(6pt)
       #body
       #if caption != none [
         #v(4pt)
-        #text(11pt, fill: pal.text_soft, style: "italic")[#caption]
+        #text(sizes.normal, fill: pal.text_soft, style: "italic")[#caption]
       ]
     ],
 
@@ -97,7 +99,7 @@
           if type(src) == str { image(src, width: size, height: size, fit: "cover") }
           else { src })
         #v(4pt)
-        #text(11pt, fill: pal.text)[#name]
+        #text(sizes.normal, fill: pal.text)[#name]
       ]
     ],
 
@@ -108,30 +110,31 @@
     },
 
     // ── Stats ─────────────────────────────────────────────────
-    // Pass plain values ([13], not [*13*]) — the gadget bolds and colours.
-    "stat": (value, label) => align(center)[
-      #text(32pt, weight: "bold", fill: pal.accent_deep)[#value]
-      #v(2pt)
-      #text(12pt, fill: pal.text_soft)[#label]
-    ],
+    // A stat is a readable statement, not a dashboard numeral: the quantity
+    // ("13 weeks") is emphasised by weight and colour only, at the same scale
+    // as its meaning. Keep the unit inside the emphasis (`unit: [weeks]`) —
+    // a highlighted bare "13" says nothing — and let the label state what
+    // the quantity means. Pass plain values ([13], not [*13*]); [*13*] would
+    // be repainted primary by touying's alert.
+    "stat": (value, label, unit: none) => align(center, text(sizes.large, fill: pal.text)[
+      #text(weight: "bold", fill: pal.accent_deep)[#value#if unit != none [~#unit]] #label
+    ]),
 
     "stat_row": (..items) => grid(
-      columns: (1fr,) * items.pos().len(), column-gutter: 12pt,
-      ..items.pos().map(it => align(center)[
-        #text(30pt, weight: "bold", fill: pal.accent_deep)[#it.value]
-        #v(2pt)
-        #text(12pt, fill: pal.text_soft)[#it.label]
-      ]),
+      columns: (1fr,) * items.pos().len(), column-gutter: 14pt,
+      ..items.pos().map(it => align(center, text(sizes.large, fill: pal.text)[
+        #text(weight: "bold", fill: pal.accent_deep)[#it.value#if "unit" in it [~#it.unit]] #it.label
+      ])),
     ),
 
     "spec_list": (..items) => {
       let rows = items.pos().enumerate().map(((i, it)) => block(inset: (bottom: 7pt))[
-        #text(13pt, weight: "bold", fill: pal.accent_deep)[#(i + 1).] #h(4pt)
+        #text(sizes.normal, weight: "bold", fill: pal.accent_deep)[#(i + 1).] #h(4pt)
         #text(weight: "bold", fill: pal.text)[#it.term] #h(4pt)
         #text(fill: pal.text_soft)[#it.desc]
         #if "tag" in it [
           #h(4pt) #box(fill: tint(pal.primary, 10%), inset: (x: 5pt, y: 2pt), radius: 2pt)[
-            #text(10pt, fill: pal.primary)[→ #it.tag]
+            #text(sizes.normal, fill: pal.primary)[→ #it.tag]
           ]
         ]
       ])
@@ -146,21 +149,22 @@
     "proof_box": _thm("Proof", pal.success, pal),
 
     // ── Badges ────────────────────────────────────────────────
+    // Badges inherit the surrounding text size — no shrunken chip type.
     "badge": (label, fill: pal.primary, fg: auto) => box(
       fill: fill, inset: (x: 7pt, y: 2.5pt), radius: 2pt,
-      text(10pt, weight: "bold",
+      text(weight: "bold",
         fill: if fg == auto { on-primary } else { fg })[#upper(label)],
     ),
 
     "tag": (label) => box(
       fill: tint(pal.primary, 10%), inset: (x: 7pt, y: 2.5pt), radius: 8pt,
       stroke: 0.5pt + tint(pal.primary, 35%),
-      text(10pt, fill: pal.primary)[#label],
+      text(fill: pal.primary)[#label],
     ),
 
     "time_badge": (label) => box(
       fill: tint(pal.warning, 13%), inset: (x: 7pt, y: 2.5pt), radius: 2pt,
-      text(font: mono, size: 10pt, weight: "bold", fill: pal.warning)[#label],
+      text(font: mono, weight: "bold", fill: pal.warning)[#label],
     ),
 
     // ── Structure ─────────────────────────────────────────────
@@ -172,11 +176,11 @@
       let head = all.first()
       let body = all.slice(1)
       let ncols = head.len()
-      let hcell = (h) => text(11pt, weight: "bold", fill: pal.text_soft,
+      let hcell = (h) => text(sizes.normal, weight: "bold", fill: pal.text_soft,
         if type(h) == str { upper(h) } else { h })
       let cell = (j, it, emph) => {
         let body = text(
-          size: if j == 0 { 15pt } else { 14pt },
+          size: sizes.normal,
           weight: if emph { "bold" } else { "regular" },
           fill: if emph { pal.accent_deep } else { pal.text },
         )[#it]
@@ -206,11 +210,11 @@
           let fg-sub = if is-dark { color.mix((on-primary, 70%), (pal.primary, 30%)) }
             else { pal.text_soft }
           block(fill: bg, inset: 12pt, radius: 3pt, width: 100%)[
-            #text(10pt, weight: "bold", fill: fg-sub)[#upper(c.label)]
+            #text(sizes.normal, weight: "bold", fill: fg-sub)[#upper(c.label)]
             #v(4pt)
-            #text(15pt, weight: "bold", fill: fg)[#c.title]
+            #text(sizes.normal, weight: "bold", fill: fg)[#c.title]
             #v(4pt)
-            #text(12pt, fill: fg-sub)[#c.body]
+            #text(sizes.normal, fill: fg-sub)[#c.body]
           ]
         }),
       )
@@ -218,10 +222,11 @@
 
     "key_links": (..pairs) => block(width: 100%)[
       #grid(
-        columns: 1, row-gutter: 5pt,
-        ..pairs.pos().map(((lab, link)) => grid(columns: (auto, 1fr), column-gutter: 10pt,
-          text(11pt, weight: "bold", fill: pal.text_soft)[#upper(lab)],
-          text(12pt, fill: pal.primary)[#link])),
+        columns: 1, row-gutter: 9pt,
+        ..pairs.pos().map(((lab, link)) => grid(
+          columns: (auto, 1fr), column-gutter: 10pt, align: top,
+          text(sizes.normal, weight: "bold", fill: pal.text_soft)[#upper(lab)],
+          text(sizes.normal, fill: pal.primary)[#link])),
       )
     ],
 
@@ -229,7 +234,7 @@
     // Section outline for the `== Outline` slide (Typst's #outline() renders a
     // paper-style dotted TOC — wrong register for a deck). Lists level-1
     // headings, column-major, numbered in the accent.
-    "toc": (columns: 1, size: 17pt) => context {
+    "toc": (columns: 1, size: sizes.large) => context {
       let secs = query(heading.where(level: 1)).filter(h => h.outlined)
       let per = calc.max(calc.ceil(secs.len() / columns), 1)
       let entry = (i, h) => grid(columns: (auto, 1fr), column-gutter: 10pt, align: top,
@@ -249,11 +254,11 @@
       #_clock.update(t => t + minutes)
       #context {
         place(top + right,
-          text(11pt, fill: pal.text_soft)[#_clock.get() min])
+          text(sizes.normal, fill: pal.text_soft)[#_clock.get() min])
       }
     ],
 
-    "kicker": (label) => text(11pt, weight: "bold", tracking: 1.2pt, fill: pal.accent_deep)[#upper(label)],
+    "kicker": (label) => text(sizes.normal, weight: "bold", tracking: 1.2pt, fill: pal.accent_deep)[#upper(label)],
 
     "progress_dots": (n, current) => {
       let dots = range(n).map(i => {

@@ -9,6 +9,8 @@
 //   == Some slide
 //   #L.spread(G.figbox(...), [commentary])
 
+#import "scale.typ": sizes
+
 #let make(pal) = {
   let card = (body) => block(
     width: 100%, inset: 12pt, radius: 3pt,
@@ -52,24 +54,22 @@
     // A bordered card around any content.
     "card": card,
 
-    // Big number (left) + sentence (right). For headline-stat slides.
-    // Both columns shrink-wrap so the pair centres as one unit (a 1fr column
-    // would drag the sentence to the far side of the slide).
-    "punch": (number, desc, label: none) => align(center)[
-      #grid(
-        columns: (auto, auto), column-gutter: 26pt, align: horizon,
-        align(center)[
-          #text(54pt, weight: "bold", fill: pal.accent_deep)[#number]
-          #if label != none [#linebreak() #text(12pt, fill: pal.text_soft)[#label]]
-        ],
-        box(width: 13em, align(left, text(20pt, fill: pal.text)[#desc])),
-      )
+    // One headline statement for the slide that carries a single quantity.
+    // The quantity is emphasised by weight and colour only, at the same scale
+    // as the sentence — no detached display numeral. Keep the unit inside the
+    // emphasis (`unit: [weeks]` reads "13 weeks"; a bare "13" says nothing).
+    // `label` is provenance (e.g. [survey, n=128]) under the statement.
+    "punch": (number, desc, label: none, unit: none) => align(center)[
+      #box(width: 22em, text(sizes.xlarge, fill: pal.text)[
+        #text(weight: "bold", fill: pal.accent_deep)[#number#if unit != none [~#unit]] #desc
+      ])
+      #if label != none [#v(8pt) #text(sizes.normal, fill: pal.text_soft)[#label]]
     ],
 
     // Captioned figure centred on its own (no commentary rail).
     "centered_figure": (body, caption: none) => align(center)[
       #body
-      #if caption != none [#v(6pt) #text(11pt, fill: pal.text_soft, style: "italic")[#caption]]
+      #if caption != none [#v(6pt) #text(sizes.normal, fill: pal.text_soft, style: "italic")[#caption]]
     ],
   )
 }

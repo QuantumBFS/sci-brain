@@ -11,6 +11,7 @@
 //   #P.note(2)[And a note pointing at it.]
 
 #import "@preview/pinit:0.2.2": pin, pinit-highlight, pinit-point-from
+#import "scale.typ": sizes
 
 #let make(pal) = (
   // Drop an inline pin marker. Wrap content between two pins to highlight a span.
@@ -26,6 +27,6 @@
     #block(radius: 3pt, inset: 7pt,
       fill: color.mix((pal.accent, 12%), (pal.paper, 88%)),
       stroke: 0.5pt + pal.accent,
-      text(12pt, fill: pal.text)[#body])
+      text(sizes.normal, fill: pal.text)[#body])
   ],
 )

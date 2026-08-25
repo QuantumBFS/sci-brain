@@ -47,8 +47,8 @@ To switch theme, change `palettes.academic` → `palettes.dark` and
 | One figure + commentary (the default talk slide) | `spread` + `figbox` |
 | Side-by-side compare/contrast | `twocol` |
 | Three parallel concepts | `threecol` |
-| One punch number or slogan | `hero` + `punch` |
-| Headlines 3–4 numbers | `stat_row` |
+| One headline quantity-statement or slogan | `hero` + `punch` |
+| Headlines 3–4 quantity-statements | `stat_row` |
 | Names 3–4 parallel items (principles, failures) | `spec_list` |
 | Compares before/after across rows | `data_table` |
 | Carries a one-line slogan | `rail_pull` |
@@ -98,10 +98,12 @@ The default talk slide. Wide figure left, narrow commentary right.
 ```typst
 == Adoption at a glance
 #stat_row(
-  (value: [13], label: [weeks]),      // plain values — the gadget bolds and
-  (value: [56%], label: [daily use]), // colours them; [*13*] would be
-  (value: [3], label: [modules]),     // repainted primary by touying's alert
-)
+  // Keep the unit inside the highlight ("13 weeks" is a quantity, a bare
+  // highlighted "13" says nothing); the label states what the number means.
+  (value: [13], unit: [weeks], label: [to full adoption]),
+  (value: [56%], label: [daily use]),  // plain values — the gadget bolds and
+  (value: [3], label: [modules]),      // colours them; [*13*] would be
+)                                      // repainted primary by touying's alert
 ```
 
 ## Pattern: numbered parallel items (`spec_list`)
@@ -138,6 +140,9 @@ left-aligned); value columns render in mono automatically.
 ```
 
 ## Pattern: one punch (`hero` + `punch`)
+
+One centred statement with the quantity emphasised inline (add `unit: [weeks]`
+for unitful values so the emphasis reads "13 weeks", never a bare "13"):
 
 ```typst
 #hero[#punch(56%, [of users adopt it daily], label: [survey, n=128])]
@@ -211,9 +216,17 @@ A #pin(1)key phrase#pin(2) in the prose.
 - **One accent colour for emphasis.** Numbers and `rail_pull` use `accent_deep`;
   don't repaint gadgets by hand.
 - **Tabular numbers in mono.** `data_table` value columns and `time_badge` do it
-  themselves; big display numerals (`stat`, `punch`) stay in the theme sans.
-- **Nothing below ~11 pt.** Gadget captions/labels bottom out at 10–11 pt; if
-  content only fits smaller, split the slide.
+  themselves; emphasised quantities (`stat`, `punch`) stay in the theme sans.
+- **A number is emphasised as a statement, not a dashboard numeral.** `stat`,
+  `stat_row`, and `punch` set the full quantity ("13 weeks", via `unit:`) in
+  bold accent at the same scale as its meaning — never a giant bare "13" over
+  a small caption.
+- **Three text sizes, deck-wide** (`sizes` from `zoo/scale.typ`, exported by
+  `zoo/lib.typ`): `xlarge` 30 pt (the one hero statement; also title, section,
+  and focus slides), `large` 24 pt
+  (emphasised statements/slogans), `normal` 20 pt (everything else). Hierarchy
+  comes from weight, colour, and case — never from smaller type. If content
+  only fits smaller, split the slide.
 - **Pass plain values** (`[13]`, not `[*13*]`) — touying repaints `strong` in
   theme primary; gadgets bold and colour their own numerals.
 - **Captions describe how to *read* the figure**, not what it is.

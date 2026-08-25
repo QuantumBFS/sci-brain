@@ -27,9 +27,9 @@
 // Swatch helpers (work with any palette, not just the active one).
 #let chip = (c, label) => block(width: 100%, inset: (x: 4pt, y: 4pt))[
   #block(width: 100%, height: 26pt, fill: c, radius: 2pt, stroke: 0.5pt + pal.hairline)
-  #text(9pt, fill: pal.text_soft)[#label]
+  #text(sizes.normal, fill: pal.text_soft)[#label]
   #linebreak()
-  #text(9pt, font: ("DejaVu Sans Mono", "Noto Sans Mono"), fill: pal.text_soft)[#c.to-hex()]
+  #text(sizes.normal, font: ("DejaVu Sans Mono", "Noto Sans Mono"), fill: pal.text_soft)[#c.to-hex()]
 ]
 #let chip-row = (p) => grid(
   columns: (1fr,) * 6, column-gutter: 5pt,
@@ -44,7 +44,7 @@
   block(width: 100%, fill: p.paper, stroke: 0.5pt + p.hairline, radius: 4pt,
     inset: (x: 14pt, y: 10pt))[
     #(g.stat_row)(
-      (value: [13], label: [weeks]),
+      (value: [13], unit: [weeks], label: [to full adoption]),
       (value: [56%], label: [daily use]),
       (value: [3], label: [modules]),
     )
@@ -155,7 +155,7 @@ Derived from a single house colour via `palettes/brand.typ`'s `build(primary)`.
 = Stats and structure
 
 == stat row + spec list
-#stat_row((value: [13], label: [weeks]), (value: [56%], label: [daily]), (value: [3], label: [parts]))
+#stat_row((value: [13], unit: [weeks], label: [to full adoption]), (value: [56%], label: [daily use]), (value: [3], label: [modules]))
 #v(10pt)
 #spec_list(
   (term: [Failure A], desc: [latency collapses], tag: [cost]),
@@ -214,7 +214,7 @@ Derived from a single house colour via `palettes/brand.typ`'s `build(primary)`.
     #v(8pt)
     #align(center)[#progress_dots(6, 2)]
     #v(4pt)
-    #align(center)[#text(12pt, fill: pal.text_soft)[progress_dots(6, 2) — and `pacing(2)` printed “2 min” top-right]]
+    #align(center)[#text(sizes.normal, fill: pal.text_soft)[progress_dots(6, 2) — and `pacing(2)` printed “2 min” top-right]]
   ],
 )
 
@@ -293,7 +293,7 @@ A #pin(1)key phrase#pin(2) in the prose, annotated after the fact.
 
 == browse and retheme
 #hero[
-  #text(20pt, fill: pal.text_soft)[One compile per theme — chrome, gadgets, and diagrams all repaint.]
+  #text(sizes.normal, fill: pal.text_soft)[One compile per theme — chrome, gadgets, and diagrams all repaint.]
   #v(10pt)
   #codebox[#raw("typst compile --input theme=dark gallery.typ")]
   #v(12pt)

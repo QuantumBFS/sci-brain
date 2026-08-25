@@ -16,7 +16,7 @@
 //   #import "zoo/gadgets_pin.typ":  make as make-pin
 
 #import "@preview/touying:0.6.1": *
-#import themes.metropolis: title-slide, focus-slide, new-section-slide
+#import themes.metropolis: focus-slide, new-section-slide
 
 #import "palettes/academic.typ" as _pal-academic
 #import "palettes/dark.typ" as _pal-dark
@@ -32,6 +32,10 @@
 
 #import "gadgets.typ": make as make-gadgets
 #import "layouts.typ": make as make-layouts
+
+// Type scale: the three deck-wide text sizes (xlarge / large / normal).
+// Use these for any hand-rolled text so it lands on the same steps as gadgets.
+#import "scale.typ": sizes
 
 // Palettes: pure colour data. Pick one and bind gadgets/layouts to it.
 #let palettes = (
@@ -63,3 +67,42 @@
 // Factories: call with the chosen palette to get bound gadget/layout dicts.
 #let gadgets = make-gadgets
 #let layouts = make-layouts
+
+// Title slide on the zoo's type scale. Metropolis's stock title slide sizes
+// in compounding ems (title 1.3em; the institution line ends up at
+// 0.8em × 0.8em ≈ 13pt) — off-scale and too small on a projector. This
+// replacement lands every line on `sizes`: title xlarge, subtitle large,
+// everything under the rule normal. (Metropolis's section and focus slides
+// already sit at 1.5em = `sizes.xlarge` and are reused as-is.)
+#let title-slide(config: (:), extra: none, ..args) = touying-slide-wrapper(self => {
+  self = utils.merge-dicts(
+    self,
+    config,
+    config-common(freeze-slide-counter: true),
+    config-page(fill: self.colors.neutral-lightest),
+  )
+  let info = self.info + args.named()
+  let body = {
+    set text(fill: self.colors.neutral-darkest)
+    set std.align(horizon)
+    block(width: 100%, inset: 2em, {
+      components.left-and-right(
+        {
+          text(size: sizes.xlarge, weight: "medium", info.title)
+          if info.subtitle != none {
+            linebreak()
+            text(size: sizes.large, info.subtitle)
+          }
+        },
+        text(2em, utils.call-or-display(self, info.logo)),
+      )
+      line(length: 100%, stroke: .05em + self.colors.primary)
+      set text(size: sizes.normal)
+      if info.author != none { block(spacing: 1em, info.author) }
+      if info.date != none { block(spacing: 1em, utils.display-info-date(self)) }
+      if info.institution != none { block(spacing: 1em, info.institution) }
+      if extra != none { block(spacing: 1em, extra) }
+    })
+  }
+  touying-slide(self: self, body)
+})
