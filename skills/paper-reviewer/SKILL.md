@@ -9,7 +9,7 @@ Run a structured **review-and-enhance** pass over an *existing* scientific manus
 
 **Scope note.** This is the *reviewing/revising* counterpart to `paper-writer` (which *drafts* a manuscript figures-first). It is **not** `survey` report mode, which writes technology/field-assessment reports from a literature survey. Use `paper-reviewer` when a manuscript already exists and the user wants comments, a referee-style critique, reference/fact verification, or guideline-driven polish. If no manuscript exists yet, redirect to `paper-writer`.
 
-The eight guidelines below come from a manuscript-quality rubric. Where a rule is already defined as an *authoring* rule in `paper-writer/SKILL.md` (sentence/notation/figure discipline), this skill **references** it rather than restating it — consult `skills/paper-writer/SKILL.md` and `skills/paper-writer/references.md` for the *why* behind a rule. The full rubric lives in `skills/paper-reviewer/checklist.md`.
+The eight guidelines below come from a manuscript-quality rubric; the full rubric lives in `skills/paper-reviewer/checklist.md`. Where `paper-writer/SKILL.md` already defines a rule (sentence/notation/figure discipline), this skill **references** it rather than restating it. Consult `skills/paper-writer/references.md` for the *why* behind a rule.
 
 Use `skills/_shared/writing-workflow.md` for KB/context loading, citation handling, the BibTeX lookup chain, and output mechanics.
 
@@ -51,7 +51,7 @@ Rank every finding so the user can triage:
 1. **Resolve the manuscript.** Accept an explicit path; else auto-detect from `articles/<slug>/` or the working directory. Detect format from the extension: **LaTeX (`.tex`) is primary**; Typst (`.typ`) and Markdown (`.md`) are supported.
 2. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
 3. **Load shared context.** Follow `skills/_shared/writing-workflow.md`: resolve `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
-4. **Write the story summary + per-section missions.** One paragraph capturing the paper's story, plus a one-line "mission" for each section. **Confirm the story with the user before any critique.** This gate prevents local nitpicks that fight the global narrative — if the reviewer misread the story, fix that before producing findings.
+4. **Write the story summary + per-section missions.** One paragraph capturing the paper's story, plus a one-line "mission" for each section. This gate prevents local nitpicks that fight the global narrative: if you misread the story, fix that before producing any finding.
 
 Do not proceed to Phase 1 until the user confirms (or corrects) the story summary.
 
@@ -69,12 +69,12 @@ Walk the manuscript and produce findings. Each finding has this shape:
   fix:       a concrete suggested edit }
 ```
 
-Calibrate every `fix` against the model paper — Ho et al., PRL 122, 040603 (2019), at `skills/paper-writer/sources/1807.01815_Ho2019_quantum-scars.md`, move-by-move walkthrough in `skills/paper-writer/references.md` §C. A good rewrite reads like that letter: one concept per sentence, symbols defined at first use and then read back in plain words, each section opening with its job, main results named as such. When unsure whether a sentence deserves a finding, ask whether it could appear in the model paper unchanged.
+Calibrate every `fix` against the model paper: Ho et al., PRL 122, 040603 (2019), at `skills/paper-writer/sources/1807.01815_Ho2019_quantum-scars.md`, with a move-by-move walkthrough in `skills/paper-writer/references.md` §C. A good rewrite reads like that letter: one concept per sentence, symbols defined at first use, each section opening with its job, main results named as such. When unsure whether a sentence deserves a finding, ask whether it could appear in the model paper unchanged.
 
 Checks:
 
 1. **Sentence length / one concept per sentence.** Flag overlong or triple-idea sentences; propose splits. (`paper-writer` Sentence-Level Rules.)
-2. **Define before use.** Build a symbol/notation table *as you read*. Flag any symbol or concept used before its definition (a forward-reference), and any symbol never defined. Require that every symbol is defined before use, in logical order. (`paper-writer` Notation Rulebook.)
+2. **Define before use.** Build a symbol/notation table *as you read*. Flag any symbol or concept used before its definition, any symbol never defined, and definitions out of logical order. (`paper-writer` Notation Rulebook.)
 3. **Paragraph purpose.** Flag purposeless or double-duty paragraphs; suggest a topic sentence and a single job per paragraph.
 4. **DRY / anti-repetition.** Detect explanations or definitions repeated across sections; suggest consolidate-and-cross-reference. (New — keep one canonical statement, reference it elsewhere.)
 5. **Display-math discipline.** Flag display equations that don't earn emphasis; suggest inlining or cutting. Reserve display math for key/flagship results, non-obvious steps, or figure-referenced equations. (`paper-writer` Notation Rulebook.)
@@ -89,7 +89,7 @@ Also run a per-section **"did this section deliver its Phase-0 mission?"** check
 The standout capability. Follow the repo discipline: **never invent BibTeX from memory**. Bibliography metadata gets a complete automated screening pass; claim verification stays focused on what supports the main claims (see `skills/_shared/writing-workflow.md`).
 
 - **Screen every bibliography entry.** Run `python3 skills/download-ref/helpers/verify_bib.py --bib "$BIB" --kb "$KB" --json` against the bibliography resolved in Phase 0. This checks uncited entries too and compares title, authors, year, venue/journal, volume, pages, and DOI using cached metadata plus Semantic Scholar's batch API.
-- **Confirm actionable records.** Use the helper's severity-ranked output as the starting point for the reference / fact-check table. Manually confirm every `unverifiable` entry and every `mismatch` with a high- or medium-severity finding through **CrossRef → Semantic Scholar → MCP → WebFetch** before reporting it; retain low-severity missing-field findings as metadata-completion suggestions without forcing the full lookup chain. Semantic Scholar is a screening source, not the final authority. Flag broken, missing, or confirmed mismatches and offer repair via `/download-ref` (it owns `references.bib` appends and metadata fetching).
+- **Confirm actionable records.** Use the helper's severity-ranked output as the starting point for the reference / fact-check table. Before reporting any `unverifiable` entry, or any `mismatch` with a high- or medium-severity finding, confirm it manually through **CrossRef → Semantic Scholar → MCP → WebFetch**; Semantic Scholar screens, it is not the final authority. Keep low-severity missing-field findings as metadata-completion suggestions — they do not need the full lookup chain. Flag broken, missing, or confirmed-mismatched entries and offer repair via `/download-ref` (it owns `references.bib` appends and metadata fetching).
 - **Citation resolution.** For each `\cite` key, confirm that an entry exists in the resolved bibliography. Uncited entries remain in the metadata scan; cited keys additionally participate in the claim-support check below.
 - **Claim ↔ citation support.** For key claims attached to a citation, best-effort sanity-check that the cited work actually supports the claim. **Flag uncertain — do not assert.**
 - **Standalone factual claims.** Identify checkable factual/numerical claims *not* tied to a citation; verify via WebSearch. **Flag** the uncertain or unsupported — never silently "correct" a claim, and never fabricate a citation to prop one up.
@@ -112,7 +112,7 @@ Then present a short summary to the user and ask which findings to apply.
 ## Phase 4 — Apply approved edits
 
 1. **User selects scope:** all / by-severity (e.g. "apply all high") / individually. Do not edit anything the user didn't approve.
-2. **Apply edits to the manuscript**, preserving LaTeX macros, environments, labels, and structure (and Typst/Markdown structure for those formats). Where a fix genuinely needs author judgment, insert a `% [reviewer] …` margin comment instead of rewriting silently (use `// [reviewer]` for Typst, an HTML comment for Markdown).
+2. **Apply edits to the manuscript**, preserving macros, environments, labels, and document structure in every format. Where a fix genuinely needs author judgment, insert a `% [reviewer] …` margin comment instead of rewriting silently (`// [reviewer]` in Typst, an HTML comment in Markdown).
 3. **Verify it still compiles** — `latexmk` (or `pdflatex`) for `.tex`, `typst compile` for `.typ`; for `.md`, confirm it still renders. Report pass/fail with the actual command output (per verification-before-completion: evidence before assertions). If it breaks, fix or revert the offending edit before claiming done.
 4. **Append a changelog** to the top of the review report: what was applied, what was skipped, and the compile result.
 

@@ -5,7 +5,7 @@ description: Use when drafting or revising a scientific manuscript with real res
 
 # Paper Writer
 
-A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. Both source documents are preserved at `skills/paper-writer/references.md` and `skills/paper-writer/sources/` — consult them when this SKILL.md leaves a question open. A model letter that executes these rules, Ho et al., PRL 122, 040603 (2019), sits beside them; imitate it when a style judgment call is open (see Source material).
+A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. The source documents live in `references.md` and `sources/`; consult them when this SKILL.md leaves a question open. Beside them sits a model letter that executes these rules — Ho et al., PRL 122, 040603 (2019), see Source material. Imitate the model letter on any open style judgment call.
 
 **Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `brainstorm-ideas` report mode. If the user has not yet finished the work, push back: a paper requires results.
 
@@ -21,8 +21,8 @@ These seven override everything else.
 2. **Polish what readers actually read.** 95% of readers read only the title, abstract, introduction, figures + captions, and conclusions. These five elements deserve disproportionate iteration. Write them last — *but iterate them most*.
 3. **State main results explicitly.** Use at least one sentence per main result that names it as such: *"This figure / equation / observation is our (first / second / Nth) main result."* Do not assume the reader will identify which sentence is the punchline.
 4. **One concept per sentence.** If you must break this rule, both concepts must be simple. Long compound sentences with three new ideas are how readers drop out.
-5. **Never plot anything in arbitrary units.** If you find yourself reaching for "a.u." on an axis, the axis is wrong — find the right normalization (dimensionless ratio, calibrated scale, or experimental control). This is non-negotiable; "a.u." plots are a known integrity red flag.
-6. **Target journal before story.** Before proposing story lines, discuss the target journal or venue with the user and download the official author template; if the user deliberately has no target yet, record that choice. Venue constraints shape the narrative, figure count, length, and format.
+5. **Never plot anything in arbitrary units.** If you reach for "a.u." on an axis, the axis is wrong; find the right normalization (dimensionless ratio, calibrated scale, or experimental control). "a.u." plots are a known integrity red flag.
+6. **Target journal before story.** Before proposing story lines, discuss the target venue with the user and download its official author template. If the user deliberately has no target yet, record that choice. Venue constraints shape the narrative, figure count, length, and format.
 7. **Iterate the story with the user.** Once the figures or figure plan are available and the target venue is known, propose 1–3 plausible story lines for the user to choose, reject, or combine. Do not draft prose until the user has selected the paper's narrative.
 
 ---
@@ -38,7 +38,7 @@ Before drafting, gather the materials that should inform the paper. Cheap to do 
 1. **Shared writing context.** Follow `skills/_shared/writing-workflow.md`. Use `$KB/NOTES.md` as the spine for prior work, gap statement, motivation, and conclusions.
 2. **Ideas / brainstorming log.** Look for `docs/discussion/*-brainstorm-ideas-log.md` from a prior `/brainstorm-ideas` session. If present, read it for the original motivation, the cross-field connections it surfaced, the planned minimum viable experiment, and the success/hope/pivot signals. This is the *why* behind the paper and feeds the introduction's contribution claim.
 3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `know-me-better` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to cite the user's earlier work correctly.
-4. **Existing draft.** If a partial manuscript already exists under `articles/`, read it before proposing new prose — pick up where the user left off rather than starting from a blank slate.
+4. **Existing draft.** If a partial manuscript already exists under `articles/`, read it before proposing new prose; pick up where the user left off.
 
 If none of these exist, name what's missing and ask the user to either point at the files or run `/survey` first. A paper without a literature foundation will read like one.
 
@@ -51,7 +51,7 @@ If none of these exist, name what's missing and ask the user to either point at 
 
 ### Phase 1.5 — Target journal and template checkpoint
 
-Before the story checkpoint, stop and discuss the target journal or venue with the user. If the user has not chosen one, propose 2–3 plausible venues with tradeoffs: article type, audience, length pressure, figure limits, novelty bar, and format requirements. Ask the user to pick one target or explicitly choose "no target yet." If they choose no target yet, record that no official template can be selected and continue only after they confirm this tradeoff.
+Before the story checkpoint, stop and discuss the target journal or venue with the user. If the user has not chosen one, propose 2–3 plausible venues with tradeoffs: article type, audience, length pressure, figure limits, novelty bar, and format requirements. Ask the user to pick one target or to choose "no target yet" explicitly. In the latter case, record that no official template applies, and continue only after the user confirms this tradeoff.
 
 Once a target is chosen:
 
@@ -131,7 +131,7 @@ Most physics-style papers fit this. Short letters (PRL, Nature, Science) drop th
 
 Figures are what readers remember; design them to survive the harshest viewing context.
 
-**Design for three uses simultaneously.** Each figure must work as: (a) inline figure in the paper, (b) slide in a beamer talk, (c) greyscale photocopy. Optimize at draft time, not as a post-hoc retrofit.
+**Design for three uses simultaneously.** Each figure must work as: (a) inline figure in the paper, (b) slide in a beamer talk, (c) greyscale photocopy. Design for all three at draft time, not in a later retrofit.
 
 **Line weight.** Minimum thickness 2 for every curve (or at least the main-result curves). Thin lines vanish on a projector.
 
@@ -150,8 +150,8 @@ Figures are what readers remember; design them to survive the harshest viewing c
 **Data vs. theory.** Plot data as points (with error bars) and theory as lines, on the same axes. Arrange so theory lines are *straight* whenever possible — anyone can then check agreement at a glance. Use curved-theory plots only with a deliberate reason.
 
 **Error-bar reasoning.** Theory should pass through error bars on most points. Patterns to *discuss in text*:
-- Many points deviating by more than an error bar → likely systematic error, must be addressed.
-- Error bars dwarfing the deviations → uncertainties likely overestimated, also addressed.
+- Many points deviating by more than an error bar → likely systematic error; address it.
+- Error bars dwarfing the deviations → uncertainties likely overestimated; address this too.
 
 **Captions.** Concise but self-sufficient. Define every plotted quantity, summarize the trend, identify line styles. A reader who reads only the title, abstract, and figures+captions should get the paper.
 
@@ -165,7 +165,7 @@ Notation is the reader's interface to the math. Treat it with the same care as a
 
 - **No symbol reuse in nearby sections.** Same letter must not mean two different things within a few pages.
 - **If notation must change, signal it explicitly.** "Henceforth we use X to denote..." — never silent reuse.
-- **Define every variable before using it.** And define them in a logical order — symbols introduced earlier should be used to define symbols introduced later, not the other way around.
+- **Define every variable before using it.** Define them in logical order: earlier symbols define later ones, never the reverse.
 - **If a better notation appears mid-project, switch and rewrite earlier sections.** The reader's cost of decoding bad notation is far higher than your cost of rewriting.
 - **Compact vs. explicit formulas:**
   - *Compact* when summarizing strategy, manipulating reader's high-level model, or when an expert could fill in the steps.
@@ -195,10 +195,12 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 - [ ] Every figure has a caption that stands alone.
 - [ ] Conclusions name the contribution and at least one implication.
 
-**Main-result labeling:**
+**Process gates:**
 - [ ] Target journal or "no target yet" was discussed with the user before story selection.
 - [ ] Official template was downloaded, or the failed/blocked/not-applicable template status was recorded.
 - [ ] The user selected or synthesized a story line before prose drafting began.
+
+**Main-result labeling:**
 - [ ] Each major result has a sentence explicitly tagging it as a main result.
 - [ ] Each main result has a corresponding figure or equation.
 
@@ -252,7 +254,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 
 - `references.md` — distilled rule lists from Martinis (2012) and von Delft (style guide), plus a walkthrough of the model paper (§C).
 - `sources/NotesOnWritingPaper12.pdf` — the original Martinis notes.
-- `sources/1807.01815_Ho2019_quantum-scars.md` — the model paper: Ho, Choi, Pichler & Lukin, *Periodic orbits, entanglement and quantum many-body scars in constrained models*, PRL 122, 040603 (2019), rendered to markdown from arXiv:1807.01815. A letter that practices what the rules preach: one move per abstract sentence, the four introduction beats in order, run-in headers whose first sentence names the section's job, symbols defined at first use and then read back in plain words, figures that carry the story from page one. Skim it before drafting; imitate it on judgment calls. `references.md` §C maps each move to its location in the paper.
+- `sources/1807.01815_Ho2019_quantum-scars.md` — the model paper: Ho, Choi, Pichler & Lukin, *Periodic orbits, entanglement and quantum many-body scars in constrained models*, PRL 122, 040603 (2019), rendered from arXiv:1807.01815. This letter practices what the rules preach: one move per abstract sentence, the four introduction beats in order, run-in headers whose first sentence names the section's job, symbols defined at first use and then read back in plain words, figures that carry the story from page one. Skim it before drafting. `references.md` §C maps each move to its location in the paper.
 - von Delft's *Style Guide* online: <https://homepages.physik.uni-muenchen.de/~vondelft/JansStyleGuide.html>
 
-Consult the references when this SKILL.md leaves a judgment call open. The point of the references is to preserve the *reasons* behind the rules.
+The references preserve the *reasons* behind the rules; the model paper shows the rules executed.
