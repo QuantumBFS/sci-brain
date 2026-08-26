@@ -43,7 +43,9 @@ def test_agent_entrypoint_routes_to_canonical_guide():
 
 
 def test_install_guides_discover_individual_skill_folders():
-    for path in (ROOT / ".codex" / "INSTALL.md", ROOT / ".opencode" / "INSTALL.md"):
+    for path in (ROOT / ".codex" / "INSTALL.md",
+                 ROOT / ".opencode" / "INSTALL.md",
+                 ROOT / ".pi" / "INSTALL.md"):
         text = path.read_text()
         assert 'skill_dir in "$SCI_BRAIN_DIR"/skills/*' in text
         assert '[ -f "$skill_dir/SKILL.md" ]' in text
@@ -52,6 +54,10 @@ def test_install_guides_discover_individual_skill_folders():
     # `find` must follow links or it prints nothing after a successful install.
     codex = (ROOT / ".codex" / "INSTALL.md").read_text()
     assert "find -L ~/.agents/skills" in codex
+    # pi and Codex share the global ~/.agents/skills discovery path.
+    pi = (ROOT / ".pi" / "INSTALL.md").read_text()
+    assert "find -L ~/.agents/skills" in pi
+    assert "pi install npm:sci-brain" in pi
 
 
 def test_retired_public_skill_names_do_not_reappear():

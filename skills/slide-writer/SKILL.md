@@ -211,7 +211,7 @@ pays no extra-package cost:
   skill borrows its sign-off discipline.
 - **Figures:** reuse figures from `paper-writer` manuscripts and the project KB;
   run `figure-taste` on figure-heavy slides (Phase 5).
-- **Brainstorming:** a talk often follows a `/brainstorm-ideas` session — read its
+- **Brainstorming:** a talk often follows a `brainstorm-ideas` session — read its
   log for the deck's motivation and key claim.
 - **Citations:** slides rarely need a bibliography page; if they do, point
   `\bibliography`/`#bibliography` at `$KB/.knowledge/references.bib`.

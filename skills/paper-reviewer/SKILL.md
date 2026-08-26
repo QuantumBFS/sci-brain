@@ -87,10 +87,10 @@ Also run a per-section **"did this section deliver its Phase-0 mission?"** check
 The standout capability. Follow the repo discipline: **never invent BibTeX from memory**. Bibliography metadata gets a complete automated screening pass; claim verification stays focused on what supports the main claims (see `skills/_shared/writing-workflow.md`).
 
 - **Screen every bibliography entry.** Run `python3 skills/download-ref/helpers/verify_bib.py --bib "$BIB" --kb "$KB" --json` against the bibliography resolved in Phase 0. This checks uncited entries too and compares title, authors, year, venue/journal, volume, pages, and DOI using cached metadata plus Semantic Scholar's batch API.
-- **Confirm actionable records.** Use the helper's severity-ranked output as the starting point for the reference / fact-check table. Manually confirm every `unverifiable` entry and every `mismatch` with a high- or medium-severity finding through **CrossRef → Semantic Scholar → MCP → WebFetch** before reporting it; retain low-severity missing-field findings as metadata-completion suggestions without forcing the full lookup chain. Semantic Scholar is a screening source, not the final authority. Flag broken, missing, or confirmed mismatches and offer repair via `/download-ref` (it owns `references.bib` appends and metadata fetching).
+- **Confirm actionable records.** Use the helper's severity-ranked output as the starting point for the reference / fact-check table. Manually confirm every `unverifiable` entry and every `mismatch` with a high- or medium-severity finding through **CrossRef → Semantic Scholar → MCP → web fetch** before reporting it; retain low-severity missing-field findings as metadata-completion suggestions without forcing the full lookup chain. Semantic Scholar is a screening source, not the final authority. Flag broken, missing, or confirmed mismatches and offer repair via the `download-ref` skill (it owns `references.bib` appends and metadata fetching).
 - **Citation resolution.** For each `\cite` key, confirm that an entry exists in the resolved bibliography. Uncited entries remain in the metadata scan; cited keys additionally participate in the claim-support check below.
 - **Claim ↔ citation support.** For key claims attached to a citation, best-effort sanity-check that the cited work actually supports the claim. **Flag uncertain — do not assert.**
-- **Standalone factual claims.** Identify checkable factual/numerical claims *not* tied to a citation; verify via WebSearch. **Flag** the uncertain or unsupported — never silently "correct" a claim, and never fabricate a citation to prop one up.
+- **Standalone factual claims.** Identify checkable factual/numerical claims *not* tied to a citation; verify via web search. **Flag** the uncertain or unsupported — never silently "correct" a claim, and never fabricate a citation to prop one up.
 
 ---
 
@@ -118,7 +118,7 @@ Then present a short summary to the user and ask which findings to apply.
 
 ## Reused vs. new
 
-**Reused (no duplication):** `skills/_shared/writing-workflow.md` (context, citations, output mechanics); the BibTeX lookup chain (CrossRef → Semantic Scholar → MCP → WebFetch); `download-ref` for reference repair; `paper-writer`'s sentence/notation/figure rule *definitions* (referenced).
+**Reused (no duplication):** `skills/_shared/writing-workflow.md` (context, citations, output mechanics); the BibTeX lookup chain (CrossRef → Semantic Scholar → MCP → web fetch); `download-ref` for reference repair; `paper-writer`'s sentence/notation/figure rule *definitions* (referenced).
 
 **New here:** the read-whole-first review protocol (Phase 0), DRY/anti-repetition detection (#4), fact & reference verification (#8), and the comment-then-apply loop plus compile-check (Phases 3–4).
 
@@ -130,7 +130,7 @@ Then present a short summary to the user and ask which findings to apply.
 |---|---|
 | Editing before the user approves | Comment-first. Phase 3 → user picks → Phase 4. |
 | Nitpicking sentences before confirming the story | Phase 0 gate: confirm the story summary first. |
-| Inventing a BibTeX entry to "fix" a citation | Never. Use the lookup chain / `/download-ref`, or flag as unverifiable. |
+| Inventing a BibTeX entry to "fix" a citation | Never. Use the lookup chain / the `download-ref` skill, or flag as unverifiable. |
 | Silently "correcting" a factual claim | Flag uncertain claims; the author decides. |
 | Claiming done without compiling | Run `latexmk` / `typst compile` and paste the result. |
 | Chasing completeness on fact-checks | Verify only what supports the main claims. |
@@ -141,5 +141,5 @@ Then present a short summary to the user and ask which findings to apply.
 
 - **Context, citations, output mechanics:** `skills/_shared/writing-workflow.md`.
 - **Rule definitions (sentence/notation/figure):** `skills/paper-writer/SKILL.md` + `skills/paper-writer/references.md`.
-- **Reference repair / adding a missing paper:** `/download-ref`.
+- **Reference repair / adding a missing paper:** the `download-ref` skill.
 - **Full rubric checklist:** `skills/paper-reviewer/checklist.md`.

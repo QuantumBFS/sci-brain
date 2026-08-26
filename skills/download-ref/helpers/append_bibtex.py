@@ -4,7 +4,7 @@ Append BibTeX entry to the KB's references.bib for a fetched ref.
 
 Reads citationStyles.bibtex from .raw/{arxiv,doi}/<id>.json, proposes a cite
 key in `lastname_year_firstword` form, prints both for the caller to confirm
-(via AskUserQuestion in the skill harness), then on confirmation rewrites the
+with the user, then on confirmation rewrites the
 cite key and appends to the --bib file if not already present.
 
 The canonical bib is `$KB/references.bib` (inside the KB). The path is passed

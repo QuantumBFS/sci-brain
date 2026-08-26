@@ -139,7 +139,7 @@ These logs accumulate across sessions as separate files, building a record of th
 
 **Skip if chaining from survey.** If the current session already has survey context (user has been working on a topic, background is known), skip Phase 0 and go straight to Phase 1.
 
-**Advisor selection.** Check if `advisors/index.md` exists and contains advisor entries. If advisors are available, present them as an interactive choice via `AskUserQuestion` before proceeding:
+**Advisor selection.** Check if `advisors/index.md` exists and contains advisor entries. If advisors are available, present them as an interactive choice before proceeding:
 
 > "Before we start — would you like to brainstorm with a specific advisor? Each one has a unique thinking style based on a real researcher."
 
@@ -170,13 +170,13 @@ Then:
 
 **Launch the advisor.** The advisor subagent's job is to contribute hard-won taste: what to ask next, which assumptions are dangerous, which papers matter, and what this advisor would investigate first. The main mentor remains responsible for session flow, empathy, logging, and synthesis.
 
-**Give the advisor subagent the tools to investigate.** Launch it via the `Agent` tool with `Read`, `Grep`, `Glob`, `WebSearch`, and `WebFetch` available, and pass `$ADVISOR_KB` (the absolute path) in its prompt. Instruct the subagent that, **before making a substantive comment, it should:**
-- **Consult its own knowledge base first.** `Grep`/`Glob` `$ADVISOR_KB/INDEX.md` and open the relevant `$ADVISOR_KB/<id>_<slug>.md` papers for specifics — don't rely only on the seed papers. The seed set is a head start; the full KB is the advisor's library to draw on.
-- **Search the web** (`WebSearch`/`WebFetch`) when the KB doesn't cover a needed fact, or to check a recent development or verify a claim before asserting it.
+**Give the advisor subagent the tools to investigate.** Launch it as a subagent with file access to `$ADVISOR_KB` and web search/fetch available, and pass `$ADVISOR_KB` (the absolute path) in its prompt. Instruct the subagent that, **before making a substantive comment, it should:**
+- **Consult its own knowledge base first.** Search `$ADVISOR_KB/INDEX.md` and open the relevant `$ADVISOR_KB/<id>_<slug>.md` papers for specifics — don't rely only on the seed papers. The seed set is a head start; the full KB is the advisor's library to draw on.
+- **Search the web** when the KB doesn't cover a needed fact, or to check a recent development or verify a claim before asserting it.
 - **Ground each comment in what it found and say so** — name the paper (cite key from `$ADVISOR_KB/INDEX.md`) or link the source. When neither the KB nor the web supports a claim, mark it explicitly as opinion (consistent with principle (c), "distinguish opinion from evidence").
 - Restrict file access to `$ADVISOR_KB` and the advisor's `profile.md`; the subagent reads literature and the web, it does not edit project files.
 
-If `$ADVISOR_KB` is empty or missing, the subagent still has `WebSearch`/`WebFetch` and falls back to web grounding plus profile-driven reasoning.
+If `$ADVISOR_KB` is empty or missing, the subagent still has web search/fetch and falls back to web grounding plus profile-driven reasoning.
 
 The advisor profile shapes *how* the advisor subagent thinks and behaves. The user's own profile (`user-profile.md`) still determines *what* the overall system knows about the user's background. Both are loaded, but they are loaded into different roles: the main mentor keeps the broad session context, while the advisor subagent receives the advisor-specific literature cache and style directives.
 
@@ -203,7 +203,7 @@ If no advisor is selected or no advisors exist, proceed with default mentor beha
 
 **First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `know-me-better` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
-**Session picker.** If previous session logs exist, present them as an interactive choice via `AskUserQuestion` before proceeding:
+**Session picker.** If previous session logs exist, present them as an interactive choice before proceeding:
 
 > "Welcome back! You have some previous sessions. Want to pick one up, or start fresh?"
 
@@ -243,7 +243,7 @@ Create a new log file and proceed normally. Even when starting fresh, use past s
 
 > "I already have your profile from before — [brief summary]. Want to update anything, or shall we dive in?"
 
-If no existing profile or knowledge base is found, ask via `AskUserQuestion`:
+If no existing profile or knowledge base is found, ask in chat:
 
 > "How would you like to share your research background?"
 > - **(a)** Tell me yourself — your field, experience, what you've worked on
@@ -325,7 +325,7 @@ Mine `$KB/NOTES.md` for open problems/bottlenecks, then use web search for recen
 
 For each direction, include a one-line feasibility hint (e.g., "builds on your existing skills" vs. "requires picking up X first") so the user can gauge cost at a glance. Save the detailed breakdown (timeline, new learning required, what a first paper looks like) for *after* the user shows interest.
 
-**After the conversational discussion**, ask via `AskUserQuestion` with markdown previews — each option has a short problem name as the label, a one-line description, and a `markdown` preview with the full write-up shown in the right panel. **Always include these final options:**
+**After the conversational discussion**, ask in chat with a preview for each option — each option has a short problem name as the label, a one-line description, and a preview with the full write-up. **Always include these final options:**
 - "None of these — tell me what's missing" — so users who don't connect with any direction have a path forward. If the user wants more specificity within the same space, drill down to concrete open problems. If the user wants to change direction entirely, return to Step 1 with the new direction.
 - "Let me think about this — pick up next session" — research direction decisions deserve time; don't implicitly reward immediate commitment
 
@@ -339,7 +339,7 @@ Follow the six conversation principles naturally — as instinct, not as a check
 
 **Step 1: Understand the landscape.** Explore the topic — what has been tried, what worked, what failed. Identify the gaps and open questions. Share what you find conversationally.
 
-**Step 2: Narrow down.** Ask clarifying questions one at a time to zero in on the interesting part. **Prefer open-ended conversational prompts** for intermediate thinking steps — users naturally blend, adapt, and push back in ways that don't fit discrete options. Reserve `AskUserQuestion` for moments where the user faces a genuine fork (e.g., choosing between distinct sub-problems). When you do use it, present options as framings, not rigid choices — "here are some ways to think about this, but tell me what actually fits." Each question should resolve one uncertainty:
+**Step 2: Narrow down.** Ask clarifying questions one at a time to zero in on the interesting part. **Prefer open-ended conversational prompts** for intermediate thinking steps — users naturally blend, adapt, and push back in ways that don't fit discrete options. Reserve structured multi-option questions for moments where the user faces a genuine fork (e.g., choosing between distinct sub-problems). When you do use one, present options as framings, not rigid choices — "here are some ways to think about this, but tell me what actually fits." Each question should resolve one uncertainty:
 
 - What aspect of this problem interests you most?
 - Which gap feels most attackable given your background?
@@ -361,7 +361,7 @@ Be honest about what you can and what you have no way to assess. The mentor's jo
 
 The conversation may loop between steps 2-4 as the idea evolves. That's natural.
 
-After a natural stopping point (idea confirmed, user seems satisfied, or energy drops), offer next steps via `AskUserQuestion`: keep refining, try a different angle, take time to think and pick up next session, or wrap up. Don't offer this after every single exchange — let the conversation breathe.
+After a natural stopping point (idea confirmed, user seems satisfied, or energy drops), offer next steps in chat: keep refining, try a different angle, take time to think and pick up next session, or wrap up. Don't offer this after every single exchange — let the conversation breathe.
 
 **Search policy:** Ground ideas in the loaded knowledge bases (`$KB` and, when an advisor is active, `$ADVISOR_KB`) first. Only search the web when the conversation goes beyond what those caches cover.
 
@@ -391,7 +391,7 @@ This isn't pressure — it's an honest observation followed by a genuine invitat
 
 **4. Offer to capture new references.**
 
-Scan the conversation log for arXiv IDs / DOIs that surfaced during the session and aren't already in `references.bib` (if a knowledge base is loaded). If any are found, ask via `AskUserQuestion`:
+Scan the conversation log for arXiv IDs / DOIs that surfaced during the session and aren't already in `references.bib` (if a knowledge base is loaded). If any are found, ask in chat:
 
 > "We touched on N papers that aren't in your knowledge base yet. Want to add any now?"
 > - **(a)** Add all — invoke `download-ref` for each
@@ -400,7 +400,7 @@ Scan the conversation log for arXiv IDs / DOIs that surfaced during the session 
 
 For (a) / (b), invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the active knowledge base. The skill handles metadata fetch, cite-key confirmation, BibTeX append to `references.bib`, PDF render, and `INDEX.md` regeneration per ref.
 
-**Options at wrap-up** — ask via `AskUserQuestion`:
+**Options at wrap-up** — ask in chat:
 
 > "So — what would you like to do?"
 > - **(a)** Generate a full ideas report — continue to Ideas Report Mode in this skill, carrying the conversation log, user profile, chosen direction, key references, and concrete action plan
