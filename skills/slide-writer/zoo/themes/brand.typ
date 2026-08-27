@@ -13,7 +13,7 @@
 #let theme(primary: rgb("#2f2f7f"), ..args, body) = {
   let pal = build(primary)
   set text(font: fonts.sans, lang: "en")
-  show math.equation: set text(font: fonts.serif)
+  show math.equation: set text(font: fonts.math)
   show: metropolis-theme.with(
     aspect-ratio: "16-9",
     config-colors(

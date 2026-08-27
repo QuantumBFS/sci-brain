@@ -6,7 +6,7 @@
 
 #let theme(..args, body) = {
   set text(font: fonts.sans, lang: "en")
-  show math.equation: set text(font: fonts.serif)
+  show math.equation: set text(font: fonts.math)
   show: metropolis-theme.with(
     aspect-ratio: "16-9",
     config-colors(
