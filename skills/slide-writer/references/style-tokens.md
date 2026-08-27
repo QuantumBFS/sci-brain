@@ -66,7 +66,8 @@ sitting on a `pal.primary` fill.
 | Use | Family | Notes |
 |---|---|---|
 | Sans (default body + headings) | DejaVu Sans → Noto Sans | metropolis is a sans theme |
-| Serif (math) | New Computer Modern → Libertinus Serif | bound via `show math.equation: set text(font: fonts.serif)` |
+| Math | New Computer Modern Math → Libertinus Math | bound via `show math.equation: set text(font: fonts.math)`; must be a font with an OpenType MATH table, or operators collapse to letter height |
+| Serif (reserved) | New Computer Modern → Libertinus Serif | unused by the stock themes; available for venue overrides |
 | Mono (code, numerals) | DejaVu Sans Mono → Noto Mono | `codebox`, `data_table`, `time_badge` |
 
 Body size is 20 pt (metropolis default). Gadget body copy sits at 13–14 pt,

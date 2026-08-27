@@ -23,5 +23,6 @@
 #let fonts = (
   sans: ("DejaVu Sans", "Noto Sans"),
   serif: ("New Computer Modern", "Libertinus Serif"),
+  math: ("New Computer Modern Math", "Libertinus Math"),
   mono: ("DejaVu Sans Mono", "Noto Mono"),
 )
