@@ -56,9 +56,11 @@
       stroke: (left: 3pt + pal.accent),
     )[#text(sizes.large, style: "italic", fill: pal.ink)[#body]],
 
-    "callout": (label, body, kind: "info") => {
+    "callout": (label, body, kind: "info", height: auto) => {
       let c = kind-color.at(kind, default: pal.accent)
-      block(width: 100%, radius: 3pt, inset: 10pt,
+      // Pass `height` when sibling callouts in a grid must bottom-align —
+      // a bare box(height:) around the callout can't stretch its fill.
+      block(width: 100%, height: height, radius: 3pt, inset: 10pt,
         stroke: (left: 3pt + c), fill: tint(c, 12%))[
         // Label pulls toward ink so pale accents stay legible at small sizes.
         #text(sizes.normal, weight: "bold", fill: color.mix((c, 65%), (pal.ink, 35%)))[#upper(label)]
@@ -120,10 +122,14 @@
       #text(weight: "bold", fill: pal.accent_deep)[#value#if unit != none [~#unit]] #label
     ]),
 
+    // Each cell is two lines — the quantity (bold accent) over its meaning —
+    // top-aligned, so a long label wraps under the quantity instead of
+    // raggedly mid-statement across the row.
     "stat_row": (..items) => grid(
-      columns: (1fr,) * items.pos().len(), column-gutter: 14pt,
-      ..items.pos().map(it => align(center, text(sizes.large, fill: pal.text)[
-        #text(weight: "bold", fill: pal.accent_deep)[#it.value#if "unit" in it [~#it.unit]] #it.label
+      columns: (1fr,) * items.pos().len(), column-gutter: 14pt, align: top,
+      ..items.pos().map(it => align(center + top, text(sizes.large, fill: pal.text)[
+        #text(weight: "bold", fill: pal.accent_deep)[#it.value#if "unit" in it [~#it.unit]] \
+        #it.label
       ])),
     ),
 

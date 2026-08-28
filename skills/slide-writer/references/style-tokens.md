@@ -65,9 +65,9 @@ sitting on a `pal.primary` fill.
 
 | Use | Family | Notes |
 |---|---|---|
-| Sans (default body + headings) | DejaVu Sans → Noto Sans | metropolis is a sans theme |
+| Sans (default body + headings) | DejaVu Sans → Noto Sans → Helvetica Neue → Arial → Liberation Sans | metropolis is a sans theme; the chain picks per-OS |
 | Serif (math) | New Computer Modern → Libertinus Serif | bound via `show math.equation: set text(font: fonts.serif)` |
-| Mono (code, numerals) | DejaVu Sans Mono → Noto Mono | `codebox`, `data_table`, `time_badge` |
+| Mono (code, numerals) | DejaVu Sans Mono → Noto Mono → Menlo | `codebox`, `data_table`, `time_badge` |
 
 Body size is 20 pt (metropolis default). Gadget body copy sits at 13–14 pt,
 captions and labels at 11–12 pt, badges/tags at 10 pt bold caps, big numerals at
@@ -75,9 +75,10 @@ captions and labels at 11–12 pt, badges/tags at 10 pt bold caps, big numerals 
 ~11 pt — if smaller is tempting, the slide is overfull. One caveat: touying
 show-rules `strong` as an alert (theme primary), so gadgets bold via
 `text(weight: "bold")` and callers pass plain values. Override fonts per-theme
-in `zoo/themes/<name>.typ` if a venue demands it (the stacks above ship with
-TeX Live / most Linux distros; Typst bundles only NCM, Libertinus, and DejaVu
-Sans Mono — check `typst fonts`).
+in `zoo/themes/<name>.typ` if a venue demands it. The chains are ordered
+fallbacks, not single families: Linux resolves DejaVu/Noto, macOS falls
+through to Helvetica Neue/Arial/Menlo (Typst bundles only NCM, Libertinus, and
+DejaVu Sans Mono — check `typst fonts`).
 
 ## Per-theme values
 

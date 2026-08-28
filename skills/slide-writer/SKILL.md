@@ -213,7 +213,7 @@ pays no extra-package cost:
 | Typed a CLI string (`--input`, `<name>`) in prose | Markup turns `--` into – and eats `<name>` as a label. Put literal strings in backticks / `#raw`. |
 | Inline-SVG'd a figure that exists in the source | Stop. Embed the source SVG/PDF instead. |
 | Added CeTZ/pinit to the preamble of a text deck | Import them per-section; the preamble stays dependency-light. |
-| Compile fails on a missing font | The palettes target DejaVu / Noto / New Computer Modern — stock on TeX Live and most Linux installs (Typst itself bundles only NCM, Libertinus, and DejaVu Sans Mono). Confirm with `typst fonts` before switching families. |
+| Compile fails on a missing font | The font chains are ordered fallbacks: DejaVu/Noto on Linux, Helvetica Neue/Arial/Menlo on macOS (Typst itself bundles only NCM, Libertinus, and DejaVu Sans Mono). Confirm with `typst fonts` before switching families. |
 
 ## Integrations
 

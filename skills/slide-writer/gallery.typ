@@ -107,7 +107,7 @@ Derived from a single house colour via `palettes/brand.typ`'s `build(primary)`.
 
 == spread — figure + commentary
 #spread(
-  figbox([Fig · overview], rect(width: 100%, height: 120pt, fill: pal.paper_bg, stroke: pal.hairline)[your figure], caption: [how to read it]),
+  figbox([Fig · overview], rect(width: 100%, height: 120pt, fill: pal.paper_bg, stroke: pal.hairline)[your figure]),
   [Lead sentence. The default 2fr/1fr ratio makes the figure primary.],
 )
 
@@ -128,7 +128,7 @@ Derived from a single house colour via `palettes/brand.typ`'s `build(primary)`.
 #hero[#punch([56%], [of users adopt it daily], label: [survey, n=128])]
 
 == band + cards
-#band(align(center, badge([A])), align(center, badge([long B])), align(center, badge([C])), gutter: 8pt)
+#band(align(center, badge([A])), align(center, badge([B])), gutter: 8pt)
 #v(10pt)
 #cards([Card one: a short claim.], [Card two: a short claim.], cols: 2)
 
@@ -143,10 +143,10 @@ Derived from a single house colour via `palettes/brand.typ`'s `build(primary)`.
 #rail_pull[The model is not the artifact — it is the coupling.]
 #v(8pt)
 #grid(columns: (1fr, 1fr), column-gutter: 10pt, row-gutter: 10pt,
-  callout([Note], [A neutral remark tied to the accent colour.]),
-  callout([Tip], [A success-coloured note.], kind: "success"),
-  callout([Watch], [A warning in the warning colour.], kind: "warning"),
-  callout([Key], [The deep-accent remark for the claim that matters.], kind: "accent"),
+  callout([Note], [A neutral remark tied to the accent colour.], height: 92pt),
+  callout([Tip], [A success-coloured note.], kind: "success", height: 92pt),
+  callout([Watch], [A warning in the warning colour.], kind: "warning", height: 92pt),
+  callout([Key], [The deep-accent remark for the claim that matters.], kind: "accent", height: 92pt),
 )
 
 == codebox
@@ -251,7 +251,7 @@ Then the evidence — this line lands on the second step.
 
 == tensor network
 #centered_figure(
-  canvas(length: 0.9cm, {
+  canvas(length: 1.6cm, {
     import "@preview/cetz:0.4.2": draw
     tensor((0, 0), "A", [$A$])
     tensor((2.2, 1.1), "B", [$B$])
@@ -264,13 +264,13 @@ Then the evidence — this line lands on the second step.
 
 == automaton + flowchart
 #twocol(
-  align(center, canvas(length: 0.9cm, {
+  align(center, canvas(length: 1.3cm, {
     import "@preview/cetz:0.4.2": draw
     automaton-state((0, 0), "s0", [$q_0$])
     automaton-state((3, 0), "s1", [$q_1$], accept: true)
     edge("s0", "s1", mark: (end: "straight"))
   })),
-  align(center, canvas(length: 0.9cm, {
+  align(center, canvas(length: 1.3cm, {
     import "@preview/cetz:0.4.2": draw
     flowbox((0, 0), "in", [input])
     flowbox((4, 0), "proc", [process])

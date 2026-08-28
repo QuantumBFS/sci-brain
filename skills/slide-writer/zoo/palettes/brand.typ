@@ -45,8 +45,10 @@
 // Default brand palette, so it can be listed alongside the others.
 #let palette = build(rgb("#2f2f7f"))
 
+// Ordered fallback chains — Typst can't query the OS, so the chain IS the
+// OS switch: Linux picks DejaVu/Noto, macOS falls through to Helvetica Neue.
 #let fonts = (
-  sans: ("DejaVu Sans", "Noto Sans"),
+  sans: ("DejaVu Sans", "Noto Sans", "Helvetica Neue", "Arial", "Liberation Sans"),
   serif: ("New Computer Modern", "Libertinus Serif"),
-  mono: ("DejaVu Sans Mono", "Noto Mono"),
+  mono: ("DejaVu Sans Mono", "Noto Mono", "Menlo"),
 )
