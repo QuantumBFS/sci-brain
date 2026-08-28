@@ -11,7 +11,7 @@ description: Use when surveying a research topic or writing a grounded literatur
 
 ## Topic Survey
 
-Before starting this mode, check which MCP servers are available (arxiv, paper-search, Semantic Scholar, Sci-Hub, etc.). Present the detected servers to the user and let them choose which ones to use for this session via `AskUserQuestion` (multi-select). If none are configured, warn the user that the survey will rely on WebSearch only.
+Before starting this mode, check which MCP servers are available (arxiv, paper-search, Semantic Scholar, Sci-Hub, etc.). Present the detected servers to the user and let them choose which ones to use for this session (multi-select in chat). If none are configured, warn the user that the survey will rely on web search only.
 
 If the user already provided a research topic or question, skip the clarification step.
 
@@ -45,7 +45,7 @@ Each worker produces a short **findings report** — key papers found, grouped b
 KB=$(python3 skills/download-ref/helpers/resolve_kb.py)
 ```
 
-If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user via `AskUserQuestion` for an explicit path. When invoked from `/incarnate` against a specific advisor, override via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)` so the path follows `$SCIBRAIN_KB_DIRNAME` too.
+If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user in chat for an explicit path. When invoked from `incarnate` against a specific advisor, override via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)` so the path follows `$SCIBRAIN_KB_DIRNAME` too.
 
 Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 
@@ -69,7 +69,7 @@ Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 
 **Lookup path B — ID-unknown papers (title-based lookup).**
 
-For each paper, pick the single most effective method (Semantic Scholar title match, CrossRef, MCP servers, WebFetch publisher page). On success, write the result to `$KB/.raw/{arxiv,doi}/<id>.json` in the same shape as lookup path A.
+For each paper, pick the single most effective method (Semantic Scholar title match, CrossRef, MCP servers, fetching the publisher page). On success, write the result to `$KB/.raw/{arxiv,doi}/<id>.json` in the same shape as lookup path A.
 
 **Step 4 finalize — bib + INDEX.**
 

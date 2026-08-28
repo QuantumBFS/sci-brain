@@ -33,7 +33,7 @@ From the response, extract:
 
 Hold this information for Step 4.
 
-**Advisor KB.** Each advisor gets a private knowledge base at `advisors/<slug>/.knowledge/` (shape identical to the project KB: `INDEX.md`, `NOTES.md`, `.raw/`, `.figures/`, rendered `<id>_<slug>.md` files). The advisor's BibTeX namespace lives at `advisors/<slug>/.knowledge/references.bib` (i.e. `$KB/references.bib` for the resolved advisor KB). When `/know-me-better` or `/download-ref` is invoked from this skill, resolve the advisor KB path via `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>` and pass it as `--kb "$KB"` so writes land in the advisor KB rather than the project KB. (Users who set `$SCIBRAIN_KB_DIRNAME` get the right directory name automatically.)
+**Advisor KB.** Each advisor gets a private knowledge base at `advisors/<slug>/.knowledge/` (shape identical to the project KB: `INDEX.md`, `NOTES.md`, `.raw/`, `.figures/`, rendered `<id>_<slug>.md` files). The advisor's BibTeX namespace lives at `advisors/<slug>/.knowledge/references.bib` (i.e. `$KB/references.bib` for the resolved advisor KB). When `know-me-better` or `download-ref` is invoked from this skill, resolve the advisor KB path via `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>` and pass it as `--kb "$KB"` so writes land in the advisor KB rather than the project KB. (Users who set `$SCIBRAIN_KB_DIRNAME` get the right directory name automatically.)
 
 ### Step 2 — Conversation Analysis
 

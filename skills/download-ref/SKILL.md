@@ -76,12 +76,12 @@ If the caller passes `--kb <abs-path>`, use that. Otherwise:
 KB=$(python3 skills/download-ref/helpers/resolve_kb.py)
 if [ -z "$KB" ]; then
   # resolve_kb printed "unresolvable from ..." to stderr and exited 2.
-  # Ask the user via AskUserQuestion where the KB should live.
+  # Ask the user in chat where the KB should live.
   exit 1
 fi
 ```
 
-For advisor flows (`/incarnate`, `/brainstorm-ideas` with a selected advisor), resolve the advisor KB instead: `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)`. This honors `$SCIBRAIN_KB_DIRNAME` the same way the project-KB form does.
+For advisor flows (`incarnate`, `brainstorm-ideas` with a selected advisor), resolve the advisor KB instead: `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)`. This honors `$SCIBRAIN_KB_DIRNAME` the same way the project-KB form does.
 
 ### 2. Confirm the refs aren't already present
 
@@ -227,7 +227,7 @@ python3 skills/download-ref/helpers/append_bibtex.py propose \
   --kb "$KB" --id 1806.08734 --type arxiv --bib "$KB/references.bib"
 ```
 
-Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `authors`, `year`, `bibtex_with_proposed_key`. With `--bib`, a key already present in the bib is disambiguated by walking to the next content word of the title (existing keys are never renamed). Show the user via `AskUserQuestion`:
+Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `authors`, `year`, `bibtex_with_proposed_key`. With `--bib`, a key already present in the bib is disambiguated by walking to the next content word of the title (existing keys are never renamed). Show the user the proposed key and ask in chat:
 - Accept the proposed key
 - Use a custom key (free-text)
 - Skip this entry
@@ -286,11 +286,11 @@ After the done checklist passes, offer the pipeline's final stage:
 
 ## Integration with other skills
 
-- **`/survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$KB/references.bib`, regenerates `$KB/INDEX.md`, then hands off to `/download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
-- **`/survey` report mode** (downstream): consumes the rendered KB (full-text `.md` files + `$KB/references.bib`) to produce a structured technology assessment report.
-- **`/survey` / `/know-me-better`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
-- **`/brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `/download-ref` in single-shot mode.
-- **`/incarnate`**: invokes `/download-ref` (or `/know-me-better`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
+- **`survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$KB/references.bib`, regenerates `$KB/INDEX.md`, then hands off to `download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
+- **`survey` report mode** (downstream): consumes the rendered KB (full-text `.md` files + `$KB/references.bib`) to produce a structured technology assessment report.
+- **`survey` / `know-me-better`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
+- **`brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `download-ref` in single-shot mode.
+- **`incarnate`**: invokes `download-ref` (or `know-me-better`) targeting the advisor KB resolved by `python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>`.
 
 ## Common mistakes
 

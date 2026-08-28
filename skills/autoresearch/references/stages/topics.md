@@ -12,7 +12,7 @@ controls there.
 1. **Clarify the domain** with at most one question, only if it is too broad
    to enumerate concrete topics (e.g. "quantum computing" yes, "exact
    distance computation for CSS codes" no).
-2. **Generate 5–10 candidates.** Ground each with WebSearch and any available
+2. **Generate 5–10 candidates.** Ground each with web search and any available
    paper MCP servers; every candidate needs at least one recent reference
    showing the problem is open. No candidate from memory alone.
 3. **Score each candidate 1–5** on the four suitability criteria, one-line
@@ -29,7 +29,7 @@ controls there.
      publishable result.
    Present the scored table; flag any candidate scoring ≤2 on Checkable or
    Cheap as unsuitable and say why.
-4. **User picks** topics via `AskUserQuestion` (multi-select) from the table.
+4. **User picks** topics (multi-select) from the table.
 5. **Derive metrics** for each chosen topic, one at a time. Propose 2–5
    candidate metrics; for each, state:
    - **Definition** — the quantity, precisely enough to implement.
@@ -41,7 +41,7 @@ controls there.
    topic, e.g. wall-clock speedup at verified-exact output) or **guard**
    (anti-gaming side condition, e.g. exactness on unseen instances, no
    hard-coded answers). The user approves the metric set per topic
-   (`AskUserQuestion`; amendments welcome).
+   (ask in chat; amendments welcome).
 6. **Define the acceptance gate** for each chosen topic — mandatory, never
    skipped or deferred to a later stage. The **user must state** the
    condition under which a result counts as *a solid research output that
@@ -64,9 +64,9 @@ controls there.
 
    If any hack survives, the gate is **not strict enough**: present the
    surviving hacks with their strengthenings and ask the user to strengthen
-   the gate (`AskUserQuestion` — the options are the strengthenings, never
+   the gate (ask in chat — the options are the strengthenings, never
    an "accept as is"). Iterate until no listed hack survives, then get the
-   user's **explicit confirmation** of the final gate (`AskUserQuestion`) —
+   user's **explicit confirmation** of the final gate (ask in chat) —
    the gate is never inferred, defaulted, or assumed.
 7. **Write `topics.md`.** One `## <topic title>` section per chosen topic:
    problem statement, why autoresearch fits (the four scores), key references

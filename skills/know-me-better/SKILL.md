@@ -48,11 +48,11 @@ The script handles: copying the DB to avoid locking, pivot queries to avoid cart
 
 **Google Scholar:**
 
-> **Note:** Google Scholar actively blocks automated access — WebFetch may hit CAPTCHAs or rate limits. If scraping fails, suggest alternatives: export BibTeX manually from the Scholar profile page (Scholar → select all → export BibTeX), use [ORCID](https://orcid.org/) or [DBLP](https://dblp.org/) profiles instead (both have machine-friendly APIs), or switch to the PDF folder method with downloaded papers.
+> **Note:** Google Scholar actively blocks automated access — automated fetching may hit CAPTCHAs or rate limits. If scraping fails, suggest alternatives: export BibTeX manually from the Scholar profile page (Scholar → select all → export BibTeX), use [ORCID](https://orcid.org/) or [DBLP](https://dblp.org/) profiles instead (both have machine-friendly APIs), or switch to the PDF folder method with downloaded papers.
 
 1. Fetch the profile page.
 2. Extract paper titles, years, citation counts.
-3. For each paper, search for the DOI and abstract via WebSearch.
+3. For each paper, search for the DOI and abstract via web search.
 
 **Processing tips:**
 
@@ -114,12 +114,12 @@ Reference papers as `[@<cite-key>]`. If `NOTES.md` exists, extend rather than ov
 
 ## After know-me-better — transition checkpoint
 
-After Steps 3–6 complete, the KB is populated with metadata but PDFs aren't downloaded yet. Ask the user via `AskUserQuestion`:
+After Steps 3–6 complete, the KB is populated with metadata but PDFs aren't downloaded yet. Ask the user in chat:
 
 > "Index built. What next?"
 > - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $KB/references.bib --kb $KB` (bulk mode)
 > - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot, per-ref cite-key confirmation)
-> - **(c)** Continue to `/brainstorm-ideas` — start brainstorming with the indexed literature loaded
+> - **(c)** Continue to `brainstorm-ideas` — start brainstorming with the indexed literature loaded
 > - **(d)** Stop — leave the KB as-is
 
-For (a) and (b), see `skills/download-ref/SKILL.md`. For (c), invoke `/brainstorm-ideas` in the current session.
+For (a) and (b), see `skills/download-ref/SKILL.md`. For (c), invoke `brainstorm-ideas` in the current session.

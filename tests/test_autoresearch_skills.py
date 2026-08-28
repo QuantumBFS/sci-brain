@@ -103,7 +103,7 @@ def test_topics_derives_primary_and_guard_metrics():
 
 def test_topics_lets_user_pick_and_advances_stage():
     text = _stage("topics")
-    assert "AskUserQuestion" in text
+    assert "User picks" in text
     assert "stage: db" in text
 
 
@@ -130,7 +130,7 @@ def test_db_checks_insight_coverage_before_distilling():
 def test_db_distills_and_lets_user_select_insights():
     text = _stage("db")
     assert "research/INSIGHTS.md" in text
-    assert "AskUserQuestion" in text
+    assert "User selects" in text
     assert "Shelved" in text
 
 

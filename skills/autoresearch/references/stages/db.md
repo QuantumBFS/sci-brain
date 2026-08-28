@@ -20,8 +20,8 @@ holds the insights needed to *propose new ideas*".
    `../insights-template.md` (Technique /
    Applies when / Limits / Sources). Distill from the rendered papers in
    `.knowledge/`, not from memory.
-4. **User selects.** Present the distilled areas via `AskUserQuestion`
-   (multi-select): which are needed for idea generation on this topic?
+4. **User selects.** Present the distilled areas as a multi-select question
+   in chat: which are needed for idea generation on this topic?
    Selected entries go under `## Selected`, the rest under `## Shelved`.
    Selected is the run loop's default grounding, not a cap — run-stage
    hypotheses may go beyond the list, and Shelved entries can be promoted

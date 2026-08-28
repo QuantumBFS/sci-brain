@@ -8,7 +8,7 @@ Use this from `brainstorm-ideas` report mode, `survey` report mode, and `paper-w
 - If present, read `$KB/NOTES.md`, `$KB/INDEX.md`, and the canonical bib `$KB/references.bib`.
 - Read `docs/discussion/user-profile.md` when audience, background, or positioning matters.
 - For ideas/manuscripts, read relevant `docs/discussion/*-brainstorm-ideas-log.md`.
-- If the needed literature base is missing, suggest `/survey` or ask the user for explicit source files.
+- If the needed literature base is missing, suggest the `survey` skill or ask the user for explicit source files.
 
 The canonical bib is `$KB/references.bib`.
 
@@ -33,7 +33,7 @@ It prints the scoped cite keys (one per line) and exits non-zero if any `[@key]`
 
 ## Gap Filling
 
-Search only for gaps needed to support the document's main claims. Prefer the active KB first, then MCP/Semantic Scholar/arXiv/CrossRef/WebSearch. Stop when the main claims have citations; completeness is not the goal.
+Search only for gaps needed to support the document's main claims. Prefer the active KB first, then MCP/Semantic Scholar/arXiv/CrossRef/web search. Stop when the main claims have citations; completeness is not the goal.
 
 **Recency gate — decide whether to search at all.** Read the build date in the `NOTES.md` header. If it is recent (≲ 4 weeks old), the literature base is fresh: skip discovery gap-filling entirely and only resolve *citation-level* gaps (a claim in the draft with no key to back it). Only when `NOTES.md` is older — or absent — run the recency search for SOTA results, active groups, and method families that may have superseded the notes.
 

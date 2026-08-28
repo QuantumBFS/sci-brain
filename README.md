@@ -22,6 +22,8 @@ Install the plugin/skills from https://github.com/QuantumBFS/sci-brain
 pi install npm:sci-brain
 ```
 
+or clone the repo and symlink its skill directories into `~/.agents/skills/` (pi's global skill path, shared with Codex) — see [`.pi/INSTALL.md`](.pi/INSTALL.md).
+
 ## Start Here: Survey a Field
 
 ```
