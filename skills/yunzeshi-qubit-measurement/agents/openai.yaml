@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yunzeshi Qubit Measurement"
+  short_description: "Map lanthanide-qubit measurements to evidence"
+  default_prompt: "Use $yunzeshi-qubit-measurement to select and interpret measurements for this lanthanide or molecular spin-qubit system."
