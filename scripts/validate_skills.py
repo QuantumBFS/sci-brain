@@ -7,7 +7,9 @@ Checks (mirrors what pi / Claude Code / Codex enforce at load time):
      no leading/trailing/double hyphens.
   3. The containing directory matches the public `name` (spec requirement;
      required for Claude Code and Codex discovery).
-  4. `description` is non-empty and <= 1024 chars.
+  4. `description` is non-empty and <= 1024 chars, and starts with
+     `Agentic trigger. Use when` (for `how-to-*` skills) or
+     `User trigger. Use when` (for every other skill).
   5. Manifests (package.json, .claude-plugin/*.json) parse as JSON.
   6. npm, Claude plugin, and marketplace versions are synchronized.
 
@@ -25,6 +27,8 @@ SKILLS_DIR = ROOT / "skills"
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 MAX_NAME_LEN = 64
 MAX_DESC_LEN = 1024
+AGENTIC_PREFIX = "Agentic trigger. Use when "
+USER_PREFIX = "User trigger. Use when "
 
 MANIFESTS = [
     ROOT / "package.json",
@@ -87,6 +91,14 @@ def main() -> int:
             errors.append(
                 f"{skill_md}: description {len(desc)} chars > {MAX_DESC_LEN}"
             )
+        else:
+            expected = (AGENTIC_PREFIX if d.name.startswith("how-to-")
+                        else USER_PREFIX)
+            if not desc.startswith(expected):
+                errors.append(
+                    f"{skill_md}: description must start with '{expected}' "
+                    "(how-to-* skills are agentic triggers; all others are user triggers)"
+                )
 
     for manifest in MANIFESTS:
         if not manifest.exists():

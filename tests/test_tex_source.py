@@ -1,11 +1,11 @@
-"""Tests for skills/download-ref/helpers/tex_source.py."""
+"""Tests for skills/how-to-download-ref/helpers/tex_source.py."""
 import gzip
 import importlib.util
 import io
 import tarfile
 from pathlib import Path
 
-HELPER = Path(__file__).resolve().parents[1] / "skills" / "download-ref" / "helpers" / "tex_source.py"
+HELPER = Path(__file__).resolve().parents[1] / "skills" / "how-to-download-ref" / "helpers" / "tex_source.py"
 
 
 def _load():

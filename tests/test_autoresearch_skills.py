@@ -30,7 +30,7 @@ def _ref(name: str) -> str:
 def test_dispatcher_has_frontmatter():
     text = _skill()
     assert text.startswith("---\nname: autoresearch\n")
-    assert "description: Use when" in text
+    assert "description: User trigger. Use when" in text
 
 
 def test_dispatcher_reads_state_and_routes_to_all_stages():
@@ -117,7 +117,7 @@ def test_db_stage_file_has_no_frontmatter():
 
 def test_db_delegates_paper_acquisition_to_download_ref():
     text = _stage("db")
-    assert "download-ref" in text
+    assert "how-to-download-ref" in text
     assert ".knowledge" in text
 
 
@@ -302,7 +302,7 @@ def test_todo_checks_are_surveyed_before_next_round():
     todo_at = template.index("## TODO — worth checking")
     assert todo_at < template.index("## Next round")
     todo = template[todo_at:template.index("## Next round")]
-    assert "survey" in todo and "download-ref" in todo
+    assert "survey" in todo and "how-to-download-ref" in todo
     assert "remains open" in todo
     assert "TODO — worth checking" in run
     assert run.index("TODO — worth checking") < run.index(

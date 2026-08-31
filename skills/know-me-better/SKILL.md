@@ -1,11 +1,11 @@
 ---
 name: know-me-better
-description: Use when indexing a paper collection (your own or another researcher's) into a knowledge base — supports Zotero library, a PDF folder, or a Google Scholar profile
+description: User trigger. Use when you want the agent to learn your research style from your papers (Zotero, PDF folder, or Google Scholar) so it speaks your language.
 ---
 
 # Know Me Better
 
-Turn an existing paper collection into a structured knowledge base under `<project>/.knowledge/` (or an advisor KB). The output uses the same KB format as the `survey` and `download-ref` skills — project and advisor KBs can coexist cleanly.
+Turn an existing paper collection into a structured knowledge base under `<project>/.knowledge/` (or an advisor KB). The output uses the same KB format as the `survey` and `how-to-download-ref` skills — project and advisor KBs can coexist cleanly.
 
 **Step 1 — Identify the researcher and source.** First, ask whose papers to index:
 
@@ -65,10 +65,10 @@ The KB target is decided by the caller:
 
 ```sh
 # Standalone (indexes the user's own collection into the project KB):
-KB=$(python3 skills/download-ref/helpers/resolve_kb.py)
+KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)
 
-# Invoked from /incarnate (indexes another researcher's collection into the advisor KB):
-KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)
+# Invoked from /create-advisor (indexes another researcher's collection into the advisor KB):
+KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>)
 ```
 
 Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist.
@@ -84,9 +84,9 @@ For papers without a DOI or arXiv ID, skip — they don't fit the canonical KB; 
 Per indexed paper:
 
 ```sh
-KEY=$(python3 skills/download-ref/helpers/append_bibtex.py propose \
+KEY=$(python3 skills/how-to-download-ref/helpers/append_bibtex.py propose \
         --kb "$KB" --id "$ID" --type "$TYPE" | python3 -c 'import sys,json; print(json.load(sys.stdin)["proposed_key"])')
-python3 skills/download-ref/helpers/append_bibtex.py append \
+python3 skills/how-to-download-ref/helpers/append_bibtex.py append \
   --kb "$KB" --id "$ID" --type "$TYPE" --key "$KEY" \
   --bib "$KB/references.bib"
 ```
@@ -96,7 +96,7 @@ Auto-accept the proposed key — per-paper confirmation is unworkable at 100+ pa
 ## Step 5 — Regenerate INDEX.md
 
 ```sh
-python3 skills/download-ref/helpers/index.py \
+python3 skills/how-to-download-ref/helpers/index.py \
   --kb "$KB" \
   --title "<advisor-slug or 'project'> — researcher index" \
   --source-note "Built by /know-me-better on $(date -u +%Y-%m-%d)."
@@ -117,9 +117,9 @@ Reference papers as `[@<cite-key>]`. If `NOTES.md` exists, extend rather than ov
 After Steps 3–6 complete, the KB is populated with metadata but PDFs aren't downloaded yet. Ask the user in chat:
 
 > "Index built. What next?"
-> - **(a)** Fetch PDFs for all refs — invokes `download-ref --from-bib $KB/references.bib --kb $KB` (bulk mode)
-> - **(b)** Add specific refs by ID — invokes `download-ref` with explicit IDs (single-shot, per-ref cite-key confirmation)
+> - **(a)** Fetch PDFs for all refs — invokes `how-to-download-ref --from-bib $KB/references.bib --kb $KB` (bulk mode)
+> - **(b)** Add specific refs by ID — invokes `how-to-download-ref` with explicit IDs (single-shot, per-ref cite-key confirmation)
 > - **(c)** Continue to `brainstorm-ideas` — start brainstorming with the indexed literature loaded
 > - **(d)** Stop — leave the KB as-is
 
-For (a) and (b), see `skills/download-ref/SKILL.md`. For (c), invoke `brainstorm-ideas` in the current session.
+For (a) and (b), see `skills/how-to-download-ref/SKILL.md`. For (c), invoke `brainstorm-ideas` in the current session.

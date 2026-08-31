@@ -1,53 +1,19 @@
 ---
 name: brainstorm-ideas
-description: Use when brainstorming research ideas or turning a completed brainstorming direction into a proposal-style ideas report — a research collaborator that understands your background, helps find interesting problems together, and preserves the reasoning trail in a structured report when requested
+description: User trigger. Use when brainstorming research ideas with a Socratic collaborator who learns your background and helps find a problem worth attacking.
 ---
 
 **Path conventions:**
 - `docs/discussion/` — resolved from the **project working directory**
-- `<project>/.knowledge/` — the project's shared knowledge base; resolved via `skills/download-ref/helpers/resolve_kb.py`
+- `<project>/.knowledge/` — the project's shared knowledge base; resolved via `skills/how-to-download-ref/helpers/resolve_kb.py`
 - `advisors/<slug>/.knowledge/` — advisor-specific literature cache, rooted at the **plugin root**
 - `advisors/`, `skills/` — resolved from the **plugin root** (two levels up from this SKILL.md file)
 
 ## Choose the mode
 
 - **Brainstorm:** follow Ideas below.
-- **Write an ideas report:** if the user asks for a report from a completed session or chosen research direction, skip the conversational phases and follow Ideas Report Mode below.
-- **Brainstorm, then write:** complete Phase 3 and continue directly to Ideas Report Mode when the user chooses a full report.
-
-## Ideas Report Mode
-
-Write a structured ideas report after the brainstorming has converged on a research direction. This is an upstream proposal/research-plan artifact, not a manuscript with completed results; redirect field/technology assessments to `survey` report mode and real manuscripts to `paper-writer`.
-
-### Setup
-
-Follow `skills/_shared/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
-
-- Primary source: `docs/discussion/*-brainstorm-ideas-log.md`. If multiple logs exist and the request does not identify one, ask which to use.
-- If no log exists, ask the user to brainstorm first or describe the chosen direction and reasoning to preserve.
-- Save to `articles/YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}` with a matching bibliography when citations are used.
-- When entering from Phase 3, carry forward the active conversation log, user profile, chosen direction, key references, and concrete action plan without asking the user to repeat them.
-
-### Report structure
-
-Draft each section, show it, and incorporate feedback:
-
-- **Research Question** — one sentence
-- **Novelty Claim** — what is new and why it matters
-- **Why Now, Why You** — what changed to make this tractable and the user's specific advantage
-- **Cross-field Connections** — unexpected links discovered during brainstorming
-- **Proposed Approach** — the method outline
-- **Minimum Viable Experiment** — the smallest useful part that can be solved or tested
-- **Success Signal** — evidence the problem is truly solved
-- **Hope Signal** — evidence it is not solved yet but the approach remains promising
-- **Pivot Signal** — evidence the approach fundamentally fails and should be abandoned or changed
-- **Open Risks** — unresolved uncertainties
-- **Target Venue**
-- **Key References** — verified entries from the active KB; save the matching `.bib`
-
-### Diagrams and final look-back
-
-Use a diagram when it makes an abstract structure easier to critique: reductions, relationships between methods, pipelines, data flow, architecture, or meaningful before/after comparisons. After drafting, apply Polya's "Looking Back": can the result be derived another way, used for another problem, and understood at a glance? Then run the shared workflow's compile, citation, and bibliography checks.
+- **Write an ideas report:** if the user asks for a report from a completed session or chosen research direction, skip the conversational phases and invoke `how-to-write-ideas-report` (read `skills/how-to-write-ideas-report/SKILL.md`).
+- **Brainstorm, then write:** complete Phase 3 and hand off to `how-to-write-ideas-report` when the user chooses a full report.
 
 ## Ideas
 
@@ -159,7 +125,7 @@ If the user picks an advisor, do **not** just read `advisors/<slug>/profile.md` 
 When an advisor is selected, first resolve the advisor KB path so it follows `$SCIBRAIN_KB_DIRNAME` if the user has set it:
 
 ```sh
-ADVISOR_KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)
+ADVISOR_KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>)
 ```
 
 Then:
@@ -201,7 +167,7 @@ Use this for moments where the advisor's specific perspective, instinct, or expe
 
 If no advisor is selected or no advisors exist, proceed with default mentor behavior.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `know-me-better` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `know-me-better` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
 **Session picker.** If previous session logs exist, present them as an interactive choice before proceeding:
 
@@ -268,7 +234,7 @@ If the user's self-introduction already reveals their experience level (e.g., th
 
 **Always run this phase** — even when the user already stated a direction. There's almost always more context to uncover.
 
-**Load context:** Resolve the project KB via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed knowledge. If found, note it for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `$ADVISOR_KB/INDEX.md` (resolved earlier with `--advisor <slug>`) so the mentor knows what literature the advisor subagent already has in context.
+**Load context:** Resolve the project KB via `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed knowledge. If found, note it for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `$ADVISOR_KB/INDEX.md` (resolved earlier with `--advisor <slug>`) so the mentor knows what literature the advisor subagent already has in context.
 
 #### Step 1: Talk first
 
@@ -394,15 +360,15 @@ This isn't pressure — it's an honest observation followed by a genuine invitat
 Scan the conversation log for arXiv IDs / DOIs that surfaced during the session and aren't already in `references.bib` (if a knowledge base is loaded). If any are found, ask in chat:
 
 > "We touched on N papers that aren't in your knowledge base yet. Want to add any now?"
-> - **(a)** Add all — invoke `download-ref` for each
+> - **(a)** Add all — invoke `how-to-download-ref` for each
 > - **(b)** Pick a subset — show the list, user multi-selects
 > - **(c)** Skip
 
-For (a) / (b), invoke the `download-ref` skill (read `skills/download-ref/SKILL.md`) targeting the active knowledge base. The skill handles metadata fetch, cite-key confirmation, BibTeX append to `references.bib`, PDF render, and `INDEX.md` regeneration per ref.
+For (a) / (b), invoke the `how-to-download-ref` skill (read `skills/how-to-download-ref/SKILL.md`) targeting the active knowledge base. The skill handles metadata fetch, cite-key confirmation, BibTeX append to `references.bib`, PDF render, and `INDEX.md` regeneration per ref.
 
 **Options at wrap-up** — ask in chat:
 
 > "So — what would you like to do?"
-> - **(a)** Generate a full ideas report — continue to Ideas Report Mode in this skill, carrying the conversation log, user profile, chosen direction, key references, and concrete action plan
+> - **(a)** Generate a full ideas report — invoke `how-to-write-ideas-report`, carrying the conversation log, user profile, chosen direction, key references, and concrete action plan
 > - **(b)** End session — the conversation log is already saved
 > - **(c)** Keep going — return to Phase 2

@@ -1,4 +1,4 @@
-"""Tests for skills/download-ref/helpers/resolve_kb.py.
+"""Tests for skills/how-to-download-ref/helpers/resolve_kb.py.
 
 resolve_kb walks up from a starting directory looking for .git/, then returns
 <root>/.knowledge as the project KB path. If no .git/ is found and the start
@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 
-HELPER = Path(__file__).resolve().parents[1] / "skills" / "download-ref" / "helpers" / "resolve_kb.py"
+HELPER = Path(__file__).resolve().parents[1] / "skills" / "how-to-download-ref" / "helpers" / "resolve_kb.py"
 
 
 def _load():

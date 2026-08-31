@@ -11,7 +11,7 @@ holds the insights needed to *propose new ideas*".
    areas an idea-proposer needs: algorithmic techniques, proof/analysis
    methods, data structures, benchmark practices for this problem class.
    Show the list to the user before downloading anything.
-2. **Download for coverage.** Acquire references with the `download-ref`
+2. **Download for coverage.** Acquire references with the `how-to-download-ref`
    skill into `<project>/.knowledge/`. Coverage check: every insight area is
    covered by ≥1 downloaded reference; areas with no coverage trigger
    further search/downloads. SOTA-results-only coverage is insufficient.

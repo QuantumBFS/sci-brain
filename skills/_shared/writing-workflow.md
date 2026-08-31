@@ -1,10 +1,10 @@
 # Shared Writing Workflow
 
-Use this from `brainstorm-ideas` report mode, `survey` report mode, and `paper-writer` for mechanics that are not product-specific.
+Use this from `how-to-write-ideas-report`, `survey` report mode, and `write-paper` for mechanics that are not product-specific.
 
 ## Context
 
-- Resolve the project KB with `KB=$(python3 skills/download-ref/helpers/resolve_kb.py)`.
+- Resolve the project KB with `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)`.
 - If present, read `$KB/NOTES.md`, `$KB/INDEX.md`, and the canonical bib `$KB/references.bib`.
 - Read `docs/discussion/user-profile.md` when audience, background, or positioning matters.
 - For ideas/manuscripts, read relevant `docs/discussion/*-brainstorm-ideas-log.md`.
@@ -19,7 +19,7 @@ The canonical bib is `$KB/references.bib`.
 A write-up covers a *subset* of the bib — the references the relevant `NOTES.md` section(s) actually cite, not all 100+ accumulated entries. Determine that subset deterministically instead of by eye:
 
 ```sh
-python3 skills/download-ref/helpers/scope_refs.py --notes "$KB/NOTES.md" --bib "$KB/references.bib"
+python3 skills/how-to-download-ref/helpers/scope_refs.py --notes "$KB/NOTES.md" --bib "$KB/references.bib"
 ```
 
 It prints the scoped cite keys (one per line) and exits non-zero if any `[@key]` anchor in the notes has no bib entry — fix dangling anchors before drafting. Use `--json` for `{scoped, missing, unused}`. Draft against the scoped keys; the `unused` list is out of scope unless the user asks to widen it.
@@ -28,7 +28,7 @@ It prints the scoped cite keys (one per line) and exits non-zero if any `[@key]`
 
 - Never invent BibTeX from memory.
 - Use existing cite keys from `$KB/references.bib` (scoped as above).
-- For missing papers, use `download-ref` to add DOI/arXiv IDs to the active KB.
+- For missing papers, use `how-to-download-ref` to add DOI/arXiv IDs to the active KB.
 - For report-local output, copy `$KB/references.bib` beside the generated document when citations are used.
 
 ## Gap Filling

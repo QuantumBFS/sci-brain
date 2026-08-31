@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 
-HELPERS = Path(__file__).resolve().parents[1] / "skills" / "download-ref" / "helpers"
+HELPERS = Path(__file__).resolve().parents[1] / "skills" / "how-to-download-ref" / "helpers"
 HELPER = HELPERS / "verify_bib.py"
 
 

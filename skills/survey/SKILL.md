@@ -1,13 +1,13 @@
 ---
 name: survey
-description: Use when surveying a research topic or writing a grounded literature review, technology assessment, field assessment, SOTA report, or pros/cons report — explores the literature, builds a focused knowledge base with verified BibTeX, and can turn a populated knowledge base into a structured report
+description: User trigger. Use when surveying a research topic into a knowledge base or writing a grounded literature, technology, or field assessment.
 ---
 
 ## Choose the mode
 
 - **Explore and build the knowledge base:** run Topic Survey below.
 - **Write up an existing survey:** when the user asks to "write up the survey", "write a review", assess a technology/field, or otherwise already has a populated project KB, skip Topic Survey and start at Survey Report.
-- **Explore, fetch, and write:** complete Topic Survey, invoke `download-ref --from-bib`, then continue directly to Survey Report in this same skill when the user wants the write-up.
+- **Explore, fetch, and write:** complete Topic Survey, invoke `how-to-download-ref --from-bib`, then continue directly to Survey Report in this same skill when the user wants the write-up.
 
 ## Topic Survey
 
@@ -37,87 +37,20 @@ Each worker produces a short **findings report** — key papers found, grouped b
 
 **Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one), **preserve any DOIs and arXiv IDs collected** during Step 2, and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I add to the knowledge base? Pick one or more." The user can select multiple.
 
-**Step 4 — Build KB entries.** For the selected directions only, generate the BibTeX. **Never generate BibTeX from memory** — always verify against an authoritative source.
-
-**KB resolution.** The target KB is the project KB by default — `<project>/.knowledge/` unless the user overrides the directory name via `$SCIBRAIN_KB_DIRNAME`:
-
-```sh
-KB=$(python3 skills/download-ref/helpers/resolve_kb.py)
-```
-
-If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user in chat for an explicit path. When invoked from `incarnate` against a specific advisor, override via `KB=$(python3 skills/download-ref/helpers/resolve_kb.py --advisor <slug>)` so the path follows `$SCIBRAIN_KB_DIRNAME` too.
-
-Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
-
-**Pre-sort the picks.** Split selected papers into:
-
-- **ID-known papers** — DOI or arXiv ID was collected during Steps 2-3
-- **ID-unknown papers** — neither was found
-
-**arxiv MCP fast path.** If an arxiv MCP with `export_papers` is configured, batch-export papers with arXiv IDs via `export_papers(arxiv_ids, format="bibtex", include_abstract=True)` and remove them from the lists below.
-
-**Lookup path A — ID-known papers (batch lookup).**
-
-1. Single batch call to Semantic Scholar:
-   ```
-   POST https://api.semanticscholar.org/graph/v1/paper/batch?fields=title,authors,year,journal,abstract,externalIds,citationStyles
-   Body: {"ids": ["DOI:10.xxxx/yyyy", "ARXIV:2401.12345", ...]}
-   ```
-   Up to 500 ids per call.
-2. **For each returned paper:** write the full response to `$KB/.raw/{arxiv,doi}/<id>.json` in the exact JSON shape `fetch_metadata.py` produces (top-level keys: `title`, `authors`, `year`, `venue`, `abstract`, `externalIds`, `citationStyles`, `openAccessPdf`). Use `<safe-doi>` (DOI with `/` → `-`) for the filename in `.raw/doi/`.
-3. For papers returning `null` from the batch, pick the single most effective fallback (CrossRef for DOI-only, title-match for others).
-
-**Lookup path B — ID-unknown papers (title-based lookup).**
-
-For each paper, pick the single most effective method (Semantic Scholar title match, CrossRef, MCP servers, fetching the publisher page). On success, write the result to `$KB/.raw/{arxiv,doi}/<id>.json` in the same shape as lookup path A.
-
-**Step 4 finalize — bib + INDEX.**
-
-After both lookup paths complete, for each new ref:
-
-```sh
-# Get the auto-proposed key from the JSON.
-KEY=$(python3 skills/download-ref/helpers/append_bibtex.py propose \
-        --kb "$KB" --id "$ID" --type "$TYPE" | python3 -c 'import sys,json; print(json.load(sys.stdin)["proposed_key"])')
-# Append to the KB's references.bib (dedup is free — refuses duplicates).
-python3 skills/download-ref/helpers/append_bibtex.py append \
-  --kb "$KB" --id "$ID" --type "$TYPE" --key "$KEY" \
-  --bib "$KB/references.bib"
-```
-
-Skip per-ref user confirmation — at survey scale (30+ refs) it's unworkable, and survey is the authority for its own cite keys.
-
-Finally, regenerate `INDEX.md`:
-
-```sh
-python3 skills/download-ref/helpers/index.py \
-  --kb "$KB" \
-  --title "<topic-slug> — references" \
-  --source-note "Built by /survey on $(date -u +%Y-%m-%d)."
-```
-
-**Write NOTES.md.** Write or extend `$KB/NOTES.md` with three sections:
-
-- **Field landscape** — key papers clustered by sub-theme with years, active groups, temporal trends. Reference papers as `[@<cite-key>]`.
-- **Key open problems** — unsolved questions.
-- **Key bottlenecks** — obstacles preventing progress.
-
-If `NOTES.md` already exists, **extend** rather than overwrite: merge new findings into existing sections, preserve user edits.
-
-**Extending an existing KB** (Survey was run before on this project): read `$KB/references.bib` first; skip papers already present (match by DOI or exact title); append only new entries.
+**Step 4 — Build KB entries.** For the selected directions only, invoke `how-to-build-kb` (read `skills/how-to-build-kb/SKILL.md`) with the picked papers — titles plus every DOI / arXiv ID collected in Steps 2–3 — and the target KB (the project KB `<project>/.knowledge/` by default; `--advisor <slug>` when invoked from `create-advisor`). It verifies every entry against an authoritative source, appends to `$KB/references.bib`, regenerates `INDEX.md`, and writes or extends `NOTES.md`. Never generate BibTeX from memory.
 
 If the survey reveals the idea is already published, present the prior art and ask the user if they see a different angle before proceeding.
 
 ## After Survey — fetch full text, then optionally write
 
-The discovery stage is done once the KB has its references, `NOTES.md`, and `INDEX.md`. Use `download-ref` to fetch PDFs and render full-text markdown before writing a source-grounded report.
+The discovery stage is done once the KB has its references, `NOTES.md`, and `INDEX.md`. Use `how-to-download-ref` to fetch PDFs and render full-text markdown before writing a source-grounded report.
 
-First, scan the conversation for arXiv IDs / DOIs the user mentioned that the parallel search didn't surface. If any are missing from `references.bib`, pull them in (invoke `download-ref` single-shot, cite-key confirmation per ref) so the reference set is complete before downloading.
+First, scan the conversation for arXiv IDs / DOIs the user mentioned that the parallel search didn't surface. If any are missing from `references.bib`, pull them in (invoke `how-to-download-ref` single-shot, cite-key confirmation per ref) so the reference set is complete before downloading.
 
 Then offer the next step:
 
 > "Survey complete. Fetch the PDFs?"
-> - **(a)** Fetch + render all refs — invokes `download-ref --from-bib $KB/references.bib --kb $KB`; after it finishes, offer to continue to Survey Report below.
+> - **(a)** Fetch + render all refs — invokes `how-to-download-ref --from-bib $KB/references.bib --kb $KB`; after it finishes, offer to continue to Survey Report below.
 > - **(b)** Done — stop here.
 
 ## Survey Report

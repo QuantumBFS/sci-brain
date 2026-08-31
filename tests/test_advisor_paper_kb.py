@@ -3,7 +3,7 @@
 The advisor KB layout mirrors the project KB:
     advisors/<slug>/
       profile.md           # always present (committed)
-      .knowledge/          # gitignored cache (optional; populated by know-me-better/download-ref)
+      .knowledge/          # gitignored cache (optional; populated by know-me-better/how-to-download-ref)
         references.bib     # advisor's BibTeX namespace (created on first append)
         INDEX.md
         NOTES.md
@@ -49,7 +49,7 @@ def test_advisor_knowledge_when_present_has_expected_shape():
         kb = ADVISORS_DIR / slug / ".knowledge"
         if not kb.exists():
             continue  # cache not built yet — fine
-        # INDEX.md is the only file download-ref guarantees on populated KBs
+        # INDEX.md is the only file how-to-download-ref guarantees on populated KBs
         # (NOTES.md is optional human-curated content)
         index = kb / "INDEX.md"
         if any(kb.glob("*.md")):
