@@ -36,6 +36,44 @@ def test_public_docs_cover_every_skill_and_current_count():
         assert f"**{name}**" in guide, f"CLAUDE.md missing {name}"
 
 
+def _description(skill_file: Path) -> str:
+    match = re.search(r"^description:\s*(.+?)\s*$", skill_file.read_text(), re.MULTILINE)
+    assert match, f"missing description: {skill_file}"
+    return match.group(1)
+
+
+def test_trigger_prefix_matches_skill_kind():
+    for name, skill_file in _skills().items():
+        desc = _description(skill_file)
+        prefix = "Agentic trigger. Use when " if name.startswith("how-to-") else "User trigger. Use when "
+        assert desc.startswith(prefix), f"{name}: {desc!r}"
+        assert desc.count(". ") == 1, f"{name}: description must be one sentence after the prefix"
+
+
+def test_readme_tables_mirror_frontmatter_descriptions():
+    readme = (ROOT / "README.md").read_text()
+    for name, skill_file in _skills().items():
+        desc = _description(skill_file).split("Use when ", 1)[1]
+        row = f"| [`{name}`](skills/{name}/) | {desc} |"
+        assert row in readme, f"README row out of sync for {name}:\n{row}"
+
+
+def test_readme_migration_table_covers_renamed_skills():
+    readme = (ROOT / "README.md").read_text()
+    renamed = {
+        "/download-ref": "/how-to-download-ref",
+        "/conversation-dump": "/how-to-dump-dialog",
+        "/figure-taste": "/how-to-review-figure",
+        "/flow": "/how-to-flow",
+        "/paper-writer": "/write-paper",
+        "/paper-reviewer": "/review-paper",
+        "/slide-writer": "/write-slides",
+        "/incarnate": "/create-advisor",
+    }
+    for old, new in renamed.items():
+        assert re.search(rf"\| `{re.escape(old)}` \| `{re.escape(new)}`", readme), old
+
+
 def test_agent_entrypoint_routes_to_canonical_guide():
     agents = (ROOT / "AGENTS.md").read_text()
     assert "[CLAUDE.md](CLAUDE.md)" in agents
@@ -88,9 +126,9 @@ def test_folded_stage_names_do_not_reappear_in_public_docs_or_skills():
     readme = (ROOT / "README.md").read_text()
     expected_migrations = {
         "/survey-writer": "/survey",
-        "/idea-writer": "/brainstorm-ideas",
-        "/import-dialog": "/incarnate",
-        "/soul-extraction": "/incarnate",
+        "/idea-writer": "/how-to-write-ideas-report",
+        "/import-dialog": "/create-advisor",
+        "/soul-extraction": "/create-advisor",
     }
     for old, new in expected_migrations.items():
         assert re.search(rf"\| `{re.escape(old)}` \| `{re.escape(new)}`", readme)

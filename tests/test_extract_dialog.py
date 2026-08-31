@@ -3,7 +3,7 @@ import subprocess
 import sys
 import os
 from pathlib import Path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "skills", "conversation-dump"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "skills", "how-to-dump-dialog"))
 from extract_dialog import extract_claude_turns, extract_codex_turns, list_claude_sessions
 
 
@@ -264,7 +264,7 @@ def test_cli_extract_claude(tmp_path):
         })
         + "\n"
     )
-    script = str(Path(__file__).parent.parent / "skills" / "conversation-dump" / "extract_dialog.py")
+    script = str(Path(__file__).parent.parent / "skills" / "how-to-dump-dialog" / "extract_dialog.py")
     result = subprocess.run(
         [sys.executable, script, "extract", "--source", "claude", "--session", "sess-1",
          "--projects-root", str(tmp_path / "projects")],

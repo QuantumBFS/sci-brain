@@ -63,7 +63,7 @@ open questions, plan the action. Required structure:
     prior art, a technique someone may already have published, a Shelved
     insight that may have become relevant. One line per item — what to
     check and why it matters to the gap. Then resolve the list now:
-    invoke the `survey` skill scoped to the items (or `download-ref` for
+    invoke the `survey` skill scoped to the items (or `how-to-download-ref` for
     specific known IDs) into `<project>/.knowledge/`, distill anything
     new into `research/INSIGHTS.md` under `## Candidate`, and record
     under each item what the check found. An item too large to settle

@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-HELPER = Path(__file__).resolve().parents[1] / "skills" / "download-ref" / "helpers" / "render.py"
+HELPER = Path(__file__).resolve().parents[1] / "skills" / "how-to-download-ref" / "helpers" / "render.py"
 
 
 def _load():

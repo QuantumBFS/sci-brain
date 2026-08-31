@@ -95,7 +95,7 @@ Field notes:
   raw HTML is escaped): `review` = "Review — what we did" (facts + budget
   state), `evidence` = "Evidence carried forward", `literature` =
   "Literature check", `todo` = "TODO — worth checking" (the open
-  questions marked this cycle, each with what the survey/download-ref
+  questions marked this cycle, each with what the survey/how-to-download-ref
   check found or `remains open`), `next` = "Next round". `next` contains the ranked 2–4
   promising directions, evidence-backed reasons, discriminating attempts,
   decision signals, and explicit top recommendation required by the reflection

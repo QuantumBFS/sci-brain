@@ -1,6 +1,6 @@
 ---
 name: autoresearch
-description: Use when starting, resuming, or asking about an autoresearch project — a four-stage pipeline (topics → db → validator → run) that chooses machine-checkable research topics with score metrics and a red-teamed acceptance gate, builds the evidence base (references, INSIGHTS.md, domain database, CATALOG.md), builds a sealed Docker-canonical validator with negative controls, then runs the loop of validator-scored attempts with reflection reports and stuck-triggered insight refresh. Reads research/STATE.md to find the current stage, verifies the previous stage's gate artifacts exist on disk, and follows the matching stage file. Triggers on "start autoresearch", "resume autoresearch", "autoresearch status", "choose autoresearch topics", "build the validator", "run the autoresearch loop", "what stage is my research project at".
+description: User trigger. Use when starting, resuming, or checking an autoresearch campaign — topics, evidence base, sealed validator, then validator-scored attempt loops.
 ---
 
 # Autoresearch

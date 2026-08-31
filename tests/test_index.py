@@ -1,10 +1,10 @@
-"""Tests for skills/download-ref/helpers/index.py."""
+"""Tests for skills/how-to-download-ref/helpers/index.py."""
 import importlib.util
 import sys
 from pathlib import Path
 
 
-HELPER = Path(__file__).resolve().parents[1] / "skills" / "download-ref" / "helpers" / "index.py"
+HELPER = Path(__file__).resolve().parents[1] / "skills" / "how-to-download-ref" / "helpers" / "index.py"
 
 
 def _load():

@@ -24,50 +24,37 @@ pi install npm:sci-brain
 
 or clone the repo and symlink its skill directories into `~/.agents/skills/` (pi's global skill path, shared with Codex) — see [`.pi/INSTALL.md`](.pi/INSTALL.md).
 
-## Start Here: Survey a Field
+## Skills
 
-```
-/survey
-```
+Two kinds, told apart by the first words of each skill's description. **User trigger** skills are the needs you type (`/survey`, `/write-paper`). **Agentic trigger** skills (`how-to-*`) are procedures the agent reaches for while serving one of those needs; you can still invoke them directly. Each table row is the skill's frontmatter description (test-enforced).
 
-Asks one question to narrow your topic, then searches the literature with up to seven parallel strategies. You pick which directions to keep; every BibTeX entry is verified against CrossRef or Semantic Scholar — never invented from memory. Once full text is fetched, the same skill writes a structured assessment of the field: approaches, state of the art, trade-offs, open problems.
+### User trigger — invoke by need
+
+| Skill | Use when |
+|---|---|
+| [`survey`](skills/survey/) | surveying a research topic into a knowledge base or writing a grounded literature, technology, or field assessment. |
+| [`brainstorm-ideas`](skills/brainstorm-ideas/) | brainstorming research ideas with a Socratic collaborator who learns your background and helps find a problem worth attacking. |
+| [`know-me-better`](skills/know-me-better/) | you want the agent to learn your research style from your papers (Zotero, PDF folder, or Google Scholar) so it speaks your language. |
+| [`autoresearch`](skills/autoresearch/) | starting, resuming, or checking an autoresearch campaign — topics, evidence base, sealed validator, then validator-scored attempt loops. |
+| [`write-paper`](skills/write-paper/) | drafting or revising a scientific manuscript with real results. |
+| [`review-paper`](skills/review-paper/) | reviewing, commenting on, or fact-checking an existing manuscript, including its references. |
+| [`write-slides`](skills/write-slides/) | building a Typst + Touying slide deck for a scientific talk, lecture, or briefing. |
+| [`create-advisor`](skills/create-advisor/) | creating or updating a named advisor profile from a researcher's conversation history. |
+
+A typical path: `/survey` a field → `/brainstorm-ideas` with an optional [advisor](advisors/) → `/autoresearch` to run validator-scored attempts → `/write-paper` and `/write-slides`.
 
 > **One-time setup** for PDF rendering: `python3 -m pip install --user pymupdf4llm`.
 
-## Then: Brainstorm Ideas
+### Agentic trigger — `how-to-*`, invoked automatically
 
-```
-/brainstorm-ideas
-```
-
-A Socratic research mentor. It learns your background (self-description, Zotero, or Google Scholar), picks up the knowledge base from `/survey`, and helps you find a problem worth attacking. Optionally invite an **advisor** — a domain expert distilled from [real scientists' conversations](advisors/) — who joins as a subagent and challenges your thinking. Ends with a structured ideas report.
-
-## Then: Run Autonomous Research
-
-```
-/autoresearch
-```
-
-Turns an idea into a machine-checkable research campaign: choose topics with score metrics, build the evidence base, seal a Docker-canonical validator, then loop validator-scored attempts with reflection reports — you authorize each cycle.
-
-## Finally: Write Papers & Slides
-
-```
-/paper-writer      figures first → outline → body → abstract last
-/slide-writer      Typst + Touying decks from a browsable theme/layout zoo
-```
-
-## More Skills
-
-| Skill | What it does |
-|-------|--------------|
-| `/download-ref` | Add arXiv IDs / DOIs to the KB — fetches metadata, PDFs, and renders full text |
-| `/paper-reviewer` | Review an existing manuscript against writing guidelines; verifies references |
-| `/figure-taste` | Score a figure's visual design against an 18-rule rubric |
-| `/flow` | Autonomous deep-thinker that attacks one hard goal via a search loop |
-| `/know-me-better` | Index your Zotero / PDF folder / Google Scholar collection into the KB |
-| `/conversation-dump` | Extract and classify research conversations from Claude Code or Codex histories |
-| `/incarnate` | Import JSONL or Markdown conversations, distill thinking patterns, and capture a reusable advisor profile |
+| Skill | Use when |
+|---|---|
+| [`how-to-build-kb`](skills/how-to-build-kb/) | turning a list of picked papers into verified knowledge-base entries — references.bib, INDEX.md, and NOTES.md. |
+| [`how-to-download-ref`](skills/how-to-download-ref/) | adding arXiv IDs or DOIs to a knowledge base — fetches metadata, PDFs, and full text, then updates references.bib and INDEX.md. |
+| [`how-to-write-ideas-report`](skills/how-to-write-ideas-report/) | writing a proposal-style ideas report from a finished brainstorm-ideas session or a chosen research direction. |
+| [`how-to-review-figure`](skills/how-to-review-figure/) | judging the visual design of a figure, plot, or diagram against a scientific-plot rubric. |
+| [`how-to-flow`](skills/how-to-flow/) | one hard, testable goal resists a direct solution and needs an autonomous decide–simulate–learn–backjump search. |
+| [`how-to-dump-dialog`](skills/how-to-dump-dialog/) | extracting and classifying research dialog from Claude Code or Codex session logs. |
 
 ## Where Things Are Saved
 
@@ -83,7 +70,7 @@ Everything lands in one folder inside your project:
   .figures/           extracted figures (gitignored)
 ```
 
-- **Project knowledge base** — `<project>/.knowledge/` (layout above). Populated by `/survey`, `/download-ref`, `/know-me-better`.
+- **Project knowledge base** — `<project>/.knowledge/` (layout above). Populated by `/survey`, `/how-to-download-ref`, `/know-me-better`.
 - **Advisor knowledge bases** — `advisors/<slug>/.knowledge/` — each advisor's private literature cache, same layout.
 - **Conversation logs** — `docs/discussion/` — timestamped per session; the next session picks up where you left off.
 - **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file.
@@ -94,25 +81,40 @@ If you've used Claude Code or Codex for research conversations and want your thi
 
 ```
 clone https://github.com/QuantumBFS/sci-brain,
-invoke incarnate skill in the cloned repo to create my profile,
+invoke create-advisor skill in the cloned repo to create my profile,
 then submit a pr,
 include all relevant chat history, interview output and the generated profile.
 ```
 
 The whole process is interactive — you review everything before it's published, and you decide whether to include the raw conversation data (for research purposes) in the PR.
 
-## Upgrading from ≤ 0.2
+## Upgrading
+
+> ⚠️ **Breaking change in v0.5.** Skills are renamed by trigger kind. Update slash commands:
+
+| Previous command | Current entry point |
+|------------------|---------------------|
+| `/download-ref` | `/how-to-download-ref` |
+| `/conversation-dump` | `/how-to-dump-dialog` |
+| `/figure-taste` | `/how-to-review-figure` |
+| `/flow` | `/how-to-flow` |
+| `/paper-writer` | `/write-paper` |
+| `/paper-reviewer` | `/review-paper` |
+| `/slide-writer` | `/write-slides` |
+| `/incarnate` | `/create-advisor` |
+| `/survey` (KB-building step) | `/how-to-build-kb`, invoked by `/survey` |
+| `/brainstorm-ideas` (report mode) | `/how-to-write-ideas-report`, invoked by `/brainstorm-ideas` |
 
 > ⚠️ **Breaking change in v0.3.** Knowledge bases moved from per-topic registries (`~/.claude/survey/<topic>/` with `summary.md` + `references.bib`) to one `<project>/.knowledge/` per project, with `references.bib` living *inside* the KB. The `fetch-papers` skill was folded into `download-ref --from-bib`. See [`CLAUDE.md`](./CLAUDE.md) § "Migrating from the pre-0.3 layout" for `mv` commands.
 
-Four internal stages are now modes of their goal-level skill. Update explicit command references as follows:
+Four internal stages became modes of their goal-level skill in v0.3:
 
 | Previous command | Current entry point |
 |------------------|---------------------|
 | `/survey-writer` | `/survey` in Survey Report mode |
-| `/idea-writer` | `/brainstorm-ideas` in Ideas Report mode |
-| `/import-dialog` | `/incarnate` with Markdown dialog input |
-| `/soul-extraction` | `/incarnate` in analysis-only mode |
+| `/idea-writer` | `/how-to-write-ideas-report` |
+| `/import-dialog` | `/create-advisor` with Markdown dialog input |
+| `/soul-extraction` | `/create-advisor` in analysis-only mode |
 
 ## Contributors
 

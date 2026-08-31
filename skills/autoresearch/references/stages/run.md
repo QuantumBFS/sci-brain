@@ -37,7 +37,7 @@ gate is never worked around; a user-approved exception goes into
    - take the diagnosed bottleneck / root cause from the latest
      reflection report;
    - invoke the `survey` skill scoped to that bottleneck (or
-     `download-ref` for specific IDs already known) into
+     `how-to-download-ref` for specific IDs already known) into
      `<project>/.knowledge/`;
    - distill what is new into `research/INSIGHTS.md` under `## Candidate`
      (entry format per `../insights-template.md`). Candidate entries are
@@ -135,7 +135,7 @@ gate is never worked around; a user-approved exception goes into
    **TODO — worth checking** (see the template): mark the open questions this cycle
    surfaced that `.knowledge/` and INSIGHTS.md cannot answer, then check
    them now — invoke the `survey` skill scoped to those items (or
-   `download-ref` for known IDs) into `<project>/.knowledge/`, distill
+   `how-to-download-ref` for known IDs) into `<project>/.knowledge/`, distill
    what is new into `research/INSIGHTS.md` under `## Candidate`, and
    record under each item what the check found or that it `remains open`.
    Only after the TODO checks, write **Next round**.
@@ -190,4 +190,4 @@ gate is never worked around; a user-approved exception goes into
 When the validator reports the GOAL.md bar met on dev instances, run
 `validate --instances holdout` once, report both results, set
 `stage: done`, and hand off to the user — write-up is out of scope for this
-skill (use paper-writer).
+skill (use write-paper).
