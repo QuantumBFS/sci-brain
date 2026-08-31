@@ -38,4 +38,3 @@ Draft each section, show it, and incorporate feedback:
 ### Diagrams and final look-back
 
 Use a diagram when it makes an abstract structure easier to critique: reductions, relationships between methods, pipelines, data flow, architecture, or meaningful before/after comparisons. After drafting, apply Polya's "Looking Back": can the result be derived another way, used for another problem, and understood at a glance? Then run the shared workflow's compile, citation, and bibliography checks.
-

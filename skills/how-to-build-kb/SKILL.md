@@ -75,4 +75,3 @@ python3 skills/how-to-download-ref/helpers/index.py \
 If `NOTES.md` already exists, **extend** rather than overwrite: merge new findings into existing sections, preserve user edits.
 
 **Extending an existing KB** (the KB already has entries): read `$KB/references.bib` first; skip papers already present (match by DOI or exact title); append only new entries.
-
