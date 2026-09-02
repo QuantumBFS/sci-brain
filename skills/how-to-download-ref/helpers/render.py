@@ -93,20 +93,38 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
     if kb is not None and fig_subdir:
         try:
             import pymupdf4llm  # type: ignore
+            try:
+                from pymupdf4llm.ocr import OCRMode  # pymupdf4llm >= 1.28
+            except ImportError:
+                OCRMode = None
             fig_abs = kb / ".figures" / fig_subdir
             fig_abs.mkdir(parents=True, exist_ok=True)
             rel_path = f".figures/{fig_subdir}"
-            old_cwd = os.getcwd()
-            try:
-                os.chdir(kb)
-                md = pymupdf4llm.to_markdown(
-                    str(pdf),
-                    write_images=True,
-                    image_path=rel_path,
-                    image_format="png",
-                )
-            finally:
-                os.chdir(old_cwd)
+            def _to_md(**extra):
+                old_cwd = os.getcwd()
+                try:
+                    os.chdir(kb)
+                    return pymupdf4llm.to_markdown(
+                        str(pdf),
+                        write_images=True,
+                        image_path=rel_path,
+                        image_format="png",
+                        **extra,
+                    )
+                finally:
+                    os.chdir(old_cwd)
+
+            # Papers from arXiv/APS are born-digital: the text layer is already
+            # there, so OCR buys nothing, costs a lot of time, and drags in a
+            # hard tessdata dependency. Worse, pymupdf4llm's default
+            # (select-keep) OCRs pages it judges sparse, and a single page whose
+            # OCR cannot initialise raises and discards the WHOLE document.
+            # Skip it, and only reach for OCR if the text layer really is empty
+            # -- a scanned old paper, typically via the Sci-Hub tier.
+            md = _to_md(use_ocr=OCRMode.NEVER) if OCRMode else _to_md()
+            if OCRMode and (not md or len(md.strip()) <= 100):
+                print(f"  {pdf.name}: no text layer, retrying with OCR", file=sys.stderr)
+                md = _to_md()
             if md and len(md.strip()) > 100:
                 text = md
         except ImportError:
@@ -114,11 +132,12 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
         except Exception as e:
             print(f"  pymupdf4llm {pdf.name}: {e}", file=sys.stderr)
             if "esseract" in str(e):
-                print("  ^ PyMuPDF OCRs pages it cannot read as text and asks for the "
-                      "English pack by default. Install it (tesseract-data-eng on Arch, "
-                      "tesseract-ocr-eng on Debian/Ubuntu, `brew install tesseract-lang` "
-                      "on macOS); otherwise ONE unreadable page discards the whole "
-                      "document and the body silently degrades to pdftotext.",
+                print("  ^ This PDF has no text layer, so it needs OCR, and the English "
+                      "Tesseract pack is missing. Install it (tesseract-data-eng on Arch "
+                      "-- note any tesseract-data-* satisfies the `tessdata` dependency "
+                      "there, so `eng` is easy to end up without; tesseract-ocr-eng on "
+                      "Debian/Ubuntu; `brew install tesseract-lang` on macOS). "
+                      "Born-digital papers do not reach this path.",
                       file=sys.stderr)
 
     tmp_md = Path("/tmp") / (pdf.stem + ".md")

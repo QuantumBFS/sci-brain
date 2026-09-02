@@ -30,17 +30,15 @@ Every other helper is stdlib-only; plain `python3` is fine for those. Plain
 importable from that interpreter — otherwise the renderer degrades to
 `markitdown` → `pdftotext`, which is text-only (*figures missing, equations mangled*).
 
-**Install the Tesseract English pack.** PyMuPDF OCRs pages it cannot read as text
-and asks for `eng` by default; if it is absent the whole `to_markdown` call raises
-and the body silently falls through to `pdftotext`. This is the single most common
-cause of bad full text, and it looks like nothing is wrong. Check:
-
-```sh
-tesseract --list-langs | grep -qx eng && echo ok || echo "MISSING eng"
-```
-
-Install `tesseract-data-eng` (Arch), `tesseract-ocr-eng` (Debian/Ubuntu), or
+**Tesseract is not needed for normal papers.** arXiv and APS PDFs are born-digital,
+so `render.py` runs `pymupdf4llm` with `use_ocr=NEVER` and only retries with OCR
+when a PDF turns out to have no text layer at all — a scanned old paper, usually
+from the Sci-Hub tier. Install a language pack only if you hit that:
+`tesseract-data-eng` (Arch), `tesseract-ocr-eng` (Debian/Ubuntu), or
 `brew install tesseract-lang` (macOS).
+
+On Arch in particular, *any* `tesseract-data-*` satisfies the `tessdata`
+dependency, so it is easy to have `tesseract` installed with `eng` absent.
 
 The Sci-Hub fallback (Step 4b) additionally needs a Chromium for Playwright to
 clear the mirrors' DDoS-Guard challenge. Only required if you expect to hit
