@@ -104,6 +104,8 @@ def main() -> int:
                    help="Also fetch arXiv preprint PDFs (incl. preprints of paywalled DOIs)")
     p.add_argument("--download-arxiv-source", action="store_true",
                    help="Also fetch arXiv e-print LaTeX sources, flattened to .raw/arxiv/<id>.tex")
+    p.add_argument("--no-aps", action="store_true",
+                   help="Skip the APS Harvest JATS fetch for 10.1103/* DOIs (on by default)")
     args = p.parse_args()
 
     raw = args.kb / ".raw"
@@ -128,6 +130,18 @@ def main() -> int:
             safe = k.replace("/", "-")
             save(raw / "doi" / f"{safe}.json", r)
         summarize("doi", k, r)
+
+    if not args.no_aps and dois:
+        from aps_harvest import APS_PREFIX, fetch_jats, safe_name
+        aps = [d for d in dois if d.lower().startswith(APS_PREFIX)]
+        if aps:
+            print(f"\nAPS Harvest: publisher JATS for {len(aps)} DOI(s) "
+                  f"(no key needed; 401 = closed, falls through to arXiv/PDF)...")
+            for i, d in enumerate(aps):
+                st = fetch_jats(d, raw / "doi" / f"{safe_name(d)}.jats.xml")
+                print(f"  {st:8s} {d}")
+                if st != "cached" and i < len(aps) - 1:
+                    time.sleep(1)
 
     if args.download_arxiv_pdfs:
         print("\nfetching PDFs (sequential with 2s sleep to avoid arXiv rate limits)...")

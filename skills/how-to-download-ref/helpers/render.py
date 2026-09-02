@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pymupdf4llm"]
+# ///
 """Render the .raw/ assets into .knowledge/ markdown.
 
 Reads:
 - .raw/{arxiv,doi}/<id>.json — Semantic Scholar metadata (from fetch_metadata.py)
 - .raw/{arxiv,doi}/<id>.pdf — original PDFs (optional; rendered as full-text section)
+- .raw/doi/<safe>.jats.xml — publisher JATS from the APS Harvest API (optional;
+  ALWAYS preferred as the full-text body when present — it is the published
+  version, with exact TeX from MathML and a structured reference list)
 - .raw/{arxiv,doi}/<id>.tex — flattened arXiv LaTeX source (optional; used as the
   full-text body ONLY with --tex-source; otherwise PDF->markdown is the default)
 - .raw/repos/<owner>-<repo>/ — shallow clones (rendered as README + ls-tree)
@@ -106,6 +113,13 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
             print("  pymupdf4llm not installed; falling back to markitdown/pdftotext", file=sys.stderr)
         except Exception as e:
             print(f"  pymupdf4llm {pdf.name}: {e}", file=sys.stderr)
+            if "esseract" in str(e):
+                print("  ^ PyMuPDF OCRs pages it cannot read as text and asks for the "
+                      "English pack by default. Install it (tesseract-data-eng on Arch, "
+                      "tesseract-ocr-eng on Debian/Ubuntu, `brew install tesseract-lang` "
+                      "on macOS); otherwise ONE unreadable page discards the whole "
+                      "document and the body silently degrades to pdftotext.",
+                      file=sys.stderr)
 
     tmp_md = Path("/tmp") / (pdf.stem + ".md")
     tmp_txt = Path("/tmp") / (pdf.stem + ".txt")
@@ -123,6 +137,9 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
                                capture_output=True, text=True, timeout=120)
             if r.returncode == 0 and tmp_txt.exists():
                 text = tmp_txt.read_text(errors="replace")
+                print(f"  WARNING {pdf.name}: fell through to pdftotext. Equations and "
+                      f"two-column layout will be mangled; treat the body as unreliable. "
+                      f"Prefer JATS (aps_harvest.py) or arXiv LaTeX source.", file=sys.stderr)
         except Exception:
             pass
     for p in (tmp_md, tmp_txt):
@@ -222,7 +239,25 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = 
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
         pdf = doi_dir / f"{safe}.pdf"
         tex = doi_dir / f"{safe}.tex"
-        if use_tex and tex.exists() and tex.stat().st_size > 100:
+        jats = doi_dir / f"{safe}.jats.xml"
+        jats_md, jats_refs = "", []
+        if jats.exists() and jats.stat().st_size > 2048:
+            # Publisher JATS beats both LaTeX preprint and PDF: it is the
+            # published version, its MathML carries exact TeX, and its
+            # reference list is fully structured. See aps_harvest.py.
+            try:
+                from aps_harvest import extract_refs, jats_to_markdown, render_refs_md
+                jats_md = jats_to_markdown(jats)
+                jats_refs = extract_refs(jats)
+            except Exception as e:
+                print(f"  jats {safe}: {e}", file=sys.stderr)
+        if jats_md:
+            meta["full_text"] = "jats"
+            body[0] = render_frontmatter(meta)
+            body += ["", "## Full Text (publisher JATS)", "", jats_md]
+            if jats_refs:
+                body += ["", "## References", "", render_refs_md(jats_refs)]
+        elif use_tex and tex.exists() and tex.stat().st_size > 100:
             meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
             body += ["", "## Full Text (LaTeX source)", "",

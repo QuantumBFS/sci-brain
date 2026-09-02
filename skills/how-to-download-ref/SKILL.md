@@ -16,29 +16,48 @@ Do NOT use:
 
 ## Preflight (run once per machine)
 
-The renderer uses **pymupdf4llm** for highest-fidelity output (preserves figures). Fallbacks (`markitdown` → `pdftotext`) are text-only — *figures silently missing*. Verify before fetching:
+`render.py` and `scihub_download.py` carry [PEP 723](https://peps.python.org/pep-0723/)
+inline dependency metadata, so **run those two with `uv run`** and their third-party
+deps (`pymupdf4llm`, `playwright`) are resolved automatically — nothing to install
+by hand, nothing to keep in sync with a system Python:
 
 ```sh
-python3 -c "import pymupdf4llm; print('ok', pymupdf4llm.__version__)"
+uv run skills/how-to-download-ref/helpers/render.py --kb "$KB"
 ```
 
-If that errors, install for the **same** `python3` the helpers will use:
+Every other helper is stdlib-only; plain `python3` is fine for those. Plain
+`python3 render.py` also still works, but only if `pymupdf4llm` happens to be
+importable from that interpreter — otherwise the renderer degrades to
+`markitdown` → `pdftotext`, which is text-only (*figures missing, equations mangled*).
+
+**Install the Tesseract English pack.** PyMuPDF OCRs pages it cannot read as text
+and asks for `eng` by default; if it is absent the whole `to_markdown` call raises
+and the body silently falls through to `pdftotext`. This is the single most common
+cause of bad full text, and it looks like nothing is wrong. Check:
 
 ```sh
-# macOS / Homebrew Python
-/opt/homebrew/bin/python3 -m pip install --user --break-system-packages pymupdf4llm
-
-# Linux / system Python
-python3 -m pip install --user pymupdf4llm
+tesseract --list-langs | grep -qx eng && echo ok || echo "MISSING eng"
 ```
 
-The Sci-Hub fallback (Step 4b) drives a real browser to clear the mirrors'
-DDoS-Guard challenge, so it needs **Playwright** with a Chromium. Only required
-if you expect to hit paywalled DOIs:
+Install `tesseract-data-eng` (Arch), `tesseract-ocr-eng` (Debian/Ubuntu), or
+`brew install tesseract-lang` (macOS).
+
+The Sci-Hub fallback (Step 4b) additionally needs a Chromium for Playwright to
+clear the mirrors' DDoS-Guard challenge. Only required if you expect to hit
+paywalled DOIs:
 
 ```sh
-python3 -m pip install --user playwright && python3 -m playwright install chromium
+uv run --with playwright python -m playwright install chromium
 ```
+
+APS DOIs (`10.1103/*`) render from publisher JATS XML, which needs **pandoc**:
+
+```sh
+pandoc --version | head -1   # any 2.x/3.x works
+```
+
+If missing: `paru -S pandoc-cli` (Arch) / `apt install pandoc` / `brew install pandoc`.
+Without it, APS refs silently fall back to the arXiv/PDF tiers.
 
 For arXiv LaTeX sources (optional, Step 4 — only when the user opts in), `latexpand`
 (ships with TeX Live) gives the cleanest flattening; if absent, a built-in Python
@@ -54,6 +73,8 @@ inliner is used — no action needed either way.
 
 `how-to-download-ref` writes:
 - `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}`
+- `$KB/.raw/doi/<safe-doi>.jats.xml` (publisher JATS for APS DOIs)
+- `$KB/.raw/doi/<safe-doi>.aps.pdf` and `<safe-doi>-suppl/` (only with `--bagit`)
 - `$KB/.raw/{arxiv,doi}/<id>-src/` (extracted e-print source tree — only when LaTeX sources requested)
 - `$KB/.raw/{arxiv,doi}/<id>.tex` (flattened LaTeX; <safe-doi> filenames for DOI entries — only when LaTeX sources requested)
 - `$KB/.figures/{arxiv__<id>,doi__<safe>}/...`
@@ -151,6 +172,17 @@ python3 skills/how-to-download-ref/helpers/fetch_metadata.py \
   --download-arxiv-source
 ```
 
+**APS DOIs are handled automatically.** For any `10.1103/*` DOI the helper first
+calls the [APS Harvest API](https://harvest.aps.org/docs/harvest-api), which serves
+the *publisher's own* JATS XML — real sections, MathML3 equations, a structured
+reference list — with **no API key and no institutional IP**. This is ground truth
+and strictly beats parsing the PDF. Coverage is per *article*, not per journal: you
+get `ok` for gold-OA titles (PRX, PRX Quantum, PRResearch, PRAB, PRPER), SCOAP3
+titles (PRC, PRD), and any individually CC-licensed article in PRL/PRA/PRB;
+`closed` (HTTP 401) falls through to the arXiv and PDF tiers below. Pass `--no-aps`
+to skip. The same request both tests access and delivers the text, so there is no
+separate open-access lookup to do.
+
 Populates `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}` idempotently. PDFs are downloaded sequentially with 2s sleep between requests to avoid arXiv rate limits. Each PDF is verified for a `%%EOF` trailer; truncated downloads are discarded and retried. For DOIs whose publisher gates the PDF (APS / Nature / IOP / AAAS / ACS), the helper falls back to the arXiv preprint via `externalIds.ArXiv` when present. If even that fails, you'll see a `miss` line — go to Step 4b.
 
 `--download-arxiv-source` additionally fetches each arXiv paper's e-print
@@ -170,7 +202,7 @@ If Step 4 reports `miss` for any DOI (no open-access PDF and no arXiv preprint),
 run the browser-based Sci-Hub helper. Pass the missed DOIs:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/scihub_download.py --kb "$KB" \
+uv run skills/how-to-download-ref/helpers/scihub_download.py --kb "$KB" \
   --doi 10.1111/j.1467-9280.2006.01693.x \
   --doi 10.3102/0034654316689306
 ```
@@ -189,28 +221,51 @@ prints one `OK` / `MISS` / `SKIP` line per DOI.
 
 Skip this step if all PDFs were fetched in Step 4.
 
+### 4c. APS extras (optional)
+
+`aps_harvest.py` also runs standalone — useful for backfilling a KB built before
+this path existed, or for pulling figures and supplemental material:
+
+```sh
+# probe one DOI without writing anything -> prints open | closed | notfound
+python3 skills/how-to-download-ref/helpers/aps_harvest.py --check 10.1103/PhysRevB.108.045101
+
+# backfill JATS for every APS DOI already in the KB
+python3 skills/how-to-download-ref/helpers/aps_harvest.py --kb "$KB" --all
+
+# ...and pull the BagIt package too: published PDF, figures, supplemental material
+python3 skills/how-to-download-ref/helpers/aps_harvest.py --kb "$KB" --all --bagit
+```
+
+`--bagit` is the only way to get **supplemental material**, which the arXiv
+preprint route cannot provide. It is much heavier (tens of MB per article), so
+use it per-DOI rather than across a whole KB.
+
 ### 5. Render PDF to markdown
 
 ```sh
-python3 skills/how-to-download-ref/helpers/render.py --kb "$KB"
+uv run skills/how-to-download-ref/helpers/render.py --kb "$KB"
 ```
 
 Add `--only-missing` to skip papers that already have a rendered `.md` file (>500 bytes). This is much faster when adding a few papers to a large KB:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/render.py --kb "$KB" --only-missing
+uv run skills/how-to-download-ref/helpers/render.py --kb "$KB" --only-missing
 ```
 
 When the user opted into LaTeX sources (Step 4, option **b**), add `--tex-source`:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/render.py --kb "$KB" --tex-source
+uv run skills/how-to-download-ref/helpers/render.py --kb "$KB" --tex-source
 ```
 
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
 
-**PDF is the default body.** `--tex-source` is the only switch that prefers a
-flattened `.tex` (arXiv entries, and DOI entries with an arXiv preprint) as
+**Body priority: JATS > LaTeX > PDF.** A `.jats.xml` in `.raw/doi/` always wins —
+no flag needed — and renders `full_text: jats` plus a `## References` section built
+from the publisher's structured reference list (every cited DOI/arXiv id included,
+which is a citation graph for free). Below that,
+`--tex-source` is the only switch that prefers a flattened `.tex` (arXiv entries, and DOI entries with an arXiv preprint) as
 the full-text body (`full_text: latex` in frontmatter) — ground truth for
 equations, read natively by agents. Without it, every ref renders from its
 PDF, even when a `.tex` sits in `.raw/`. The PDF backends below apply to all
@@ -304,11 +359,14 @@ After the done checklist passes, offer the pipeline's final stage:
 | Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
 | Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |
 | Rendered from PDF despite a `.tex` in `.raw/` | PDF is the default. To use LaTeX bodies, pass `--tex-source` in Step 5 (and `--download-arxiv-source` in Step 4). |
+| APS paper rendered from PDF, math mangled | `pandoc` is missing, or the article is genuinely `closed`. Check with `aps_harvest.py --check <doi>`. |
+| Reaching for MinerU/Marker on an APS DOI | Try Harvest first — a 401 is the only thing that justifies parsing a PDF at all. |
 
 ## Done checklist
 
 - [ ] `.raw/{arxiv,doi}/<id>.json` exists for every requested id
 - [ ] `.raw/{arxiv,doi}/<id>.pdf` exists where the source allows (else recorded as miss)
+- [ ] For every `10.1103/*` DOI: either `.raw/doi/<safe>.jats.xml` exists (`full_text: jats`) or the fetch logged `closed`
 - [ ] One new `<id>_<slug>.md` per ref at `$KB/` root, with frontmatter
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
 - [ ] `$KB/references.bib` has the new cite key (no duplicate)
