@@ -16,19 +16,29 @@ Do NOT use:
 
 ## Preflight (run once per machine)
 
-`render.py` and `scihub_download.py` carry [PEP 723](https://peps.python.org/pep-0723/)
-inline dependency metadata, so **run those two with `uv run`** and their third-party
-deps (`pymupdf4llm`, `playwright`) are resolved automatically — nothing to install
-by hand, nothing to keep in sync with a system Python:
+Every helper runs under plain `python3`. Two of them want third-party packages:
+`render.py` needs **pymupdf4llm** (highest-fidelity output, preserves figures) and
+`scihub_download.py` needs **playwright**. Without them the renderer degrades to
+`markitdown` → `pdftotext`, which is text-only — *figures missing, equations
+mangled*. Verify before fetching:
 
 ```sh
-uv run skills/how-to-download-ref/helpers/render.py --kb "$KB"
+python3 -c "import pymupdf4llm; print('ok', pymupdf4llm.__version__)"
 ```
 
-Every other helper is stdlib-only; plain `python3` is fine for those. Plain
-`python3 render.py` also still works, but only if `pymupdf4llm` happens to be
-importable from that interpreter — otherwise the renderer degrades to
-`markitdown` → `pdftotext`, which is text-only (*figures missing, equations mangled*).
+If that errors, install it for the **same** `python3` the helpers will use:
+
+```sh
+python3 -m pip install --user pymupdf4llm
+# macOS / Homebrew, or any PEP 668 "externally managed" Python:
+python3 -m pip install --user --break-system-packages pymupdf4llm
+```
+
+Both scripts also carry [PEP 723](https://peps.python.org/pep-0723/) inline
+dependency metadata, so if you happen to have [uv](https://docs.astral.sh/uv/),
+`uv run helpers/render.py ...` resolves those deps on its own and you can skip the
+install step entirely. That is an option, not a requirement — the metadata is
+inert comments to a plain interpreter.
 
 **Tesseract is not needed for normal papers.** arXiv and APS PDFs are born-digital,
 so `render.py` runs `pymupdf4llm` with `use_ocr=NEVER` and only retries with OCR
@@ -45,7 +55,7 @@ clear the mirrors' DDoS-Guard challenge. Only required if you expect to hit
 paywalled DOIs:
 
 ```sh
-uv run --with playwright python -m playwright install chromium
+python3 -m pip install --user playwright && python3 -m playwright install chromium
 ```
 
 APS DOIs (`10.1103/*`) render from publisher JATS XML, which needs **pandoc**:
@@ -200,7 +210,7 @@ If Step 4 reports `miss` for any DOI (no open-access PDF and no arXiv preprint),
 run the browser-based Sci-Hub helper. Pass the missed DOIs:
 
 ```sh
-uv run skills/how-to-download-ref/helpers/scihub_download.py --kb "$KB" \
+python3 skills/how-to-download-ref/helpers/scihub_download.py --kb "$KB" \
   --doi 10.1111/j.1467-9280.2006.01693.x \
   --doi 10.3102/0034654316689306
 ```
@@ -242,19 +252,19 @@ use it per-DOI rather than across a whole KB.
 ### 5. Render PDF to markdown
 
 ```sh
-uv run skills/how-to-download-ref/helpers/render.py --kb "$KB"
+python3 skills/how-to-download-ref/helpers/render.py --kb "$KB"
 ```
 
 Add `--only-missing` to skip papers that already have a rendered `.md` file (>500 bytes). This is much faster when adding a few papers to a large KB:
 
 ```sh
-uv run skills/how-to-download-ref/helpers/render.py --kb "$KB" --only-missing
+python3 skills/how-to-download-ref/helpers/render.py --kb "$KB" --only-missing
 ```
 
 When the user opted into LaTeX sources (Step 4, option **b**), add `--tex-source`:
 
 ```sh
-uv run skills/how-to-download-ref/helpers/render.py --kb "$KB" --tex-source
+python3 skills/how-to-download-ref/helpers/render.py --kb "$KB" --tex-source
 ```
 
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
