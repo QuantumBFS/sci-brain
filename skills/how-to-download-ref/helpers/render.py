@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pymupdf4llm"]
+# ///
 """Render the .raw/ assets into .knowledge/ markdown.
 
 Reads:
 - .raw/{arxiv,doi}/<id>.json — Semantic Scholar metadata (from fetch_metadata.py)
 - .raw/{arxiv,doi}/<id>.pdf — original PDFs (optional; rendered as full-text section)
+- .raw/doi/<safe>.jats.xml — publisher JATS from the APS Harvest API (optional;
+  ALWAYS preferred as the full-text body when present — it is the published
+  version, with exact TeX from MathML and a structured reference list)
 - .raw/{arxiv,doi}/<id>.tex — flattened arXiv LaTeX source (optional; used as the
   full-text body ONLY with --tex-source; otherwise PDF->markdown is the default)
 - .raw/repos/<owner>-<repo>/ — shallow clones (rendered as README + ls-tree)
@@ -86,26 +93,52 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
     if kb is not None and fig_subdir:
         try:
             import pymupdf4llm  # type: ignore
+            try:
+                from pymupdf4llm.ocr import OCRMode  # pymupdf4llm >= 1.28
+            except ImportError:
+                OCRMode = None
             fig_abs = kb / ".figures" / fig_subdir
             fig_abs.mkdir(parents=True, exist_ok=True)
             rel_path = f".figures/{fig_subdir}"
-            old_cwd = os.getcwd()
-            try:
-                os.chdir(kb)
-                md = pymupdf4llm.to_markdown(
-                    str(pdf),
-                    write_images=True,
-                    image_path=rel_path,
-                    image_format="png",
-                )
-            finally:
-                os.chdir(old_cwd)
+            def _to_md(**extra):
+                old_cwd = os.getcwd()
+                try:
+                    os.chdir(kb)
+                    return pymupdf4llm.to_markdown(
+                        str(pdf),
+                        write_images=True,
+                        image_path=rel_path,
+                        image_format="png",
+                        **extra,
+                    )
+                finally:
+                    os.chdir(old_cwd)
+
+            # Papers from arXiv/APS are born-digital: the text layer is already
+            # there, so OCR buys nothing, costs a lot of time, and drags in a
+            # hard tessdata dependency. Worse, pymupdf4llm's default
+            # (select-keep) OCRs pages it judges sparse, and a single page whose
+            # OCR cannot initialise raises and discards the WHOLE document.
+            # Skip it, and only reach for OCR if the text layer really is empty
+            # -- a scanned old paper, typically via the Sci-Hub tier.
+            md = _to_md(use_ocr=OCRMode.NEVER) if OCRMode else _to_md()
+            if OCRMode and (not md or len(md.strip()) <= 100):
+                print(f"  {pdf.name}: no text layer, retrying with OCR", file=sys.stderr)
+                md = _to_md()
             if md and len(md.strip()) > 100:
                 text = md
         except ImportError:
             print("  pymupdf4llm not installed; falling back to markitdown/pdftotext", file=sys.stderr)
         except Exception as e:
             print(f"  pymupdf4llm {pdf.name}: {e}", file=sys.stderr)
+            if "esseract" in str(e):
+                print("  ^ This PDF has no text layer, so it needs OCR, and the English "
+                      "Tesseract pack is missing. Install it (tesseract-data-eng on Arch "
+                      "-- note any tesseract-data-* satisfies the `tessdata` dependency "
+                      "there, so `eng` is easy to end up without; tesseract-ocr-eng on "
+                      "Debian/Ubuntu; `brew install tesseract-lang` on macOS). "
+                      "Born-digital papers do not reach this path.",
+                      file=sys.stderr)
 
     tmp_md = Path("/tmp") / (pdf.stem + ".md")
     tmp_txt = Path("/tmp") / (pdf.stem + ".txt")
@@ -123,6 +156,9 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
                                capture_output=True, text=True, timeout=120)
             if r.returncode == 0 and tmp_txt.exists():
                 text = tmp_txt.read_text(errors="replace")
+                print(f"  WARNING {pdf.name}: fell through to pdftotext. Equations and "
+                      f"two-column layout will be mangled; treat the body as unreliable. "
+                      f"Prefer JATS (aps_harvest.py) or arXiv LaTeX source.", file=sys.stderr)
         except Exception:
             pass
     for p in (tmp_md, tmp_txt):
@@ -222,7 +258,25 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = 
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
         pdf = doi_dir / f"{safe}.pdf"
         tex = doi_dir / f"{safe}.tex"
-        if use_tex and tex.exists() and tex.stat().st_size > 100:
+        jats = doi_dir / f"{safe}.jats.xml"
+        jats_md, jats_refs = "", []
+        if jats.exists() and jats.stat().st_size > 2048:
+            # Publisher JATS beats both LaTeX preprint and PDF: it is the
+            # published version, its MathML carries exact TeX, and its
+            # reference list is fully structured. See aps_harvest.py.
+            try:
+                from aps_harvest import extract_refs, jats_to_markdown, render_refs_md
+                jats_md = jats_to_markdown(jats)
+                jats_refs = extract_refs(jats)
+            except Exception as e:
+                print(f"  jats {safe}: {e}", file=sys.stderr)
+        if jats_md:
+            meta["full_text"] = "jats"
+            body[0] = render_frontmatter(meta)
+            body += ["", "## Full Text (publisher JATS)", "", jats_md]
+            if jats_refs:
+                body += ["", "## References", "", render_refs_md(jats_refs)]
+        elif use_tex and tex.exists() and tex.stat().st_size > 100:
             meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
             body += ["", "## Full Text (LaTeX source)", "",

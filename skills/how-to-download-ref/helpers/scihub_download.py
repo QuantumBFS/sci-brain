@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "playwright",
+#     "tomli; python_version < '3.11'",
+# ]
+# ///
 """Browser-based Sci-Hub fallback for paywalled PDFs.
 
 Replaces the old `sci-hub-server` MCP. A real (headless) browser is required
