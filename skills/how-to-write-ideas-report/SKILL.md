@@ -3,7 +3,19 @@ name: how-to-write-ideas-report
 description: Agentic trigger. Use when writing a proposal-style ideas report from a finished brainstorm-ideas session or a chosen research direction.
 ---
 
-**Path conventions:** `docs/discussion/` and `articles/` resolve from the **project working directory**; `skills/` from the **plugin root**.
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+
+**Path conventions:** `docs/discussion/` and `articles/` resolve from the **project working directory**; resource paths follow Installed resources above.
 
 # Write an ideas report
 
@@ -11,7 +23,7 @@ Write a structured ideas report after a `brainstorm-ideas` session has converged
 
 ### Setup
 
-Follow `skills/_shared/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
+Follow `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
 - Primary source: `docs/discussion/*-brainstorm-ideas-log.md`. If multiple logs exist and the request does not identify one, ask which to use.
 - If no log exists, ask the user to brainstorm first or describe the chosen direction and reasoning to preserve.

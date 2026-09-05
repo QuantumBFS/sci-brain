@@ -24,10 +24,11 @@ import re
 import sys
 from pathlib import Path
 
+from kb_identity import cache_path
+
 
 def load_meta(kb: Path, idtype: str, ref_id: str) -> dict:
-    safe = ref_id.replace("/", "-")
-    p = kb / ".raw" / idtype / f"{safe}.json"
+    p = cache_path(kb, idtype, ref_id)
     if not p.exists():
         sys.exit(f"missing metadata: {p}")
     return json.loads(p.read_text())
@@ -103,6 +104,15 @@ def cmd_append(args):
     bib = extract_bibtex(meta)
     bib = replace_key(bib, args.key)
     bib_path = Path(args.bib)
+    from kb_identity import identities
+    from verify_bib import parse_bib, extract_arxiv, extract_doi
+    if bib_path.exists():
+        for entry in parse_bib(bib_path.read_text()):
+            fields = entry["fields"]
+            existing = identities({"doi": extract_doi(fields), "arxiv_id": extract_arxiv(fields)})
+            if existing & identities(meta):
+                print(f"skip: same paper already present as {entry['key']} in {bib_path}")
+                return
     if already_in_bib(bib_path, args.key):
         print(f"skip: {args.key} already present in {bib_path}")
         return

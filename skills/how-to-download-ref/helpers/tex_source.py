@@ -168,7 +168,8 @@ def copy_figures(src_dir: Path, fig_dir: Path) -> int:
 
 def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0",
                        out_tex: Path | None = None,
-                       fig_subdir: str | None = None) -> str:
+                       fig_subdir: str | None = None,
+                       restore_figures: bool = False) -> str:
     """Fetch + flatten one paper's e-print source.
 
     Returns 'ok', 'cached', 'pdf-only' (PDF-only submission), or 'miss'.
@@ -177,24 +178,32 @@ def fetch_arxiv_source(arxiv_id: str, kb: Path, ua: str = "Mozilla/5.0",
     S2 record names an arXiv preprint); defaults are the arXiv-entry paths.
     """
     if out_tex is None:
-        out_tex = kb / ".raw" / "arxiv" / f"{arxiv_id}.tex"
+        out_tex = kb / ".raw" / "arxiv" / (arxiv_id.replace("/", "-") + ".tex")
     if fig_subdir is None:
-        fig_subdir = f"arxiv__{arxiv_id}"
+        fig_subdir = "arxiv__" + arxiv_id.replace("/", "-")
     src_dir = out_tex.with_name(out_tex.stem + "-src")
-    if out_tex.exists() and out_tex.stat().st_size > 100:
+    if out_tex.exists() and out_tex.stat().st_size > 100 and (not restore_figures or src_dir.is_dir()):
+        if restore_figures:
+            copy_figures(src_dir, kb / ".figures" / fig_subdir)
         return "cached"
     # Same paper already fetched under the default arXiv paths (the id
     # appears both as an arXiv manifest entry and as a DOI's preprint):
     # reuse the flattened tex + figures instead of re-downloading.
-    default_tex = kb / ".raw" / "arxiv" / f"{arxiv_id}.tex"
-    if out_tex != default_tex and default_tex.exists() and default_tex.stat().st_size > 100:
+    default_tex = kb / ".raw" / "arxiv" / (arxiv_id.replace("/", "-") + ".tex")
+    default_src = default_tex.with_name(default_tex.stem + "-src")
+    if (out_tex != default_tex and default_tex.exists() and default_tex.stat().st_size > 100
+            and (not restore_figures or default_src.is_dir())):
         try:
-            default_figs = kb / ".figures" / f"arxiv__{arxiv_id}"
+            default_figs = kb / ".figures" / ("arxiv__" + arxiv_id.replace("/", "-"))
             if default_figs.is_dir():
                 shutil.copytree(default_figs, kb / ".figures" / fig_subdir,
                                 dirs_exist_ok=True)
             out_tex.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(default_tex, out_tex)
+            if default_src.is_dir():
+                shutil.copytree(default_src, src_dir, dirs_exist_ok=True)
+                if restore_figures:
+                    copy_figures(src_dir, kb / ".figures" / fig_subdir)
             return "cached"
         except Exception:
             return "miss"

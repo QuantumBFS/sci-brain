@@ -8,6 +8,7 @@ HELPER = Path(__file__).resolve().parents[1] / "skills" / "how-to-download-ref" 
 
 
 def _load():
+    sys.path.insert(0, str(HELPER.parent))
     spec = importlib.util.spec_from_file_location("render_helper", HELPER)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

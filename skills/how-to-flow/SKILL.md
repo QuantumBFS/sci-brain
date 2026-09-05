@@ -3,6 +3,18 @@ name: how-to-flow
 description: Agentic trigger. Use when one hard, testable goal resists a direct solution and needs an autonomous decide–simulate–learn–backjump search.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+
 # Flow
 
 A deep-thinker that **conquers one hard problem by autonomous search**, modeled on a

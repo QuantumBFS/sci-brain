@@ -182,8 +182,8 @@ def test_brainstorm_ideas_loads_advisor_kb_from_dot_knowledge():
 
 def test_brainstorm_ideas_operational_instructions_use_resolved_kb_variables():
     text = _read("brainstorm-ideas")
-    assert "Resolve the project KB via `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)`" in text
-    assert "ADVISOR_KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>)" in text
+    assert "Resolve the project KB via `KB=$(python3 \"$DOWNLOAD_REF_DIR/helpers/resolve_kb.py\")`" in text
+    assert "ADVISOR_KB=$(python3 \"$DOWNLOAD_REF_DIR/helpers/resolve_kb.py\" --advisor <slug>)" in text
     assert "project knowledge base at `<project>/.knowledge/`" not in text
     assert "Ground ideas in loaded knowledge bases (`<project>/.knowledge/` and `advisors/<slug>/.knowledge/`)" not in text
 
@@ -198,7 +198,7 @@ def test_brainstorm_ideas_delegates_ideas_report():
 
 def test_ideas_report_owns_report_structure():
     text = _read("how-to-write-ideas-report")
-    assert "skills/_shared/writing-workflow.md" in text
+    assert "skills/how-to-write-ideas-report/references/writing-workflow.md" in text
     assert "Minimum Viable Experiment" in text
     assert "Pivot Signal" in text
 
@@ -243,7 +243,7 @@ def test_paper_reviewer_has_frontmatter():
 
 def test_paper_reviewer_uses_shared_writing_workflow():
     text = _read("review-paper")
-    assert "skills/_shared/writing-workflow.md" in text
+    assert "skills/how-to-write-ideas-report/references/writing-workflow.md" in text
 
 
 def test_paper_reviewer_mentions_verification_chain():

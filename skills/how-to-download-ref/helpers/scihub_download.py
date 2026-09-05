@@ -167,8 +167,8 @@ def main():
         page = ctx.new_page()
 
         for doi in dois:
-            safe = doi.replace("/", "-")
-            dest = out_dir / f"{safe}.pdf"
+            from kb_identity import cache_path
+            dest = cache_path(Path(args.kb), "doi", doi, ".pdf")
             if dest.exists() and dest.stat().st_size > MIN_PDF_BYTES:
                 print(f"SKIP  {doi}  (already present)")
                 continue

@@ -3,11 +3,25 @@ name: brainstorm-ideas
 description: User trigger. Use when brainstorming research ideas with a Socratic collaborator who learns your background and helps find a problem worth attacking.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
+
+
 **Path conventions:**
 - `docs/discussion/` — resolved from the **project working directory**
 - `<project>/.knowledge/` — the project's shared knowledge base; resolved via `skills/how-to-download-ref/helpers/resolve_kb.py`
 - `advisors/<slug>/.knowledge/` — advisor-specific literature cache, rooted at the **plugin root**
-- `advisors/`, `skills/` — resolved from the **plugin root** (two levels up from this SKILL.md file)
+- `skills/` follows Installed resources above. `advisors/` requires the full sci-brain checkout; when it is absent, use the no-advisor flow.
 
 ## Choose the mode
 
@@ -125,7 +139,7 @@ If the user picks an advisor, do **not** just read `advisors/<slug>/profile.md` 
 When an advisor is selected, first resolve the advisor KB path so it follows `$SCIBRAIN_KB_DIRNAME` if the user has set it:
 
 ```sh
-ADVISOR_KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>)
+ADVISOR_KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py" --advisor <slug>)
 ```
 
 Then:
@@ -167,7 +181,7 @@ Use this for moments where the advisor's specific perspective, instinct, or expe
 
 If no advisor is selected or no advisors exist, proceed with default mentor behavior.
 
-**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed publication data from the `know-me-better` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
+**First, check for history.** Read `docs/discussion/user-profile.md` if it exists — this contains the user's persisted profile from previous sessions. Also resolve the project KB via `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")` and check `$KB/` for indexed publication data from the `know-me-better` skill. Also read `docs/discussion/*-brainstorm-ideas-log.md` if they exist — they contain past brainstorming sessions and reveal the user's evolving interests, thinking patterns, and which directions they've explored before.
 
 **Session picker.** If previous session logs exist, present them as an interactive choice before proceeding:
 
@@ -234,7 +248,7 @@ If the user's self-introduction already reveals their experience level (e.g., th
 
 **Always run this phase** — even when the user already stated a direction. There's almost always more context to uncover.
 
-**Load context:** Resolve the project KB via `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)` and check `$KB/` for indexed knowledge. If found, note it for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `$ADVISOR_KB/INDEX.md` (resolved earlier with `--advisor <slug>`) so the mentor knows what literature the advisor subagent already has in context.
+**Load context:** Resolve the project KB via `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")` and check `$KB/` for indexed knowledge. If found, note it for later use. If none found, note that a lighter web search will be needed later. If an advisor is active, also load `$ADVISOR_KB/INDEX.md` (resolved earlier with `--advisor <slug>`) so the mentor knows what literature the advisor subagent already has in context.
 
 #### Step 1: Talk first
 

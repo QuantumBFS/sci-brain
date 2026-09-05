@@ -37,6 +37,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from kb_identity import find_match, identities, identity_index
+
 SLUG_NON_ALNUM = re.compile(r"[^a-z0-9]+")
 
 
@@ -63,6 +65,23 @@ def render_frontmatter(meta: dict) -> str:
         lines.append(f"note: {yaml_escape(meta['note'])}")
     lines.append("---")
     return "\n".join(lines)
+
+
+def write_rendered(path: Path, body: list[str]) -> None:
+    """Keep human YAML fields verbatim, including lists and multiline notes."""
+    if path.exists():
+        old = path.read_text()
+        if old.startswith("---\n"):
+            match = re.match(r"---\n(.*?)\n---(?:\n|$)", old, re.S)
+            if not match:
+                raise ValueError(f"{path}: unclosed frontmatter; refusing to overwrite")
+            blocks = re.split(r"(?=^[A-Za-z_][\w-]*:)", match[1] + "\n", flags=re.M)
+            human = [block for block in blocks if block.partition(":")[0] in ("note", "tags", "rating")]
+            if human:
+                fresh = body[0].splitlines()
+                fresh = [line for line in fresh[1:-1] if line.partition(":")[0] not in ("note", "tags", "rating")]
+                body[0] = "---\n" + "\n".join(fresh) + "\n" + "".join(human) + "---"
+    path.write_text("\n".join(body) + "\n")
 
 
 def authors_str(s2: dict) -> str:
@@ -174,12 +193,24 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool 
     arx_dir = raw / "arxiv"
     if not arx_dir.exists():
         return 0
+    index = identity_index(kb, include_raw=False)
     for json_path in sorted(arx_dir.glob("*.json")):
-        arxiv_id = json_path.stem
         s2 = json.loads(json_path.read_text())
+        arxiv_id = (s2.get("externalIds") or {}).get("ArXiv") or json_path.stem
+        if "-" in arxiv_id and "/" not in arxiv_id:
+            arxiv_id = "/".join(arxiv_id.rsplit("-", 1))
         title = s2.get("title", "(untitled)")
-        slug = f"{arxiv_id}_{slugify(title)}"
+        slug = arxiv_id.replace("/", "-") + "_" + slugify(title)
         out_path = kb / f"{slug}.md"
+        keys = identities(s2) | {("arxiv", arxiv_id)}
+        match = find_match(index, keys)
+        if match:
+            from index import parse_frontmatter
+            if parse_frontmatter(match[0]).get("type") != "arxiv":
+                print(f"present {match[0]} (matched via {match[1]}); skipped duplicate")
+                continue
+            out_path = match[0]
+        index.update({key: out_path for key in keys})
         if only_missing and out_path.exists() and out_path.stat().st_size > 500:
             n += 1
             continue
@@ -201,15 +232,15 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool 
         if meta.get("doi"):
             body += ["", f"**DOI:** [{meta['doi']}](https://doi.org/{meta['doi']})"]
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
-        pdf = arx_dir / f"{arxiv_id}.pdf"
-        tex = arx_dir / f"{arxiv_id}.tex"
+        pdf = json_path.with_suffix(".pdf")
+        tex = json_path.with_suffix(".tex")
         if use_tex and tex.exists() and tex.stat().st_size > 100:
             meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
             body += ["", "## Full Text (LaTeX source)", "",
                      tex.read_text(encoding="utf-8", errors="replace").strip()]
         else:
-            full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{arxiv_id}") if pdf.exists() else ""
+            full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{json_path.stem}") if pdf.exists() else ""
             if full:
                 meta["full_text"] = "yes"
                 body[0] = render_frontmatter(meta)
@@ -217,7 +248,7 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool 
             else:
                 meta["full_text"] = "no"
                 body[0] = render_frontmatter(meta)
-        (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
+        write_rendered(out_path, body)
         n += 1
     return n
 
@@ -227,6 +258,7 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = 
     doi_dir = raw / "doi"
     if not doi_dir.exists():
         return 0
+    index = identity_index(kb, include_raw=False)
     for json_path in sorted(doi_dir.glob("*.json")):
         safe = json_path.stem
         s2 = json.loads(json_path.read_text())
@@ -234,6 +266,15 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = 
         title = s2.get("title", "(untitled)")
         slug = slugify(safe)
         out_path = kb / f"{slug}.md"
+        keys = identities(s2) | {("doi", doi_canon)}
+        match = find_match(index, keys)
+        if match:
+            from index import parse_frontmatter
+            if parse_frontmatter(match[0]).get("type") != "doi":
+                print(f"present {match[0]} (matched via {match[1]}); skipped duplicate")
+                continue
+            out_path = match[0]
+        index.update({key: out_path for key in keys})
         if only_missing and out_path.exists() and out_path.stat().st_size > 500:
             n += 1
             continue
@@ -291,7 +332,7 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = 
                 meta["full_text"] = "no"
                 body[0] = render_frontmatter(meta)
                 body += ["", "_Full text not retrieved — abstract-only entry._"]
-        (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
+        write_rendered(out_path, body)
         n += 1
     return n
 
@@ -340,7 +381,7 @@ def render_github(kb: Path, raw: Path) -> int:
             body += ["", "## File tree (top 200)", "", "```"]
             body += tree
             body.append("```")
-        (kb / f"{repo_dir.name}.md").write_text("\n".join(body) + "\n")
+        write_rendered(kb / f"{repo_dir.name}.md", body)
         n += 1
     return n
 
@@ -377,7 +418,7 @@ def render_web(kb: Path, raw: Path, manifest: dict) -> int:
                 if f.suffix.lower() in (".tex", ".bib", ".md", ".txt"):
                     body += ["", f"## {f.name}", "", f"```{f.suffix.lstrip('.')}",
                              f.read_text(errors="replace").strip(), "```"]
-        (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
+        write_rendered(kb / f"{slug}.md", body)
         n += 1
     return n
 
@@ -399,7 +440,7 @@ def render_stubs(kb: Path, manifest: dict) -> int:
                 f"**Authors:** {meta['authors']}"]
         if meta.get("note"):
             body += ["", f"**Note:** {meta['note']}"]
-        (kb / f"{slug}.md").write_text("\n".join(body) + "\n")
+        write_rendered(kb / f"{slug}.md", body)
         n += 1
     return n
 

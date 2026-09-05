@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from fetch_metadata import S2_API_KEY, S2_FIELDS, post_batch, save
+from kb_identity import cache_path
 
 
 S2_TITLE_URL = "https://api.semanticscholar.org/graph/v1/paper/search/match"
@@ -239,6 +240,7 @@ def normalize_doi(value: str | None) -> str | None:
     if not value:
         return None
     doi = value.strip().strip("{}")
+    doi = re.sub(r"\\([_&%#$])", r"\1", doi)
     doi = re.sub(r"^(?:doi:\s*|https?://(?:dx\.)?doi\.org/)", "", doi,
                  flags=re.IGNORECASE)
     doi = doi.rstrip(".,; ").lower()
@@ -337,7 +339,11 @@ def _cache_path(kb: Path, kind: str, value: str) -> Path:
     if kind == "title":
         safe = hashlib.sha256(normalize_text(value).encode("utf-8")).hexdigest()
     else:
-        safe = value.replace("/", "-") if kind == "doi" else value
+        try:
+            return cache_path(kb, kind, value)
+        except ValueError:
+            # Verification must still inspect suspect identifiers in existing bibs.
+            safe = value.replace("/", "-").replace("\\", "-")
     return kb / ".raw" / kind / f"{safe}.json"
 
 
@@ -348,7 +354,7 @@ def _load_cache(path: Path) -> dict[str, Any] | None:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    if not isinstance(data, dict) or not data.get("paperId") or not data.get("title"):
+    if not isinstance(data, dict) or not data.get("title") or not (data.get("paperId") or data.get("metadata_source") == "crossref"):
         return None
     return data
 

@@ -3,6 +3,18 @@ name: survey
 description: User trigger. Use when surveying a research topic into a knowledge base or writing a grounded literature, technology, or field assessment.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+
 ## Choose the mode
 
 - **Explore and build the knowledge base:** run Topic Survey below.
@@ -59,7 +71,7 @@ Write a self-contained survey or technology/field assessment suitable for intern
 
 ### Setup
 
-Follow `skills/_shared/writing-workflow.md` for context loading, **source scoping**, citation handling, gap-filling research, output format, diagrams, and finish checks.
+Follow `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, **source scoping**, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
 - If no KB exists, offer to run Topic Survey first; the report needs a grounded reference base.
 - **Scope the source set first.** Run `scope_refs.py` as specified in the shared workflow. Fix dangling anchors before drafting. Build the report's approaches and claims from those scoped keys, not the entire bibliography.
@@ -109,7 +121,7 @@ End with a ranked table of 4–8 problems: number, problem, why it matters, who 
 
 ### Visualization guidelines
 
-- Typst: use CeTZ for timelines and dependency diagrams; use native `grid`, `rect`, and fixed-width `box()` for text-heavy comparisons and role diagrams. See `skills/_shared/typst-reference.md`.
+- Typst: use CeTZ for timelines and dependency diagrams; use native `grid`, `rect`, and fixed-width `box()` for text-heavy comparisons and role diagrams. See `skills/how-to-write-ideas-report/references/typst-reference.md`.
 - Use a native table for cross-approach comparisons.
 - Wrap multiline CeTZ content in a fixed-width box and use string identifiers for `name:`.
 - Compile after each figure; every claim in technical and open-problem tables needs at least one citation.
