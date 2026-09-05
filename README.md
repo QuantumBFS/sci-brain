@@ -43,6 +43,8 @@ Two kinds, told apart by the first words of each skill's description. **User tri
 
 A typical path: `/survey` a field → `/brainstorm-ideas` with an optional [advisor](advisors/) → `/autoresearch` to run validator-scored attempts → `/write-paper` and `/write-slides`.
 
+Slide templates are maintained in [GiggleLiu/sci-brain-slides](https://github.com/GiggleLiu/sci-brain-slides). The `write-slides` skill uses its v0.1.0 release and documents the local Typst package setup.
+
 > **One-time setup** for PDF rendering: `python3 -m pip install --user pymupdf4llm`.
 
 ### Agentic trigger — `how-to-*`, invoked automatically

@@ -6,263 +6,139 @@ description: User trigger. Use when building a Typst + Touying slide deck for a 
 ## Installed resources
 
 Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+with `Path(path).resolve()` before locating resources; follow symlinks. A path
+written as `skills/<name>/...` means the installed `<name>` skill's directory from
+the agent's skill catalog. Locate dependencies by public skill name.
 
-Before running the examples, set `WRITE_SLIDES_DIR` to the absolute directory of `write-slides`. Quote these variables as shown.
+The slide template, gallery, layouts, and style documentation come from
+[GiggleLiu/sci-brain-slides](https://github.com/GiggleLiu/sci-brain-slides).
+Use release **v0.1.0**, package **@preview/sci-brain-slides:0.1.0**, with Typst
+**0.14.0 or newer**. Check `typst --version` and `typst fonts`; the upstream
+starter uses DejaVu Sans, with math and monospace fonts bundled with Typst.
 
+# Write scientific slides
 
-# Slide Writer (Typst + Touying)
+Build a PDF talk from an agreed outline, using the upstream template's `setup()`
+API. The upstream repository owns the slide components and their tests. This
+skill owns the research context, presentation workflow, and final deck review.
+For an actual manuscript, use `write-paper`; for an in-paper figure, use
+`how-to-review-figure` with the figure's authoring tools.
 
-A technical skill for building PDF slide decks in Typst with the Touying slide
-engine. It ships a **zoo** — five color themes, nine layout templates, and two
-dozen gadgets — that compose into projector-safe slides for scientific talks. The
-zoo is the deliverable; this file teaches how to drive it.
+## 1. Load context and agree the outline
 
-**Scope note.** This skill is the *technical* companion to `slide-writing`.
-`slide-writing` owns the *logical* layer (the logic-flow sign-off, the per-page
-design discipline, the house rules for figure-vs-commentary rhythm) and outputs
-HTML in a fixed brand. This skill owns the *Typst/Touying* layer: which theme,
-which layout, which gadget, and how to compile. When a deck is for an external
-brand or must be HTML, use `slide-writing`. When it is a PDF research talk,
-lecture, or briefing, use this skill.
+Read the relevant manuscript or `docs/discussion/*-brainstorm-ideas-log.md`.
+Resolve the project KB using `how-to-download-ref` when needed. Reuse figures
+from `$KB/.figures/`, the manuscript, or earlier talks, and verify that claims
+and citations match the source.
 
-## When to use
+Capture the topic, audience, talk duration, and main claim. Propose sections with
+one claim and a figure idea for each. Get outline approval before composing the
+deck; an already approved outline can be reused.
 
-- A research talk, conference presentation, seminar, or lecture as a PDF deck.
-- A project briefing or internal report that should read as deliberate slides.
-- Any deck where Touying's `#pause` animations, math, CeTZ diagrams, or Typst's
-  typesetting are worth more than a browser deck.
+## 2. Initialize the upstream template
 
-## When NOT to use
+The v0.1.0 GitHub release is available, but its public Typst registry package was
+not available when this workflow was verified. Install the tagged repository in
+an explicit local package directory. This uses Typst's native package mechanism:
 
-- A brand-locked or investor-facing deck — use `slide-writing` (HTML, brand).
-- A one-page handout or status update — write Markdown.
-- An in-paper figure — use Typst directly, or `write-paper` + `how-to-review-figure`.
-- A real manuscript with results — use `write-paper`.
-
----
-
-## The zoo at a glance
-
-Everything lives under `skills/write-slides/zoo/`. Compile `gallery.typ` to see
-the whole catalogue rendered (`typst compile gallery.typ`, or
-`--input theme=dark` to preview any theme).
-
-| Axis | Count | Where | Examples |
-|---|---|---|---|
-| **Color themes** | 5 | `zoo/themes/` | academic, dark, minimal, vibrant, brand |
-| **Layouts** (slide-body composers) | 9 | `zoo/layouts.typ` | spread, twocol, threecol, hero, band, cards, punch |
-| **Gadgets** (content components) | ~25 | `zoo/gadgets.typ` | rail_pull, callout, figbox, stat_row, spec_list, theorem, data_table, conclusion_grid, codebox, toc, pacing |
-| **CeTZ diagrams** (optional) | 4 | `zoo/gadgets_cetz.typ` | tensor, automaton-state, edge, flowbox |
-| **Pin annotations** (optional) | 3 | `zoo/gadgets_pin.typ` | pin, highlight, note |
-| **Touying primitives** | — | re-exported by `zoo/lib.typ` | `title-slide`, `focus-slide`, `#pause` |
-
-Palettes (pure color data) live in `zoo/palettes/`; each theme maps its palette
-onto Touying's `config-colors` slots. The single import surface is `zoo/lib.typ`.
-
----
-
-## Workflow
-
-Borrow the logical discipline from `slide-writing` (agree the outline before
-drawing), then enrich it with the Typst technical layer. Do not reorder — the
-sequence is the point.
-
-### Phase 0 — Load context
-
-- Read any `docs/discussion/*-brainstorm-ideas-log.md` for the talk's *why*.
-- Pull figures the deck will reuse from `$KB/.figures/`, the paper's `figs/`,
-  or a prior talk — do not redraw a figure the author already drew.
-- If the talk presents a manuscript, read `articles/<paper>/main.typ` so the
-  deck's claims match the paper's.
-
-### Phase 1 — Logic flow (sign-off gate)
-
-Capture **topic**, **audience**, **key claim** in three lines. Propose a
-section outline of 5–8 sections (12 is the ceiling), one line each:
-
-```
-§N · <section name> — <main claim, 1 sentence> — <figure idea, ≤8 words>
+```sh
+SLIDE_PACKAGES="${XDG_CACHE_HOME:-$HOME/.cache}/sci-brain/typst-packages"
+SLIDE_TEMPLATE="$SLIDE_PACKAGES/preview/sci-brain-slides/0.1.0"
+git clone --branch v0.1.0 --depth 1 \
+  https://github.com/GiggleLiu/sci-brain-slides.git "$SLIDE_TEMPLATE"
+mkdir -p slides
+typst init @preview/sci-brain-slides:0.1.0 slides/my-talk \
+  --package-path "$SLIDE_PACKAGES"
 ```
 
-Show the outline and **wait for sign-off**. A deck whose outline is wrong is
-wrong on every page; do not touch Typst until the user approves.
+Set `SLIDE_PACKAGES` again in each new shell that compiles the deck. If the
+checkout already exists, verify its origin and revision before reusing it;
+v0.1.0 was verified at `ba4085986c422249a4f0a550656c8f9e26de2565`. Use a new deck
+directory rather than overwriting an existing talk. Record the package version
+and compile command alongside the deck so collaborators can repeat the setup.
+Once the same version is published in Typst's registry, the local checkout and
+`--package-path` are optional.
 
-### Phase 2 — Pick the theme (before any slide)
+Read `$SLIDE_TEMPLATE/docs/layout-patterns.md` and
+`$SLIDE_TEMPLATE/docs/style-tokens.md` for the API and design examples matching
+this release. Browse `$SLIDE_TEMPLATE/docs/gallery.pdf`, or compile the gallery:
 
-Choose one theme up front and commit. The decision is audience + room:
+```sh
+typst compile "$SLIDE_TEMPLATE/gallery.typ" /tmp/sci-brain-slides-gallery.pdf \
+  --package-path "$SLIDE_PACKAGES" --input theme=academic
+```
 
-| Situation | Theme |
-|---|---|
-| Conference talk, default, projector-safe | `academic` |
-| Dim room, projector glare | `dark` |
-| Lecture notes printed as slides, handout | `minimal` |
-| Teaching, outreach, back-row energy | `vibrant` |
-| Your lab/product has a house color | `brand` (pass `build(rgb("#…"))`) |
+## 3. Choose the theme and compose slides
 
-Theme-hopping mid-deck reads as inconsistent. Pick once.
+Use `academic` by default; `dark` for a dark presentation background, `minimal`
+for a restrained monochrome deck, `vibrant` for colorful teaching material, or
+`brand` with an explicit primary color. Keep one theme throughout the talk.
+The generated `main.typ` reads `theme` and `text-size` from CLI inputs.
 
-### Phase 3 — Compose slides from the zoo (one at a time)
-
-For each section in the approved outline, pick a layout/gadget by the slide's
-job — the router is `references/layout-patterns.md`. Write the slide, then show
-the user (compiled page or markdown form) before moving on.
-
-### Phase 4 — Assemble and verify
-
-1. Scaffold a self-contained deck (copies the zoo next to the `.typ`):
-   ```bash
-   python3 "$WRITE_SLIDES_DIR/scripts/scaffold.py" <target> --name <deck> --theme <theme>
-   ```
-2. Paste the approved slides into `<deck>.typ`.
-3. Compile and walk it:
-   ```bash
-   typst compile <deck>.typ          # the compile IS the lint
-   ```
-   - Every `==` heading is a slide; every `=` is a section divider.
-   - Check: titles carry one italic accent, no slide overflows, every figure is
-     cited in the rail, the outline (`#toc()`) lists the real sections, and no
-     text sits below ~11 pt.
-
-### Phase 5 — Figure-taste pass
-
-Hand any figure-heavy slide to the `how-to-review-figure` skill (line weight, color
-discipline, text size, chartjunk). Slides are the harshest viewing context for a
-figure; a figure that survives `how-to-review-figure` survives a projector.
-
----
-
-## The preamble (copy once per deck)
+The package binds colors, typography, layouts, and gadgets together:
 
 ```typst
-#import "zoo/lib.typ": *
+#import "@preview/sci-brain-slides:0.1.0": *
 
-#let pal = palettes.academic
-#show: themes.academic.with(config-info(
-  title: [Deck Title], subtitle: [one-line],
-  author: [Name], date: datetime.today(), institution: [Org],
+#let deck = setup(theme: "academic", text-size: 22pt)
+#let (twocol,) = deck.layouts
+#show: deck.theme.with(config-info(
+  title: [Talk title], author: [Your name], institution: [Your lab],
 ))
-
-#let (rail_pull, callout, codebox, quote_pull, figbox, portrait, clip_image,
-      stat, stat_row, spec_list, theorem, definition, lemma, example, proof_box,
-      badge, tag, time_badge, data_table, conclusion_grid, key_links, toc,
-      pacing, kicker, progress_dots) = gadgets(pal)
-#let (spread, twocol, threecol, hero, band, cards, card, punch,
-      centered_figure) = layouts(pal)
-
 #title-slide()
 
-== Outline
-#toc()          // deck-register section list; #outline() is a paper TOC
+== State the result in the slide title
+#twocol([The evidence.], [What the evidence establishes.])
+
+#focus-slide[The main takeaway.]
 ```
 
-The two `#let` lines destructure the gadget/layout factories bound to `pal`, so
-every gadget already knows the active theme's colors. To switch theme, change
-`palettes.academic` → `palettes.dark` and `themes.academic` → `themes.dark` in
-those three spots — nothing else moves. Full router + copyable snippets in
-`references/layout-patterns.md`; palette vocabulary in
-`references/style-tokens.md`.
+Bind only the layouts and gadgets used by the talk. `deck.palette` supplies
+colors and `deck.sizes` supplies typography. For a custom brand, use
+`setup(theme: "brand", primary: rgb("#aa1e2b"), text-size: 22pt)`.
 
-### Optional: diagrams and pin annotations
+| Slide purpose | Upstream layout or component |
+|---|---|
+| Figure with interpretation | `spread` and `figbox` |
+| Comparison | `twocol` or `threecol` |
+| Main equation or statement | `hero` |
+| Related concepts | `cards` |
+| Results table | `data_table` |
+| Definition or theorem | `definition` or `theorem` |
+| Closing statement | `focus-slide` |
 
-CeTZ and pinit are imported per-section (not in the preamble) so a text-only deck
-pays no extra-package cost:
+`==` starts a content slide; `=` starts a section divider. Use `#pause` for
+stepwise reveals. Pass image content such as `image("figures/result.svg")` to
+image helpers so paths resolve relative to the talk. Optional diagrams and
+annotations use the upstream `cetz-gadgets()` and `pin-gadgets()` APIs; consult
+the release's layout guide before using them.
 
-```typst
-#import "zoo/gadgets_cetz.typ": make as make-cetz
-#import "@preview/cetz:0.4.2": canvas
-#let (tensor, automaton-state, edge, flowbox) = make-cetz(pal)
+## 4. Compile and review
+
+Compile from the project root so project figures and the canonical bibliography
+remain accessible to the deck:
+
+```sh
+typst compile slides/my-talk/main.typ slides/my-talk/main.pdf \
+  --root . --package-path "$SLIDE_PACKAGES" \
+  --input theme=academic --input text-size=22
 ```
 
----
+Inspect the rendered pages, including all reveals. Check that each title states
+its slide's claim, figures and equations are legible, captions explain how to
+read the evidence, and no content overflows. Split or shorten an overfull slide;
+the template does not automatically shrink text. Keep emphasized quantities
+with their units and use the source's own figures when available.
 
-## House rules
+Run `how-to-review-figure` on figure-heavy slides. If the talk needs a
+bibliography, use the resolved `$KB/references.bib`, with a path relative to the
+`.typ` file. Report the source and PDF paths, package version, build command,
+and any verification that could not be completed.
 
-- **One figure per slide.** A second figure means two slides conflated.
-- **One accent for emphasis.** Numerals and `rail_pull` use `accent_deep`; do
-  not repaint gadgets by hand — read `pal.X` so a theme switch repaints all.
-- **Tabular numbers in mono.** `data_table` value columns and `time_badge` set
-  it themselves; emphasised quantities (`stat`, `punch`) stay in the theme sans.
-- **A number is emphasised as a statement, not a dashboard numeral.** `stat`,
-  `stat_row`, and `punch` set the full quantity ("13 weeks", via `unit:`) in
-  bold accent at the same scale as its meaning — never a giant bare "13" over
-  a small caption.
-- **Three text sizes, deck-wide.** The whole zoo draws from `sizes` in
-  `zoo/scale.typ` — `xlarge` (30 pt, the one hero statement; also the title,
-  section, and focus slides), `large` (24 pt,
-  emphasised statements and slogans), `normal` (20 pt, everything else —
-  bodies, labels, captions, table cells, chrome). Hierarchy comes from weight,
-  colour, and case, never from smaller type. Use `sizes.X` (exported by
-  `zoo/lib.typ`) for hand-rolled text; if content only fits smaller, the slide
-  holds two slides' worth.
-- **Pass plain values to gadgets** (`[13]`, not `[*13*]`): touying show-rules
-  `strong` as an alert and would repaint your bold in theme primary. Gadgets
-  bold and colour their own numerals.
-- **Captions describe how to *read* the figure**, not what it is.
-- **Use the source's own figures.** Pull from `figs/`, README, prior slides.
-  Redrawing an author's figure as inline SVG produces a worse copy.
-- **Pick the theme up front.** The chrome (header, footer, progress bar) is part
-  of the deck's identity.
-- **`==` is a slide, `=` is a section.** Don't nest slide content under the
-  wrong heading level.
-- **Recompile the gallery** when you add a gadget or layout — it is the visual
-  regression test for the zoo.
+## Template changes and existing decks
 
-## Common mistakes
-
-| Mistake | Fix |
-|---|---|
-| Started composing slides before outline sign-off | Stop. Return to Phase 1. |
-| Hardcoded a hex color in a slide | Read `pal.X` instead, so theme switches propagate. |
-| Called a gadget as `G.figbox(...)` | Typst needs the destructure form (`figbox(...)`) or `(G.figbox)(...)`. Use the preamble's `#let` destructure. |
-| Mixed two themes in one deck | Pick one; the chrome must stay consistent. |
-| Used `//` inside markup `[...]` | `//` starts a line comment and eats the closing `]`. Drop it or use a raw block. |
-| Wrapped a gadget value in `*...*` | Touying repaints `strong` in theme primary (alert). Pass plain content; the gadget bolds. |
-| Typed a CLI string (`--input`, `<name>`) in prose | Markup turns `--` into – and eats `<name>` as a label. Put literal strings in backticks / `#raw`. |
-| Inline-SVG'd a figure that exists in the source | Stop. Embed the source SVG/PDF instead. |
-| Added CeTZ/pinit to the preamble of a text deck | Import them per-section; the preamble stays dependency-light. |
-| Compile fails on a missing font | The font chains are ordered fallbacks: DejaVu/Noto on Linux, Helvetica Neue/Arial/Menlo on macOS (Typst itself bundles only NCM, Libertinus, and DejaVu Sans Mono). Confirm with `typst fonts` before switching families. |
-
-## Integrations
-
-- **Logical workflow + brand decks:** `slide-writing` (HTML) is the sibling; this
-  skill borrows its sign-off discipline.
-- **Figures:** reuse figures from `write-paper` manuscripts and the project KB;
-  run `how-to-review-figure` on figure-heavy slides (Phase 5).
-- **Brainstorming:** a talk often follows a `brainstorm-ideas` session — read its
-  log for the deck's motivation and key claim.
-- **Citations:** slides rarely need a bibliography page; if they do, point
-  `\bibliography`/`#bibliography` at `$KB/.knowledge/references.bib`.
-
-## What's in the bundle
-
-| Path | Purpose |
-|---|---|
-| `gallery.typ` | Visual index of the whole zoo; compile to browse. `--input theme=<name>` rethemes. |
-| `zoo/lib.typ` | Single import surface: palettes, themes, gadget/layout factories, `sizes` type scale, touying slide primitives. |
-| `zoo/scale.typ` | The three deck-wide text sizes (`xlarge`/`large`/`normal`); every zoo text call uses one. |
-| `zoo/palettes/` | Five pure-data color modules (+ `brand.typ`'s `build(primary)` generator). |
-| `zoo/themes/` | Five thin metropolis overlays mapping palettes → touying `config-colors`. |
-| `zoo/gadgets.typ` | ~24 palette-aware content components (callouts, stats, theory, structure, chrome). |
-| `zoo/layouts.typ` | Nine slide-body composers (spread, twocol, hero, cards, …). |
-| `zoo/gadgets_cetz.typ` | Optional CeTZ diagram helpers (tensor, automaton, flowbox). |
-| `zoo/gadgets_pin.typ` | Optional pinit annotation helpers (pin, highlight, note). |
-| `references/layout-patterns.md` | When-to-use router + copyable snippets. |
-| `references/style-tokens.md` | Palette vocabulary, touying slot mapping, per-theme values. |
-| `scripts/scaffold.py` | Scaffolds a self-contained deck (copies the zoo next to `<name>.typ`). |
-
-## Extending the zoo
-
-1. Add a gadget to `zoo/gadgets.typ` inside `make(pal)` — return it as a
-   `"snake_case": (args) => …` entry so it destructures cleanly.
-2. Add its swatch to `gallery.typ` under the matching section.
-3. Recompile `gallery.typ`; if it renders, the gadget ships.
-4. Document it in `references/layout-patterns.md`.
-
-For a new theme, see "Adding a new theme" in `references/style-tokens.md`.
+Report template defects and propose component changes in
+[the upstream repository](https://github.com/GiggleLiu/sci-brain-slides).
+Keep template source and API documentation there rather than copying them into
+this skill. Existing talks with their own `zoo/` copy can still compile; migrate
+those talks individually to the package import and `setup()` API when requested.
