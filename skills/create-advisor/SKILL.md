@@ -3,6 +3,20 @@ name: create-advisor
 description: User trigger. Use when creating or updating a named advisor profile from a researcher's conversation history.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`, `DUMP_DIALOG_DIR` to the absolute directory of `how-to-dump-dialog`. Quote these variables as shown.
+
+
 ## Advisor Profile Generation
 
 Onboard a contributor and create a named advisor profile. The profile captures how a real person thinks — their cognitive style, attention patterns, reasoning strengths, and conversation dynamics — so the brainstorm-ideas skill can launch them as a subagent collaborator rather than a thin inline persona.
@@ -33,7 +47,7 @@ From the response, extract:
 
 Hold this information for Step 4.
 
-**Advisor KB.** Each advisor gets a private knowledge base at `advisors/<slug>/.knowledge/` (shape identical to the project KB: `INDEX.md`, `NOTES.md`, `.raw/`, `.figures/`, rendered `<id>_<slug>.md` files). The advisor's BibTeX namespace lives at `advisors/<slug>/.knowledge/references.bib` (i.e. `$KB/references.bib` for the resolved advisor KB). When `know-me-better` or `how-to-download-ref` is invoked from this skill, resolve the advisor KB path via `python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>` and pass it as `--kb "$KB"` so writes land in the advisor KB rather than the project KB. (Users who set `$SCIBRAIN_KB_DIRNAME` get the right directory name automatically.)
+**Advisor KB.** Each advisor gets a private knowledge base at `advisors/<slug>/.knowledge/` (shape identical to the project KB: `INDEX.md`, `NOTES.md`, `.raw/`, `.figures/`, rendered `<id>_<slug>.md` files). The advisor's BibTeX namespace lives at `advisors/<slug>/.knowledge/references.bib` (i.e. `$KB/references.bib` for the resolved advisor KB). When `know-me-better` or `how-to-download-ref` is invoked from this skill, resolve the advisor KB path via `python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py" --advisor <slug>` and pass it as `--kb "$KB"` so writes land in the advisor KB rather than the project KB. (Users who set `$SCIBRAIN_KB_DIRNAME` get the right directory name automatically.)
 
 ### Step 2 — Conversation Analysis
 
@@ -54,14 +68,14 @@ Run the analysis pipeline based on the chosen source:
 **Step 2a — parse .md files.** Ask the contributor for one or more file paths (globs are acceptable). Create `docs/dialog/md-import/raw/`, then parse and persist a single file:
 
 ```bash
-python3 skills/how-to-dump-dialog/parse_md_dialog.py parse <file.md> \
+python3 "$DUMP_DIALOG_DIR/parse_md_dialog.py" parse <file.md> \
   > docs/dialog/md-import/raw/<session-id>.json
 ```
 
 The `parse` subcommand accepts exactly one file. For a glob, resolve it to individual paths and run the command once per file with a unique `<session-id>` output; do not pass multiple expanded paths to one `parse` call. For all Markdown files in one directory, use batch mode:
 
 ```bash
-python3 skills/how-to-dump-dialog/parse_md_dialog.py batch <directory> --outdir docs/dialog/md-import/raw/
+python3 "$DUMP_DIALOG_DIR/parse_md_dialog.py" batch <directory> --outdir docs/dialog/md-import/raw/
 ```
 
 Then follow the adapted how-to-dump-dialog Phases 2–4 on these files: classify them into `docs/dialog/md-import/<topic>/`, deeply tag all six dimensions, and persist the enriched JSON reports in those topic folders before pattern extraction begins.

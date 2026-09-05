@@ -3,6 +3,20 @@ name: how-to-download-ref
 description: Agentic trigger. Use when adding arXiv IDs or DOIs to a knowledge base — fetches metadata, PDFs, and full text, then updates references.bib and INDEX.md.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
+
+
 # how-to-download-ref
 
 ## When to use
@@ -36,7 +50,7 @@ python3 -m pip install --user --break-system-packages pymupdf4llm
 
 Both scripts also carry [PEP 723](https://peps.python.org/pep-0723/) inline
 dependency metadata, so if you happen to have [uv](https://docs.astral.sh/uv/),
-`uv run helpers/render.py ...` resolves those deps on its own and you can skip the
+`uv run "$DOWNLOAD_REF_DIR/helpers/render.py" ...` resolves those deps on its own and you can skip the
 install step entirely. That is an option, not a requirement — the metadata is
 inert comments to a plain interpreter.
 
@@ -102,7 +116,7 @@ The canonical bib is `$KB/references.bib` — it lives inside the KB, beside `IN
 If the caller passes `--kb <abs-path>`, use that. Otherwise:
 
 ```sh
-KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)
+KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")
 if [ -z "$KB" ]; then
   # resolve_kb printed "unresolvable from ..." to stderr and exited 2.
   # Ask the user in chat where the KB should live.
@@ -110,21 +124,23 @@ if [ -z "$KB" ]; then
 fi
 ```
 
-For advisor flows (`create-advisor`, `brainstorm-ideas` with a selected advisor), resolve the advisor KB instead: `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>)`. This honors `$SCIBRAIN_KB_DIRNAME` the same way the project-KB form does.
+For advisor flows (`create-advisor`, `brainstorm-ideas` with a selected advisor), resolve the advisor KB instead: `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py" --advisor <slug>)`. This honors `$SCIBRAIN_KB_DIRNAME` the same way the project-KB form does.
 
 ### 2. Confirm the refs aren't already present
 
 ```sh
-for id in 1806.08734 2006.10739; do
-  [ -f "$KB/.raw/arxiv/$id.json" ] && echo "$id present" || echo "$id missing"
-done
-for doi in 10.1103/PhysRevLett.130.036401; do
-  safe=$(echo "$doi" | tr '/' '-')
-  [ -f "$KB/.raw/doi/$safe.json" ] && echo "$doi present" || echo "$doi missing"
-done
+python3 "$DOWNLOAD_REF_DIR/helpers/kb_identity.py" --kb "$KB" --arxiv 1806.08734
+python3 "$DOWNLOAD_REF_DIR/helpers/kb_identity.py" --kb "$KB" --doi 10.1103/PhysRevLett.130.036401
 ```
 
-Helpers are idempotent — this check is for human-readable status, not gating.
+Exit 0 means `present <path> (matched via doi|arxiv)`, 1 means `missing`, and 2
+means an invalid input or operational error. Skip present refs by default.
+The fetch helper repeats this identity check, including within a batch; it never
+creates another namespace for the same paper unless `--allow-duplicate` is set.
+Requests using an entry's existing namespace still acquire missing assets; this
+supports the survey handoff from abstract-only metadata to full-text rendering.
+Rendering and bibliography appends also avoid identity duplicates.
+To restore missing caches for existing entries, use **Regenerating a cloned KB** below.
 
 ### 3. Build a manifest
 
@@ -141,7 +157,7 @@ EOF
 
 ```sh
 TMP=/tmp/how-to-download-ref-manifest.json
-python3 skills/how-to-download-ref/helpers/bibtex_to_manifest.py "$KB/references.bib" > "$TMP"
+python3 "$DOWNLOAD_REF_DIR/helpers/bibtex_to_manifest.py" "$KB/references.bib" > "$TMP"
 ```
 
 When in bulk mode, optionally ask the user:
@@ -164,7 +180,7 @@ Ask the user whether they want LaTeX sources too:
 Default command (option **a**):
 
 ```sh
-python3 skills/how-to-download-ref/helpers/fetch_metadata.py \
+python3 "$DOWNLOAD_REF_DIR/helpers/fetch_metadata.py" \
   --kb "$KB" \
   --manifest "$TMP" \
   --download-arxiv-pdfs
@@ -173,7 +189,7 @@ python3 skills/how-to-download-ref/helpers/fetch_metadata.py \
 Option **(b)** adds the source fetch:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/fetch_metadata.py \
+python3 "$DOWNLOAD_REF_DIR/helpers/fetch_metadata.py" \
   --kb "$KB" \
   --manifest "$TMP" \
   --download-arxiv-pdfs \
@@ -191,7 +207,16 @@ titles (PRC, PRD), and any individually CC-licensed article in PRL/PRA/PRB;
 to skip. The same request both tests access and delivers the text, so there is no
 separate open-access lookup to do.
 
-Populates `$KB/.raw/{arxiv,doi}/<id>.{json,pdf}` idempotently. PDFs are downloaded sequentially with 2s sleep between requests to avoid arXiv rate limits. Each PDF is verified for a `%%EOF` trailer; truncated downloads are discarded and retried. For DOIs whose publisher gates the PDF (APS / Nature / IOP / AAAS / ACS), the helper falls back to the arXiv preprint via `externalIds.ArXiv` when present. If even that fails, you'll see a `miss` line — go to Step 4b.
+Metadata uses cached JSON, then Semantic Scholar batches of at most 500,
+then Crossref for missing DOIs, including deposited metadata normalized to usable
+BibTeX. PDF acquisition tries S2's OA URL, Unpaywall repository copies, then the
+arXiv preprint. Pass `--email <contact-address>` or set `SCIBRAIN_CONTACT_EMAIL`
+to enable Unpaywall and Crossref's polite pool; without an email, Unpaywall is
+skipped. API errors and HTML landing pages fall through to the next source.
+PDFs must have both a `%PDF` header and `%%EOF` trailer. A DOI miss continues to
+Step 4b. Service contracts: [Crossref](https://www.crossref.org/documentation/retrieve-metadata/rest-api/),
+[Unpaywall](https://unpaywall.org/products/api).
+
 
 `--download-arxiv-source` additionally fetches each arXiv paper's e-print
 LaTeX source, extracts it to `.raw/arxiv/<id>-src/`, flattens
@@ -210,7 +235,7 @@ If Step 4 reports `miss` for any DOI (no open-access PDF and no arXiv preprint),
 run the browser-based Sci-Hub helper. Pass the missed DOIs:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/scihub_download.py --kb "$KB" \
+python3 "$DOWNLOAD_REF_DIR/helpers/scihub_download.py" --kb "$KB" \
   --doi 10.1111/j.1467-9280.2006.01693.x \
   --doi 10.3102/0034654316689306
 ```
@@ -236,13 +261,13 @@ this path existed, or for pulling figures and supplemental material:
 
 ```sh
 # probe one DOI without writing anything -> prints open | closed | notfound
-python3 skills/how-to-download-ref/helpers/aps_harvest.py --check 10.1103/PhysRevB.108.045101
+python3 "$DOWNLOAD_REF_DIR/helpers/aps_harvest.py" --check 10.1103/PhysRevB.108.045101
 
 # backfill JATS for every APS DOI already in the KB
-python3 skills/how-to-download-ref/helpers/aps_harvest.py --kb "$KB" --all
+python3 "$DOWNLOAD_REF_DIR/helpers/aps_harvest.py" --kb "$KB" --all
 
 # ...and pull the BagIt package too: published PDF, figures, supplemental material
-python3 skills/how-to-download-ref/helpers/aps_harvest.py --kb "$KB" --all --bagit
+python3 "$DOWNLOAD_REF_DIR/helpers/aps_harvest.py" --kb "$KB" --all --bagit
 ```
 
 `--bagit` is the only way to get **supplemental material**, which the arXiv
@@ -252,19 +277,19 @@ use it per-DOI rather than across a whole KB.
 ### 5. Render PDF to markdown
 
 ```sh
-python3 skills/how-to-download-ref/helpers/render.py --kb "$KB"
+python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB"
 ```
 
 Add `--only-missing` to skip papers that already have a rendered `.md` file (>500 bytes). This is much faster when adding a few papers to a large KB:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/render.py --kb "$KB" --only-missing
+python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --only-missing
 ```
 
 When the user opted into LaTeX sources (Step 4, option **b**), add `--tex-source`:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/render.py --kb "$KB" --tex-source
+python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --tex-source
 ```
 
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
@@ -286,7 +311,7 @@ refs not rendered from LaTeX:
 In single-shot mode (Step 3a), ask the user to confirm each new cite key. In bulk mode (Step 3b), the keys come from `references.bib` directly — skip this step.
 
 ```sh
-python3 skills/how-to-download-ref/helpers/append_bibtex.py propose \
+python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" propose \
   --kb "$KB" --id 1806.08734 --type arxiv --bib "$KB/references.bib"
 ```
 
@@ -298,7 +323,7 @@ Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `au
 Once confirmed:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/append_bibtex.py append \
+python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" append \
   --kb "$KB" --id 1806.08734 --type arxiv \
   --key rahaman_2018_spectral \
   --bib "$KB/references.bib"
@@ -309,7 +334,7 @@ The helper rewrites the BibTeX cite key, refuses duplicates, appends with one bl
 ### 7. Regenerate INDEX.md
 
 ```sh
-python3 skills/how-to-download-ref/helpers/index.py \
+python3 "$DOWNLOAD_REF_DIR/helpers/index.py" \
   --kb "$KB" \
   --title "<project-or-advisor-slug> — references" \
   --source-note "Reading list and full-text harness."
@@ -320,24 +345,43 @@ Replace `<project-or-advisor-slug>` with this KB's name. **Once chosen, keep `--
 ### 8. Verify and report
 
 ```sh
-# New md files appear at top level
-ls -t "$KB"/*.md | head
-# Frontmatter present
-for f in "$KB"/*.md; do
-  case "$(basename "$f")" in INDEX.md|NOTES.md) continue ;; esac
-  head -1 "$f" | grep -q '^---$' || echo "MISSING FRONTMATTER: $f"
-done
-# Raw blobs gitignored
-KB_NAME=$(basename "$KB")
-git -C "$(dirname "$KB")" check-ignore "$KB_NAME/.raw/" 2>/dev/null \
-  || echo "WARN: $KB_NAME/.raw/ not gitignored"
-# INDEX picked up the new ids
-for id in 1806.08734 2006.10739; do
-  grep -q "$id" "$KB/INDEX.md" || echo "WARN: $id missing from INDEX.md"
-done
+python3 "$DOWNLOAD_REF_DIR/helpers/kb_doctor.py" --kb "$KB"
 ```
 
-Tell the user: new cite key(s), rendered file path(s), `full_text` latex/yes/no per ref.
+The offline checker reports named FAIL/WARN findings and exits nonzero for any
+FAIL. It checks bibliography/Markdown correspondence, duplicate identities,
+required frontmatter and field types, BibTeX fields, index membership, and orphan
+caches. `full_text` accepts `jats`, `latex`, `yes`, or `no`.
+Use `--checks duplicate-identity,index-sync` to select checks. `--fix` only repairs
+INDEX.md, preserving its title, source note, and exclusions. Fix other findings
+explicitly; the checker never merges or deletes references.
+
+Tell the user the new cite keys, rendered paths, full-text status, and remaining findings.
+
+## Regenerating a cloned KB
+
+```sh
+python3 "$DOWNLOAD_REF_DIR/helpers/kb_sync.py" --kb "$KB"
+```
+
+Requires `references.bib` and at least one rendered paper. This restores `.raw/`
+and `.figures/` using each tracked entry's declared identifier namespace. Bib-only
+references recover caches with a warning. It creates or rewrites no Markdown,
+INDEX.md, or bibliography files. Complete caches need no network on repeat runs;
+unavailable assets remain WARNs and can be retried. Invalid input or failed
+restoration produces FAIL and a nonzero exit.
+
+PDF figure restoration needs the same `pymupdf4llm` version used to render the
+entry so filenames match tracked image links. Missing dependencies and mismatched
+filenames are reported. LaTeX figures are restored from the cached source tree or
+a new source download. Publisher JATS is restored for `full_text: jats` entries.
+`--email` / `SCIBRAIN_CONTACT_EMAIL` enable Unpaywall here too.
+
+## Human annotations
+
+`note`, `tags`, and `rating` in existing frontmatter survive every render path,
+including multiline values and lists. Generated metadata and body text refresh
+from source. Keep other prose notes in NOTES.md.
 
 ## After download — continue to the survey report
 
@@ -353,7 +397,7 @@ After the done checklist passes, offer the pipeline's final stage:
 - **`survey` report mode** (downstream): consumes the rendered KB (full-text `.md` files + `$KB/references.bib`) to produce a structured technology assessment report.
 - **`survey` / `know-me-better`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
 - **`brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `how-to-download-ref` in single-shot mode.
-- **`create-advisor`**: invokes `how-to-download-ref` (or `know-me-better`) targeting the advisor KB resolved by `python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>`.
+- **`create-advisor`**: invokes `how-to-download-ref` (or `know-me-better`) targeting the advisor KB resolved by `python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py" --advisor <slug>`.
 
 ## Common mistakes
 
@@ -362,7 +406,7 @@ After the done checklist passes, offer the pipeline's final stage:
 | Passing a relative `--kb` | Always absolute. Helpers don't `cd`; figures depend on absolute paths. |
 | Forgetting `--download-arxiv-pdfs` in Step 4 | Without it, refs with no LaTeX source render `full_text: no` — the PDF is the only body for DOIs and PDF-only arXiv submissions. |
 | Using `arXiv:XXXX` with prefix or `vN` suffix | Strip both — manifest takes bare ids: `1806.08734`. |
-| Editing the rendered `.md` and losing it on re-render | Renderer overwrites without warning. Edit `.raw/` source or renderer logic. |
+| Editing generated body text and losing it on re-render | Keep prose in NOTES.md. Human frontmatter `note`, `tags`, and `rating` survives re-rendering. |
 | Cite-key collision with different content | `append` skips silently. Propose with `--bib` so the key is disambiguated up front (next content word of the title). |
 | Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
 | Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |

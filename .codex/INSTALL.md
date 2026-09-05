@@ -67,3 +67,12 @@ done
 Optionally delete the clone: `rm -rf ~/.codex/sci-brain`.
 
 See the [official Codex skill-discovery documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) for supported locations.
+
+## Resource paths and per-skill installs
+
+Run skills from your project directory. Agents locate helper scripts and templates
+from each loaded SKILL.md's real directory, following symlinks. Shared writing
+resources ship inside `how-to-write-ideas-report/references/`; include that skill
+when installing survey or writing workflows with a per-skill manager. Cross-skill
+dependencies are located by public skill name in the agent's catalog. Advisor
+profiles still require the full checkout.

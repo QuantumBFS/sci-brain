@@ -3,6 +3,20 @@ name: how-to-review-figure
 description: Agentic trigger. Use when judging the visual design of a figure, plot, or diagram against a scientific-plot rubric.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `REVIEW_FIGURE_DIR` to the absolute directory of `how-to-review-figure`. Quote these variables as shown.
+
+
 # Figure Taste
 
 Run a structured **visual-design review** over one or more figures and print a scorecard. The skill **renders the figure to a raster so it can see it**, reads the source (matplotlib `.py`, Typst `.typ`, SVG) so suggestions can name the exact line or parameter to change, scores it against an 18-rule rubric, and delivers severity-ranked findings with concrete fixes.
@@ -67,7 +81,7 @@ Rank every non-pass finding so the user can triage:
 3. **Render to a raster you can look at (source-aware).** Use the helper:
 
    ```bash
-   python3 skills/how-to-review-figure/helpers/render.py <path> [--dpi 200] [--allow-exec]
+   python3 "$REVIEW_FIGURE_DIR/helpers/render.py" <path> [--dpi 200] [--allow-exec]
    ```
 
    - raster (`.png`/`.jpg`) and `.pdf` → read directly (the helper passes them through).

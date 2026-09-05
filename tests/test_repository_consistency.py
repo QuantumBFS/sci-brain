@@ -114,7 +114,7 @@ def test_folded_stage_names_do_not_reappear_in_public_docs_or_skills():
     current_files = [
         ROOT / "CLAUDE.md",
         *SKILLS.glob("*/SKILL.md"),
-        *SKILLS.glob("_shared/*.md"),
+        *SKILLS.glob("how-to-write-ideas-report/references/*.md"),
     ]
     offenders = {
         str(path.relative_to(ROOT)): [name for name in retired if name in path.read_text()]

@@ -3,6 +3,20 @@ name: how-to-build-kb
 description: Agentic trigger. Use when turning a list of picked papers into verified knowledge-base entries — references.bib, INDEX.md, and NOTES.md.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
+
+
 # Build a knowledge base from picked papers
 
 Non-interactive. The caller has already chosen the papers; this skill verifies them, writes the KB, and returns.
@@ -12,10 +26,10 @@ Non-interactive. The caller has already chosen the papers; this skill verifies t
 **KB resolution.** The target KB is the project KB by default — `<project>/.knowledge/` unless the user overrides the directory name via `$SCIBRAIN_KB_DIRNAME`:
 
 ```sh
-KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)
+KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")
 ```
 
-If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user in chat for an explicit path. When the caller names an advisor, override via `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>)` so the path follows `$SCIBRAIN_KB_DIRNAME` too.
+If `KB` is empty (resolve_kb printed `unresolvable from ...`), ask the user in chat for an explicit path. When the caller names an advisor, override via `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py" --advisor <slug>)` so the path follows `$SCIBRAIN_KB_DIRNAME` too.
 
 Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 
@@ -28,14 +42,21 @@ Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist (`mkdir -p`).
 
 **Lookup path A — ID-known papers (batch lookup).**
 
-1. Single batch call to Semantic Scholar:
-   ```
-   POST https://api.semanticscholar.org/graph/v1/paper/batch?fields=title,authors,year,journal,abstract,externalIds,citationStyles
-   Body: {"ids": ["DOI:10.xxxx/yyyy", "ARXIV:2401.12345", ...]}
-   ```
-   Up to 500 ids per call.
-2. **For each returned paper:** write the full response to `$KB/.raw/{arxiv,doi}/<id>.json` in the exact JSON shape `fetch_metadata.py` produces (top-level keys: `title`, `authors`, `year`, `venue`, `abstract`, `externalIds`, `citationStyles`, `openAccessPdf`). Use `<safe-doi>` (DOI with `/` → `-`) for the filename in `.raw/doi/`.
-3. For papers returning `null` from the batch, pick the single most effective fallback (CrossRef for DOI-only, title-match for others).
+Create a manifest `{"arxiv": [...], "doi": [...]}` and run:
+
+```sh
+python3 "$DOWNLOAD_REF_DIR/helpers/fetch_metadata.py" --kb "$KB" --manifest "$TMP"
+```
+
+This checks DOI/arXiv identities across tracked entries and cached metadata,
+skips existing papers, batches S2 lookups, and falls back to Crossref for missing
+DOIs. Do not bypass this check by writing a second namespace manually. For
+MCP/title-based results, check both external identifiers with `kb_identity.py`
+before saving metadata. After acquisition, render new entries:
+
+```sh
+python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --only-missing
+```
 
 **Lookup path B — ID-unknown papers (title-based lookup).**
 
@@ -47,10 +68,10 @@ After both lookup paths complete, for each new ref:
 
 ```sh
 # Get the auto-proposed key from the JSON.
-KEY=$(python3 skills/how-to-download-ref/helpers/append_bibtex.py propose \
+KEY=$(python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" propose \
         --kb "$KB" --id "$ID" --type "$TYPE" | python3 -c 'import sys,json; print(json.load(sys.stdin)["proposed_key"])')
 # Append to the KB's references.bib (dedup is free — refuses duplicates).
-python3 skills/how-to-download-ref/helpers/append_bibtex.py append \
+python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" append \
   --kb "$KB" --id "$ID" --type "$TYPE" --key "$KEY" \
   --bib "$KB/references.bib"
 ```
@@ -60,7 +81,7 @@ Skip per-ref user confirmation — at KB scale (30+ refs) it's unworkable; this 
 Finally, regenerate `INDEX.md`:
 
 ```sh
-python3 skills/how-to-download-ref/helpers/index.py \
+python3 "$DOWNLOAD_REF_DIR/helpers/index.py" \
   --kb "$KB" \
   --title "<topic-slug> — references" \
   --source-note "Built by how-to-build-kb on $(date -u +%Y-%m-%d)."

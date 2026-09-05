@@ -3,13 +3,25 @@ name: write-paper
 description: User trigger. Use when drafting or revising a scientific manuscript with real results.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+
 # Paper Writer
 
 A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. The source documents live in `references.md` and `sources/`; consult them when this SKILL.md leaves a question open. Beside them sits a model letter that executes these rules — Ho et al., PRL 122, 040603 (2019), see Source material. Imitate the model letter on any open style judgment call.
 
 **Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `brainstorm-ideas` report mode. If the user has not yet finished the work, push back: a paper requires results.
 
-Use `skills/_shared/writing-workflow.md` for KB loading, citation handling, missing references, output formats, and Typst/diagram mechanics. The manuscript-specific rules below override shared defaults when venue templates or figure-first sequencing require it.
+Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB loading, citation handling, missing references, output formats, and Typst/diagram mechanics. The manuscript-specific rules below override shared defaults when venue templates or figure-first sequencing require it.
 
 ---
 
@@ -35,7 +47,7 @@ A correct ordering of effort that defeats writer's block. Do not reorder — the
 
 Before drafting, gather the materials that should inform the paper. Cheap to do once; expensive to skip.
 
-1. **Shared writing context.** Follow `skills/_shared/writing-workflow.md`. Use `$KB/NOTES.md` as the spine for prior work, gap statement, motivation, and conclusions.
+1. **Shared writing context.** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`. Use `$KB/NOTES.md` as the spine for prior work, gap statement, motivation, and conclusions.
 2. **Ideas / brainstorming log.** Look for `docs/discussion/*-brainstorm-ideas-log.md` from a prior `brainstorm-ideas` session. If present, read it for the original motivation, the cross-field connections it surfaced, the planned minimum viable experiment, and the success/hope/pivot signals. This is the *why* behind the paper and feeds the introduction's contribution claim.
 3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `know-me-better` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to cite the user's earlier work correctly.
 4. **Existing draft.** If a partial manuscript already exists under `articles/`, read it before proposing new prose; pick up where the user left off.
@@ -244,7 +256,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 
 ## Integrations
 
-- **Citations and missing references:** Follow `skills/_shared/writing-workflow.md`.
+- **Citations and missing references:** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`.
 - **Manuscript format:** Use the target journal's official template when available. Default to Typst (`.typ`) only when no target venue or required template exists; use LaTeX (`.tex`) or Word when the journal requires it; use Markdown only for arXiv-style preprints where the journal accepts it.
 - **Storing the draft:** `articles/YYYY-MM-DD-<paper-slug>/` with `main.typ` (or `.tex`), a bibliography copied from `$KB/references.bib`, and `figures/`.
 

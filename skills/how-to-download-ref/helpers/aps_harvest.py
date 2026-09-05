@@ -44,6 +44,8 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
+from kb_identity import cache_path
+
 HARVEST = "https://harvest.aps.org/v2/journals/articles/{doi}"
 UA = "sci-brain-download-ref/1.0 (+https://github.com/QuantumBFS/sci-brain)"
 APS_PREFIX = "10.1103/"
@@ -298,11 +300,11 @@ def main() -> int:
         print("no APS (10.1103/*) DOIs to process")
         return 0
 
-    raw_doi = args.kb / ".raw" / "doi"
     n_ok = n_closed = 0
     for i, doi in enumerate(dois):
-        safe = safe_name(doi)
-        status = fetch_jats(doi, raw_doi / f"{safe}.jats.xml")
+        dest = cache_path(args.kb, "doi", doi, ".jats.xml")
+        safe = dest.name.removesuffix(".jats.xml")
+        status = fetch_jats(doi, dest)
         extra = ""
         if status in ("ok", "cached"):
             n_ok += 1

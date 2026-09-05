@@ -3,6 +3,18 @@ name: autoresearch
 description: User trigger. Use when starting, resuming, or checking an autoresearch campaign — topics, evidence base, sealed validator, then validator-scored attempt loops.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+
 # Autoresearch
 
 One skill, four stages. State lives in `<project>/research/STATE.md`

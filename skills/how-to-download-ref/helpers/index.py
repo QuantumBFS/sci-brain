@@ -31,6 +31,8 @@ def parse_frontmatter(path: Path) -> dict:
         if raw.startswith("  - ") and in_list is not None:
             out[in_list].append(yaml_strip_quotes(raw[4:]))
             continue
+        if raw[:1].isspace():
+            continue  # Multiline note contents are not top-level metadata keys.
         in_list = None
         if ":" not in raw:
             continue
@@ -52,7 +54,7 @@ def year_key(s: str) -> int:
         return -10**9
 
 
-def main() -> int:
+def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--kb", required=True, type=Path)
     p.add_argument("--title", required=True,
@@ -61,7 +63,7 @@ def main() -> int:
                    help="Optional one-line description shown under the title")
     p.add_argument("--excluded", type=Path, default=None,
                    help="Optional JSON file: [[url, reason], ...] for an Excluded section")
-    args = p.parse_args()
+    args = p.parse_args(argv)
 
     today = datetime.date.today().isoformat()
     rows: dict[str, list[dict]] = {}
@@ -112,7 +114,7 @@ def main() -> int:
             if len(au) > 60:
                 au = au.split(",")[0] + " et al."
             ven = (r["venue"] or "").replace("|", "\\|")
-            ft = "✅" if r["full_text"] in ("yes", "latex") else "—"
+            ft = "✅" if r["full_text"] in ("yes", "latex", "jats") else "—"
             out.append(
                 f"| [{r['file']}]({r['file']}) | {ttl} | {au} | {r['year']} | {ven} | {ft} |"
             )

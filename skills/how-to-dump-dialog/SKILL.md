@@ -3,6 +3,20 @@ name: how-to-dump-dialog
 description: Agentic trigger. Use when extracting and classifying research dialog from Claude Code or Codex session logs.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `DUMP_DIALOG_DIR` to the absolute directory of `how-to-dump-dialog`. Quote these variables as shown.
+
+
 ## Dialog Analysis
 
 Analyze all conversation sessions from a chosen source (Claude Code or Codex CLI) in three phases: batch extraction, topic classification, and deep 6-dimension analysis.
@@ -14,15 +28,15 @@ Ask the user to choose a source: **claude** or **codex**.
 List and extract ALL sessions in batch using the Python script:
 
 ```bash
-python skills/how-to-dump-dialog/extract_dialog.py list --source claude --project all
-python skills/how-to-dump-dialog/extract_dialog.py list --source codex
+python "$DUMP_DIALOG_DIR/extract_dialog.py" list --source claude --project all
+python "$DUMP_DIALOG_DIR/extract_dialog.py" list --source codex
 ```
 
 Extract every listed session and save the JSON output to a staging directory:
 
 ```bash
 mkdir -p docs/dialog/<source>/extracted
-python skills/how-to-dump-dialog/extract_dialog.py extract --source <source> --session <id> > docs/dialog/<source>/extracted/<session-id>.json
+python "$DUMP_DIALOG_DIR/extract_dialog.py" extract --source <source> --session <id> > docs/dialog/<source>/extracted/<session-id>.json
 ```
 
 Run extractions in parallel (batch shell commands). Skip sessions that yield 0 user turns after filtering.

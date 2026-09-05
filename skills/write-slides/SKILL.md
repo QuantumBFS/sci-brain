@@ -3,6 +3,20 @@ name: write-slides
 description: User trigger. Use when building a Typst + Touying slide deck for a scientific talk, lecture, or briefing.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `WRITE_SLIDES_DIR` to the absolute directory of `write-slides`. Quote these variables as shown.
+
+
 # Slide Writer (Typst + Touying)
 
 A technical skill for building PDF slide decks in Typst with the Touying slide
@@ -104,7 +118,7 @@ the user (compiled page or markdown form) before moving on.
 
 1. Scaffold a self-contained deck (copies the zoo next to the `.typ`):
    ```bash
-   python3 skills/write-slides/scripts/scaffold.py <target> --name <deck> --theme <theme>
+   python3 "$WRITE_SLIDES_DIR/scripts/scaffold.py" <target> --name <deck> --theme <theme>
    ```
 2. Paste the approved slides into `<deck>.typ`.
 3. Compile and walk it:

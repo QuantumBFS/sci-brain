@@ -3,6 +3,20 @@ name: know-me-better
 description: User trigger. Use when you want the agent to learn your research style from your papers (Zotero, PDF folder, or Google Scholar) so it speaks your language.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
+
+
 # Know Me Better
 
 Turn an existing paper collection into a structured knowledge base under `<project>/.knowledge/` (or an advisor KB). The output uses the same KB format as the `survey` and `how-to-download-ref` skills — project and advisor KBs can coexist cleanly.
@@ -65,10 +79,10 @@ The KB target is decided by the caller:
 
 ```sh
 # Standalone (indexes the user's own collection into the project KB):
-KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)
+KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")
 
 # Invoked from /create-advisor (indexes another researcher's collection into the advisor KB):
-KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py --advisor <slug>)
+KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py" --advisor <slug>)
 ```
 
 Ensure `$KB/.raw/arxiv/` and `$KB/.raw/doi/` exist.
@@ -84,9 +98,9 @@ For papers without a DOI or arXiv ID, skip — they don't fit the canonical KB; 
 Per indexed paper:
 
 ```sh
-KEY=$(python3 skills/how-to-download-ref/helpers/append_bibtex.py propose \
+KEY=$(python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" propose \
         --kb "$KB" --id "$ID" --type "$TYPE" | python3 -c 'import sys,json; print(json.load(sys.stdin)["proposed_key"])')
-python3 skills/how-to-download-ref/helpers/append_bibtex.py append \
+python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" append \
   --kb "$KB" --id "$ID" --type "$TYPE" --key "$KEY" \
   --bib "$KB/references.bib"
 ```
@@ -96,7 +110,7 @@ Auto-accept the proposed key — per-paper confirmation is unworkable at 100+ pa
 ## Step 5 — Regenerate INDEX.md
 
 ```sh
-python3 skills/how-to-download-ref/helpers/index.py \
+python3 "$DOWNLOAD_REF_DIR/helpers/index.py" \
   --kb "$KB" \
   --title "<advisor-slug or 'project'> — researcher index" \
   --source-note "Built by /know-me-better on $(date -u +%Y-%m-%d)."

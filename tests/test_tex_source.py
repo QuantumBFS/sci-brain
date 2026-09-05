@@ -287,3 +287,27 @@ def test_fetch_arxiv_source_dest_override_reuses_arxiv_fetch(tmp_path, monkeypat
     assert status == "cached"
     assert "REUSED-BODY" in out_tex.read_text()
     assert (kb / ".figures" / "doi__10.1000-xyz" / "fig" / "plot.png").exists()
+
+
+def test_restore_source_figures_offline_including_legacy_id(tmp_path, monkeypatch):
+    import shutil
+    ts = _load()
+    kb = tmp_path / 'kb'
+    payload = gzip.compress(_tar_bytes({
+        'main.tex': MAIN_TEX,
+        'sec1.tex': b'SOURCE-BODY\n' * 20,
+        'fig/plot.png': b'\x89PNG fixture',
+    }))
+    _patch_urlopen(monkeypatch, ts, payload)
+    assert ts.fetch_arxiv_source('hep-th/9901001', kb) == 'ok'
+    shutil.rmtree(kb / '.figures')
+    def no_network(*args, **kwargs):
+        raise AssertionError('cached sources must restore figures without network')
+    monkeypatch.setattr(ts.urllib.request, 'urlopen', no_network)
+    assert ts.fetch_arxiv_source('hep-th/9901001', kb, restore_figures=True) == 'cached'
+    assert (kb / '.figures/arxiv__hep-th-9901001/fig/plot.png').read_bytes() == b'\x89PNG fixture'
+    out = kb / '.raw/doi/10.1000-Test.tex'
+    assert ts.fetch_arxiv_source('hep-th/9901001', kb, out_tex=out,
+                                 fig_subdir='doi__10.1000-Test', restore_figures=True) == 'cached'
+    assert (kb / '.figures/doi__10.1000-Test/fig/plot.png').is_file()
+    assert (kb / '.raw/doi/10.1000-Test-src/main.tex').is_file()

@@ -3,6 +3,20 @@ name: review-paper
 description: User trigger. Use when reviewing, commenting on, or fact-checking an existing manuscript, including its references.
 ---
 
+## Installed resources
+
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+
+Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
+
+
 # Paper Reviewer
 
 Run a structured **review-and-enhance** pass over an *existing* scientific manuscript. The skill reads the whole paper, produces **location-anchored comments first**, then applies only the edits the user approves and re-checks that the manuscript still compiles.
@@ -11,7 +25,7 @@ Run a structured **review-and-enhance** pass over an *existing* scientific manus
 
 The eight guidelines below come from a manuscript-quality rubric; the full rubric lives in `skills/review-paper/checklist.md`. Where `write-paper/SKILL.md` already defines a rule (sentence/notation/figure discipline), this skill **references** it rather than restating it. Consult `skills/write-paper/references.md` for the *why* behind a rule.
 
-Use `skills/_shared/writing-workflow.md` for KB/context loading, citation handling, the BibTeX lookup chain, and output mechanics.
+Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/context loading, citation handling, the BibTeX lookup chain, and output mechanics.
 
 ---
 
@@ -50,7 +64,7 @@ Rank every finding so the user can triage:
 
 1. **Resolve the manuscript.** Accept an explicit path; else auto-detect from `articles/<slug>/` or the working directory. Detect format from the extension: **LaTeX (`.tex`) is primary**; Typst (`.typ`) and Markdown (`.md`) are supported.
 2. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
-3. **Load shared context.** Follow `skills/_shared/writing-workflow.md`: resolve `KB=$(python3 skills/how-to-download-ref/helpers/resolve_kb.py)`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
+3. **Load shared context.** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`: resolve `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
 4. **Write the story summary + per-section missions.** One paragraph capturing the paper's story, plus a one-line "mission" for each section. This gate prevents local nitpicks that fight the global narrative: if you misread the story, fix that before producing any finding.
 
 Do not proceed to Phase 1 until the user confirms (or corrects) the story summary.
@@ -86,9 +100,9 @@ Also run a per-section **"did this section deliver its Phase-0 mission?"** check
 
 ## Phase 2 — Fact & reference verification (guideline #8)
 
-The standout capability. Follow the repo discipline: **never invent BibTeX from memory**. Bibliography metadata gets a complete automated screening pass; claim verification stays focused on what supports the main claims (see `skills/_shared/writing-workflow.md`).
+The standout capability. Follow the repo discipline: **never invent BibTeX from memory**. Bibliography metadata gets a complete automated screening pass; claim verification stays focused on what supports the main claims (see `skills/how-to-write-ideas-report/references/writing-workflow.md`).
 
-- **Screen every bibliography entry.** Run `python3 skills/how-to-download-ref/helpers/verify_bib.py --bib "$BIB" --kb "$KB" --json` against the bibliography resolved in Phase 0. This checks uncited entries too and compares title, authors, year, venue/journal, volume, pages, and DOI using cached metadata plus Semantic Scholar's batch API.
+- **Screen every bibliography entry.** Run `python3 "$DOWNLOAD_REF_DIR/helpers/verify_bib.py" --bib "$BIB" --kb "$KB" --json` against the bibliography resolved in Phase 0. This checks uncited entries too and compares title, authors, year, venue/journal, volume, pages, and DOI using cached metadata plus Semantic Scholar's batch API.
 - **Confirm actionable records.** Use the helper's severity-ranked output as the starting point for the reference / fact-check table. Before reporting any `unverifiable` entry, or any `mismatch` with a high- or medium-severity finding, confirm it manually through **CrossRef → Semantic Scholar → MCP → web fetch**; Semantic Scholar screens, it is not the final authority. Keep low-severity missing-field findings as metadata-completion suggestions — they do not need the full lookup chain. Flag broken, missing, or confirmed-mismatched entries and offer repair via the `how-to-download-ref` skill (it owns `references.bib` appends and metadata fetching).
 - **Citation resolution.** For each `\cite` key, confirm that an entry exists in the resolved bibliography. Uncited entries remain in the metadata scan; cited keys additionally participate in the claim-support check below.
 - **Claim ↔ citation support.** For key claims attached to a citation, best-effort sanity-check that the cited work actually supports the claim. **Flag uncertain — do not assert.**
@@ -120,7 +134,7 @@ Then present a short summary to the user and ask which findings to apply.
 
 ## Reused vs. new
 
-**Reused (no duplication):** `skills/_shared/writing-workflow.md` (context, citations, output mechanics); the BibTeX lookup chain (CrossRef → Semantic Scholar → MCP → web fetch); `how-to-download-ref` for reference repair; `write-paper`'s sentence/notation/figure rule *definitions* (referenced).
+**Reused (no duplication):** `skills/how-to-write-ideas-report/references/writing-workflow.md` (context, citations, output mechanics); the BibTeX lookup chain (CrossRef → Semantic Scholar → MCP → web fetch); `how-to-download-ref` for reference repair; `write-paper`'s sentence/notation/figure rule *definitions* (referenced).
 
 **New here:** the read-whole-first review protocol (Phase 0), DRY/anti-repetition detection (#4), fact & reference verification (#8), and the comment-then-apply loop plus compile-check (Phases 3–4).
 
@@ -141,7 +155,7 @@ Then present a short summary to the user and ask which findings to apply.
 
 ## Integrations
 
-- **Context, citations, output mechanics:** `skills/_shared/writing-workflow.md`.
+- **Context, citations, output mechanics:** `skills/how-to-write-ideas-report/references/writing-workflow.md`.
 - **Rule definitions (sentence/notation/figure):** `skills/write-paper/SKILL.md` + `skills/write-paper/references.md`.
 - **Model paper (style calibration for fixes):** `skills/write-paper/sources/1807.01815_Ho2019_quantum-scars.md`, distilled in `skills/write-paper/references.md` §C.
 - **Reference repair / adding a missing paper:** the `how-to-download-ref` skill.
