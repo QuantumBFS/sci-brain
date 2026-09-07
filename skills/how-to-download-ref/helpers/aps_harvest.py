@@ -55,7 +55,35 @@ def safe_name(doi: str) -> str:
     return doi.replace("/", "-")
 
 
-def _get(doi: str, accept: str, timeout: int = 120) -> tuple[int, bytes]:
+# harvest.aps.org matches the DOI suffix case-sensitively: PhysRevX.5.021001
+# returns 200 where physrevx.5.021001 returns 404. DOIs are case-insensitive by
+# spec, Crossref hands them back lowercased, and this skill's own docs say
+# "lowercase preferred" -- so a lowercased APS DOI would read as "not found" and
+# fall through to PDF parsing with nothing to show why. Restore the casing APS
+# expects before asking. Longest token first: PhysRevApplied must win over
+# PhysRevA, PhysRevMaterials over PhysRev.
+APS_JOURNAL_TOKENS = sorted((
+    "PhysRev", "PhysRevSeriesI", "PhysRevA", "PhysRevB", "PhysRevC", "PhysRevD",
+    "PhysRevE", "PhysRevX", "PhysRevLett", "PhysRevResearch", "PhysRevApplied",
+    "PhysRevMaterials", "PhysRevFluids", "PhysRevAccelBeams", "PhysRevSTAB",
+    "PhysRevSTPER", "PhysRevPhysEducRes", "RevModPhys", "PRXQuantum",
+    "PRXEnergy", "PRXLife", "PRXIntelligence",
+), key=len, reverse=True)
+
+
+def canonical_doi(doi: str) -> str:
+    """Restore APS's capitalisation of the journal token in an APS DOI."""
+    if not doi.lower().startswith(APS_PREFIX):
+        return doi
+    prefix, _, suffix = doi.partition("/")
+    low = suffix.lower()
+    for token in APS_JOURNAL_TOKENS:
+        if low.startswith(token.lower()):
+            return f"{prefix}/{token}{suffix[len(token):]}"
+    return doi
+
+
+def _request(doi: str, accept: str, timeout: int) -> tuple[int, bytes]:
     req = urllib.request.Request(
         HARVEST.format(doi=doi), headers={"Accept": accept, "User-Agent": UA})
     try:
@@ -66,6 +94,15 @@ def _get(doi: str, accept: str, timeout: int = 120) -> tuple[int, bytes]:
     except Exception as e:  # network / DNS / timeout
         print(f"  harvest error {doi}: {e}", file=sys.stderr)
         return 0, b""
+
+
+def _get(doi: str, accept: str, timeout: int = 120) -> tuple[int, bytes]:
+    canon = canonical_doi(doi)
+    code, body = _request(canon, accept, timeout)
+    if code == 404 and canon != doi:
+        # an APS journal this mapping does not know about yet
+        code, body = _request(doi, accept, timeout)
+    return code, body
 
 
 def fetch_jats(doi: str, out: Path) -> str:

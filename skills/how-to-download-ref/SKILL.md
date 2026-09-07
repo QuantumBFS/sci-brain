@@ -413,6 +413,7 @@ After the done checklist passes, offer the pipeline's final stage:
 | Rendered from PDF despite a `.tex` in `.raw/` | PDF is the default. To use LaTeX bodies, pass `--tex-source` in Step 5 (and `--download-arxiv-source` in Step 4). |
 | APS paper rendered from PDF, math mangled | `pandoc` is missing, or the article is genuinely `closed`. Check with `aps_harvest.py --check <doi>`. |
 | Reaching for MinerU/Marker on an APS DOI | Try Harvest first — a 401 is the only thing that justifies parsing a PDF at all. |
+| APS DOI reported `notfound` | Harvest matches the DOI suffix case-sensitively; `aps_harvest.canonical_doi` restores APS's capitalisation before the request. Add the journal to `APS_JOURNAL_TOKENS` if a new title 404s. |
 
 ## Done checklist
 
