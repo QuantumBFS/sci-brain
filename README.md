@@ -54,6 +54,7 @@ Slide templates are maintained in [GiggleLiu/sci-brain-slides](https://github.co
 | [`how-to-build-kb`](skills/how-to-build-kb/) | turning a list of picked papers into verified knowledge-base entries — references.bib, INDEX.md, and NOTES.md. |
 | [`how-to-download-ref`](skills/how-to-download-ref/) | adding arXiv IDs or DOIs to a knowledge base — fetches metadata, PDFs, and full text, then updates references.bib and INDEX.md. |
 | [`how-to-write-ideas-report`](skills/how-to-write-ideas-report/) | writing a proposal-style ideas report from a finished brainstorm-ideas session or a chosen research direction. |
+| [`how-to-technical-writing`](skills/how-to-technical-writing/) | writing or polishing scientific prose at the sentence and paragraph level, in a manuscript, report, or review. |
 | [`how-to-review-figure`](skills/how-to-review-figure/) | judging the visual design of a figure, plot, or diagram against a scientific-plot rubric. |
 | [`how-to-flow`](skills/how-to-flow/) | one hard, testable goal resists a direct solution and needs an autonomous decide–simulate–learn–backjump search. |
 | [`how-to-dump-dialog`](skills/how-to-dump-dialog/) | extracting and classifying research dialog from Claude Code or Codex session logs. |

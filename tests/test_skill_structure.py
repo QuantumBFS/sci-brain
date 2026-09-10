@@ -298,6 +298,13 @@ def test_paper_reviewer_has_compile_check():
     assert "typst compile" in text
 
 
+def test_write_and_review_share_the_style_guide():
+    guide = "skills/how-to-technical-writing/SKILL.md"
+    assert (ROOT / guide).exists()
+    assert guide in _read("write-paper")
+    assert guide in _read("review-paper")
+
+
 def test_paper_reviewer_references_paper_writer_rules():
     # Reuse write-paper's rule definitions rather than duplicating them.
     text = _read("review-paper")

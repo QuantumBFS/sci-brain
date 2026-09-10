@@ -23,7 +23,7 @@ Run a structured **review-and-enhance** pass over an *existing* scientific manus
 
 **Scope note.** This is the *reviewing/revising* counterpart to `write-paper` (which *drafts* a manuscript figures-first). It is **not** `survey` report mode, which writes technology/field-assessment reports from a literature survey. Use `review-paper` when a manuscript already exists and the user wants comments, a referee-style critique, reference/fact verification, or guideline-driven polish. If no manuscript exists yet, redirect to `write-paper`.
 
-The eight guidelines below come from a manuscript-quality rubric; the full rubric lives in `skills/review-paper/checklist.md`. Where `write-paper/SKILL.md` already defines a rule (sentence/notation/figure discipline), this skill **references** it rather than restating it. Consult `skills/write-paper/references.md` for the *why* behind a rule.
+The eight guidelines below come from a manuscript-quality rubric; the full rubric lives in `skills/review-paper/checklist.md`. Sentence- and paragraph-level rules live in the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`); notation and figure discipline live in `write-paper/SKILL.md`. This skill **references** both rather than restating them. Consult `skills/write-paper/references.md` for the *why* behind a rule.
 
 Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/context loading, citation handling, the BibTeX lookup chain, and output mechanics.
 
@@ -39,9 +39,9 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/con
 
 | # | Guideline | Phase | Source |
 |---|-----------|-------|--------|
-| 1 | Break long sentences; one concept per sentence | 1 | `write-paper` Sentence-Level Rules |
+| 1 | Break long sentences; one concept per sentence | 1 | `how-to-technical-writing` |
 | 2 | Define every concept/symbol before use | 1 | `write-paper` Notation Rulebook |
-| 3 | Each paragraph has one well-defined job | 1 | `write-paper` Sentence-Level Rules |
+| 3 | Each paragraph has one well-defined job | 1 | `how-to-technical-writing` |
 | 4 | **DRY** — avoid repeated explanations/definitions | 1 | new to this skill |
 | 5 | Display math reserved for emphasis only | 1 | `write-paper` Notation Rulebook |
 | 6 | Read the whole paper first; grasp the story, then each section's mission | 0 | new — the gate before critique |
@@ -87,14 +87,16 @@ Calibrate every `fix` against the model paper: Ho et al., PRL 122, 040603 (2019)
 
 Checks:
 
-1. **Sentence length / one concept per sentence.** Flag overlong or triple-idea sentences; propose splits. (`write-paper` Sentence-Level Rules.)
+1. **Sentence length / one concept per sentence.** Flag overlong or triple-idea sentences; propose splits, except for sentences that wrap a display equation or bind a hypothesis to its conclusion. Also hunt the language-level faults listed in the hunt table of `skills/how-to-technical-writing/SKILL.md`: content-free openers and meta-talk, "obviously" / "clearly" where the earlier context should be named, Latinate connectives, metaphors the paper does not draw, intensifiers and stacked asides, and runs of inline computation that belong in one display. (Style guide.)
 2. **Define before use.** Build a symbol/notation table *as you read*. Flag any symbol or concept used before its definition, any symbol never defined, and definitions out of logical order. (`write-paper` Notation Rulebook.)
-3. **Paragraph purpose.** Flag purposeless or double-duty paragraphs; suggest a topic sentence and a single job per paragraph.
-4. **DRY / anti-repetition.** Detect explanations or definitions repeated across sections; suggest consolidate-and-cross-reference. (New — keep one canonical statement, reference it elsewhere.)
-5. **Display-math discipline.** Flag display equations that don't earn emphasis; suggest inlining or cutting. Reserve display math for key/flagship results, non-obvious steps, or figure-referenced equations. (`write-paper` Notation Rulebook.)
+3. **Paragraph purpose and locality.** Flag purposeless or double-duty paragraphs, and, in Theory, Methods, Results, and Analysis, paragraphs that drift to a second object or reach sideways to a concept the argument does not need (a preview of a later section, a second interpretation never used). The Introduction and Conclusions are exempt from the locality check. Suggest a topic sentence and a single job per paragraph; keep a cross-reference only when the current step depends on it, and say why in the same sentence.
+4. **DRY / anti-repetition.** Detect explanations or definitions repeated across body sections; suggest consolidate-and-cross-reference. (New — keep one canonical statement, reference it elsewhere.) Exempt the abstract, introduction, and conclusions, which restate by design, and main-result sentences, which may be named more than once.
+5. **Display-math discipline.** Flag display equations that don't earn emphasis; suggest inlining or cutting. Reserve display math for key/flagship results, non-obvious steps, or figure-referenced equations. Never propose inlining or cutting an equation whose label is referenced elsewhere; for a letter, propose moving algebra to the supplement rather than deleting a reproducibility step. (`write-paper` Notation Rulebook.)
 7. **Figure integration.** Flag **orphan** figures (never referenced in the main text) and figures whose striking features (peaks, kinks, jumps) aren't discussed. (`write-paper` Figure Rulebook.)
 
 Also run a per-section **"did this section deliver its Phase-0 mission?"** check (guideline #6 carried into the body).
+
+Every finding names the rule it serves. Not every paragraph needs a finding: a passage that already passes stays untouched, and a rewrite is never proposed for the sake of a diff.
 
 ---
 
@@ -119,22 +121,34 @@ Write a timestamped report to `articles/<slug>/review-YYYY-MM-DD.md` (the repo's
 3. **Reference / fact-check table** — cite key → status (ok / broken / missing / mismatch / unverifiable) → note.
 4. **Top fixes** — a prioritized list of the highest-leverage changes.
 
-Then present a short summary to the user and ask which findings to apply.
+Then present a short summary to the user and ask two things: which findings to apply (all / by severity / individually), and whether to **show a marked diff first** or **apply directly**. Default to the marked diff; it costs one compile and lets the author judge each rewrite in context.
 
 ---
 
 ## Phase 4 — Apply approved edits
 
-1. **User selects scope:** all / by-severity (e.g. "apply all high") / individually. Do not edit anything the user didn't approve.
-2. **Apply edits to the manuscript**, preserving macros, environments, labels, and document structure in every format. Where a fix genuinely needs author judgment, insert a `% [reviewer] …` margin comment instead of rewriting silently (`// [reviewer]` in Typst, an HTML comment in Markdown).
-3. **Verify it still compiles** — `latexmk` (or `pdflatex`) for `.tex`, `typst compile` for `.typ`; for `.md`, confirm it still renders. Report pass/fail with the actual command output (per verification-before-completion: evidence before assertions). If it breaks, fix or revert the offending edit before claiming done.
-4. **Append a changelog** to the top of the review report: what was applied, what was skipped, and the compile result.
+**Marked-diff mode** (the default). Never touch the original until the user has seen every proposed change in context.
+
+1. **Edit a copy.** `cp main.tex main.proposed.tex` (same for `.typ` / `.md`). Apply every approved fix to the copy with a script that asserts each target passage matches exactly once. Comment-only fixes (style-guide guardrails) go in as `[reviewer]` comments in the copy too.
+2. **Mark the diff.** LaTeX: `latexdiff main.tex main.proposed.tex > main.diff.tex`, then compile `main.diff.tex` (deletions red struck-through, additions blue underlined). Typst and Markdown have no latexdiff; write `git diff --no-index --word-diff main.typ main.proposed.typ` into `articles/<slug>/review-YYYY-MM-DD.diff` and, for Typst, also compile the proposed copy so the author can read the result. Check the page count did not change unexpectedly.
+3. **Hand over a numbered legend.** Give the marked PDF (or diff file) path and one line per change: number, section and page, the finding it fixes, and the rule it serves. Pair up a removal and an addition that belong to one change. End with "reply with the numbers to merge, or all".
+4. **Merge exactly the accepted numbers** into the original. If the user accepts "all except one wording", revert that wording in the copy first, then merge all. Delete `main.proposed.*` and `main.diff.*` afterwards.
+
+**Direct mode** (only when the user chose it). Apply the approved findings straight to the manuscript. Do not edit anything the user didn't approve.
+
+**Both modes.**
+
+1. **Preserve structure.** Keep macros, environments, labels, and document structure in every format. Where a fix genuinely needs author judgment, insert a `% [reviewer] …` margin comment instead of rewriting silently (`// [reviewer]` in Typst, an HTML comment in Markdown).
+2. **Language edits change how a sentence is written, never what it says.** Never alter the content of a definition, theorem, or claim while rewording it; never add or remove a claim, figure, or derivation step under a guideline 1–5 fix; never replace a field term with a simpler word. Recheck every number, count, and qualifier a rewritten sentence mentions before moving on.
+3. **Comment, do not apply, when a language fix touches content.** An edit that would change a quantifier or hedge ("arbitrary", "approximately", "at most"), add a justification the manuscript does not already contain, delete a paragraph as a digression, or remove a "not X but Y" contrast goes in as a `[reviewer]` comment even when the user approved the finding. The author writes those words.
+4. **Verify it still compiles** — `latexmk` (or `pdflatex`) for `.tex`, `typst compile` for `.typ`; for `.md`, confirm it still renders. Report pass/fail with the actual command output (per verification-before-completion: evidence before assertions). If it breaks, fix or revert the offending edit before claiming done.
+5. **Append a changelog** to the top of the review report: what was applied, what was skipped, and the compile result.
 
 ---
 
 ## Reused vs. new
 
-**Reused (no duplication):** `skills/how-to-write-ideas-report/references/writing-workflow.md` (context, citations, output mechanics); the BibTeX lookup chain (CrossRef → Semantic Scholar → MCP → web fetch); `how-to-download-ref` for reference repair; `write-paper`'s sentence/notation/figure rule *definitions* (referenced).
+**Reused (no duplication):** `skills/how-to-write-ideas-report/references/writing-workflow.md` (context, citations, output mechanics); `skills/how-to-technical-writing/SKILL.md` (sentence/paragraph rules, hunt table, application guardrails); the BibTeX lookup chain (CrossRef → Semantic Scholar → MCP → web fetch); `how-to-download-ref` for reference repair; `write-paper`'s notation/figure rule *definitions* (referenced).
 
 **New here:** the read-whole-first review protocol (Phase 0), DRY/anti-repetition detection (#4), fact & reference verification (#8), and the comment-then-apply loop plus compile-check (Phases 3–4).
 
@@ -145,18 +159,25 @@ Then present a short summary to the user and ask which findings to apply.
 | Mistake | Instead |
 |---|---|
 | Editing before the user approves | Comment-first. Phase 3 → user picks → Phase 4. |
+| Merging a rewrite the author has not seen in context | Marked-diff mode by default: `latexdiff` on a copy, numbered legend, merge only the accepted numbers. |
 | Nitpicking sentences before confirming the story | Phase 0 gate: confirm the story summary first. |
 | Inventing a BibTeX entry to "fix" a citation | Never. Use the lookup chain / the `how-to-download-ref` skill, or flag as unverifiable. |
 | Silently "correcting" a factual claim | Flag uncertain claims; the author decides. |
 | Claiming done without compiling | Run `latexmk` / `typst compile` and paste the result. |
 | Chasing completeness on fact-checks | Verify only what supports the main claims. |
+| Rewriting a passage that already passes | Leave it. A finding must name the rule it serves. |
+| "Simplifying" a technical term | Keep the field's term; simplify only connectives, idioms, and asides. |
+| A reworded sentence changed a count, qualifier, or claim | Language edits change how, never what. Recheck numbers after every rewrite. |
+| Writing the reason behind a "clearly" from general knowledge | If the supporting equation, figure, or section is not in the manuscript, ask the author in a `[reviewer]` comment. |
+| Applying DRY or locality to the abstract, introduction, or conclusions | Those sections restate and connect by design; check them only for the four introduction beats and the implications paragraph. |
 
 ---
 
 ## Integrations
 
 - **Context, citations, output mechanics:** `skills/how-to-write-ideas-report/references/writing-workflow.md`.
-- **Rule definitions (sentence/notation/figure):** `skills/write-paper/SKILL.md` + `skills/write-paper/references.md`.
+- **Sentence/paragraph rules, hunt table, guardrails:** `skills/how-to-technical-writing/SKILL.md`.
+- **Rule definitions (notation/figure):** `skills/write-paper/SKILL.md` + `skills/write-paper/references.md`.
 - **Model paper (style calibration for fixes):** `skills/write-paper/sources/1807.01815_Ho2019_quantum-scars.md`, distilled in `skills/write-paper/references.md` §C.
 - **Reference repair / adding a missing paper:** the `how-to-download-ref` skill.
 - **Full rubric checklist:** `skills/review-paper/checklist.md`.

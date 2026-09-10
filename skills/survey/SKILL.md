@@ -71,7 +71,7 @@ Write a self-contained survey or technology/field assessment suitable for intern
 
 ### Setup
 
-Follow `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, **source scoping**, citation handling, gap-filling research, output format, diagrams, and finish checks.
+Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-level prose rules, and `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, **source scoping**, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
 - If no KB exists, offer to run Topic Survey first; the report needs a grounded reference base.
 - **Scope the source set first.** Run `scope_refs.py` as specified in the shared workflow. Fix dangling anchors before drafting. Build the report's approaches and claims from those scoped keys, not the entire bibliography.
