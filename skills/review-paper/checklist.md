@@ -1,6 +1,6 @@
 # Paper-reviewer rubric
 
-The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into checkable items. Use it as the per-pass checklist when reviewing a manuscript. Guidelines 1–3, 5, and 7 restate the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`) and `write-paper` authoring rules as *review* checks — consult `skills/write-paper/references.md` for the reasoning. Guidelines 4, 6, and 8 are specific to reviewing.
+The nine-guideline review rubric backing `review-paper/SKILL.md`, expanded into checkable items. Use it as the per-pass checklist when reviewing a manuscript. Guidelines 1–3, 5, and 7 restate the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`) and `write-paper` authoring rules as *review* checks — consult `skills/write-paper/references.md` for the reasoning. Guidelines 4, 6, 8, and 9 are specific to reviewing.
 
 ---
 
@@ -47,7 +47,7 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 
 ## 6 — Read the whole paper first (the gate)
 
-- [ ] The user was asked first, with three numbered options (1 high-level story, 2 writing, 3 facts/references/links), which passes to run; on a repeat review the previous report was named and the default was option 2 only.
+- [ ] The user was asked first, with three numbered options (1 high-level story, 2 writing, 3 facts/references/links, 4 journal fit), which passes to run; on a repeat review the previous report was named and the default was option 2 only.
 - [ ] The whole manuscript and its bibliography were read before any critique.
 - [ ] A story brief was produced: story paragraph, scientific question and its significance, numbered key contributions, key results each tied to a figure, table, or equation.
 - [ ] A one-line mission per section was produced.
@@ -73,6 +73,16 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 - [ ] Every URL and DOI link in the manuscript and bibliography fetched once; dead links, wrong redirects, and unresolvable DOIs flagged.
 - [ ] **No BibTeX invented from memory; no claim silently "corrected"; no citation fabricated.**
 
+## 9 — Journal fit (new)
+
+- [ ] Skipped, with a note in the report, when the user did not select option 4 or chose "no target yet". Otherwise:
+- [ ] The target journal was taken from the manuscript's declared venue or `template/README.md`, or recommended per `write-paper` Phase 1.5 and confirmed by the user.
+- [ ] The official author guidelines were fetched this session (or reused from `template/README.md`); source URL and access date recorded.
+- [ ] Constraints extracted into a table: limits (body, abstract, title), figure / table / reference maxima, required sections and order, required statements (data and code availability, author contributions, competing interests, funding, ethics, keywords, significance), formatting rules, and the journal's own writing guidance.
+- [ ] Each constraint measured against the manuscript (word counts from compiled text, counts from source, sections from headings) with status ok / over / missing / unverifiable.
+- [ ] Abstract, opening paragraph, and significance framing reviewed against the journal's stated audience and writing guidance.
+- [ ] **No limit or rule quoted from memory; unfetchable guidelines marked unverifiable with the URL.**
+
 ---
 
 ## Language-pass hunt table (guidelines 1, 3, 4, 5)
@@ -83,6 +93,7 @@ The hunt-for / fix table lives in `skills/how-to-technical-writing/SKILL.md`, sh
 
 - [ ] Findings written to `articles/<slug>/review-YYYY-MM-DD.md`, grouped by guideline and severity-ranked.
 - [ ] A reference/fact-check table (cite key → status → note) is included.
+- [ ] A journal fit table (constraint → required → measured → status) with the guideline source is included, or a line saying the pass was skipped.
 - [ ] A prioritized "top fixes" list is included.
 - [ ] The user was asked whether to see a marked diff first or apply directly; marked diff is the default.
 - [ ] In marked-diff mode: edits went to a `*.proposed.*` copy, `latexdiff` (or `git diff --word-diff` for Typst/Markdown) produced the marked version, a numbered legend was handed over, and only the accepted numbers were merged; proposed and diff files deleted afterwards.

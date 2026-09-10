@@ -23,7 +23,7 @@ Run a structured **review-and-enhance** pass over an *existing* scientific manus
 
 **Scope note.** This is the *reviewing/revising* counterpart to `write-paper` (which *drafts* a manuscript figures-first). It is **not** `survey` report mode, which writes technology/field-assessment reports from a literature survey. Use `review-paper` when a manuscript already exists and the user wants comments, a referee-style critique, reference/fact verification, or guideline-driven polish. If no manuscript exists yet, redirect to `write-paper`.
 
-The eight guidelines below come from a manuscript-quality rubric; the full rubric lives in `skills/review-paper/checklist.md`. Sentence- and paragraph-level rules live in the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`); notation and figure discipline live in `write-paper/SKILL.md`. This skill **references** both rather than restating them. Consult `skills/write-paper/references.md` for the *why* behind a rule.
+Guidelines 1–8 below come from a manuscript-quality rubric, and guideline 9 checks the manuscript against its target journal's own rules; the full rubric lives in `skills/review-paper/checklist.md`. Sentence- and paragraph-level rules live in the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`); notation and figure discipline live in `write-paper/SKILL.md`. This skill **references** both rather than restating them. Consult `skills/write-paper/references.md` for the *why* behind a rule.
 
 Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/context loading, citation handling, the BibTeX lookup chain, and output mechanics.
 
@@ -35,7 +35,7 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/con
 
 ---
 
-## The eight guidelines → where each is handled
+## The nine guidelines → where each is handled
 
 | # | Guideline | Phase | Source |
 |---|-----------|-------|--------|
@@ -47,6 +47,7 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/con
 | 6 | Read the whole paper first; brief the story, judge it at the high level, then each section's mission | 0 | new — the gate before critique |
 | 7 | Every figure referenced ≥1× and its striking features discussed | 1 | `write-paper` Figure Rulebook |
 | 8 | Verify factual claims & references; flag the uncertain | 2 | new — the standout capability |
+| 9 | Fit the target journal: limits, required parts, and its writing guidance | 2.5 | new — venue discussion reused from `write-paper` Phase 1.5 |
 
 ---
 
@@ -54,7 +55,7 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/con
 
 Rank every finding so the user can triage:
 
-- **high** — wrong or misleading: undefined-but-used symbol, broken/missing citation, a factual or numerical claim that fails verification, an orphan figure central to a result, a claim the cited work does not support.
+- **high** — wrong or misleading: undefined-but-used symbol, broken/missing citation, a factual or numerical claim that fails verification, an orphan figure central to a result, a claim the cited work does not support, a hard journal limit exceeded or a required statement missing.
 - **med** — hurts clarity but not correctness: overlong multi-concept sentences, a purposeless paragraph, a repeated explanation (DRY), display math that doesn't earn emphasis.
 - **low** — polish: minor signposting, parallelism, caption tightening, a striking figure feature left undiscussed.
 
@@ -67,8 +68,9 @@ Rank every finding so the user can triage:
    1. **High-level story** — is the question worth asking, do the contributions match the results, and do the abstract, the main figure, and the supporting data carry the story (step 6 below).
    2. **Writing** — guidelines 1–7 (Phase 1), optionally narrowed to named guidelines or sections.
    3. **Facts, references, and links** — guideline 8 (Phase 2): every bibliography entry screened, cited claims sanity-checked, standalone factual claims verified, every URL and DOI link resolved. The slow pass.
+   4. **Journal fit** — guideline 9 (Phase 2.5): decide or recommend the target journal, fetch its author guidelines, check limits and structural completeness, and review against the journal's own writing guidance.
 
-   Default on a first review: all three. If a previous `articles/<slug>/review-*.md` exists, say so and propose the repeat-pass default: option 2 only, restricted to text changed since that report, plus option 3 only if the bibliography changed. A pass the user did not select is not run, and the report says it was skipped.
+   Default on a first review: all four. If a previous `articles/<slug>/review-*.md` exists, say so and propose the repeat-pass default: option 2 only, restricted to text changed since that report, plus option 3 only if the bibliography changed, and option 4 only if the target journal changed or the previous report did not run it. A pass the user did not select is not run, and the report says it was skipped.
 3. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
 4. **Load shared context.** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`: resolve `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
 5. **Write the story brief** (always, whatever was selected; it is the gate). Four short parts, in the paper's own terms:
@@ -130,6 +132,18 @@ Run only when option 3 was selected in Phase 0. The standout capability. Follow 
 
 ---
 
+## Phase 2.5 — Journal fit (guideline #9)
+
+Run only when option 4 was selected in Phase 0. Never quote a limit or rule from memory: every constraint in this pass comes from a page fetched in this session or from a `template/README.md` that records its source.
+
+1. **Decide the target journal.** Use the venue the manuscript already declares: a document class or template (`revtex4-2`, `iopart`, `elsarticle`, an `sn-jnl` class), journal macros, a cover letter, or a `template/README.md` written by `write-paper` Phase 1.5. If none, follow `write-paper` Phase 1.5: propose 2–3 venues with tradeoffs (article type, audience, length pressure, figure limits, novelty bar) grounded in the story brief, and ask the user to pick one or say "no target yet". With no target, skip the rest of this pass and record that choice in the report.
+2. **Fetch the author guidelines.** Prefer the official publisher page over mirrors, Overleaf copies, or lab handouts. Reuse `template/README.md` when it already records the URL and access date; otherwise record both in the report. If the page cannot be fetched, mark every constraint `unverifiable`, give the URL, and stop.
+3. **Extract the checkable constraints into a table**: article type; word, page, or character limits for the body, abstract, and title; maximum figures, tables, and references; required sections and their order; required statements (data availability, code availability, author contributions, competing interests, funding, ethics or IRB, keywords, significance statement); formatting rules (citations in the abstract, footnotes, units, figure resolution and file types, reference style); and any writing guidance the journal itself gives (a first paragraph accessible to non-specialists, a summary-paragraph structure, a stated audience).
+4. **Check each constraint against the manuscript.** Measure rather than estimate: word counts from the compiled text (`detex`, `pandoc --to plain`, or `typst query`), figure, table, and reference counts from the source, section presence from the headings. Status per row: ok / over / missing / unverifiable. Severity: high for a hard limit exceeded or a required statement missing, med for a formatting rule, low for cosmetic.
+5. **Review against the journal's writing guidance.** Judge the abstract, the opening paragraph, and the framing of significance against what the journal says it wants for its audience. These are guideline-9 findings with the same shape as Phase 1; the fix cites the guideline sentence it serves.
+
+---
+
 ## Phase 3 — Deliver the review report
 
 Write a timestamped report to `articles/<slug>/review-YYYY-MM-DD.md` (the repo's dated-output convention). Structure:
@@ -137,7 +151,8 @@ Write a timestamped report to `articles/<slug>/review-YYYY-MM-DD.md` (the repo's
 1. **Story brief, high-level comments, and per-section missions** (from Phase 0).
 2. **Findings grouped by guideline, severity-ranked** (high → low).
 3. **Reference / fact-check table** — cite key or URL → status (ok / broken / missing / mismatch / unverifiable) → note. If Phase 2 was skipped, one line saying so and pointing at the last report that ran it.
-4. **Top fixes** — a prioritized list of the highest-leverage changes.
+4. **Journal fit table** — target journal and guideline source (URL, access date), then constraint → required → measured → status. If Phase 2.5 was skipped or no target was chosen, one line saying so.
+5. **Top fixes** — a prioritized list of the highest-leverage changes.
 
 Then present a short summary to the user and ask two things: which findings to apply (all / by severity / individually), and whether to **show a marked diff first** or **apply directly**. Default to the marked diff; it costs one compile and lets the author judge each rewrite in context.
 
@@ -168,7 +183,7 @@ Then present a short summary to the user and ask two things: which findings to a
 
 **Reused (no duplication):** `skills/how-to-write-ideas-report/references/writing-workflow.md` (context, citations, output mechanics); `skills/how-to-technical-writing/SKILL.md` (sentence/paragraph rules, hunt table, application guardrails); the BibTeX lookup chain (CrossRef → Semantic Scholar → MCP → web fetch); `how-to-download-ref` for reference repair; `write-paper`'s notation/figure rule *definitions* (referenced).
 
-**New here:** the read-whole-first review protocol (Phase 0), DRY/anti-repetition detection (#4), fact & reference verification (#8), and the comment-then-apply loop plus compile-check (Phases 3–4).
+**New here:** the read-whole-first review protocol (Phase 0), DRY/anti-repetition detection (#4), fact & reference verification (#8), journal fit (#9, venue discussion reused from `write-paper` Phase 1.5), and the comment-then-apply loop plus compile-check (Phases 3–4).
 
 ---
 
@@ -184,6 +199,7 @@ Then present a short summary to the user and ask two things: which findings to a
 | Silently "correcting" a factual claim | Flag uncertain claims; the author decides. |
 | Claiming done without compiling | Run `latexmk` / `typst compile` and paste the result. |
 | Chasing completeness on fact-checks | Verify only what supports the main claims. |
+| Quoting a journal's word limit or required sections from memory | Fetch the official author guidelines this session, or mark the row unverifiable with the URL. |
 | Rewriting a passage that already passes | Leave it. A finding must name the rule it serves. |
 | "Simplifying" a technical term | Keep the field's term; simplify only connectives, idioms, and asides. |
 | A reworded sentence changed a count, qualifier, or claim | Language edits change how, never what. Recheck numbers after every rewrite. |
@@ -198,5 +214,6 @@ Then present a short summary to the user and ask two things: which findings to a
 - **Sentence/paragraph rules, hunt table, guardrails:** `skills/how-to-technical-writing/SKILL.md`.
 - **Rule definitions (notation/figure):** `skills/write-paper/SKILL.md` + `skills/write-paper/references.md`.
 - **Model paper (style calibration for fixes):** `skills/write-paper/sources/1807.01815_Ho2019_quantum-scars.md`, distilled in `skills/write-paper/references.md` §C.
+- **Target venue and template discussion:** `write-paper` Phase 1.5 (`skills/write-paper/SKILL.md`).
 - **Reference repair / adding a missing paper:** the `how-to-download-ref` skill.
 - **Full rubric checklist:** `skills/review-paper/checklist.md`.
