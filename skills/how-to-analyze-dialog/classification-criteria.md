@@ -1,6 +1,6 @@
 # Classification Criteria for 6-Dimension Dialog Analysis
 
-Reference document for how-to-dump-dialog Phase 3. Defines decision rules, tie-breakers, and boundary examples for each dimension.
+Reference document for how-to-analyze-dialog Phase 3. Defines decision rules, tie-breakers, and boundary examples for each dimension.
 
 ## 1. Bloom's Cognitive Level (`bloom:`)
 

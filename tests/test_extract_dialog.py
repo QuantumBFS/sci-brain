@@ -3,7 +3,7 @@ import subprocess
 import sys
 import os
 from pathlib import Path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "skills", "how-to-dump-dialog"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "skills", "dump-chat-history", "helpers"))
 from extract_dialog import extract_claude_turns, extract_codex_turns, list_claude_sessions
 
 
@@ -91,8 +91,8 @@ def test_claude_skips_system_preamble():
     assert turns[0]["user"] == "Real question here"
 
 
-def test_claude_strips_system_tags_preserving_content():
-    """User messages with both system tags and real content have tags stripped."""
+def test_claude_preserves_literal_tags_in_human_content():
+    """Potential harness wrappers remain intact for source-aware reconciliation."""
     lines = [
         json.dumps({
             "type": "user",
@@ -107,7 +107,7 @@ def test_claude_strips_system_tags_preserving_content():
     ]
     turns = extract_claude_turns(lines)
     assert len(turns) == 1
-    assert turns[0]["user"] == "Real question here"
+    assert turns[0]["user"] == "<system-reminder>hook data</system-reminder>Real question here"
 
 
 def test_claude_merges_consecutive_assistant():
@@ -174,8 +174,8 @@ def test_claude_trailing_user_no_response():
     assert turns[0]["assistant"] == "[no response]"
 
 
-def test_claude_truncates_long_assistant():
-    """Assistant responses longer than 500 chars are truncated."""
+def test_claude_preserves_long_assistant():
+    """Staging extraction keeps the complete assistant response."""
     long_text = "x" * 600
     lines = [
         json.dumps({
@@ -191,8 +191,7 @@ def test_claude_truncates_long_assistant():
     ]
     turns = extract_claude_turns(lines)
     assert len(turns) == 1
-    assert len(turns[0]["assistant"]) == 503  # 500 + "..."
-    assert turns[0]["assistant"].endswith("...")
+    assert turns[0]["assistant"] == long_text
 
 
 def test_extract_codex_turns():
@@ -264,7 +263,7 @@ def test_cli_extract_claude(tmp_path):
         })
         + "\n"
     )
-    script = str(Path(__file__).parent.parent / "skills" / "how-to-dump-dialog" / "extract_dialog.py")
+    script = str(Path(__file__).parent.parent / "skills" / "dump-chat-history" / "helpers" / "extract_dialog.py")
     result = subprocess.run(
         [sys.executable, script, "extract", "--source", "claude", "--session", "sess-1",
          "--projects-root", str(tmp_path / "projects")],

@@ -62,7 +62,7 @@ def test_readme_migration_table_covers_renamed_skills():
     readme = (ROOT / "README.md").read_text()
     renamed = {
         "/download-ref": "/how-to-download-ref",
-        "/conversation-dump": "/how-to-dump-dialog",
+        "/conversation-dump": "/dump-chat-history",
         "/figure-taste": "/how-to-review-figure",
         "/flow": "/how-to-flow",
         "/paper-writer": "/write-paper",

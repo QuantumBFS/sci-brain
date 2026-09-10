@@ -1,4 +1,4 @@
-"""Parse exported .md dialog files into the standard how-to-dump-dialog JSON format.
+"""Parse exported .md dialog files into the standard analysis-dialog JSON format.
 
 Supports:
 - Claude.ai web export: ## **Human** / ## **Claude** with --- separators
@@ -39,12 +39,6 @@ def _detect_role(line):
         if pattern.match(stripped):
             return role
     return None
-
-
-def _truncate(text, max_chars=500):
-    if len(text) <= max_chars:
-        return text
-    return text[:max_chars] + "..."
 
 
 def parse_md_file(filepath):
@@ -104,7 +98,7 @@ def segments_to_turns(segments):
             turns.append({
                 "index": idx,
                 "user": user_text,
-                "assistant": _truncate(assistant_text),
+                "assistant": assistant_text,
             })
         else:
             i += 1
@@ -113,7 +107,7 @@ def segments_to_turns(segments):
 
 
 def build_output(filepath, turns):
-    """Build the standard how-to-dump-dialog JSON structure."""
+    """Build the standard analysis-dialog JSON structure."""
     path = Path(filepath)
     try:
         mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
@@ -131,7 +125,7 @@ def build_output(filepath, turns):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Parse .md dialog files into how-to-dump-dialog JSON format"
+        description="Parse .md dialog files into analysis-dialog JSON format"
     )
     sub = parser.add_subparsers(dest="command", required=True)
 

@@ -8,7 +8,7 @@ sci-brain is a skill-based plugin for AI coding assistants (Claude Code, Codex, 
 
 ## Skills
 
-The 15 skills in `skills/` are each defined by a `SKILL.md` with YAML frontmatter and instructions. Each description is one sentence starting with its trigger kind, mirroring the `qude-software-skills` convention:
+The 16 skills in `skills/` are each defined by a `SKILL.md` with YAML frontmatter and instructions. Each description is one sentence starting with its trigger kind, mirroring the `qude-software-skills` convention:
 
 - `Agentic trigger. Use when …` — `how-to-*` skills the agent invokes automatically while serving a need (a user may still type them).
 - `User trigger. Use when …` — skills a user invokes by need (everything else).
@@ -16,6 +16,8 @@ The 15 skills in `skills/` are each defined by a `SKILL.md` with YAML frontmatte
 `scripts/validate_skills.py` enforces the prefix; `tests/test_repository_consistency.py` enforces `how-to-*` ⇔ agentic and keeps the README tables identical to the descriptions.
 
 **User trigger:**
+
+- **dump-chat-history** — Selects harnesses and a start date before reading history, preserves original prompts and answers with provenance, and exports JSON/Markdown plus an optional topic-titled Typst/PDF field note; research classification belongs to `how-to-analyze-dialog`.
 
 - **brainstorm-ideas** — The main ideation entry point. Socratic research mentor that understands user background, finds attackable problems, and encourages deeper thinking. When an advisor is selected, it launches that advisor as a subagent and loads literature from `advisors/<slug>/.knowledge/`. At Phase 3 wrap-up (or on a past session log) it hands off to `how-to-write-ideas-report`.
 - **survey** — Parallel literature search via 7 strategies; the user picks directions, then `how-to-build-kb` populates `<project>/.knowledge/`. It also owns the report mode that produces a grounded technology/field assessment from a populated KB; `how-to-download-ref` fetches and renders full text between discovery and writing.
@@ -34,7 +36,7 @@ The 15 skills in `skills/` are each defined by a `SKILL.md` with YAML frontmatte
 - **how-to-review-figure** — Reviews the *visual design quality* of a figure, plot, or diagram and prints a scorecard. Source-aware (renders the figure to a raster to look at it via `helpers/render.py`, reads matplotlib/Typst/SVG source so fixes can cite a line), report-only, terminal-first. Scores against an 18-rule rubric (11 general — alignment, proximity, color, hierarchy, contrast, colorblind-safety, …; plus 7 scientific-plot rules — text size, line weight, space use, chartjunk, legend, cross-panel consistency, resolution). Distinct from `review-paper` (which checks whether a figure is cited/discussed in the text, not how it looks) and `write-paper` (which authors figures). Full rubric in `skills/how-to-review-figure/checklist.md`.
 - **how-to-flow** — Autonomous deep-thinker that conquers one hard goal via a CDCL/DPLL-style search loop: a **preflight gate** (is the goal testable? are all context/KB facts loaded?), then iterate *decide* (**what-if**: assume a condition, test "closer to goal?" + "easier to achieve?") → *propagate* (**simulate**: run consequences forward, reflect; may fan out 2–3 subagents on wide forks) → *learn* (note a reusable clause after **every** trial) → *backjump* (non-chronological, to the real cause) → *pivot* (meta-restart: re-aim to an equally-valuable easier goal when stuck, keeping all notes). Domain-agnostic and KB-optional. Writes a per-trial journal to `docs/flow/<goal-slug>.md` (template in `skills/how-to-flow/journal-template.md`). Terminates SOLVED / PIVOTED-SOLVED / EXHAUSTED (≤3 pivots). Distinct from `brainstorm-ideas` (open-ended, collaborative) — `how-to-flow` is goal-locked and autonomous.
 - **how-to-download-ref** — Adds one or many new arXiv IDs / DOIs to a knowledge base (`<project>/.knowledge/` by default; `advisors/<slug>/.knowledge/` when invoked from advisor flows). Fetches Semantic Scholar metadata, downloads PDFs (with SciHub fallback); when the user opts in, also fetches arXiv LaTeX sources and renders those refs (incl. DOI entries with an arXiv preprint) from flattened LaTeX (`full_text: latex`) via `--tex-source`, otherwise all refs render via `pymupdf4llm`. Regenerates `INDEX.md`, appends to the KB's `references.bib`. Supports `--from-bib` for bulk operations on an existing BibTeX.
-- **how-to-dump-dialog** — Extracts dialog from Claude Code or Codex CLI session logs, classifies user messages across 6 academic dimensions, outputs tagged dialog reports to `docs/dialog/`.
+- **how-to-analyze-dialog** — Consumes exported dialog from `dump-chat-history`, classifies topics and user messages across 6 academic dimensions, and writes derived tagged reports to `docs/dialog/analysis/` for `create-advisor`; original exports remain unchanged.
 
 The directory name must match the skill's frontmatter `name`. In particular, the public `know-me-better` skill lives at `skills/know-me-better/`.
 

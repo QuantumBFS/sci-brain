@@ -32,6 +32,7 @@ advisors/*/.knowledge/.figures/
 
 docs/agent-profiles/
 docs/dialog/
+docs/chat-history/
 docs/discussion/
 docs/plans/
 docs/references/

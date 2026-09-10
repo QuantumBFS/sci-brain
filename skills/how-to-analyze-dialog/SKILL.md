@@ -1,6 +1,6 @@
 ---
-name: how-to-dump-dialog
-description: Agentic trigger. Use when extracting and classifying research dialog from Claude Code or Codex session logs.
+name: how-to-analyze-dialog
+description: Agentic trigger. Use when classifying exported research conversations by topic and analyzing their prompting patterns across six academic dimensions.
 ---
 
 ## Installed resources
@@ -14,36 +14,43 @@ Locate each dependency by its public skill name; copied skills need not be sibli
 If a dependency is absent, report the missing skill and install it before that step.
 Shared writing files are bundled in `how-to-write-ideas-report/references/`.
 
-Before running the examples, set `DUMP_DIALOG_DIR` to the absolute directory of `how-to-dump-dialog`. Quote these variables as shown.
+## Research dialog analysis
 
+Classify research conversations and their prompting patterns across the six
+academic dimensions below. This skill consumes exported history; it does not
+select harnesses, scan native stores, or make transcript/PDF exports.
+`dump-chat-history` owns that workflow. `create-advisor` owns advisor synthesis.
 
-## Dialog Analysis
+### Phase 1 — Load exported dialog
 
-Analyze all conversation sessions from a chosen source (Claude Code or Codex CLI) in three phases: batch extraction, topic classification, and deep 6-dimension analysis.
+Accept existing session/turn JSON files or `history.json` produced by
+`dump-chat-history`. If history has not been exported, invoke that skill first,
+passing any source, time range, project, and topic already provided; do not ask
+the same selection questions again. Request its analysis handoff without a PDF
+unless the user also wants a readable report.
 
-### Phase 1 — Extract
-
-Ask the user to choose a source: **claude** or **codex**.
-
-List and extract ALL sessions in batch using the Python script:
-
-```bash
-python "$DUMP_DIALOG_DIR/extract_dialog.py" list --source claude --project all
-python "$DUMP_DIALOG_DIR/extract_dialog.py" list --source codex
-```
-
-Extract every listed session and save the JSON output to a staging directory:
+For a `history.json` input, resolve the installed `dump-chat-history` directory
+as `DUMP_HISTORY_DIR` and create a derived analysis workspace:
 
 ```bash
-mkdir -p docs/dialog/<source>/extracted
-python "$DUMP_DIALOG_DIR/extract_dialog.py" extract --source <source> --session <id> > docs/dialog/<source>/extracted/<session-id>.json
+python3 "$DUMP_HISTORY_DIR/helpers/history.py" analysis <history.json> \
+  --outdir docs/dialog/analysis/<run-slug>/input
 ```
 
-Run extractions in parallel (batch shell commands). Skip sessions that yield 0 user turns after filtering.
+For existing session/turn JSON, copy the selected files into that fresh `input/`
+directory first, retaining source locations and avoiding filename collisions.
+
+Keep the original export immutable. The derived files retain source entry IDs
+and full text; turn grouping follows transcript order within each session and
+branch and is not evidence that a queued correction caused a particular answer.
+If the export omits assistant messages, state that context limitation in analysis.
+Use a fresh `docs/dialog/analysis/<run-slug>/` for the classification outputs.
+In Phases 2–4 below, `<source>` denotes this run workspace relative to
+`docs/dialog/`; never write the enriched files back into the export directory.
 
 ### Phase 2 — Classify by Topic
 
-Dispatch fast available agents in parallel to classify each extracted session by conversation topic. Each agent receives a batch of ~20 extracted JSON files and returns a topic label for each.
+Dispatch fast available agents in parallel to classify each extracted session by conversation topic. Each agent receives a batch of ~20 derived session JSON files and returns a topic label for each.
 
 **Topic taxonomy (closed set):**
 
@@ -76,7 +83,7 @@ After all agents return, organize files into topic folders:
 
 ```bash
 mkdir -p docs/dialog/<source>/<topic>
-mv docs/dialog/<source>/extracted/<session-id>.json docs/dialog/<source>/<topic>/
+mv docs/dialog/<source>/input/<session-file>.json docs/dialog/<source>/<topic>/
 ```
 
 Write a topic index to `docs/dialog/<source>/topics.md`:
@@ -127,13 +134,13 @@ For any presupposition issue or non-obvious classification, add a brief **Note**
 
 ### Phase 4 — Output
 
-**Per-session reports:** Overwrite the extracted JSON file at `docs/dialog/<source>/<topic>/<session-id>.json` with the enriched version containing tags. This replaces the raw Phase 1 output with the fully classified version.
+**Per-session reports:** Add tags to the derived JSON file at `docs/dialog/<source>/<topic>/<session-file>.json`. The raw history export stays unchanged. Preserve source entry IDs, timestamps, and branch provenance in the enriched version.
 
 Schema:
 
 ```json
 {
-  "source": "<claude|codex>",
+  "source": "<source label>",
   "session_id": "<id>",
   "topic": "<topic slug>",
   "timestamp": "<ISO 8601>",
@@ -141,7 +148,7 @@ Schema:
     {
       "index": 1,
       "user": "<user message text>",
-      "assistant": "<assistant response, truncated>",
+      "assistant": "<assistant response, unabridged>",
       "tags": {
         "bloom": "analyze",
         "depth": "deep/causal-antecedent",

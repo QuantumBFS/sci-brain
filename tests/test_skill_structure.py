@@ -222,11 +222,10 @@ def test_incarnate_invokes_know_me_better_or_download_ref():
     assert "know-me-better" in text or "how-to-download-ref" in text
 
 
-def test_incarnate_owns_markdown_import_and_pattern_extraction():
+def test_advisor_delegates_export_and_analysis_before_pattern_extraction():
     text = _read("create-advisor")
-    assert "parse_md_dialog.py" in text
-    assert "> docs/dialog/md-import/raw/<session-id>.json" in text
-    assert "Phases 2–4" in text
+    assert "dump-chat-history" in text
+    assert "how-to-analyze-dialog" in text
     assert "persist the enriched JSON reports" in text
     assert "### Conversation Pattern Extraction" in text
     assert "thinking-pattern.md" in text
