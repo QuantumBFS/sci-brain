@@ -48,8 +48,10 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 ## 6 — Read the whole paper first (the gate)
 
 - [ ] The whole manuscript and its bibliography were read before any critique.
-- [ ] A one-paragraph story summary and a one-line mission per section were produced.
-- [ ] **The story summary was confirmed with the user before findings were generated.**
+- [ ] A story brief was produced: story paragraph, scientific question and its significance, numbered key contributions, key results each tied to a figure, table, or equation.
+- [ ] A one-line mission per section was produced.
+- [ ] High-level comments were made on the story (question worth asking, contribution matches results, gap supported), the abstract (moves mapped to the brief, unbacked or missing claims), the main figure (carries the central claim alone, or no such figure exists), and the supporting data (claims without data, missing controls, baselines, error bars).
+- [ ] **The story brief and high-level comments were confirmed with the user before findings were generated.**
 - [ ] The user chose which passes to run (writing / references and facts / both); on a repeat review the previous report was named and the default was writing only.
 
 ## 7 — Figure integration

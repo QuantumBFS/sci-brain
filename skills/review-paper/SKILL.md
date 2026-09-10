@@ -44,7 +44,7 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/con
 | 3 | Each paragraph has one well-defined job | 1 | `how-to-technical-writing` |
 | 4 | **DRY** — avoid repeated explanations/definitions | 1 | new to this skill |
 | 5 | Display math reserved for emphasis only | 1 | `write-paper` Notation Rulebook |
-| 6 | Read the whole paper first; grasp the story, then each section's mission | 0 | new — the gate before critique |
+| 6 | Read the whole paper first; brief the story, judge it at the high level, then each section's mission | 0 | new — the gate before critique |
 | 7 | Every figure referenced ≥1× and its striking features discussed | 1 | `write-paper` Figure Rulebook |
 | 8 | Verify factual claims & references; flag the uncertain | 2 | new — the standout capability |
 
@@ -65,16 +65,26 @@ Rank every finding so the user can triage:
 1. **Resolve the manuscript.** Accept an explicit path; else auto-detect from `articles/<slug>/` or the working directory. Detect format from the extension: **LaTeX (`.tex`) is primary**; Typst (`.typ`) and Markdown (`.md`) are supported.
 2. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
 3. **Load shared context.** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`: resolve `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
-4. **Write the story summary + per-section missions.** One paragraph capturing the paper's story, plus a one-line "mission" for each section. This gate prevents local nitpicks that fight the global narrative: if you misread the story, fix that before producing any finding.
+4. **Write the story brief.** Four short parts, in the paper's own terms:
+   - **Story** — one paragraph: what the paper does and what it finds.
+   - **Scientific question and its significance** — the question as the paper poses it, and why the field should care. State the gap the paper claims to fill.
+   - **Key contributions** — a numbered list, as the paper claims them.
+   - **Key results** — one line each, naming the figure, table, or equation that carries it.
 
-5. **Ask what to check.** Together with the story summary, ask which passes to run this time:
+   Then a one-line "mission" for each section. This gate prevents local nitpicks that fight the global narrative: if you misread the story, fix that before producing any finding.
+5. **Comment on the high-level aspects.** Severity-ranked, same finding shape as Phase 1, guideline 6:
+   - **Story** — Is the question worth asking as posed? Does the claimed contribution match what the results actually show? Is the gap statement supported by the cited prior work, or asserted?
+   - **Abstract** — Map its moves (system, method, finding, implication) onto the story brief. Flag any abstract claim no result backs, and any key result the abstract omits.
+   - **Main figure** — If one figure clearly carries the central claim, judge whether it does so alone: is the striking feature the result, is the comparison the right one, are the axes and baselines the ones a skeptic would ask for? If no figure can be pointed to as "the result", say so; that is itself a finding.
+   - **Supporting data** — Do the remaining figures and tables support the key results? Flag claims with no data behind them, and missing controls, baselines, or error bars.
+6. **Ask what to check.** Together with the story brief, ask which passes to run this time:
    - **writing** — guidelines 1–7 (Phase 1), optionally narrowed to named guidelines or sections;
    - **references and facts** — guideline 8 (Phase 2), the slow pass;
    - **both** — the default on a first review.
 
    If a previous `articles/<slug>/review-*.md` exists, say so and propose the default for a repeat pass: writing only, restricted to text that changed since that report, and references only if the bibliography changed. A pass the user did not select is not run, and the report says it was skipped.
 
-Do not proceed to Phase 1 until the user confirms (or corrects) the story summary and the check scope.
+Do not proceed to Phase 1 until the user confirms (or corrects) the story brief and the check scope. The high-level comments are delivered with the brief; the user may reject any of them before they enter the report.
 
 ---
 
@@ -101,7 +111,7 @@ Checks:
 5. **Display-math discipline.** Flag display equations that don't earn emphasis; suggest inlining or cutting. Reserve display math for key/flagship results, non-obvious steps, or figure-referenced equations. Never propose inlining or cutting an equation whose label is referenced elsewhere; for a letter, propose moving algebra to the supplement rather than deleting a reproducibility step. (`write-paper` Notation Rulebook.)
 7. **Figure integration.** Flag **orphan** figures (never referenced in the main text) and figures whose striking features (peaks, kinks, jumps) aren't discussed. (`write-paper` Figure Rulebook.)
 
-Also run a per-section **"did this section deliver its Phase-0 mission?"** check (guideline #6 carried into the body).
+Also run a per-section **"did this section deliver its Phase-0 mission?"** check (guideline #6 carried into the body), and check that each key result from the story brief is named as a main result where it appears.
 
 Every finding names the rule it serves. Not every paragraph needs a finding: a passage that already passes stays untouched, and a rewrite is never proposed for the sake of a diff.
 
@@ -123,7 +133,7 @@ Run only when selected in Phase 0. The standout capability. Follow the repo disc
 
 Write a timestamped report to `articles/<slug>/review-YYYY-MM-DD.md` (the repo's dated-output convention). Structure:
 
-1. **Story summary + per-section missions** (from Phase 0).
+1. **Story brief, high-level comments, and per-section missions** (from Phase 0).
 2. **Findings grouped by guideline, severity-ranked** (high → low).
 3. **Reference / fact-check table** — cite key → status (ok / broken / missing / mismatch / unverifiable) → note. If Phase 2 was skipped, one line saying so and pointing at the last report that ran it.
 4. **Top fixes** — a prioritized list of the highest-leverage changes.
