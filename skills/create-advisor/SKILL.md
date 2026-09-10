@@ -14,7 +14,7 @@ Locate each dependency by its public skill name; copied skills need not be sibli
 If a dependency is absent, report the missing skill and install it before that step.
 Shared writing files are bundled in `how-to-write-ideas-report/references/`.
 
-Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`, `DUMP_DIALOG_DIR` to the absolute directory of `how-to-dump-dialog`. Quote these variables as shown.
+Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
 
 
 ## Advisor Profile Generation
@@ -51,49 +51,18 @@ Hold this information for Step 4.
 
 ### Step 2 — Conversation Analysis
 
-Ask the contributor to specify their conversation source:
+**Step 2a — export, then analyze.** If the contributor already has classified
+dialog JSON, use it directly. Otherwise invoke `dump-chat-history` to select
+harnesses and the start date first, passing through any choices already given.
+It supports local harness histories and supplied Markdown/JSON exports. Request
+an analysis handoff; a PDF is optional and should not be generated solely for
+advisor synthesis.
 
-- **(a)** Claude Code / Codex CLI (JSONL session logs)
-- **(b)** Exported `.md` dialog files (Claude.ai web exports, custom markdown conversations)
-- **(c)** Both — import `.md` files first, then scan JSONL logs, merge all data
-
-Run the analysis pipeline based on the chosen source:
-
-**If (a) — JSONL sessions:**
-
-**Step 2a — how-to-dump-dialog.** Read `skills/how-to-dump-dialog/SKILL.md` and follow Phases 1–4. This extracts all sessions, classifies them by topic, performs deep 6-dimension analysis, and outputs tagged JSON reports. At the end of Phase 2, the contributor selects which topics to analyze in depth.
-
-**If (b) — .md dialog files:**
-
-**Step 2a — parse .md files.** Ask the contributor for one or more file paths (globs are acceptable). Create `docs/dialog/md-import/raw/`, then parse and persist a single file:
-
-```bash
-python3 "$DUMP_DIALOG_DIR/parse_md_dialog.py" parse <file.md> \
-  > docs/dialog/md-import/raw/<session-id>.json
-```
-
-The `parse` subcommand accepts exactly one file. For a glob, resolve it to individual paths and run the command once per file with a unique `<session-id>` output; do not pass multiple expanded paths to one `parse` call. For all Markdown files in one directory, use batch mode:
-
-```bash
-python3 "$DUMP_DIALOG_DIR/parse_md_dialog.py" batch <directory> --outdir docs/dialog/md-import/raw/
-```
-
-Then follow the adapted how-to-dump-dialog Phases 2–4 on these files: classify them into `docs/dialog/md-import/<topic>/`, deeply tag all six dimensions, and persist the enriched JSON reports in those topic folders before pattern extraction begins.
-
-Verify every parsed file contains at least one turn before continuing. The parser auto-detects these role markers:
-
-| Format | Human marker | Assistant marker |
-|--------|--------------|-----------------|
-| Claude.ai export | `## **Human**` | `## **Claude**` |
-| Bold variant | `## **User**` | `## **Assistant**` |
-| Plain heading | `## Human` | `## Claude` or `## Assistant` |
-| Colon format | `**Human:**` | `**Claude:**` or `**Assistant:**` |
-
-Separator lines are ignored and nested Markdown headings inside assistant messages are preserved.
-
-**If (c) — both sources:**
-
-Run the .md import first (Step 2a for option b), then the JSONL extraction (Step 2a for option a). Merge all classified sessions before presenting topic counts. Sessions from different sources in the same topic are analyzed together.
+Then read `skills/how-to-analyze-dialog/SKILL.md` and follow Phases 1–4: load the
+export, classify sessions by topic, let the contributor select topics for deep
+analysis, and persist the enriched JSON reports in the analysis workspace.
+The raw transcript remains separate and unchanged. Retain assistant context for
+trigger→reaction analysis and flag sessions that lack it.
 
 **Step 2b — pattern extraction (per topic).** For each selected topic, follow Conversation Pattern Extraction below. Skip its source/topic prompt because Step 2 already established both. The contributor participates in the logic-jump confirmation gate; do not skip or rush it.
 
@@ -101,11 +70,11 @@ After pattern extraction finishes for all selected topics, note which topics had
 
 ### Conversation Pattern Extraction
 
-This workflow consumes the tagged JSON reports produced by `how-to-dump-dialog` (including parsed Markdown imports) and writes two intermediate artifacts: recurring trigger→reaction patterns and user-confirmed logic jumps.
+This workflow consumes the tagged JSON reports produced by `how-to-analyze-dialog` (including parsed Markdown imports) and writes two intermediate artifacts: recurring trigger→reaction patterns and user-confirmed logic jumps.
 
 #### 1. Scan
 
-For standalone analysis, ask for the source (`claude`, `codex`, or `md-import`) and a topic folder or `all`. Read report JSON files under `docs/dialog/<source>/<topic>/`; skip `topics.md`, `summary.md`, and other non-report files.
+For standalone analysis, ask for the existing analysis workspace and a topic folder or `all`. Read report JSON files under `docs/dialog/analysis/<run-slug>/<topic>/`; skip `topics.md`, `summary.md`, and other non-report files.
 
 For every turn, load the user message, preceding assistant response, turn index, classification note, and all six tags (`bloom`, `depth`, `probe`, `presup`, `discourse`, `mechanism`). Treat classifier notes as evidence when a tag's intent is not obvious.
 
@@ -171,9 +140,9 @@ How does this person steer conversations?
 
 #### Potential Blind Spots
 What does this person *not* do? Frame constructively — these are tendencies, not flaws.
-- **Derived from:** absent or rare tags across patterns, plus per-turn `presup` tags from the how-to-dump-dialog JSON files
+- **Derived from:** absent or rare tags across patterns, plus per-turn `presup` tags from the how-to-analyze-dialog JSON files
 
-For presup-derived blind spots: read the per-turn `presup` tags directly from the session JSON files in `docs/dialog/<source>/<topic>/`. Count non-sound presuppositions. If a specific presup issue appears 3+ times across sessions, generate a directive about it.
+For presup-derived blind spots: read the per-turn `presup` tags directly from the session JSON files in `docs/dialog/analysis/<run-slug>/<topic>/`. Count non-sound presuppositions. If a specific presup issue appears 3+ times across sessions, generate a directive about it.
 
 **Directive rules:**
 

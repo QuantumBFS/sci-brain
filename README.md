@@ -39,7 +39,10 @@ Two kinds, told apart by the first words of each skill's description. **User tri
 | [`write-paper`](skills/write-paper/) | drafting or revising a scientific manuscript with real results. |
 | [`review-paper`](skills/review-paper/) | reviewing, commenting on, or fact-checking an existing manuscript, including its references. |
 | [`write-slides`](skills/write-slides/) | building a Typst + Touying slide deck for a scientific talk, lecture, or briefing. |
+| [`dump-chat-history`](skills/dump-chat-history/) | exporting original conversations from selected harnesses and dates as a faithful transcript or a topic-titled Typst and PDF field note. |
 | [`create-advisor`](skills/create-advisor/) | creating or updating a named advisor profile from a researcher's conversation history. |
+
+Export conversation history with `/dump-chat-history`: choose one or more harnesses and a start date, then get original text with source provenance. A requested PDF uses a topic title and the bundled Typst field-note template. Research classification is a separate `/how-to-analyze-dialog` step; `/create-advisor` chains the two when needed.
 
 A typical path: `/survey` a field → `/brainstorm-ideas` with an optional [advisor](advisors/) → `/autoresearch` to run validator-scored attempts → `/write-paper` and `/write-slides`.
 
@@ -57,7 +60,7 @@ Slide templates are maintained in [GiggleLiu/sci-brain-slides](https://github.co
 | [`how-to-technical-writing`](skills/how-to-technical-writing/) | writing or polishing scientific prose at the sentence and paragraph level, in a manuscript, report, or review. |
 | [`how-to-review-figure`](skills/how-to-review-figure/) | judging the visual design of a figure, plot, or diagram against a scientific-plot rubric. |
 | [`how-to-flow`](skills/how-to-flow/) | one hard, testable goal resists a direct solution and needs an autonomous decide–simulate–learn–backjump search. |
-| [`how-to-dump-dialog`](skills/how-to-dump-dialog/) | extracting and classifying research dialog from Claude Code or Codex session logs. |
+| [`how-to-analyze-dialog`](skills/how-to-analyze-dialog/) | classifying exported research conversations by topic and analyzing their prompting patterns across six academic dimensions. |
 
 ## Where Things Are Saved
 
@@ -75,6 +78,7 @@ Everything lands in one folder inside your project:
 
 - **Project knowledge base** — `<project>/.knowledge/` (layout above). Populated by `/survey`, `/how-to-download-ref`, `/know-me-better`.
 - **Advisor knowledge bases** — `advisors/<slug>/.knowledge/` — each advisor's private literature cache, same layout.
+- **History exports** — `docs/chat-history/<date>-<topic>/` — original text, provenance, and optional Typst/PDF; research analysis goes to `docs/dialog/analysis/<run-slug>/`.
 - **Conversation logs** — `docs/discussion/` — timestamped per session; the next session picks up where you left off.
 - **Ideas reports** — `articles/` in your current directory, with a matching `.bib` file.
 
@@ -98,7 +102,8 @@ The whole process is interactive — you review everything before it's published
 | Previous command | Current entry point |
 |------------------|---------------------|
 | `/download-ref` | `/how-to-download-ref` |
-| `/conversation-dump` | `/how-to-dump-dialog` |
+| `/conversation-dump` | `/dump-chat-history` → `/how-to-analyze-dialog` |
+| `/how-to-dump-dialog` | `/dump-chat-history` for export; `/how-to-analyze-dialog` for research classification |
 | `/figure-taste` | `/how-to-review-figure` |
 | `/flow` | `/how-to-flow` |
 | `/paper-writer` | `/write-paper` |

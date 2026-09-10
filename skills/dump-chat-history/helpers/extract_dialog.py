@@ -9,7 +9,7 @@ from pathlib import Path
 def _extract_text(content):
     """Extract human-readable text from message.content (string or array)."""
     if isinstance(content, str):
-        return content.strip()
+        return content
     if isinstance(content, list):
         parts = []
         for block in content:
@@ -19,7 +19,7 @@ def _extract_text(content):
                 parts.append(block.get("text", ""))
             elif isinstance(block, dict) and block.get("type") == "output_text":
                 parts.append(block.get("text", ""))
-        return "\n".join(parts).strip()
+        return "\n".join(parts)
     return ""
 
 
@@ -47,13 +47,6 @@ def _is_system_preamble(text):
     if re.match(r"^# (AGENTS|CLAUDE|GEMINI)\.md\b", stripped):
         return True
     return False
-
-
-def _truncate(text, max_chars=500):
-    """Truncate text to max_chars, appending '...' if truncated."""
-    if len(text) <= max_chars:
-        return text
-    return text[:max_chars] + "..."
 
 
 def _cwd_to_project_key(cwd):
@@ -236,7 +229,7 @@ def extract_codex_turns(lines):
             turns.append({
                 "index": idx,
                 "user": user_text,
-                "assistant": _truncate(assistant_text),
+                "assistant": assistant_text,
             })
         else:
             i += 1
@@ -282,7 +275,7 @@ def extract_claude_turns(lines):
             if _is_system_preamble(r["text"]):
                 i += 1
                 continue
-            user_text = _strip_system_tags(r["text"]) or r["text"]
+            user_text = r["text"]
             assistant_parts = []
             i += 1
             while i < len(records) and records[i]["role"] == "assistant":
@@ -293,7 +286,7 @@ def extract_claude_turns(lines):
             turns.append({
                 "index": idx,
                 "user": user_text,
-                "assistant": _truncate(assistant_text),
+                "assistant": assistant_text,
             })
         else:
             i += 1
