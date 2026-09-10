@@ -13,7 +13,7 @@ The nine-guideline review rubric backing `review-paper/SKILL.md`, expanded into 
 - [ ] Sentences run about 20 words; no semicolon-chained or "and … so …" triple clauses. Sentences wrapping a display equation or binding hypothesis to conclusion are left whole.
 - [ ] No content-free openers, "Notice that", or empty meta-talk; signposts that name a section's job or point to a result stay.
 - [ ] No "obviously" / "clearly"; each asserted step names the earlier equation, figure, or section it rests on, and that reason already exists in the manuscript.
-- [ ] Plain connectives, every technical word kept; no verb, quantifier, or adjective swapped inside a mathematical statement; no metaphor the paper does not draw.
+- [ ] Plain connectives, every technical word kept; no verb, quantifier, or adjective swapped inside a mathematical statement; no metaphor standing in for a precise statement. No finding asks a conceptual figure for more detail on this rule's account.
 - [ ] At most one aside per paragraph; no intensifiers; hedges of magnitude or certainty untouched; "not X but Y" kept where the contrast is the result.
 - [ ] Runs of inline computation moved to one display with one sentence naming what it shows.
 

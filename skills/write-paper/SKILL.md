@@ -231,7 +231,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 - [ ] Active voice dominates.
 - [ ] Topic sentences open each paragraph.
 - [ ] No "obviously" / "clearly": every asserted step names the earlier equation, figure, or section it rests on.
-- [ ] No warm-up sentences, meta-talk about the document, or metaphors the figures do not draw.
+- [ ] No warm-up sentences, meta-talk about the document, or metaphors standing in for a precise statement.
 - [ ] Technical terms kept; Latinate connectives ("hence", "conversely", "likewise") replaced by plain ones.
 - [ ] Each paragraph stays on one object; each cross-reference says why the current step needs it.
 - [ ] No run of inline computations; calculations sit in a display with one sentence naming what it shows.
