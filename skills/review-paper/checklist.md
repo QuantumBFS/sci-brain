@@ -47,12 +47,12 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 
 ## 6 — Read the whole paper first (the gate)
 
+- [ ] The user was asked first, with three numbered options (1 high-level story, 2 writing, 3 facts/references/links), which passes to run; on a repeat review the previous report was named and the default was option 2 only.
 - [ ] The whole manuscript and its bibliography were read before any critique.
 - [ ] A story brief was produced: story paragraph, scientific question and its significance, numbered key contributions, key results each tied to a figure, table, or equation.
 - [ ] A one-line mission per section was produced.
-- [ ] High-level comments were made on the story (question worth asking, contribution matches results, gap supported), the abstract (moves mapped to the brief, unbacked or missing claims), the main figure (carries the central claim alone, or no such figure exists), and the supporting data (claims without data, missing controls, baselines, error bars).
+- [ ] When option 1 was selected: high-level comments were made on the story (question worth asking, contribution matches results, gap supported), the abstract (moves mapped to the brief, unbacked or missing claims), the main figure (carries the central claim alone, or no such figure exists), and the supporting data (claims without data, missing controls, baselines, error bars).
 - [ ] **The story brief and high-level comments were confirmed with the user before findings were generated.**
-- [ ] The user chose which passes to run (writing / references and facts / both); on a repeat review the previous report was named and the default was writing only.
 
 ## 7 — Figure integration
 
@@ -62,7 +62,7 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 
 ## 8 — Fact & reference verification (new)
 
-- [ ] Skipped entirely, with a note in the report, when the user did not select this pass in Phase 0. Otherwise:
+- [ ] Skipped entirely, with a note in the report, when the user did not select option 3 in Phase 0. Otherwise:
 - [ ] `verify_bib.py` was run against the resolved bibliography; **every entry**, including uncited entries, appears in its report.
 - [ ] Title / authors / year / venue or journal / volume / pages / DOI were screened against cached and batched Semantic Scholar metadata.
 - [ ] Every `unverifiable` record and every `mismatch` with a high/medium finding was manually confirmed through CrossRef → Semantic Scholar → MCP → web fetch before reporting it; low-severity missing fields remain completion suggestions.
@@ -70,6 +70,7 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 - [ ] Broken / missing / mismatched citations flagged; repair offered via the `how-to-download-ref` skill.
 - [ ] Key claims attached to a citation sanity-checked against the cited work; uncertain ones flagged, not asserted.
 - [ ] Standalone checkable factual/numerical claims verified via web search; uncertain ones flagged.
+- [ ] Every URL and DOI link in the manuscript and bibliography fetched once; dead links, wrong redirects, and unresolvable DOIs flagged.
 - [ ] **No BibTeX invented from memory; no claim silently "corrected"; no citation fabricated.**
 
 ---

@@ -60,37 +60,37 @@ Rank every finding so the user can triage:
 
 ---
 
-## Phase 0 — Load & understand (guideline #6)
+## Phase 0 — Scope, load & understand (guideline #6)
 
 1. **Resolve the manuscript.** Accept an explicit path; else auto-detect from `articles/<slug>/` or the working directory. Detect format from the extension: **LaTeX (`.tex`) is primary**; Typst (`.typ`) and Markdown (`.md`) are supported.
-2. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
-3. **Load shared context.** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`: resolve `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
-4. **Write the story brief.** Four short parts, in the paper's own terms:
+2. **Ask what to check, before reading in depth.** Offer these numbered options; the user may pick any subset:
+   1. **High-level story** — is the question worth asking, do the contributions match the results, and do the abstract, the main figure, and the supporting data carry the story (step 6 below).
+   2. **Writing** — guidelines 1–7 (Phase 1), optionally narrowed to named guidelines or sections.
+   3. **Facts, references, and links** — guideline 8 (Phase 2): every bibliography entry screened, cited claims sanity-checked, standalone factual claims verified, every URL and DOI link resolved. The slow pass.
+
+   Default on a first review: all three. If a previous `articles/<slug>/review-*.md` exists, say so and propose the repeat-pass default: option 2 only, restricted to text changed since that report, plus option 3 only if the bibliography changed. A pass the user did not select is not run, and the report says it was skipped.
+3. **Read the whole manuscript** end to end — and its bibliography. Resolve the bibliography in this order: the manuscript's own `\bibliography{…}` / `\addbibresource{…}` target (or embedded `thebibliography` / Typst `bibliography(…)`), then fall back to `$KB/references.bib`. Handle both; note which one you used.
+4. **Load shared context.** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`: resolve `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`, read `$KB/INDEX.md`, `$KB/NOTES.md`, `$KB/references.bib`, and `docs/discussion/user-profile.md` if present. This is the literature backdrop for fact-checking.
+5. **Write the story brief** (always, whatever was selected; it is the gate). Four short parts, in the paper's own terms:
    - **Story** — one paragraph: what the paper does and what it finds.
    - **Scientific question and its significance** — the question as the paper poses it, and why the field should care. State the gap the paper claims to fill.
    - **Key contributions** — a numbered list, as the paper claims them.
    - **Key results** — one line each, naming the figure, table, or equation that carries it.
 
    Then a one-line "mission" for each section. This gate prevents local nitpicks that fight the global narrative: if you misread the story, fix that before producing any finding.
-5. **Comment on the high-level aspects.** Severity-ranked, same finding shape as Phase 1, guideline 6:
+6. **Comment on the high-level aspects** (option 1). Severity-ranked, same finding shape as Phase 1, guideline 6:
    - **Story** — Is the question worth asking as posed? Does the claimed contribution match what the results actually show? Is the gap statement supported by the cited prior work, or asserted?
    - **Abstract** — Map its moves (system, method, finding, implication) onto the story brief. Flag any abstract claim no result backs, and any key result the abstract omits.
    - **Main figure** — If one figure clearly carries the central claim, judge whether it does so alone: is the striking feature the result, is the comparison the right one, are the axes and baselines the ones a skeptic would ask for? If no figure can be pointed to as "the result", say so; that is itself a finding.
    - **Supporting data** — Do the remaining figures and tables support the key results? Flag claims with no data behind them, and missing controls, baselines, or error bars.
-6. **Ask what to check.** Together with the story brief, ask which passes to run this time:
-   - **writing** — guidelines 1–7 (Phase 1), optionally narrowed to named guidelines or sections;
-   - **references and facts** — guideline 8 (Phase 2), the slow pass;
-   - **both** — the default on a first review.
 
-   If a previous `articles/<slug>/review-*.md` exists, say so and propose the default for a repeat pass: writing only, restricted to text that changed since that report, and references only if the bibliography changed. A pass the user did not select is not run, and the report says it was skipped.
-
-Do not proceed to Phase 1 until the user confirms (or corrects) the story brief and the check scope. The high-level comments are delivered with the brief; the user may reject any of them before they enter the report.
+Do not proceed to Phase 1 until the user confirms (or corrects) the story brief. The high-level comments are delivered with the brief; the user may reject any of them before they enter the report.
 
 ---
 
 ## Phase 1 — Structured review (guidelines #1–5, #7)
 
-Walk the manuscript and produce findings. Each finding has this shape:
+Run only when option 2 was selected in Phase 0. Walk the manuscript and produce findings. Each finding has this shape:
 
 ```
 { guideline: 1–8,
@@ -119,13 +119,14 @@ Every finding names the rule it serves. Not every paragraph needs a finding: a p
 
 ## Phase 2 — Fact & reference verification (guideline #8)
 
-Run only when selected in Phase 0. The standout capability. Follow the repo discipline: **never invent BibTeX from memory**. Bibliography metadata gets a complete automated screening pass; claim verification stays focused on what supports the main claims (see `skills/how-to-write-ideas-report/references/writing-workflow.md`).
+Run only when option 3 was selected in Phase 0. The standout capability. Follow the repo discipline: **never invent BibTeX from memory**. Bibliography metadata gets a complete automated screening pass; claim verification stays focused on what supports the main claims (see `skills/how-to-write-ideas-report/references/writing-workflow.md`).
 
 - **Screen every bibliography entry.** Run `python3 "$DOWNLOAD_REF_DIR/helpers/verify_bib.py" --bib "$BIB" --kb "$KB" --json` against the bibliography resolved in Phase 0. This checks uncited entries too and compares title, authors, year, venue/journal, volume, pages, and DOI using cached metadata plus Semantic Scholar's batch API.
 - **Confirm actionable records.** Use the helper's severity-ranked output as the starting point for the reference / fact-check table. Before reporting any `unverifiable` entry, or any `mismatch` with a high- or medium-severity finding, confirm it manually through **CrossRef → Semantic Scholar → MCP → web fetch**; Semantic Scholar screens, it is not the final authority. Keep low-severity missing-field findings as metadata-completion suggestions — they do not need the full lookup chain. Flag broken, missing, or confirmed-mismatched entries and offer repair via the `how-to-download-ref` skill (it owns `references.bib` appends and metadata fetching).
 - **Citation resolution.** For each `\cite` key, confirm that an entry exists in the resolved bibliography. Uncited entries remain in the metadata scan; cited keys additionally participate in the claim-support check below.
 - **Claim ↔ citation support.** For key claims attached to a citation, best-effort sanity-check that the cited work actually supports the claim. **Flag uncertain — do not assert.**
 - **Standalone factual claims.** Identify checkable factual/numerical claims *not* tied to a citation; verify via web search. **Flag** the uncertain or unsupported — never silently "correct" a claim, and never fabricate a citation to prop one up.
+- **Link check.** Every URL in the manuscript and bibliography (`\url`, `\href`, DOI links, code and data repositories) is fetched once; flag dead links, redirects to a different resource, and DOIs that do not resolve. A private or paywalled target that answers is ok.
 
 ---
 
@@ -135,7 +136,7 @@ Write a timestamped report to `articles/<slug>/review-YYYY-MM-DD.md` (the repo's
 
 1. **Story brief, high-level comments, and per-section missions** (from Phase 0).
 2. **Findings grouped by guideline, severity-ranked** (high → low).
-3. **Reference / fact-check table** — cite key → status (ok / broken / missing / mismatch / unverifiable) → note. If Phase 2 was skipped, one line saying so and pointing at the last report that ran it.
+3. **Reference / fact-check table** — cite key or URL → status (ok / broken / missing / mismatch / unverifiable) → note. If Phase 2 was skipped, one line saying so and pointing at the last report that ran it.
 4. **Top fixes** — a prioritized list of the highest-leverage changes.
 
 Then present a short summary to the user and ask two things: which findings to apply (all / by severity / individually), and whether to **show a marked diff first** or **apply directly**. Default to the marked diff; it costs one compile and lets the author judge each rewrite in context.
@@ -177,8 +178,8 @@ Then present a short summary to the user and ask two things: which findings to a
 |---|---|
 | Editing before the user approves | Comment-first. Phase 3 → user picks → Phase 4. |
 | Merging a rewrite the author has not seen in context | Marked-diff mode by default: `latexdiff` on a copy, numbered legend, merge only the accepted numbers. |
-| Nitpicking sentences before confirming the story | Phase 0 gate: confirm the story summary first. |
-| Re-running reference verification on every pass | Ask what to check in Phase 0; on a repeat pass default to writing only unless the bibliography changed. |
+| Nitpicking sentences before confirming the story | Phase 0 gate: confirm the story brief first. |
+| Re-running reference verification on every pass | Ask what to check first, with the three numbered options; on a repeat pass default to writing only unless the bibliography changed. |
 | Inventing a BibTeX entry to "fix" a citation | Never. Use the lookup chain / the `how-to-download-ref` skill, or flag as unverifiable. |
 | Silently "correcting" a factual claim | Flag uncertain claims; the author decides. |
 | Claiming done without compiling | Run `latexmk` / `typst compile` and paste the result. |
