@@ -50,6 +50,7 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 - [ ] The whole manuscript and its bibliography were read before any critique.
 - [ ] A one-paragraph story summary and a one-line mission per section were produced.
 - [ ] **The story summary was confirmed with the user before findings were generated.**
+- [ ] The user chose which passes to run (writing / references and facts / both); on a repeat review the previous report was named and the default was writing only.
 
 ## 7 — Figure integration
 
@@ -59,6 +60,7 @@ The eight-guideline review rubric backing `review-paper/SKILL.md`, expanded into
 
 ## 8 — Fact & reference verification (new)
 
+- [ ] Skipped entirely, with a note in the report, when the user did not select this pass in Phase 0. Otherwise:
 - [ ] `verify_bib.py` was run against the resolved bibliography; **every entry**, including uncited entries, appears in its report.
 - [ ] Title / authors / year / venue or journal / volume / pages / DOI were screened against cached and batched Semantic Scholar metadata.
 - [ ] Every `unverifiable` record and every `mismatch` with a high/medium finding was manually confirmed through CrossRef → Semantic Scholar → MCP → web fetch before reporting it; low-severity missing fields remain completion suggestions.
