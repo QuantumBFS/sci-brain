@@ -49,7 +49,6 @@ Clarity outranks these rules. When they conflict, keep the clearer sentence.
 - **Simple words; preserve technical words.** Explain ideas with simple words rather than fancy ones. Prefer "so" to "hence" or "thus", "also" to "likewise", "use" to "utilize", "show" to "demonstrate", and "start" to "commence". Replace only everyday words, connectives, and filler without mathematical meaning. Never replace verbs, quantifiers, or adjectives in mathematical statements, including "arbitrary", "determined by", "identify with", and "the converse". Keep field terms such as "decoherence", "ansatz", and "thermalize". Textbook and referee vocabulary stays.
 - **No metaphor.**
 - **Active voice for actions.** Prefer "We measured" to "measurements were performed." Reserve passive for things without an agent. Put the verb early with a concrete subject.
-- **Never address the reader.** No "you" in a paper. State the fact, or say what the authors do.
 - **Concrete verbs over nominalizations.** Prefer "We adopt the new notation" to "Adoption of the new notation is undertaken."
 - **Prose carries ideas; calculations go to displays.** Body sentences state ideas, intuitions, or logical steps. Combine two or more inline computations in a paragraph into one display, followed by one sentence explaining it.
 - **Parallel grammar for parallel ideas.** Give comparisons, contrasts, and existing list items the same grammatical shape. Preserve prose layout; do not turn paragraphs into bullets or add lists a journal would not print. Papers develop arguments, and lists interrupt their flow.
@@ -69,7 +68,6 @@ Use for reviews and final language passes. Each finding cites its row; leave pas
 | A term or symbol defined before the argument needs it, or never used after its definition | **Comment only.** Propose moving the definition to its first use, or cutting it. |
 | A number, count, or list stated in two places | Keep one statement and point to it from the other. Abstract and conclusions are exempt. |
 | "Notice that", "As one can see", "It is worth noting" | State the fact directly. |
-| "You" addressing the reader | State the fact, or say what the authors do. |
 | Metaphor or idiom: "in disguise", "clue", "recipe", "cashes in" | Use plain wording with identical meaning: "in different notation", "start from", "formula". Keep field idioms such as "the gap survives disorder". |
 | Fancy words where simple ones explain the idea: "hence", "thus", "likewise", "utilize", "demonstrate", "commence" | Use "so", "also", "use", "show", "start". Preserve mathematical verbs, quantifiers, and adjectives as required by the technical-words rule. |
 | Wrong count or qualifier, such as "three approximations" when there are four | Correct it or drop the number. |
