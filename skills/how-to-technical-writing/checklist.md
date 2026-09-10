@@ -8,7 +8,7 @@ The checkable form of the rules in `SKILL.md`. Use it as the checklist for a `wr
 
 - [ ] No sentence introduces three new ideas at once. Long compound sentences are split.
 - [ ] When two concepts share a sentence, the reader already knows both.
-- [ ] Actions use the active voice. Concrete verbs replace nominalizations.
+- [ ] Actions use the active voice. Concrete verbs replace nominalizations. The reader is never addressed as "you".
 - [ ] Parallel grammar appears only where the ideas already run in parallel. No prose is turned into lists.
 - [ ] Sentences run about 20 words. No sentence chains clauses with semicolons or "and … so …". A sentence that wraps a display equation or binds a hypothesis to its conclusion stays whole.
 - [ ] No content-free openers, "Notice that", or empty meta-talk. Signposts that name a section's job or point to a result stay.
