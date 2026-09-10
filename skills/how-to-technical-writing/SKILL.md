@@ -33,9 +33,14 @@ Clarity outranks these rules. When they conflict, keep the clearer sentence.
 ### Conceptual clarity and semantic coherence
 
 - **Explain concepts with existing concepts.** Do not use concepts never explained, or that are not a common sense to explain a new idea.
+- **Define at the point of need.** Introduce a term or symbol only when the argument needs it. Every definition is used later in the paper.
+- **Set up before calculating.** Before a derivation, state the system, the assumptions or boundary conditions, the symbols, and the quantity being computed. Use a labelled setup figure when geometry matters.
 - **One job per paragraph.** Each paragraph has its own mission. Start with a topic sentence, support it with detail, and end with a transition or emphasis. Do not mix different jobs in the same paragraph.
 - **Locality rule.** Keep each paragraph on one object and each section on its job. Avoid connecting to concepts not within current scope, previewing later sections, or adding unused interpretations. Keep cross-references only when the current step depends on them, and say why: "by the linearity of Eq. (3)". In paper writing, abstracts, introduction, and conclusions are exempt.
-- **Do not repeat yourself.** Cut sentences that do not carry new information or new examples.
+- **Do not repeat yourself.** Cut sentences that do not carry new information or new examples. A second appearance of a fact is a pointer, never a restatement. A number, count, or list stated in two places can drift, so state it once and point to it.
+- **The delete test.** A sentence stays only if removing it leaves a gap that something later in the section depends on. Run the test against the whole section, not the next sentence, so a setup for a later payoff survives.
+- **Trust the structure.** Do not re-describe in words what an equation, table, or figure already shows. At most one clause points at what to look at. The text says what a feature means, not what shape it has.
+- **Pay every promise.** Every "we will show", "surprisingly", or "the key link" has a later line that pays it with a result, theorem, or figure. A promise paid only by a hint is cut or paid.
 
 ### Narrative and wording choices
 
@@ -57,10 +62,16 @@ Use for reviews and final language passes. Each finding cites its row; leave pas
 |---|---|
 | An overloaded sentence or stacked clauses | Split, retaining logical links such as "so" or "because". Use length as a review signal, not a target. Keep sentences wrapping display equations or binding hypotheses to conclusions whole. |
 | Restatement of the main-result sentence, equation, or paragraph opening | Delete the restatement; keep the canonical statement. |
+| A sentence whose removal leaves no gap anywhere later in the section | Delete it, or fold its one useful clause into a neighbour. Test against the whole section. |
+| Prose that re-describes what a nearby equation, table, or figure shows | Cut it to one clause pointing at what to look at. Keep the sentence that says what the feature means. |
+| A promise ("we will show", "surprisingly", "the key link") with no line that pays it | **Comment only.** Name the promise and ask for the payoff or the cut. |
+| A term or symbol defined before the argument needs it, or never used after its definition | **Comment only.** Propose moving the definition to its first use, or cutting it. |
+| A number, count, or list stated in two places | Keep one statement and point to it from the other. Abstract and conclusions are exempt. |
 | "Notice that", "As one can see", "It is worth noting" | State the fact directly. |
 | Metaphor or idiom: "in disguise", "clue", "recipe", "cashes in" | Use plain wording with identical meaning: "in different notation", "start from", "formula". Keep field idioms such as "the gap survives disorder". |
 | Fancy words where simple ones explain the idea: "hence", "thus", "likewise", "utilize", "demonstrate", "commence" | Use "so", "also", "use", "show", "start". Preserve mathematical verbs, quantifiers, and adjectives as required by the technical-words rule. |
 | Wrong count or qualifier, such as "three approximations" when there are four | Correct it or drop the number. |
+| A derivation that starts before the system, assumptions, symbols, and target quantity are stated | **Comment only.** Ask for the setup, and a labelled figure when geometry matters. |
 | "Always", "only", "never" contradicted later | Qualify or cut the claim. |
 | Two or more inline computations in a paragraph | Combine into one display and one explanatory sentence. Cut algebra that earns no display, subject to the equation and derivation guardrails. |
 | Multiple asides in a paragraph, intensifiers, or empty evaluatives | Cut the aside or make it a sentence; delete intensifiers. Preserve magnitude and certainty hedges listed above. |
