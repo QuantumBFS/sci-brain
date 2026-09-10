@@ -105,6 +105,7 @@ Before the telegram outline, stop and discuss the paper's narrative with the use
 
 - Revise the body many times before touching abstract/intro polish.
 - Each pass: check the **One Concept Per Sentence** rule, check notation consistency, check that every striking feature in every figure is *explained in text*.
+- Last pass before Phase 5 is a **language pass**: walk the style guide's hunt table and change *how* sentences are written, never *what* they say. Do not add or remove a claim, figure, or derivation step in that pass; recheck every number and qualifier a rewritten sentence mentions; leave passages that already pass untouched.
 
 ### Phase 5 — Polish the high-leverage sections last
 
@@ -187,12 +188,7 @@ Notation is the reader's interface to the math. Treat it with the same care as a
 
 ## Sentence-Level Rules
 
-- **One concept per sentence.** Break long sentences. If two concepts must coexist, make sure both are already familiar to the reader.
-- **Active voice for actions.** "We measured" beats "measurements were performed." Reserve passive only for things genuinely without an agent.
-- **Concrete verbs over nominalizations.** "We adopt the new notation" beats "Adoption of the new notation is undertaken."
-- **Parallel structure for parallel ideas.** Lists, comparisons, and contrasts read 2× faster when grammatically parallel.
-- **Signposting.** Use phrases like *"This is our main result," "We now turn to," "In summary,"* to orient the reader. The reader cannot tell which sentence carries the punchline unless you say so. The model paper signposts every turn — *"Specifically," "Conversely," "Most surprisingly,"* — so the reader always knows whether a sentence narrows, contrasts, or escalates.
-- **Each paragraph: one job.** Topic sentence at the top, supporting detail in the middle, transition or stress at the end.
+Follow `skills/how-to-technical-writing/SKILL.md`: one concept per sentence, direct to the point, name the earlier context instead of "obviously", plain connectives with every technical word kept, no undrawn metaphors, active voice, one aside per paragraph, calculations in displays, locality within body sections, say it once within the body, signposting, and one job per paragraph. The guide's hunt table is the checklist for the Phase 4 language pass, and its guardrails say which fixes are never applied mechanically.
 
 ---
 
@@ -231,9 +227,14 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 - [ ] Explicit equations only for non-obvious steps, key intermediates, flagship results, or figure references.
 
 **Sentence-level:**
-- [ ] No paragraph contains more than one new concept per sentence.
+- [ ] No paragraph contains more than one new concept per sentence; sentences run about 20 words.
 - [ ] Active voice dominates.
 - [ ] Topic sentences open each paragraph.
+- [ ] No "obviously" / "clearly": every asserted step names the earlier equation, figure, or section it rests on.
+- [ ] No warm-up sentences, meta-talk about the document, or metaphors standing in for a precise statement.
+- [ ] Technical terms kept; Latinate connectives ("hence", "conversely", "likewise") replaced by plain ones.
+- [ ] Each paragraph stays on one object; each cross-reference says why the current step needs it.
+- [ ] No run of inline computations; calculations sit in a display with one sentence naming what it shows.
 
 **External feedback:**
 - [ ] At least one friend / officemate has read the full draft.
@@ -264,6 +265,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 
 ## Source material
 
+- `skills/how-to-technical-writing/SKILL.md` — the `how-to-technical-writing` skill: sentence- and paragraph-level rules shared with `review-paper`, with the hunt table and application guardrails.
 - `references.md` — distilled rule lists from Martinis (2012) and von Delft (style guide), plus a walkthrough of the model paper (§C).
 - `sources/NotesOnWritingPaper12.pdf` — the original Martinis notes.
 - `sources/1807.01815_Ho2019_quantum-scars.md` — the model paper: Ho, Choi, Pichler & Lukin, *Periodic orbits, entanglement and quantum many-body scars in constrained models*, PRL 122, 040603 (2019), rendered from arXiv:1807.01815. This letter practices what the rules preach: one move per abstract sentence, the four introduction beats in order, run-in headers whose first sentence names the section's job, symbols defined at first use and then read back in plain words, figures that carry the story from page one. Skim it before drafting. `references.md` §C maps each move to its location in the paper.

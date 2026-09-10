@@ -79,7 +79,8 @@ def cache_path(kb: Path, kind: str, value: str, suffix: str = ".json") -> Path:
     canonical = normalize(kind, value)
     stem = canonical.replace("/", "-")
     directory = kb / ".raw" / kind
-    if (directory / (stem + suffix)).exists():
+    # Exact on-disk name, not exists(): a case-insensitive filesystem would match the legacy spelling too.
+    if any(path.name == stem + suffix for path in directory.glob("*")):
         return directory / (stem + suffix)
     # ponytail: scan small KBs for legacy spelling; preindex paths if bulk imports become slow.
     for path in sorted(directory.glob("*")):

@@ -23,7 +23,7 @@ Write a structured ideas report after a `brainstorm-ideas` session has converged
 
 ### Setup
 
-Follow `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
+Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-level prose rules. Follow `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
 - Primary source: `docs/discussion/*-brainstorm-ideas-log.md`. If multiple logs exist and the request does not identify one, ask which to use.
 - If no log exists, ask the user to brainstorm first or describe the chosen direction and reasoning to preserve.
