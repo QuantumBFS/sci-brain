@@ -1,105 +1,65 @@
-# Paper-reviewer rubric
+# Paper-reviewer process checklist
 
-The nine-guideline review rubric backing `review-paper/SKILL.md`, expanded into checkable items. Use it as the per-pass checklist when reviewing a manuscript. Guidelines 1–3, 5, and 7 restate the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`) and `write-paper` authoring rules as *review* checks — consult `skills/write-paper/references.md` for the reasoning. Guidelines 4, 6, 8, and 9 are specific to reviewing.
+The review-only items behind `review-paper/SKILL.md`: the gate (6), fact and reference verification (8), journal fit (9), and delivery. The writing items (1–5, 7) live in `skills/how-to-technical-writing/checklist.md`, the single source of truth for the writing guide.
 
 ---
 
-## 1 — One concept per sentence
-
-- [ ] No sentence introduces three new ideas at once; long compound sentences are split.
-- [ ] Where two concepts share a sentence, both are already familiar to the reader.
-- [ ] Active voice for actions; concrete verbs over nominalizations.
-- [ ] Parallel grammar only where ideas already run in parallel; no prose converted into lists.
-- [ ] Sentences run about 20 words; no semicolon-chained or "and … so …" triple clauses. Sentences wrapping a display equation or binding hypothesis to conclusion are left whole.
-- [ ] No content-free openers, "Notice that", or empty meta-talk; signposts that name a section's job or point to a result stay.
-- [ ] No "obviously" / "clearly"; each asserted step names the earlier equation, figure, or section it rests on, and that reason already exists in the manuscript.
-- [ ] Plain connectives, every technical word kept; no verb, quantifier, or adjective swapped inside a mathematical statement; no metaphor standing in for a precise statement. No finding asks a conceptual figure for more detail on this rule's account.
-- [ ] At most one aside per paragraph; no intensifiers; hedges of magnitude or certainty untouched; "not X but Y" kept where the contrast is the result.
-- [ ] Runs of inline computation moved to one display with one sentence naming what it shows.
-
-## 2 — Define every concept/symbol before use
-
-- [ ] A symbol/notation table was built while reading.
-- [ ] No symbol or concept is used before it is defined (no forward references).
-- [ ] No symbol is left never-defined.
-- [ ] Symbols are introduced in logical order (earlier symbols define later ones).
-- [ ] No symbol is reused for two different meanings within a few pages; any deliberate change is signalled ("henceforth …").
-
-## 3 — One job per paragraph
-
-- [ ] Each paragraph has a single, identifiable purpose.
-- [ ] A topic sentence opens each paragraph; no double-duty paragraphs.
-- [ ] Each section delivers the mission stated for it in Phase 0.
-- [ ] In Theory, Methods, Results, and Analysis, each paragraph stays on one object; no sideways digression, preview, or unused second interpretation. Introduction and Conclusions exempt.
-- [ ] Each cross-reference is needed by the current step, and the sentence says why.
-
-## 4 — DRY / anti-repetition (new)
-
-- [ ] No explanation or definition is repeated across body sections; abstract, introduction, conclusions, and main-result sentences are exempt.
-- [ ] Each concept is stated canonically once and cross-referenced elsewhere.
-- [ ] Repetition that *is* deliberate emphasis is intentional, not accidental drift.
-
-## 5 — Display-math discipline
-
-- [ ] Display equations are reserved for flagship results, non-obvious steps, key intermediates, or figure-referenced equations.
-- [ ] Routine or inline-able algebra is not promoted to a display equation.
-- [ ] No equation with a referenced label is proposed for inlining or cutting; letters move algebra to the supplement rather than deleting a reproducibility step.
-
 ## 6 — Read the whole paper first (the gate)
 
-- [ ] The user was asked first, with three numbered options (1 high-level story, 2 writing, 3 facts/references/links, 4 journal fit), which passes to run; on a repeat review the previous report was named and the default was option 2 only.
+- [ ] The user was asked first which passes to run, with numbered options: 1 high-level story, 2 writing, 3 facts, references, and links, 4 journal fit. On a repeat review, the previous report was named and the default was option 2 only.
 - [ ] The whole manuscript and its bibliography were read before any critique.
-- [ ] A story brief was produced: story paragraph, scientific question and its significance, numbered key contributions, key results each tied to a figure, table, or equation.
+- [ ] A story brief was produced. It holds the story paragraph, the scientific question and its significance, the numbered key contributions, and the key results. Each key result is tied to a figure, table, or equation.
 - [ ] A one-line mission per section was produced.
-- [ ] When option 1 was selected: high-level comments were made on the significance of the problem (who is blocked, what it unlocks, strongest prior attempt; `survey` suggested when the manuscript or KB cannot justify it), the significance of each contribution (stated as a verifiable property, verified by a result, better than the strongest baseline on an axis the audience names), the story (contribution matches results, gap supported), the abstract (moves mapped to the brief, unbacked or missing claims), the main figure (carries the central claim alone, or no such figure exists), the supporting data (claims without data, missing controls, baselines, error bars; evidence strong enough for the claim as worded: general claims across systems or seeds, improvements separated from baseline by error bars or a test, scaling laws over enough decades, state-of-the-art claims against the strongest baseline under the same conditions), and how the contributions are highlighted (named in the abstract, listed in the introduction, each tied to its proving figure or equation; a better main figure, summary table, title sentence, or ordering proposed when one exists).
+- [ ] When option 1 was selected, high-level comments were made on each of the items below.
+  - The significance of the problem: who is blocked, what it unlocks, and the strongest prior attempt. `survey` is suggested when the manuscript or KB cannot justify it.
+  - The significance of each contribution. It is stated as a verifiable property, verified by a result, and better than the strongest baseline on an axis the audience names.
+  - The story. The contribution matches the results and the gap is supported.
+  - The abstract. Its moves are mapped to the brief. Unbacked or missing claims are named.
+  - The main figure. It carries the central claim alone, or no such figure exists.
+  - The supporting data. Claims without data, missing controls, baselines, and error bars are named. The evidence is strong enough for the claim as worded. General claims span systems or seeds. Improvements are separated from the baseline by error bars or a test. Scaling laws span enough decades. State-of-the-art claims are measured against the strongest baseline under the same conditions.
+  - How the contributions are highlighted. They are named in the abstract, listed in the introduction, and each tied to its proving figure or equation. A better main figure, summary table, title sentence, or ordering is proposed when one exists.
 - [ ] **The story brief and high-level comments were confirmed with the user before findings were generated.**
-
-## 7 — Figure integration
-
-- [ ] Every figure is referenced at least once in the main text (no orphan figures).
-- [ ] Every striking feature (peak, dip, kink, jump) is discussed in the text.
-- [ ] Captions are self-sufficient: every plotted quantity defined, trend summarized.
 
 ## 8 — Fact & reference verification (new)
 
 - [ ] Skipped entirely, with a note in the report, when the user did not select option 3 in Phase 0. Otherwise:
-- [ ] `verify_bib.py` was run against the resolved bibliography; **every entry**, including uncited entries, appears in its report.
-- [ ] Title / authors / year / venue or journal / volume / pages / DOI were screened against cached and batched Semantic Scholar metadata.
-- [ ] Every `unverifiable` record and every `mismatch` with a high/medium finding was manually confirmed through CrossRef → Semantic Scholar → MCP → web fetch before reporting it; low-severity missing fields remain completion suggestions.
+- [ ] `verify_bib.py` was run against the resolved bibliography. **Every entry**, including uncited entries, appears in its report.
+- [ ] Title, authors, year, venue or journal, volume, pages, and DOI were screened against cached and batched Semantic Scholar metadata.
+- [ ] Every `unverifiable` record was confirmed by hand before reporting. So was every `mismatch` with a high or medium finding. The chain is CrossRef → Semantic Scholar → MCP → web fetch. Low-severity missing fields remain completion suggestions.
 - [ ] Every `\cite` key resolves to an entry in the bibliography that was actually used.
-- [ ] Broken / missing / mismatched citations flagged; repair offered via the `how-to-download-ref` skill.
-- [ ] Key claims attached to a citation sanity-checked against the cited work; uncertain ones flagged, not asserted.
-- [ ] Standalone checkable factual/numerical claims verified via web search; uncertain ones flagged.
-- [ ] Every URL and DOI link in the manuscript and bibliography fetched once; dead links, wrong redirects, and unresolvable DOIs flagged.
-- [ ] **No BibTeX invented from memory; no claim silently "corrected"; no citation fabricated.**
+- [ ] Broken, missing, or mismatched citations are flagged. Repair is offered via the `how-to-download-ref` skill.
+- [ ] Key claims attached to a citation are sanity-checked against the cited work. Uncertain ones are flagged, not asserted.
+- [ ] Standalone checkable factual or numerical claims are verified via web search. Uncertain ones are flagged.
+- [ ] Every URL and DOI link in the manuscript and bibliography is fetched once. Dead links, wrong redirects, and unresolvable DOIs are flagged.
+- [ ] **No BibTeX invented from memory. No claim silently "corrected". No citation fabricated.**
 
 ## 9 — Journal fit (new)
 
 - [ ] Skipped, with a note in the report, when the user did not select option 4 or chose "no target yet". Otherwise:
-- [ ] The target journal was taken from the manuscript's declared venue or `template/README.md`, or recommended per `write-paper` Phase 1.5 and confirmed by the user.
-- [ ] The official author guidelines were fetched this session (or reused from `template/README.md`); source URL and access date recorded.
-- [ ] Constraints extracted into a table: limits (body, abstract, title), figure / table / reference maxima, required sections and order, required statements (data and code availability, author contributions, competing interests, funding, ethics, keywords, significance), formatting rules, and the journal's own writing guidance.
-- [ ] Each constraint measured against the manuscript (word counts from compiled text, counts from source, sections from headings) with status ok / over / missing / unverifiable.
-- [ ] Abstract, opening paragraph, and significance framing reviewed against the journal's stated audience and writing guidance.
-- [ ] **No limit or rule quoted from memory; unfetchable guidelines marked unverifiable with the URL.**
+- [ ] The target journal was taken from the manuscript's declared venue or `template/README.md`. Otherwise it was recommended per `write-paper` Phase 1.5 and confirmed by the user.
+- [ ] The official author guidelines were fetched this session or reused from `template/README.md`. The source URL and access date are recorded.
+- [ ] Constraints were extracted into a table. It covers limits on body, abstract, and title, the figure, table, and reference maxima, the required sections and their order, the required statements, the formatting rules, and the journal's own writing guidance. Required statements include data and code availability, author contributions, competing interests, funding, ethics, keywords, and significance.
+- [ ] Each constraint was measured against the manuscript. Word counts come from compiled text, counts from source, and sections from headings. Each has a status of ok, over, missing, or unverifiable.
+- [ ] The abstract, opening paragraph, and significance framing were reviewed against the journal's stated audience and writing guidance.
+- [ ] **No limit or rule is quoted from memory. Unfetchable guidelines are marked unverifiable with the URL.**
 
 ---
 
 ## Language-pass hunt table (guidelines 1, 3, 4, 5)
 
-The hunt-for / fix table lives in `skills/how-to-technical-writing/SKILL.md`, shared with `write-paper`. Each finding cites its row. Rows marked **comment only** are never applied as edits, even after approval.
+The checkable items live in `skills/how-to-technical-writing/checklist.md`. The hunt-for / fix table lives in `skills/how-to-technical-writing/SKILL.md`, shared with `write-paper`. Each finding cites its row. Rows marked **comment only** are never applied as edits, even after approval.
 
 ## Delivery & application
 
-- [ ] Findings written to `articles/<slug>/review-YYYY-MM-DD.md`, grouped by guideline and severity-ranked.
-- [ ] A reference/fact-check table (cite key → status → note) is included.
-- [ ] A journal fit table (constraint → required → measured → status) with the guideline source is included, or a line saying the pass was skipped.
+- [ ] Findings are written to `articles/<slug>/review-YYYY-MM-DD.md`, grouped by guideline and ranked by severity.
+- [ ] A reference and fact-check table (cite key → status → note) is included.
+- [ ] A journal fit table (constraint → required → measured → status) with the guideline source is included. Otherwise a line says the pass was skipped.
 - [ ] A prioritized "top fixes" list is included.
-- [ ] The user was asked whether to see a marked diff first or apply directly; marked diff is the default.
-- [ ] In marked-diff mode: edits went to a `*.proposed.*` copy, `latexdiff` (or `git diff --word-diff` for Typst/Markdown) produced the marked version, a numbered legend was handed over, and only the accepted numbers were merged; proposed and diff files deleted afterwards.
-- [ ] Edits applied only after user approval (all / by-severity / individual).
-- [ ] LaTeX/Typst/Markdown structure and macros preserved; author-judgment fixes left as `% [reviewer]` comments.
-- [ ] Language edits changed how sentences are written, never what they say; no definition, theorem, claim, or field term altered; numbers and qualifiers rechecked after every rewrite.
+- [ ] The user was asked whether to see a marked diff first or apply directly. The marked diff is the default.
+- [ ] In marked-diff mode, edits went to a `*.proposed.*` copy. `latexdiff` produced the marked version, or `git diff --word-diff` for Typst and Markdown. A numbered legend was handed over. Only the accepted numbers were merged. The proposed and diff files were deleted afterwards.
+- [ ] Edits were applied only after user approval, either all, by severity, or one by one.
+- [ ] LaTeX, Typst, and Markdown structure and macros are preserved. Author-judgment fixes are left as `% [reviewer]` comments.
+- [ ] Language edits changed how sentences are written, never what they say. No definition, theorem, claim, or field term was altered. Numbers and qualifiers were rechecked after every rewrite.
 - [ ] Fixes touching a quantifier, hedge, missing justification, paragraph deletion, or "not X but Y" contrast were left as `[reviewer]` comments, not applied.
-- [ ] Manuscript re-compiled (`latexmk` / `pdflatex` / `typst compile`) and the result reported.
-- [ ] A changelog appended to the top of the review report.
+- [ ] The manuscript was re-compiled with `latexmk`, `pdflatex`, or `typst compile`, and the result was reported.
+- [ ] A changelog was appended to the top of the review report.

@@ -23,7 +23,7 @@ Run a structured **review-and-enhance** pass over an *existing* scientific manus
 
 **Scope note.** This is the *reviewing/revising* counterpart to `write-paper` (which *drafts* a manuscript figures-first). It is **not** `survey` report mode, which writes technology/field-assessment reports from a literature survey. Use `review-paper` when a manuscript already exists and the user wants comments, a referee-style critique, reference/fact verification, or guideline-driven polish. If no manuscript exists yet, redirect to `write-paper`.
 
-Guidelines 1–8 below come from a manuscript-quality rubric, and guideline 9 checks the manuscript against its target journal's own rules; the full rubric lives in `skills/review-paper/checklist.md`. Sentence- and paragraph-level rules live in the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`); notation and figure discipline live in `write-paper/SKILL.md`. This skill **references** both rather than restating them. Consult `skills/write-paper/references.md` for the *why* behind a rule.
+Guidelines 1–8 below come from a manuscript-quality rubric, and guideline 9 checks the manuscript against its target journal's own rules; the writing checklist lives in `skills/how-to-technical-writing/checklist.md` and the review-process checklist in `skills/review-paper/checklist.md`. Sentence- and paragraph-level rules live in the `how-to-technical-writing` skill (`skills/how-to-technical-writing/SKILL.md`); notation and figure discipline live in `write-paper/SKILL.md`. This skill **references** both rather than restating them. Consult `skills/write-paper/references.md` for the *why* behind a rule.
 
 Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/context loading, citation handling, the BibTeX lookup chain, and output mechanics.
 
@@ -214,9 +214,9 @@ Then present a short summary to the user and ask two things: which findings to a
 ## Integrations
 
 - **Context, citations, output mechanics:** `skills/how-to-write-ideas-report/references/writing-workflow.md`.
-- **Sentence/paragraph rules, hunt table, guardrails:** `skills/how-to-technical-writing/SKILL.md`.
+- **Sentence/paragraph rules, hunt table, guardrails:** `skills/how-to-technical-writing/SKILL.md`; checkable form in `skills/how-to-technical-writing/checklist.md`.
 - **Rule definitions (notation/figure):** `skills/write-paper/SKILL.md` + `skills/write-paper/references.md`.
 - **Model paper (style calibration for fixes):** `skills/write-paper/sources/1807.01815_Ho2019_quantum-scars.md`, distilled in `skills/write-paper/references.md` §C.
 - **Target venue and template discussion:** `write-paper` Phase 1.5 (`skills/write-paper/SKILL.md`).
 - **Reference repair / adding a missing paper:** the `how-to-download-ref` skill.
-- **Full rubric checklist:** `skills/review-paper/checklist.md`.
+- **Review-process checklist (gate, verification, journal fit, delivery):** `skills/review-paper/checklist.md`.

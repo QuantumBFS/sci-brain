@@ -188,7 +188,7 @@ Notation is the reader's interface to the math. Treat it with the same care as a
 
 ## Sentence-Level Rules
 
-Follow `skills/how-to-technical-writing/SKILL.md`: one concept per sentence, direct to the point, name the earlier context instead of "obviously", plain connectives with every technical word kept, no undrawn metaphors, active voice, one aside per paragraph, calculations in displays, locality within body sections, say it once within the body, signposting, and one job per paragraph. The guide's hunt table is the checklist for the Phase 4 language pass, and its guardrails say which fixes are never applied mechanically.
+Follow `skills/how-to-technical-writing/SKILL.md`: one concept per sentence, direct to the point, name the earlier context instead of "obviously", simple words with every technical word kept, no undrawn metaphors, active voice, one aside per paragraph, calculations in displays, locality within body sections, say it once within the body, signposting, and one job per paragraph. The guide's `checklist.md` and hunt table are the checklist for the Phase 4 language pass, and its guardrails say which fixes are never applied mechanically.
 
 ---
 
