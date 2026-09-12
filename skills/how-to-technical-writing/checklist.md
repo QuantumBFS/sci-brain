@@ -9,7 +9,7 @@ The checkable form of the rules in `SKILL.md`. Use it as the checklist for a `wr
 - [ ] No sentence introduces multiple new ideas at once. Long compound sentences are split.
 - [ ] Do not use concepts that target reader are not familiar with to explaining a concept
 - [ ] Parallel grammar appears only where the ideas already run in parallel. No prose is turned into lists.
-- [ ] Sentences run about 20 words. No semicolon chains, “and … so …” chains, paired em-dash asides, or paired-comma appositives.
+- [ ] Sentences run about 8-25 words. No semicolon chains, “and … so …” chains, paired em-dash asides, or paired-comma appositives.
 - [ ] A sentence that wraps a display equation or binds a hypothesis to its conclusion stays whole.
 
 ## 2 — Wording and tone
