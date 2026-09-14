@@ -124,6 +124,14 @@ Four internal stages became modes of their goal-level skill in v0.3:
 | `/import-dialog` | `/create-advisor` with Markdown dialog input |
 | `/soul-extraction` | `/create-advisor` in analysis-only mode |
 
+## Workflow design
+
+Skills preserve the requested scope and existing choices, load supporting
+instructions as needed, and continue through authorized deliverables. Scientific
+claims, reference provenance, acceptance gates, and research budgets remain
+explicit constraints. This revision follows OpenAI's
+[Rethinking skills and prompts for GPT-6 Astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra).
+
 ## Contributors
 
 **Initiators**: [Lei Wang](https://github.com/wangleiphy) and [Jin-Guo Liu](https://github.com/GiggleLiu)

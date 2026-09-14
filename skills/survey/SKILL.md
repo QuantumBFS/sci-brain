@@ -5,14 +5,11 @@ description: User trigger. Use when surveying a research topic into a knowledge 
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 
 ## Choose the mode
@@ -23,13 +20,18 @@ Shared writing files are bundled in `how-to-write-ideas-report/references/`.
 
 ## Topic Survey
 
-Before starting this mode, check which MCP servers are available (arxiv, paper-search, Semantic Scholar, Sci-Hub, etc.). Present the detected servers to the user and let them choose which ones to use for this session (multi-select in chat). If none are configured, warn the user that the survey will rely on web search only.
+Use the user's topic, constraints, output format, and requested endpoint. Choose
+available search tools yourself unless the user has a provider preference. A
+web-only workflow is valid when no scholarly MCP is configured.
 
-If the user already provided a research topic or question, skip the clarification step.
+**Step 1 — Clarify only missing scope.** If the topic and intended output are
+clear, proceed. Ask about a substantive uncertainty that would change the search.
 
-**Step 1 — Clarify.** Ask one question to narrow the research topic. Give 2-4 choice options.
-
-**Step 2 — Pick strategies & search.** Present the strategy menu to the user as a multi-select question. Recommend 3-4 strategies based on the topic context, but let the user choose. Then run one search worker per selected strategy in parallel when available, or sequentially otherwise. Each worker uses **broad web search only** at this stage — fast and exploratory.
+**Step 2 — Choose strategies & search.** Select the strategies that address the
+question, using the table below as guidance. Offer a choice when the user wants
+to steer the search or when competing scopes would produce different reports.
+Use independent workers when worthwhile and available, otherwise search
+sequentially. Prefer authoritative papers and collect source links.
 
 **Strategy menu:**
 
@@ -43,27 +45,34 @@ If the user already provided a research topic or question, skip the clarificatio
 | 6 | **Negative results** | Search for papers showing what does not work |
 | 7 | **Benchmarks and datasets** | What evaluation infrastructure exists |
 
-When presenting to the user, briefly explain why you recommend each strategy for their specific topic (e.g., "Cross-vocabulary recommended because your problem — buffering stochastic supply — appears in operations research and hydrology too").
+Briefly explain the selected search scope when it helps the user assess coverage.
 
 Each worker produces a short **findings report** — key papers found, grouped by sub-theme, with titles and one-line descriptions. No BibTeX yet. **Important:** workers must also collect the DOI and arXiv ID for each paper when visible in search results (e.g., DOIs from publisher URLs, arXiv IDs from arxiv.org links like `2401.12345`). Record these alongside titles in the findings report.
 
-**Step 3 — Consolidate & user picks directions.** Main agent consolidates all findings reports. **Deduplicate** papers that appear in multiple strategy reports — match by title similarity or DOI. Merge their descriptions (keep the richer one), **preserve any DOIs and arXiv IDs collected** during Step 2, and note which strategies found each paper. Then present the consolidated findings as numbered options grouped by theme. Ask: "Which directions should I add to the knowledge base? Pick one or more." The user can select multiple.
+**Step 3 — Consolidate and select.** Merge overlapping results by DOI/arXiv
+identity or title, preserving source identifiers and complementary evidence.
+For an already scoped KB or report request, choose the relevant papers and
+continue. For open-ended exploration with materially different research
+directions, present the findings by theme and ask which direction to develop.
+Do not require the user to select every paper in an already authorized scope.
 
-**Step 4 — Build KB entries.** For the selected directions only, invoke `how-to-build-kb` (read `skills/how-to-build-kb/SKILL.md`) with the picked papers — titles plus every DOI / arXiv ID collected in Steps 2–3 — and the target KB (the project KB `<project>/.knowledge/` by default; `--advisor <slug>` when invoked from `create-advisor`). It verifies every entry against an authoritative source, appends to `$KB/references.bib`, regenerates `INDEX.md`, and writes or extends `NOTES.md`. Never generate BibTeX from memory.
+**Step 4 — Build KB entries.** For the selected scope, invoke `how-to-build-kb` (read `skills/how-to-build-kb/SKILL.md`) with the picked papers — titles plus every DOI / arXiv ID collected in Steps 2–3 — and the target KB (the project KB `<project>/.knowledge/` by default; `--advisor <slug>` when invoked from `create-advisor`). It verifies every entry against an authoritative source, appends to `$KB/references.bib`, regenerates `INDEX.md`, and writes or extends `NOTES.md`. Never generate BibTeX from memory.
 
-If the survey reveals the idea is already published, present the prior art and ask the user if they see a different angle before proceeding.
+If prior work already covers a proposed idea, explain the overlap and possible distinctions. A neutral survey still reports that prior art; only pause if the user must choose a new research goal.
 
 ## After Survey — fetch full text, then optionally write
 
 The discovery stage is done once the KB has its references, `NOTES.md`, and `INDEX.md`. Use `how-to-download-ref` to fetch PDFs and render full-text markdown before writing a source-grounded report.
 
-First, scan the conversation for arXiv IDs / DOIs the user mentioned that the parallel search didn't surface. If any are missing from `references.bib`, pull them in (invoke `how-to-download-ref` single-shot, cite-key confirmation per ref) so the reference set is complete before downloading.
-
-Then offer the next step:
-
-> "Survey complete. Fetch the PDFs?"
-> - **(a)** Fetch + render all refs — invokes `how-to-download-ref --from-bib $KB/references.bib --kb $KB`; after it finishes, offer to continue to Survey Report below.
-> - **(b)** Done — stop here.
+Include any user-supplied papers relevant to the chosen scope that discovery
+missed. Pass the selected IDs, existing cite keys, KB, and source preferences to
+`how-to-download-ref`. When a full-text KB or report is requested, fetch the
+selected set. A full-text KB request ends with the verified KB and acquisition
+status; continue directly to Survey Report only when a report was requested.
+Use `--from-bib` for a KB whose
+whole bibliography is in scope; in a larger shared KB, pass only the scoped IDs.
+For a discovery-only request, deliver the findings and KB artifacts; further
+acquisition and reporting are optional.
 
 ## Survey Report
 
@@ -73,7 +82,7 @@ Write a self-contained survey or technology/field assessment suitable for intern
 
 Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-level prose rules, and `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, **source scoping**, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
-- If no KB exists, offer to run Topic Survey first; the report needs a grounded reference base.
+- If no KB exists, build the requested evidence base from the supplied sources or Topic Survey as part of the report task. Ask only if its substantive scope is missing.
 - **Scope the source set first.** Run `scope_refs.py` as specified in the shared workflow. Fix dangling anchors before drafting. Build the report's approaches and claims from those scoped keys, not the entire bibliography.
 - Check `CLAUDE.md`/`AGENTS.md` for a deliverables-location convention before choosing an output path.
 - Tailor technical depth to the user's role from `docs/discussion/user-profile.md` or available context.
@@ -128,6 +137,6 @@ End with a ranked table of 4–8 problems: number, problem, why it matters, who 
 
 ### Optional direction fit
 
-After showing the report, ask exactly once: "Do you want me to analyse which direction is most suited for you?"
+If personalized direction advice was requested, include it after the report. Otherwise it is an optional follow-up, not a required question.
 
-If yes, load the user's profile (or collect brief background, strengths, assets, and goals if none exists) and recommend 2–4 ranked directions. For each, name the report section/problem, explain the specific fit, give the smallest first experiment, and say what to avoid. Keep this personalized analysis outside the neutral report.
+For that advice, load the user's profile (or collect brief background, strengths, assets, and goals if none exists) and recommend 2–4 ranked directions. For each, name the report section/problem, explain the specific fit, give the smallest first experiment, and say what to avoid. Keep this personalized analysis outside the neutral report.

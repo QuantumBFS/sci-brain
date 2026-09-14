@@ -5,77 +5,97 @@ description: User trigger. Use when drafting or revising a scientific manuscript
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 
 # Paper Writer
 
-A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. The source documents live in `references.md` and `sources/`; consult them when this SKILL.md leaves a question open. Beside them sits a model letter that executes these rules — Ho et al., PRL 122, 040603 (2019), see Source material. Imitate the model letter on any open style judgment call.
+A working-rules guide for writing scientific papers, distilled from John Martinis's *Notes on Writing a Scientific Paper* and Jan von Delft's *Style Guide*. The source documents live in `references.md` and `sources/`; consult them when this SKILL.md leaves a question open. Beside them sits a model letter that executes these rules — Ho et al., PRL 122, 040603 (2019), see Source material. Use its relevant examples when a style judgment is unresolved, adapting to the manuscript and venue.
 
 **Scope note.** This skill is for *real manuscripts* — papers reporting completed (or near-complete) experimental, theoretical, or computational results. It is **not** for the upstream ideas/plan report produced by `brainstorm-ideas` report mode. If the user has not yet finished the work, push back: a paper requires results.
 
-Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB loading, citation handling, missing references, output formats, and Typst/diagram mechanics. The manuscript-specific rules below override shared defaults when venue templates or figure-first sequencing require it.
+Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB loading, citation handling, missing references, output formats, and Typst/diagram mechanics. Venue requirements take precedence over formatting defaults; the shared guide remains the source of sentence-level rules.
 
 ---
 
-## The Iron Rules
+## Choose the scope
 
-These seven override everything else.
+- **New manuscript:** use the phases below as a useful default. Establish the
+  evidence and narrative before polishing prose; the supplied result, figure
+  plan, or proof can provide that evidence.
+- **Continue an existing draft:** reuse its story, venue, outline, and figures.
+  Enter at the unfinished part and verify affected dependencies.
+- **Local revision:** change only the requested section, abstract, caption, or
+  passage, using its necessary context. Do not restart figure production,
+  venue selection, or story approval. For a critique rather than revision, use
+  `review-paper`.
+- **Submission preparation:** apply the target venue's current requirements
+  and the relevant final checks.
 
-1. **Figures first, then prose.** Plot every figure you intend to publish *before* writing a single section. Figures are the backbone; the text serves them. If you cannot draw the story in 4–8 figures, you do not yet know the story.
-2. **Polish what readers actually read.** 95% of readers read only the title, abstract, introduction, figures + captions, and conclusions. These five elements deserve disproportionate iteration. Write them last — *but iterate them most*.
-3. **State main results explicitly.** Use at least one sentence per main result that names it as such: *"This figure / equation / observation is our (first / second / Nth) main result."* Do not assume the reader will identify which sentence is the punchline.
-4. **One concept per sentence.** If you must break this rule, both concepts must be simple. Long compound sentences with three new ideas are how readers drop out.
-5. **Never plot anything in arbitrary units.** If you reach for "a.u." on an axis, the axis is wrong; find the right normalization (dimensionless ratio, calibrated scale, or experimental control). "a.u." plots are a known integrity red flag.
-6. **Target journal before story.** Before proposing story lines, discuss the target venue with the user and download its official author template. If the user deliberately has no target yet, record that choice. Venue constraints shape the narrative, figure count, length, and format.
-7. **Iterate the story with the user.** Once the figures or figure plan are available and the target venue is known, propose 1–3 plausible story lines for the user to choose, reject, or combine. Do not draft prose until the user has selected the paper's narrative.
+Carry forward choices and authorization from the conversation. Clarify only a
+missing scientific decision that changes the draft. Never manufacture results,
+references, or an unsupported claim. A writing request ends with the requested
+text/source and appropriate checks; external feedback is optional.
 
----
+## Writing priorities
 
-## Workflow Phases
+Use figures, evidence, or a proof outline to organize the story. State each main
+result clearly and connect it to its evidence. Give the title, abstract,
+introduction, captions, and conclusions careful attention because readers use
+them to judge the paper. Follow the shared style guide rather than imposing a
+fixed sentence length or a template from a different scientific genre.
 
-A correct ordering of effort that defeats writer's block. Do not reorder — the sequence is the point.
+## Workflow for a new manuscript
+
+Use the phases that the work still needs. For a theoretical result, a proof and
+its key statements can serve the role of figures; a fixed figure count is not an
+entry requirement.
 
 ### Phase 0 — Load context
 
 Before drafting, gather the materials that should inform the paper. Cheap to do once; expensive to skip.
 
 1. **Shared writing context.** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`. Use `$KB/NOTES.md` as the spine for prior work, gap statement, motivation, and conclusions.
-2. **Ideas / brainstorming log.** Look for `docs/discussion/*-brainstorm-ideas-log.md` from a prior `brainstorm-ideas` session. If present, read it for the original motivation, the cross-field connections it surfaced, the planned minimum viable experiment, and the success/hope/pivot signals. This is the *why* behind the paper and feeds the introduction's contribution claim.
-3. **Personal publication context.** Read `docs/discussion/user-profile.md` and any `know-me-better` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to cite the user's earlier work correctly.
+2. **Ideas / brainstorming log.** Look for `docs/discussion/*-brainstorm-ideas-log.md` from a prior `brainstorm-ideas` session. Read only logs relevant to this manuscript, starting with their summaries, for motivation, planned experiments, and success/hope/pivot signals. This is the *why* behind the paper and feeds the introduction's contribution claim.
+3. **Personal publication context.** When positioning or self-citation requires it, read the relevant parts of `docs/discussion/user-profile.md` and `know-me-better` notes in `$KB/NOTES.md`. Use them to position the new paper in the user's own arc and to cite the user's earlier work correctly.
 4. **Existing draft.** If a partial manuscript already exists under `articles/`, read it before proposing new prose; pick up where the user left off.
 
-If none of these exist, name what's missing and ask the user to either point at the files or run the `survey` skill first. A paper without a literature foundation will read like one.
+Use supplied source material even without a sci-brain KB. Research citation gaps needed by the draft; ask for missing results or assumptions that cannot be established from the available evidence.
 
-### Phase 1 — Set up the figures (before writing any prose)
+### Phase 1 — Establish the evidence and figure plan
 
-- List the figures the paper needs. Aim for 4–6 in a letter, 6–10 in a regular article.
+- List the figures or proof results needed to support the main claim; use the venue and argument to determine their number.
 - Order them so they *tell a story*: simple data first → progressively complex analysis → flagship comparison with theory.
-- Draft each figure. Apply the **Figure Rulebook** (below). Do not move on until line weights, axes, colors, and dimensionless choices are right — going back later is more expensive than getting it right now.
+- Draft needed figures using the **Figure Rulebook** below. Resolve issues affecting interpretation before writing claims around them; visual polish can proceed alongside the draft.
 - For each figure, write a one-sentence caption-summary: what the figure *shows* in plain words. These become the spine of the captions and the Results section.
 
 ### Phase 1.5 — Target journal and template checkpoint
 
-Before the story checkpoint, stop and discuss the target journal or venue with the user. If the user has not chosen one, propose 2–3 plausible venues with tradeoffs: article type, audience, length pressure, figure limits, novelty bar, and format requirements. Ask the user to pick one target or to choose "no target yet" explicitly. In the latter case, record that no official template applies, and continue only after the user confirms this tradeoff.
+Reuse a selected venue and installed template. If venue choice is part of the
+request, propose plausible venues with audience, article type, length, novelty,
+and format tradeoffs, then ask the user to choose. If no target is specified and
+the user simply wants a draft, record that no target is set and continue in the
+existing or requested format; do not force a venue choice before a useful draft.
 
 Once a target is chosen:
 
 1. Find the official author instructions and template from the journal or publisher website. Prefer official publisher pages over mirrors, GitHub copies, Overleaf community templates, or lab handouts.
 2. Download the template package into the active manuscript directory, usually `articles/YYYY-MM-DD-<paper-slug>/template/`. If no manuscript directory exists yet, create the article directory first.
 3. Record the template source URL, access date, journal name, article type, and key constraints in a short `template/README.md` or manuscript note.
-4. If the official template cannot be downloaded, explain why, save the author-instruction URL, and ask the user whether to continue with a generic draft format.
-5. Do not propose story lines until the target venue and template status are clear.
+4. If the official template cannot be downloaded, record the limitation and source URL. Continue a content draft in the existing format; ask only if the requested deliverable requires a template choice that cannot be inferred.
+5. Apply known venue constraints to the story and figures; identify requirements that remain unverified.
 
 ### Phase 1.6 — Story checkpoint with the user
 
-Before the telegram outline, stop and discuss the paper's narrative with the user. Base this only on the provided figures, caption-summaries, existing draft, loaded literature context, and target-journal constraints.
+Reuse a narrative supplied or already selected by the user. When materially
+different scientific stories remain, discuss them before drafting. Base them on
+the provided results, figures, existing draft, literature, and venue constraints.
+
+When a narrative choice is still needed:
 
 1. Propose **1–3 candidate story lines** for the user to pick from. If there is only one defensible story, present one strong option and say why alternatives would be forced.
 2. For each story line, include:
@@ -85,39 +105,39 @@ Before the telegram outline, stop and discuss the paper's narrative with the use
    - the audience or venue fit,
    - what the story deliberately de-emphasizes.
 3. Ask the user to choose one, combine pieces, or reject them. If they push back, revise the story lines and ask again.
-4. Only after the user selects or synthesizes a story, continue to the telegram outline. Treat the selected story as the contract for the draft.
+4. Once the story is established, continue to the outline and draft. Ask again only if new evidence changes the main claim, not at each writing phase.
 
 ### Phase 2 — Telegram outline
 
 - Write a telegram-style outline from the selected story line: section headings → bullet points → which figures and equations land where.
 - Mark which sentence in each section names a main result.
-- Show the outline to a collaborator/advisor before you write prose. Cost of revision is lowest now.
+- Reuse an approved outline. For a requested complete draft, use the outline as a working note and continue; present it for approval only if the user requested that checkpoint or the narrative still needs a decision.
 
-### Phase 3 — Draft the body in this order
+### Phase 3 — Draft the body (a useful default order)
 
 1. **Methods / Theory** — easiest to write; gets you over the activation barrier.
 2. **Results** — walk the reader through the figures in order. For each figure: state what was varied (x-axis), what was measured (y-axis), what trend appears, where errors come from. Data is obvious to you, not the reader.
-3. **Analysis** — explain how the data matches (or stretches) the theory. Plot data as points, theory as lines, on the same axes; arrange so theory lies on straight lines whenever possible. Discuss deviations larger than error bars *and* deviations much smaller than them (both are problems).
+3. **Analysis** — compare data and theory under the stated uncertainty model. Investigate unexpected residuals rather than declaring large or small deviations an error by themselves; use the relevant Figure Rulebook guidance.
 4. **Introduction (rough draft).** Do not perfect it yet. Hit four beats: (a) field-level question and why it matters, (b) prior work and what was missing, (c) what *this* paper does, (d) where the main results live (figure / equation pointers). The model letter executes all four in as many paragraphs, closing with "In this Letter, we develop…" — see `references.md` §C. Move on even if it feels weak.
 5. **Conclusions.** Often a re-statement of the introduction in newly technical language — the reader now has the apparatus to absorb it. Add one paragraph on implications, applications, and follow-up directions. Acknowledgments and funding here.
 
 ### Phase 4 — Iterate the body
 
-- Revise the body many times before touching abstract/intro polish.
+- Revise until the argument, notation, and evidence support the requested draft. Repeat a pass only for a changed section, a failed check, or an unresolved finding.
 - Each pass: check the **One Concept Per Sentence** rule, check notation consistency, check that every striking feature in every figure is *explained in text*.
 - Last pass before Phase 5 is a **language pass**: walk the style guide's hunt table and change *how* sentences are written, never *what* they say. Do not add or remove a claim, figure, or derivation step in that pass; recheck every number and qualifier a rewritten sentence mentions; leave passages that already pass untouched.
 
 ### Phase 5 — Polish the high-leverage sections last
 
 - **Abstract:** one paragraph, 5–10 lines, ~one sentence per body section. The model paper does it in four moves — system, method, finding, implication — one move per sentence. Write it last, when you finally understand what the paper says.
-- **Title:** descriptive, specific, scannable. Rewrite several times.
+- **Title:** descriptive, specific, scannable. Refine it when it misstates or obscures the main claim.
 - **Introduction:** sharpen the opening hook, the gap statement, the contribution claim, and the forward-pointers to figures.
 - **Conclusions:** make the take-home messages crisp and quotable.
 
-### Phase 6 — External feedback
+### Optional external feedback
 
-- Send to a friend / officemate who is *not* a co-author.
-- Solicit comments from a known expert in the area. Most will oblige if you mention a deadline. Consider sending to known competitors as a goodwill gesture — they catch what reviewers will catch.
+- When useful, suggest feedback from a reader outside the author list. External sharing is a separate user decision, not a completion gate for drafting.
+- If the user requests expert feedback, help prepare the material and questions; contact others only when explicitly authorized.
 - Take every comment seriously. "Confusing to a friend" → "confusing to a reviewer."
 
 ---
@@ -142,49 +162,16 @@ Most physics-style papers fit this. Short letters (PRL, Nature, Science) drop th
 
 ## Figure Rulebook
 
-Figures are what readers remember; design them to survive the harshest viewing context.
-
-**Design for three uses simultaneously.** Each figure must work as: (a) inline figure in the paper, (b) slide in a beamer talk, (c) greyscale photocopy. Design for all three at draft time, not in a later retrofit.
-
-**Line weight.** Minimum thickness 2 for every curve (or at least the main-result curves). Thin lines vanish on a projector.
-
-**Color discipline.**
-- Use saturated, robust colors: black, blue, red, dark orange, magenta, violet, dark brown.
-- Avoid light yellow, light green, light grey — invisible when projected.
-- Encode the distinction with a *line style* (solid / dashed / dash-dot) in addition to color, so the figure survives greyscale printing.
-- In the caption, refer to features by line style, not color: "the dashed curve" not "the red curve". Add "(Color online)" if color matters.
-
-**Text size.** Axis labels, numbers, and legend text should not be much smaller than the surrounding paper text — at most 2/3 of body size. Tiny text wrecks the figure for talks.
-
-**Parameter labels.** Place key parameters (e.g., `T = 0`, `V = 0`, `Γ = 1`) directly inside the plot in small boxes. Saves caption length and makes the figure self-contained for talks.
-
-**Dimensionless axes.** Use dimensionless quantities (`G/G₀`, `T/Γ`, `V_g/Γ`, etc.) whenever possible — they generalize the result, clarify the relevant scale, and travel across systems. Choose the combination that maximizes message clarity; if you find a better one after plotting, replot. Exception: comparison with dimensional experimental data.
-
-**Data vs. theory.** Plot data as points (with error bars) and theory as lines, on the same axes. Arrange so theory lines are *straight* whenever possible — anyone can then check agreement at a glance. Use curved-theory plots only with a deliberate reason.
-
-**Error-bar reasoning.** Theory should pass through error bars on most points. Patterns to *discuss in text*:
-- Many points deviating by more than an error bar → likely systematic error; address it.
-- Error bars dwarfing the deviations → uncertainties likely overestimated; address this too.
-
-**Captions.** Concise but self-sufficient. Define every plotted quantity, summarize the trend, identify line styles. A reader who reads only the title, abstract, and figures+captions should get the paper.
-
-**Explain every striking feature.** Every peak, dip, kink, or jump that catches the eye must be discussed in the main text — ideally with a back-of-envelope reason. Unexplained features are either an honesty problem or a missed opportunity. If you genuinely don't understand a feature, say so in print and flag it for follow-up.
-
----
+For figure creation or review, read the Figure Rulebook in
+[figures-and-notation.md](references/figures-and-notation.md). Use intended display
+size and scientifically meaningful axes; explain any normalization, including
+arbitrary units when the measurement legitimately requires them.
 
 ## Notation Rulebook
 
-Notation is the reader's interface to the math. Treat it with the same care as a public API.
-
-- **No symbol reuse in nearby sections.** Same letter must not mean two different things within a few pages.
-- **If notation must change, signal it explicitly.** "Henceforth we use X to denote..." — never silent reuse.
-- **Define every variable before using it.** Define them in logical order: earlier symbols define later ones, never the reverse.
-- **If a better notation appears mid-project, switch and rewrite earlier sections.** The reader's cost of decoding bad notation is far higher than your cost of rewriting.
-- **Compact vs. explicit formulas:**
-  - *Compact* when summarizing strategy, manipulating reader's high-level model, or when an expert could fill in the steps.
-  - *Explicit* when: highlighting a non-obvious step, presenting a trick that took real effort, showing a key intermediate result other work depends on, presenting a flagship result, or matching a plotted figure (cite the figure in the equation).
-
----
+For mathematical writing, read the Notation Rulebook in
+[figures-and-notation.md](references/figures-and-notation.md). Local prose edits
+need only the definitions and notation used by the affected passage.
 
 ## Sentence-Level Rules
 
@@ -192,54 +179,24 @@ Follow `skills/how-to-technical-writing/SKILL.md`: one concept per sentence, dir
 
 ---
 
-## Pre-Submission Checklist
+## Finish the requested deliverable
 
-Run this before clicking submit. Each item is cheap to check; missing any of them is expensive to fix in proof.
-
-**High-leverage text (read by 95%):**
-- [ ] Title is descriptive, specific, scannable.
-- [ ] Abstract reads as a one-paragraph summary, one sentence per body section.
-- [ ] Introduction has all four beats (field interest, prior work, what's new, where main results live).
-- [ ] Every figure has a caption that stands alone.
-- [ ] Conclusions name the contribution and at least one implication.
-
-**Process gates:**
-- [ ] Target journal or "no target yet" was discussed with the user before story selection.
-- [ ] Official template was downloaded, or the failed/blocked/not-applicable template status was recorded.
-- [ ] The user selected or synthesized a story line before prose drafting began.
-
-**Main-result labeling:**
-- [ ] Each major result has a sentence explicitly tagging it as a main result.
-- [ ] Each main result has a corresponding figure or equation.
-
-**Figures:**
-- [ ] All curves are line-weight ≥ 2.
-- [ ] All colors are saturated; no faint yellow/green/grey.
-- [ ] Each figure is identifiable in greyscale (line styles distinguish, not just color).
-- [ ] Axis numbers and legend text are readable from a slide.
-- [ ] No axis labeled in arbitrary units.
-- [ ] Every striking feature is explained in text.
-- [ ] Data as points + theory as lines, plotted together, with straight theory lines where possible.
-
-**Notation and equations:**
-- [ ] No symbol reuse for different meanings.
-- [ ] Every symbol defined before use, in logical order.
-- [ ] Explicit equations only for non-obvious steps, key intermediates, flagship results, or figure references.
-
-**Sentence-level:**
-- [ ] No paragraph contains more than one new concept per sentence; sentences run about 20 words.
-- [ ] Active voice dominates.
-- [ ] Topic sentences open each paragraph.
-- [ ] No "obviously" / "clearly": every asserted step names the earlier equation, figure, or section it rests on.
-- [ ] No warm-up sentences, meta-talk about the document, or metaphors standing in for a precise statement.
-- [ ] Technical terms kept; Latinate connectives ("hence", "conversely", "likewise") replaced by plain ones.
-- [ ] Each paragraph stays on one object; each cross-reference says why the current step needs it.
-- [ ] No run of inline computations; calculations sit in a display with one sentence naming what it shows.
-
-**External feedback:**
-- [ ] At least one friend / officemate has read the full draft.
-- [ ] At least one expert outside the author list has commented (when feasible).
-- [ ] Comments have been addressed, not deflected.
+- Verify the requested sections say what the supplied results support and that
+  citations resolve. For new or changed figures, inspect the render at its
+  intended size using the Figure Rulebook. Check affected symbols and labels.
+- For language changes, use `skills/how-to-technical-writing/checklist.md`;
+  preserve logical connectives and mathematical meaning. Sentence length is a
+  signal for overloaded clauses, not a word-count target.
+- Compile changed source and resolve failures introduced by the change using
+  the shared writing workflow. For an inline excerpt, check the text and state
+  that no document build was run. Do not require a bibliography for a passage
+  that contains no citations.
+- For submission preparation, also check current venue limits, statements,
+  template requirements, and unresolved author decisions. Do not submit or
+  distribute the manuscript without authorization.
+- Deliver the draft/source or revised excerpt, relevant verification, and any
+  unresolved scientific questions. External reviews are not required to finish
+  a writing task.
 
 ---
 
@@ -258,7 +215,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 ## Integrations
 
 - **Citations and missing references:** Follow `skills/how-to-write-ideas-report/references/writing-workflow.md`.
-- **Manuscript format:** Use the target journal's official template when available. Default to Typst (`.typ`) only when no target venue or required template exists; use LaTeX (`.tex`) or Word when the journal requires it; use Markdown only for arXiv-style preprints where the journal accepts it.
+- **Manuscript format:** Preserve the requested or existing format. Use the target journal's required format for submission preparation; a content draft can remain in Markdown, Typst, or LaTeX until a venue is chosen.
 - **Storing the draft:** `articles/YYYY-MM-DD-<paper-slug>/` with `main.typ` (or `.tex`), a bibliography copied from `$KB/references.bib`, and `figures/`.
 
 ---
@@ -268,7 +225,7 @@ Run this before clicking submit. Each item is cheap to check; missing any of the
 - `skills/how-to-technical-writing/SKILL.md` — the `how-to-technical-writing` skill: sentence- and paragraph-level rules shared with `review-paper`, with the hunt table and application guardrails.
 - `references.md` — distilled rule lists from Martinis (2012) and von Delft (style guide), plus a walkthrough of the model paper (§C).
 - `sources/NotesOnWritingPaper12.pdf` — the original Martinis notes.
-- `sources/1807.01815_Ho2019_quantum-scars.md` — the model paper: Ho, Choi, Pichler & Lukin, *Periodic orbits, entanglement and quantum many-body scars in constrained models*, PRL 122, 040603 (2019), rendered from arXiv:1807.01815. This letter practices what the rules preach: one move per abstract sentence, the four introduction beats in order, run-in headers whose first sentence names the section's job, symbols defined at first use and then read back in plain words, figures that carry the story from page one. Skim it before drafting. `references.md` §C maps each move to its location in the paper.
+- `sources/1807.01815_Ho2019_quantum-scars.md` — the model paper: Ho, Choi, Pichler & Lukin, *Periodic orbits, entanglement and quantum many-body scars in constrained models*, PRL 122, 040603 (2019), rendered from arXiv:1807.01815. This letter practices what the rules preach: one move per abstract sentence, the four introduction beats in order, run-in headers whose first sentence names the section's job, symbols defined at first use and then read back in plain words, figures that carry the story from page one. Read a relevant excerpt only when the distilled guidance leaves a style question open. `references.md` §C maps each move to its location in the paper.
 - von Delft's *Style Guide* online: <https://homepages.physik.uni-muenchen.de/~vondelft/JansStyleGuide.html>
 
 The references preserve the *reasons* behind the rules; the model paper shows the rules executed.

@@ -5,14 +5,11 @@ description: User trigger. Use when starting, resuming, or checking an autoresea
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 
 # Autoresearch
@@ -35,6 +32,16 @@ Supporting references: `references/insights-template.md` (db),
 `references/reflection-template.md` + `references/report-schema.md` (run),
 `helpers/report.py` (HTML cycle reports) and `helpers/gen_campaign.py`
 (cross-cycle full-campaign overview).
+
+## Choose the request
+
+- **Status or explanation:** read STATE.md and the relevant public artifact
+  summaries. Report stage, gate status, completed and remaining attempts, and
+  missing evidence. Stop after answering: do not create or repair state, change
+  stages, run experiments, or consume the attempt budget. Missing/corrupt state
+  is a reported finding, not permission to initialize a campaign.
+- **Start, resume, or execute a named stage:** follow Procedure below, inheriting
+  the user's existing choices and authorization. The stage gates still apply.
 
 ## Procedure
 

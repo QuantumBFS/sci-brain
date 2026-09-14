@@ -5,14 +5,11 @@ description: Agentic trigger. Use when judging the visual design of a figure, pl
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 Before running the examples, set `REVIEW_FIGURE_DIR` to the absolute directory of `how-to-review-figure`. Quote these variables as shown.
 
@@ -29,10 +26,13 @@ The full rubric — each rule's "good looks like" and "flag when" — lives in `
 
 ## Operating principle
 
-**Source-aware, report-only, terminal-first.**
+**Source-aware, scoped to the request, terminal-first.**
 
 - **Source-aware** — always look at a rendered raster before scoring (never judge a figure you have not seen); when source exists, read it too so a fix can cite a line or parameter.
-- **Report-only** — never edit the figure or its source. Suggest concrete changes; the user applies them.
+- **Review scope** — a review-only request produces findings. When called inside
+  an authorized figure/deck creation or repair task, return actionable findings
+  to the authoring workflow, which applies fixes and rechecks affected figures.
+  A standalone request that also asks for fixes authorizes those source edits.
 - **Terminal-first** — print the scorecard to the chat by default. Write a file only when the user asks.
 
 ---
@@ -77,7 +77,7 @@ Rank every non-pass finding so the user can triage:
 ## Phase 0 — Scope & render
 
 1. **Resolve target(s).** Accept explicit path(s), a directory, or auto-detect (`images/`, `figures/`, then `*.png|jpg|jpeg|pdf|svg|typ` in the working directory). If several are found and the user did not name one, list them and ask which to review.
-2. **Establish the display context.** Ask once (with a default): where will this figure appear — **paper single-column / paper double-column / slide / poster / web** — and the final width. This is what makes S1 (text size) and S9 (resolution) meaningful. **Default if unspecified:** paper double-column (~3.4 in wide).
+2. **Establish the display context.** Reuse the paper, slide, poster, or web dimensions from the request or caller. If unknown, state a provisional display size and qualify size-dependent findings; ask only when intended dimensions are necessary to resolve them.
 3. **Render to a raster you can look at (source-aware).** Use the helper:
 
    ```bash
@@ -87,7 +87,7 @@ Rank every non-pass finding so the user can triage:
    - raster (`.png`/`.jpg`) and `.pdf` → read directly (the helper passes them through).
    - `.typ` → compiled to PNG via `typst`.
    - `.svg` → converted to PNG via the first available of `rsvg-convert` / `inkscape` / `cairosvg`.
-   - matplotlib `.py` → rendered **only** with `--allow-exec` (open figures captured to PNG). Confirm with the user before passing `--allow-exec`; otherwise prefer an already-rendered output, or ask for a PNG.
+   - matplotlib `.py` → rendered **only** with `--allow-exec` (open figures captured to PNG). Inspect the script and reuse authorization to run the project's plotting code. If execution is outside that scope or has unclear side effects, use an existing render or ask before passing `--allow-exec`.
    - The helper prints the viewable PNG path(s) to stdout. If it fails (no renderer available), **ask the user to export a PNG** — do not score an unseen figure.
 
    Then **read the produced raster** with your image-reading ability. When the source exists, also read it as text so fixes can cite a line/parameter.
@@ -127,7 +127,7 @@ Print, per figure:
 
 For a multi-figure run, add a brief cross-figure summary (shared problems, inconsistencies across the set).
 
-Then **offer to save**: only on a yes, write `figure-review-YYYY-MM-DD.md` beside the reviewed figure(s) (or a path the user gives), using the same structure. This matches the repo's dated-output convention (cf. `review-paper`).
+When the user requested a saved report, write `figure-review-YYYY-MM-DD.md` beside the reviewed figure(s) (or a path the user gives), using the same structure. This matches the repo's dated-output convention (cf. `review-paper`).
 
 ---
 
@@ -146,8 +146,8 @@ Then **offer to save**: only on a yes, write `figure-review-YYYY-MM-DD.md` besid
 | Scoring a figure you never rendered | Phase 0 step 3: render and look first; ask for a PNG if rendering fails. |
 | Judging "text too small" with no context | Phase 0 step 2 fixes the intended display size before S1/S9. |
 | Applying scientific rules to a schematic | Classify first; S-rules add on only for plots. |
-| Editing the figure or its source | Report-only — suggest, never apply. |
-| Running a matplotlib `.py` silently | Render `.py` only with `--allow-exec` after user confirmation; else use existing output or ask for a PNG. |
+| Editing the figure or its source | Review-only — suggest changes; apply only when figure fixes are already requested. |
+| Running a matplotlib `.py` silently | Inspect the script and execute within existing authorization; otherwise use existing output or ask. |
 | Asserting a subjective taste call as fact | Mark subjective findings as opinion; ground the rest in the raster/source. |
 
 ---

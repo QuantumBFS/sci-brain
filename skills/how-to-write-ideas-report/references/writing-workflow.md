@@ -6,11 +6,19 @@ Resolve the installed `how-to-download-ref` skill from the agent's catalog and s
 
 ## Context
 
-- Resolve the project KB with `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`.
-- If present, read `$KB/NOTES.md`, `$KB/INDEX.md`, and the canonical bib `$KB/references.bib`.
-- Read `docs/discussion/user-profile.md` when audience, background, or positioning matters.
-- For ideas/manuscripts, read relevant `docs/discussion/*-brainstorm-ideas-log.md`.
-- If the needed literature base is missing, suggest the `survey` skill or ask the user for explicit source files.
+Start with the user's supplied text, source files, scope, format, and existing
+authorization. A local prose edit needs the passage and its relevant definitions
+or citations, not the whole literature library or conversation history.
+
+- Resolve the project KB only when KB-backed context is needed, using
+  `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`.
+- Search INDEX.md/NOTES.md for the topic, then read relevant notes and bibliography
+  entries. Full bibliographic screening belongs to an explicitly selected review.
+- Read `docs/discussion/user-profile.md` when audience or positioning matters;
+  read only relevant brainstorming logs, starting with their wrap-up sections.
+- Supplied papers and a manuscript-local bibliography are valid source material
+  without a sci-brain KB. Fill evidence gaps within the requested task, asking
+  only for missing substance that cannot be established from the sources.
 
 The canonical bib is `$KB/references.bib`.
 
@@ -18,13 +26,13 @@ The canonical bib is `$KB/references.bib`.
 
 ## Scope the source set
 
-A write-up covers a *subset* of the bib — the references the relevant `NOTES.md` section(s) actually cite, not all 100+ accumulated entries. Determine that subset deterministically instead of by eye:
+For a KB-backed report, a write-up covers a *subset* of the bib — the references the relevant `NOTES.md` section(s) actually cite, not all 100+ accumulated entries. Determine that subset deterministically instead of by eye:
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/scope_refs.py" --notes "$KB/NOTES.md" --bib "$KB/references.bib"
 ```
 
-It prints the scoped cite keys (one per line) and exits non-zero if any `[@key]` anchor in the notes has no bib entry — fix dangling anchors before drafting. Use `--json` for `{scoped, missing, unused}`. Draft against the scoped keys; the `unused` list is out of scope unless the user asks to widen it.
+When the user supplied explicit sources instead, use those directly; do not require NOTES.md. The helper prints the scoped cite keys (one per line) and exits non-zero if any `[@key]` anchor in the notes has no bib entry — fix dangling anchors before drafting. Use `--json` for `{scoped, missing, unused}`. Draft against the scoped keys; the `unused` list is out of scope unless the user asks to widen it.
 
 ## References
 
@@ -37,15 +45,17 @@ It prints the scoped cite keys (one per line) and exits non-zero if any `[@key]`
 
 Search only for gaps needed to support the document's main claims. Prefer the active KB first, then MCP/Semantic Scholar/arXiv/CrossRef/web search. Stop when the main claims have citations; completeness is not the goal.
 
-**Recency gate — decide whether to search at all.** Read the build date in the `NOTES.md` header. If it is recent (≲ 4 weeks old), the literature base is fresh: skip discovery gap-filling entirely and only resolve *citation-level* gaps (a claim in the draft with no key to back it). Only when `NOTES.md` is older — or absent — run the recency search for SOTA results, active groups, and method families that may have superseded the notes.
+**Search according to the claim.** A recent NOTES.md can avoid repeating discovery,
+but its date does not establish that a volatile or SOTA claim is current. Verify
+such claims when the document relies on them or the user requests an update.
+Stable derivations and local language edits do not require a new field survey.
 
 ## Output Format
 
-Check `CLAUDE.md`/`AGENTS.md` for a configured format. Otherwise ask:
-
-- Typst (`.typ`) — recommended when no venue template overrides it
-- LaTeX (`.tex`) — traditional academic format
-- Markdown (`.md`) — fastest, but citations remain inline unless rendered elsewhere
+Reuse the user's format, the existing document, or the project's configured
+format. For a new standalone report with no convention, use Markdown. Use the
+venue's format when required, and Typst or LaTeX when requested or needed for a
+PDF. Ask only when the choice affects a requirement that remains unresolved.
 
 ## Figures And Diagrams
 
@@ -59,13 +69,36 @@ For Typst, prefer native `grid` + `rect` + fixed-width `box()` for text-heavy la
 
 ## Finish
 
-Run these checks before declaring the document done — do not eyeball them:
+Verify the requested output, not an unrelated full workflow:
 
-- **Compile** the document (`typst compile <file>.typ`, or the LaTeX/Markdown equivalent) and confirm it exits cleanly.
-- **No dangling citations.** Grep the compile log for unresolved-reference warnings; for Typst, a missing key warns rather than errors, so an empty grep is the pass condition:
+- **Compile changed document source** and inspect the result when producing a
+  final PDF. A plain Markdown or inline-text request needs only its relevant
+  rendering/text checks; report when no build applies.
+- **Check both exit status and citation diagnostics.** For Typst, run from the
+  document directory (replace `main.typ` with the actual source):
+
   ```sh
-  typst compile <file>.typ 2>&1 | grep -i "unresolved\|warning" || echo "clean"
+  BUILD_LOG=$(mktemp)
+  if typst compile main.typ >"$BUILD_LOG" 2>&1; then
+    cat "$BUILD_LOG"
+  else
+    cat "$BUILD_LOG" >&2
+    rm -f "$BUILD_LOG"
+    exit 1
+  fi
+  if grep -Ei 'unresolved|warning' "$BUILD_LOG"; then
+    rm -f "$BUILD_LOG"
+    exit 1
+  fi
+  rm -f "$BUILD_LOG"
   ```
-- **Every scoped claim is cited.** Confirm each `@key` in the prose resolves to a bib entry and that no scoped key was silently dropped (cross-check against `scope_refs.py` output).
-- **Non-empty bibliography** renders in the output.
-- Report the output path and any skipped verification.
+
+  A warning requires inspection before declaring completion; do not classify a
+  failed compiler as clean merely because its error lacks the word “warning”.
+- **Citations:** verify each used key resolves and that sources support the main
+  claims. A selected paper need not be cited when it does not support the final
+  argument. If citations are used, ensure the bibliography renders; do not
+  require one for an uncited excerpt.
+- Fix failures introduced by the requested changes and rerun affected checks.
+  Stop after they pass unless a concrete unresolved finding requires more work.
+- Deliver the requested artifact with verification and any remaining limitations.

@@ -5,14 +5,11 @@ description: Agentic trigger. Use when classifying exported research conversatio
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 ## Research dialog analysis
 
@@ -50,7 +47,7 @@ In Phases 2–4 below, `<source>` denotes this run workspace relative to
 
 ### Phase 2 — Classify by Topic
 
-Dispatch fast available agents in parallel to classify each extracted session by conversation topic. Each agent receives a batch of ~20 derived session JSON files and returns a topic label for each.
+Classify each extracted session by conversation topic. For a large collection, use available parallel agents in independent batches; handle a small input directly. Each worker returns a topic label for each assigned session.
 
 **Topic taxonomy (closed set):**
 
@@ -99,11 +96,11 @@ Write a topic index to `docs/dialog/<source>/topics.md`:
 | **Total** | **N** | |
 ```
 
-Present the topic index to the user and ask which topics to analyze in depth (or "all").
+Use the topics already selected by the user or caller. Present the index and ask for a selection only when the analysis scope remains unknown.
 
 ### Phase 3 — Deep Analysis
 
-For each session in the selected topics, classify ALL user messages across 6 dimensions. Use parallel agents (batch ~5 sessions per agent).
+For each session in the selected topics, classify ALL user messages across 6 dimensions. Use parallel agents when the collection is large enough to benefit.
 
 **The 6 dimensions:**
 
