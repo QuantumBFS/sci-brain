@@ -28,10 +28,22 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB/con
 
 ## Operating principle
 
-**Preserve scope and author control.** A request for review or comments authorizes
-findings, not manuscript edits. A request to revise, polish, or apply selected
-findings already authorizes those changes; do not ask for the same approval
-again. For wording-only work, preserve scientific meaning. Unresolved scientific
+**Choose the application mode before changing a manuscript file.** Use the
+user's current instructions and prior decisions:
+
+| Request or existing decision | Application mode |
+|---|---|
+| Review, critique, comments, or fact check | Findings only; leave the original unchanged. |
+| Polish or revise a whole manuscript, with no direct-edit decision | Marked proposal in a separate copy; leave the original unchanged until the user accepts changes. |
+| Explicitly edit the original directly, apply accepted findings, or continue an established direct-edit mode | Apply within that authorization and verify; do not ask again. |
+| A specific local replacement or edit to a named passage | Complete that local edit without reopening whole-paper approval. |
+| Rewrite an excerpt supplied in chat | Return revised text inline. |
+
+Naming `main.md` or limiting a whole-paper polish to English/grammar does not
+select direct mode. Prepare the marked proposal and numbered changes before
+asking which to apply; do not ask permission to begin the work. A user-requested
+preview takes precedence over the local-edit default. For wording-only work,
+preserve scientific meaning. Unresolved scientific
 judgment calls remain comments, while a separately requested substantive revision
 may be proposed from the supplied evidence. Never invent a result or justification.
 
@@ -176,21 +188,38 @@ parts of this structure:
 
 For a review-only request, deliver the report; offer application as an optional
 next step. If changes were already requested, continue to Phase 4 using that
-scope. Reuse the chosen direct/diff mode. When the user has not authorized edits
-to the original, prepare a marked proposal for review before merging it.
+scope and the application mode from the Operating principle. For broad polish
+without an established mode, deliver the marked proposal and numbered changes
+for acceptance before merging; a generic revision request alone does not select
+direct mode. Reuse explicit direct-edit instructions or already accepted
+findings without asking again. A requested inline excerpt rewrite can be
+delivered directly as revised text.
 
 ---
 
 ## Phase 4 — Apply approved edits
 
-**Marked-diff mode** (when requested, or proposing edits beyond existing authorization). Prepare the proposed changes before asking the user which to merge.
+**Marked-diff mode** (the default for broad revision/polish without an established
+application mode, and whenever the user requests a preview). Prepare the
+proposed changes before asking the user which to merge. Proposals outside the
+authorized scientific scope remain separate suggestions, not applied edits.
 
 1. **Edit a copy.** `cp main.tex main.proposed.tex` (same for `.typ` / `.md`). Apply the proposed fixes to the copy; when using scripted replacements, assert that each target matches exactly once. Comment-only fixes (style-guide guardrails) go in as `[reviewer]` comments in the copy too.
 2. **Mark the diff.** LaTeX: `latexdiff main.tex main.proposed.tex > main.diff.tex`, then compile `main.diff.tex` (deletions red struck-through, additions blue underlined). Typst and Markdown have no latexdiff; write `git diff --no-index --word-diff main.typ main.proposed.typ` into `articles/<slug>/review-YYYY-MM-DD.diff` and, for Typst, also compile the proposed copy so the author can read the result. Check the page count did not change unexpectedly.
+   If shell/diff/render tools are unavailable, still create the proposed copy
+   with available file tools and provide numbered before/after changes. Report
+   the unavailable checks; do not ask whether to prepare the already requested
+   proposal. Acceptance concerns applying it to the original.
 3. **Hand over a numbered legend.** Give the marked PDF (or diff file) path and one line per change: number, section and page, the finding it fixes, and the rule it serves. Pair up a removal and an addition that belong to one change. End with "reply with the numbers to merge, or all".
 4. **Merge exactly the accepted numbers** into the original. If the user accepts "all except one wording", revert that wording in the copy first, then merge all. Delete `main.proposed.*` and `main.diff.*` afterwards.
 
-**Direct mode** (when the user requested edits without a preview gate). Apply changes within that authorization to the manuscript and show the diff/result. Do not broaden the requested revision.
+**Direct mode** (when the user asked to edit the original directly, approved
+specific findings, or already chose this mode). Apply changes within that
+authorization and show the diff/result. An explicit request such as "replace
+'We studies' with 'We study' in this paragraph" authorizes that local edit;
+a general "polish my paper"
+uses the marked proposal by default. Do not broaden the requested revision or
+ask again to apply changes already accepted.
 
 **Both modes.**
 
@@ -215,7 +244,7 @@ to the original, prepare a marked proposal for review before merging it.
 | Mistake | Instead |
 |---|---|
 | Treating a review request as permission to edit | Deliver findings; use existing revision authorization only for its stated scope. |
-| Ignoring a requested preview gate | Prepare a marked copy and merge accepted changes; reuse direct-edit authorization when no preview was requested. |
+| Treating broad polish as an implicit direct-edit preference | Default to a marked proposal; reuse explicit direct-edit instructions or accepted changes without another approval. |
 | Running a full story gate for a local wording fix | Read the target and its necessary context; reserve the story brief for full reviews. |
 | Re-running reference verification on every pass | Inspect changed inputs and unresolved findings; rerun only affected checks. |
 | Inventing a BibTeX entry to "fix" a citation | Never. Use the lookup chain / the `how-to-download-ref` skill, or flag as unverifiable. |

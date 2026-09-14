@@ -55,7 +55,7 @@ The checkable items live in `skills/how-to-technical-writing/checklist.md`. The 
 - [ ] A reference and fact-check table is included when that pass applies.
 - [ ] A journal fit table (constraint → required → measured → status) with the guideline source is included. Otherwise a line says the pass was skipped.
 - [ ] A prioritized "top fixes" list is included.
-- [ ] The chosen direct/diff mode was reused. Already requested edits continued without asking for the same authorization; a proposal beyond that scope was prepared before requesting a decision.
+- [ ] The chosen direct/diff mode was reused. Broad revision/polish without an established mode produced a marked proposal before changing the original. Explicit direct edits and accepted findings continued without another approval; an inline excerpt rewrite needed no application checkpoint.
 - [ ] In marked-diff mode, edits went to a `*.proposed.*` copy. `latexdiff` produced the marked version, or `git diff --word-diff` for Typst and Markdown. A numbered legend was handed over. Only the accepted numbers were merged. The proposed and diff files were deleted afterwards.
 - [ ] Applied edits stayed within the existing user authorization; a review-only request did not modify the original.
 - [ ] LaTeX, Typst, and Markdown structure and macros are preserved. Author-judgment fixes are left as `% [reviewer]` comments.

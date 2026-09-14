@@ -24,11 +24,15 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB loa
 
 ## Choose the scope
 
-- **New manuscript:** use the phases below as a useful default. Establish the
-  evidence and narrative before polishing prose; the supplied result, figure
-  plan, or proof can provide that evidence.
+- **New manuscript:** default to the guided phases below, including unresolved
+  venue, story, and outline decisions with the user before full prose. The
+  supplied result, figure plan, or proof provides the evidence for those choices.
 - **Continue an existing draft:** reuse its story, venue, outline, and figures.
   Enter at the unfinished part and verify affected dependencies.
+- **Broad revision or polish of an existing manuscript:** use `review-paper`
+  and carry forward the requested scope and application mode. With no mode
+  established, prepare a marked proposal before changing the original; reuse
+  direct-edit instructions or accepted findings without another approval.
 - **Local revision:** change only the requested section, abstract, caption, or
   passage, using its necessary context. Do not restart figure production,
   venue selection, or story approval. For a critique rather than revision, use
@@ -36,8 +40,13 @@ Use `skills/how-to-write-ideas-report/references/writing-workflow.md` for KB loa
 - **Submission preparation:** apply the target venue's current requirements
   and the relevant final checks.
 
-Carry forward choices and authorization from the conversation. Clarify only a
-missing scientific decision that changes the draft. Never manufacture results,
+Carry forward choices and authorization from the conversation. A generic
+"help me write a paper" uses the guided workflow; it does not by itself waive
+the initial checkpoints. A supplied or previously approved venue, narrative,
+or outline satisfies the corresponding checkpoint. If the user delegates the
+remaining writing choices and asks for a complete draft without checkpoints,
+state the choices you make and proceed, asking only for missing scientific
+input that cannot be inferred. Never manufacture results,
 references, or an unsupported claim. A writing request ends with the requested
 text/source and appropriate checks; external feedback is optional.
 
@@ -75,11 +84,13 @@ Use supplied source material even without a sci-brain KB. Research citation gaps
 
 ### Phase 1.5 — Target journal and template checkpoint
 
-Reuse a selected venue and installed template. If venue choice is part of the
-request, propose plausible venues with audience, article type, length, novelty,
-and format tradeoffs, then ask the user to choose. If no target is specified and
-the user simply wants a draft, record that no target is set and continue in the
-existing or requested format; do not force a venue choice before a useful draft.
+Reuse a selected venue and installed template, including an existing decision
+to draft without a target. For a new guided manuscript with no venue decision,
+discuss plausible venues with audience, article type, length, novelty, and
+format tradeoffs; let the user choose a target or "no target yet". For a local
+revision, or when the user has delegated those choices and requested a draft,
+do not reopen venue selection. If drafting without a target, record that status
+and use the requested or existing format.
 
 Once a target is chosen:
 
@@ -91,9 +102,12 @@ Once a target is chosen:
 
 ### Phase 1.6 — Story checkpoint with the user
 
-Reuse a narrative supplied or already selected by the user. When materially
-different scientific stories remain, discuss them before drafting. Base them on
-the provided results, figures, existing draft, literature, and venue constraints.
+Reuse a narrative supplied or already selected by the user. In a new guided
+manuscript, present the proposed story for the user's decision before full
+prose, even if only one story is defensible. When the user has delegated the
+narrative choice, state the evidence-based story you select and proceed. Base
+the story on the provided results, figures, existing draft, literature, and
+venue constraints; missing results cannot be replaced by a writing choice.
 
 When a narrative choice is still needed:
 
@@ -105,13 +119,13 @@ When a narrative choice is still needed:
    - the audience or venue fit,
    - what the story deliberately de-emphasizes.
 3. Ask the user to choose one, combine pieces, or reject them. If they push back, revise the story lines and ask again.
-4. Once the story is established, continue to the outline and draft. Ask again only if new evidence changes the main claim, not at each writing phase.
+4. Once the story is established, continue to the outline. Reopen that story only if new evidence changes the main claim.
 
 ### Phase 2 — Telegram outline
 
 - Write a telegram-style outline from the selected story line: section headings → bullet points → which figures and equations land where.
 - Mark which sentence in each section names a main result.
-- Reuse an approved outline. For a requested complete draft, use the outline as a working note and continue; present it for approval only if the user requested that checkpoint or the narrative still needs a decision.
+- Reuse a supplied or approved outline. In a new guided manuscript, show the outline before drafting full prose; it may accompany the story proposal so the user can approve both together. If the user delegated outline decisions or authorized drafting from the established plan, use it as a working note and continue. Do not require a separate external advisor to approve it.
 
 ### Phase 3 — Draft the body (a useful default order)
 
