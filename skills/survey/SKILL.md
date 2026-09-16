@@ -96,7 +96,7 @@ When the source set comes from an existing, recent `NOTES.md` (the normal case),
 
 Organize the review **by technical approach**. State of the art and trade-offs live inside each approach, not in separate global sections. Do not add standalone global "Pros and Cons" or "State of the Art" sections.
 
-#### 1. What and Why
+#### 1. Overview
 
 Define the topic in 2–3 paragraphs for a new reader:
 
@@ -106,7 +106,17 @@ Define the topic in 2–3 paragraphs for a new reader:
 
 Include a diagram only when it clarifies the architecture, data flow, or problem framing. Lay approaches side by side only when they solve the same task and are genuinely comparable; otherwise show their relationship or omit the figure.
 
-#### 2. Technical Approaches
+#### 2. Key Questions
+
+Give one subsection to each subtopic or open question the field is trying to settle (typically 2–5). For each, cover:
+
+- **The question** — one sentence, stated as a question.
+- **Why it matters** — what answering it gives: deeper understanding (what it would settle or unify) and/or practical value (what it would enable). Say which applies; a question with neither does not belong in the review.
+- **Where it stands** — the best partial answer and its limits, cited.
+
+Questions are ends, not means: do not give them strengths and limitations.
+
+#### 3. Technical Approaches
 
 Identify the main method families (typically 3–6) and give one subsection per approach. Optionally begin with a short field-wide timeline or landscape.
 
@@ -118,7 +128,7 @@ For each approach, cover:
 
 Optionally finish with a cross-approach comparison table when several approaches share meaningful criteria. Choose columns that actually discriminate this field (for example scalability, verifiability/cost, maturity, and best-fit use case). Skip it for a single-approach topic.
 
-#### 3. Open Problems
+#### 4. Open Problems
 
 End with a ranked table of 4–8 problems: number, problem, why it matters, who could solve it, and urgency (Critical / High / Medium). Cite the work that defines each gap or the closest existing result. Do not add business strategy, product fit, or investor sections to the neutral report.
 

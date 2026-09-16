@@ -127,7 +127,7 @@ State the evidence cutoff. Organize by technical approach.
   [TODO: the principal finding, the evidence supporting it, and the main unresolved constraint. Give the reader a reason to continue @Example2024.],
 )
 
-= What and why
+= Overview
 
 // 2–3 paragraphs: define the topic and problem, explain the stakes, then
 // distinguish it from the prior approach. Cite claims, not filler.
@@ -146,9 +146,34 @@ TODO: define the topic for a new reader @Example2024.
   caption: [TODO: explain the relationship shown and the point it establishes.],
 )
 
+= Key questions
+
+// One subsection per subtopic or open question the field is trying to settle,
+// typically 2–5. A question earns its place by what answering it gives:
+// deeper understanding, practical value, or both. Do not list strengths and
+// limitations here; those belong to techniques.
+
+== TODO: Key question one
+
+*The question.* TODO: state it in one sentence.
+
+*Why it matters.* Understanding: TODO what an answer would settle or unify.
+Value: TODO what it would enable in practice @Example2024.
+
+*Where it stands.* TODO: the best partial answer and its limits @Example2025.
+
+== TODO: Key question two
+
+*The question.* TODO.
+
+*Why it matters.* Understanding: TODO. Value: TODO @Example2025.
+
+*Where it stands.* TODO @Example2024.
+
 = Technical approaches
 
-// Give each method family a subsection, typically 3–6 in total. Add a timeline
+// Give each method family a subsection, typically 3–6 in total. Strengths and
+// limitations apply here, to techniques, not to questions. Add a timeline
 // (a `stage` grid of eras) only if chronology explains a technical change.
 
 == TODO: Approach one
