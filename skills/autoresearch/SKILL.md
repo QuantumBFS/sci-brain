@@ -35,6 +35,8 @@ Supporting references: `references/insights-template.md` (db),
 `references/reflection-template.md` + `references/report-schema.md` (run),
 `helpers/report.py` (HTML cycle reports) and `helpers/gen_campaign.py`
 (cross-cycle full-campaign overview).
+Optional cycle completion notifications use `helpers/cycle_end_hook.py`;
+configuration and sound examples: `references/cycle-end-hook.md`.
 
 ## Procedure
 

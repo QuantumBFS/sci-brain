@@ -18,6 +18,7 @@ keep them):
     - authorized_attempts: 0   # attempts the loop may run without user review
     - next_attempt: 1          # next .worktrees/attempt-NNN number
     - next_cycle: 1            # next reflection cycle number
+    - cycle_end_hook: []       # sound, bell, or command argv; [] or absent disables it
     - gates:
       - survey_gate: pending     # pending | passed YYYY-MM-DD
       - validator_gate: pending  # pending | passed YYYY-MM-DD
@@ -33,6 +34,11 @@ Rules:
   not a protocol override. It must never exceed the remaining authorization.
 - Existing projects with `batch_size` migrate that value to
   `recommended_cycle_size`; do not ask the user to configure it again.
+- `cycle_end_hook` accepts `sound` for a generated chime, `bell` for a
+  terminal bell, or a JSON
+  array of command arguments. Only set or
+  change it at the user's request; a missing field means disabled. See
+  `cycle-end-hook.md` for sound examples and execution rules.
 - A gate flips to `passed` only by the stage that owns it (`db`
   for `survey_gate`, `validator` for `validator_gate`), after its
   checklist verifies on disk.
