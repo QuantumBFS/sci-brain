@@ -1,6 +1,7 @@
 // Copy beside history.json; compile with: typst compile report.typ report.pdf
+// Optional: --input heading-font="Your installed sans-serif font"
 #let report = json("history.json")
-#let sans = ("Avenir Next", "Libertinus Serif")
+#let sans = (sys.inputs.at("heading-font", default: "Avenir Next"), "Libertinus Serif")
 #let serif = ("Charter", "Libertinus Serif")
 #let mono = "DejaVu Sans Mono"
 #let ink = rgb("24282b")
@@ -10,7 +11,7 @@
 #set document(title: report.title, description: "Conversation history field note")
 #set page(paper: "a4", margin: (x: 23mm, y: 20mm), footer: context {
   set text(font: sans, size: 8pt, fill: muted)
-  [#report.title #h(1fr) #counter(page).display()]
+  grid(columns: (1fr, auto), gutter: 12pt, report.title, counter(page).display())
 })
 #set text(font: serif, size: 10pt, fill: ink)
 #set par(leading: 0.45em, spacing: 0.7em)
@@ -19,27 +20,26 @@
 #show raw: set text(font: mono, size: 8.7pt, hyphenate: false, ligatures: false)
 #show raw.where(block: true): set block(width: 100%, fill: rgb("f2f3f4"), inset: 7pt, radius: 2pt, breakable: true)
 
-#text(font: sans, size: 8pt, tracking: 1pt, fill: rust)[CONVERSATION FIELD NOTE]
-#v(7pt)
-// The topic is the title. Counts belong in metadata, never the headline.
-#text(font: sans, size: 27pt, weight: "bold", report.title)
-#v(7pt)
-#text(size: 12pt, report.at("subtitle", default: ""))
-#v(8pt)
-#text(font: sans, size: 9pt, fill: muted)[
-  #report.window.start – #report.window.end · #report.window.timezone
+// Short front matter: the transcript starts on the first page. Scope, coverage,
+// and sources sit at the end. The topic is the title; counts never are.
+#block(breakable: false, below: 10pt)[
+  #text(font: sans, size: 20pt, weight: "bold", report.title)
+  #if report.at("subtitle", default: "") != "" [
+    #v(4pt)
+    #text(size: 11pt, report.subtitle)
+  ]
+  #v(4pt)
+  #text(font: sans, size: 8.5pt, fill: muted)[
+    #report.window.start – #report.window.end · #report.window.timezone
+  ]
 ]
-#v(5pt)
-#report.scope
-#v(5pt)
-#report.coverage
 
-= Transcript
 #let visible = report.entries.filter(e => e.at("include_in_report", default: e.role == "user"))
 #for entry in visible {
   let phase = entry.at("phase", default: none)
   if phase != none {
-    block(width: 100%, fill: rgb("f6f3ef"), radius: 3pt, inset: 10pt, breakable: false)[
+    // sticky keeps the phase label with the message that follows it.
+    block(width: 100%, fill: rgb("f6f3ef"), radius: 3pt, inset: 10pt, sticky: true, above: 12pt)[
       #text(font: sans, weight: "semibold", phase)
     ]
   }
@@ -73,8 +73,11 @@
 ]
 
 = Sources and limits
+#report.scope
+
+#report.coverage
 #for source in report.sources [
-  #block(breakable: true, above: 5pt)[
+  #block(breakable: true, above: 9pt)[
     #text(font: sans, size: 9pt, weight: "semibold", source.id)
     #linebreak()
     #raw(source.location, block: true)

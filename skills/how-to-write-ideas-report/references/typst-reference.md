@@ -10,8 +10,17 @@ Reference files: ~/Documents/private-note/notes/typst-learn/ (typst-tricks.typ, 
 
 ### Page Setup
 - Standalone figures: `#set page(width: auto, height: auto, margin: 5pt)`
-- Standard notes: `#set page(margin: 2cm)` + `#set text(size: 10pt)` + `#set heading(numbering: "1.1.")`
+- Reports: A4, 18 mm margins, 10 pt justified body text, 0.55 em leading, and a short running footer with the page number. Use the survey template as a working example.
 - Numbered equations: `#set math.equation(numbering: "(1)")`
+
+### Report hierarchy and legibility
+- Give the document title its own text block, not a numbered heading. Use about 18 pt for the title, 13 pt for sections, and 11 pt for subsections. No kicker line or decorative front matter: the first content paragraph belongs on the first page.
+- Use serif body text and a consistent sans-serif heading font. The report templates accept `--input heading-font="Your installed font"`; `Libertinus Serif` works without system fonts. Do not shrink body text below 10 pt to meet a page count.
+- Justify body prose; keep table cells ragged right so narrow columns keep natural word spacing. Use at least 9 pt for tables and captions, and 8 pt for supporting metadata.
+- Reserve one dark accent and a light tint for navigation and brief assessments. Name categories and priorities explicitly so they remain readable in grayscale.
+- Use horizontal table rules, brief cells, and `table.header(repeat: true, ...)`. Keep long tables outside unbreakable figures or boxes. Match column widths to actual content, including the longest header and priority label.
+- Use `block(breakable: true, ...)` for long callouts and transcript entries. Keep a short label with its following content using `block(sticky: true, ...)`.
+- Inspect rendered pages with realistic paragraphs, long titles, source paths, and a table or message that crosses a page. Check that annotations cannot be mistaken for quoted text.
 
 ### Common Packages
 - CeTZ: `@preview/cetz:0.4.0`, `@preview/cetz-plot:0.1.2`
@@ -39,7 +48,7 @@ Reference files: ~/Documents/private-note/notes/typst-learn/ (typst-tricks.typ, 
 - `dict.at(key, default: 0)` — dict with default
 
 ### Content Helpers
-- Infobox: `rect(stroke: color, inset: 8pt, radius: 4pt, width: 100%, [*Title:*\ body])`
+- Short assessment: `block(stroke: (left: 2pt + color), inset: 10pt, width: 100%, breakable: true, body)`
 - Inline image alignment: `box(image(...), baseline: (size - 20pt) / 2 + offset)`
 - Image clipping: `box(clip: true, img, inset: (top: -top, bottom: -bottom, ...))`
 - Two columns: `grid(columns: (1fr, 1fr), gutter: 20pt, left, right)`
