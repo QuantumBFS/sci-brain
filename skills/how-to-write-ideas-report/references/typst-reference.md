@@ -14,8 +14,8 @@ Reference files: ~/Documents/private-note/notes/typst-learn/ (typst-tricks.typ, 
 - Numbered equations: `#set math.equation(numbering: "(1)")`
 
 ### Report hierarchy and legibility
-- Give the document title its own text block, not a numbered heading. Use about 18 pt for the title, 13 pt for sections, and 11 pt for subsections. No kicker line or decorative front matter: the first content paragraph belongs on the first page.
-- Use serif body text and a consistent sans-serif heading font. The report templates accept `--input heading-font="Your installed font"`; `Libertinus Serif` works without system fonts. Do not shrink body text below 10 pt to meet a page count.
+- Give the document title its own text block, not a numbered heading. Use about 18–20 pt for the title, 13–14 pt for sections, and 11 pt for subsections. No kicker line or decorative front matter: the first content paragraph belongs on the first page.
+- Use serif body text and a consistent sans-serif heading font. The report templates accept `--input heading-font="Your installed font"` (the chat-history template also `body-font`); `Libertinus Serif` works without system fonts. Do not shrink body text below 10 pt to meet a page count.
 - Justify body prose; keep table cells ragged right so narrow columns keep natural word spacing. Use at least 9 pt for tables and captions, and 8 pt for supporting metadata.
 - Reserve one dark accent and a light tint for navigation and brief assessments. Name categories and priorities explicitly so they remain readable in grayscale.
 - Use horizontal table rules, brief cells, and `table.header(repeat: true, ...)`. Keep long tables outside unbreakable figures or boxes. Match column widths to actual content, including the longest header and priority label.

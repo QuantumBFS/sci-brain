@@ -80,7 +80,7 @@ Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-le
 - Save to `articles/YYYY-MM-DD-<topic>-review.{md,typ,tex}` or a project-specific path if the user prefers.
 - For Typst, start from `skills/survey/template.typ` with `skills/survey/template.bib`. The scaffold provides `section_box`, `stage`, `proscons`, `compare_table`, and `problem_table`; delete unused helpers from the copied document.
 - Keep the opening scope and evidence cutoff brief. Follow with an **Assessment in brief** paragraph stating the principal finding, its evidence, and the unresolved constraint. Close with the next measurement that would resolve that constraint, rather than repeating the opening.
-- Keep the template's dense, restrained layout: a plain title line, 10 pt justified body text, one accent color, and horizontal table rules. `compare_table` accepts custom `headers` and `columns`; choose them together. Write urgency labels as text. Keep long tables in the page flow so headers repeat across pages, and inspect the rendered result with realistic cell text.
+- Keep the template's dense, restrained layout: a plain title line, 10 pt justified body text, one accent color, and horizontal table rules. `compare_table` and `problem_table` accept custom `headers` and `columns`; choose them together, since a count mismatch fails the compile with a message. Write urgency labels as text. Keep long tables in the page flow so headers repeat across pages, and inspect the rendered result with realistic cell text.
 - The heading font can be changed with `--input heading-font="Your installed font"`. For a build using only Typst's bundled fonts, use `--input heading-font="Libertinus Serif"`.
 
 ### Gap-filling focus
@@ -124,7 +124,7 @@ End with a ranked table of 4–8 problems: number, problem, why it matters, who 
 
 ### Visualization guidelines
 
-- Typst: use CeTZ for timelines and dependency diagrams; use native `grid`, `rect`, and fixed-width `box()` for text-heavy comparisons and role diagrams. See `skills/how-to-write-ideas-report/references/typst-reference.md`.
+- Typst: use CeTZ for timelines and dependency diagrams; use native `grid`, `block`, and fixed-width `box()` for text-heavy comparisons and role diagrams. See `skills/how-to-write-ideas-report/references/typst-reference.md`.
 - Use a native table for cross-approach comparisons.
 - Wrap multiline CeTZ content in a fixed-width box and use string identifiers for `name:`.
 - Compile after each figure; every claim in technical and open-problem tables needs at least one citation.

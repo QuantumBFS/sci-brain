@@ -5,10 +5,10 @@
 
 #let title = [TODO: Review title]
 #let authors = "TODO: author / review draft"
-#let review-date = [TODO: YYYY-MM-DD]
-#let short-title = [Research review] // Short running title; keep to one line.
-#let sans = sys.inputs.at("heading-font", default: "Avenir Next")
+#let review_date = [TODO: YYYY-MM-DD]
+#let short_title = [Research review] // Short running title; keep to one line.
 #let serif = "Libertinus Serif"
+#let sans = (sys.inputs.at("heading-font", default: "Avenir Next"), serif)
 #let ink = rgb("24282b")
 #let muted = rgb("53616b")
 #let accent = rgb("245b65")
@@ -19,15 +19,15 @@
 #set page(
   paper: "a4", margin: (x: 18mm, y: 18mm),
   footer: context {
-    set text(font: (sans, serif), size: 8pt, fill: muted)
-    grid(columns: (1fr, auto), gutter: 12pt, short-title, counter(page).display())
+    set text(font: sans, size: 8pt, fill: muted)
+    grid(columns: (1fr, auto), gutter: 12pt, short_title, counter(page).display())
   },
 )
 #set text(font: serif, size: 10pt, fill: ink)
 #set par(justify: true, leading: 0.55em, spacing: 0.65em)
 #set heading(numbering: "1.1")
 #set list(indent: 1em, body-indent: 0.5em, spacing: 0.35em)
-#show heading: set text(font: (sans, serif), weight: "bold")
+#show heading: set text(font: sans, weight: "bold")
 #show heading.where(level: 1): set text(size: 13pt)
 #show heading.where(level: 2): set text(size: 11pt)
 #show heading.where(level: 1): set block(above: 1.3em, below: 0.55em)
@@ -42,19 +42,19 @@
   stroke: (left: 2pt + stroke), breakable: true,
 )[
   #block(sticky: true, below: 4pt)[
-    #text(font: (sans, serif), size: 9.5pt, weight: "bold", title)
+    #text(font: sans, size: 9.5pt, weight: "bold", title)
   ]
   #body
 ]
 
 // Cell for a flow, architecture, or timeline grid. Use arrows only for an
 // actual sequence or dependency. Names and descriptions must carry the
-// relationship on their own; the fill is optional emphasis.
-#let stage(name, body, fill) = block(
+// relationship on their own; `fill` is optional emphasis.
+#let stage(name, body, fill: tint) = block(
   width: 100%, inset: 7pt, fill: fill, stroke: 0.5pt + rule,
 )[
   #align(center)[
-    #text(font: (sans, serif), size: 9pt, weight: "bold", name)
+    #text(font: sans, size: 9pt, weight: "bold", name)
     #v(3pt)
     #text(size: 8.5pt, body)
   ]
@@ -69,16 +69,23 @@
     breakable: true,
   )[
     #block(sticky: true, below: 3pt)[
-      #text(font: (sans, serif), size: 9pt, weight: "bold", label)
+      #text(font: sans, size: 9pt, weight: "bold", label)
     ]
     #body
   ]),
 )
 
-// Rows are arrays of cells. Keep text brief; explain qualifications in prose.
-// Horizontal rules separate records without boxing in every cell. Headers
-// repeat when a table continues onto another page.
-#let report-table(columns, headers, rows) = {
+// Rows are arrays of cells; a row whose length differs from `columns` fails
+// with a message naming the row. Keep text brief; explain qualifications in
+// prose. Horizontal rules separate records without boxing in every cell.
+// Headers repeat when a table continues onto another page.
+#let report_table(columns, headers, rows) = {
+  assert(headers.len() == columns.len(), message: "report_table: "
+    + str(headers.len()) + " headers but " + str(columns.len()) + " columns")
+  for (i, row) in rows.enumerate() {
+    assert(row.len() == columns.len(), message: "report_table: row " + str(i + 1)
+      + " has " + str(row.len()) + " cells but the table has " + str(columns.len()) + " columns")
+  }
   set text(size: 9pt)
   set par(justify: false, leading: 0.45em)
   table(
@@ -96,20 +103,20 @@
   rows,
   columns: (1.1fr, 1fr, 1.25fr, 0.85fr, 1.4fr),
   headers: ([Approach], [Scalability], [Verification / cost], [Maturity], [Best use]),
-) = report-table(columns, headers, rows)
+) = report_table(columns, headers, rows)
 
 // Rank and urgency get enough room for their labels, not a fixed tiny fraction.
-#let problem_table(rows) = report-table(
-  (auto, 1.2fr, 1.6fr, 1fr, auto),
-  ([No.], [Problem], [Why it matters], [Who can act], [Urgency]),
+#let problem_table(
   rows,
-)
+  columns: (auto, 1.2fr, 1.6fr, 1fr, auto),
+  headers: ([No.], [Problem], [Why it matters], [Who can act], [Urgency]),
+) = report_table(columns, headers, rows)
 
 // Title is not a numbered section or an outline entry.
 #block(breakable: false, below: 10pt)[
-  #text(font: (sans, serif), size: 18pt, weight: "bold", title)
+  #text(font: sans, size: 18pt, weight: "bold", title)
   #v(5pt)
-  #text(font: (sans, serif), size: 9pt, fill: muted)[#authors #h(1em) #review-date]
+  #text(font: sans, size: 9pt, fill: muted)[#authors #h(1em) #review_date]
 ]
 
 *Scope.* TODO: what this report assesses, who it is for, and what it excludes.
@@ -130,11 +137,11 @@ TODO: define the topic for a new reader @Example2024.
   grid(
     columns: (1fr, auto, 1fr, auto, 1fr), gutter: 6pt,
     align: center + horizon,
-    stage([Concept A], [one-line role], tint),
+    stage([Concept A], [one-line role]),
     [→],
-    stage([Concept B], [one-line role], tint),
+    stage([Concept B], [one-line role]),
     [→],
-    stage([Concept C], [one-line role], tint),
+    stage([Concept C], [one-line role]),
   ),
   caption: [TODO: explain the relationship shown and the point it establishes.],
 )

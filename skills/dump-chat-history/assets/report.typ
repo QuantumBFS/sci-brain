@@ -1,8 +1,9 @@
 // Copy beside history.json; compile with: typst compile report.typ report.pdf
-// Optional: --input heading-font="Your installed sans-serif font"
+// Optional: --input heading-font="..." --input body-font="..." (installed fonts;
+// pass "Libertinus Serif" for both to build with only Typst's bundled fonts)
 #let report = json("history.json")
 #let sans = (sys.inputs.at("heading-font", default: "Avenir Next"), "Libertinus Serif")
-#let serif = ("Charter", "Libertinus Serif")
+#let serif = (sys.inputs.at("body-font", default: "Charter"), "Libertinus Serif")
 #let mono = "DejaVu Sans Mono"
 #let ink = rgb("24282b")
 #let muted = rgb("63707b")
