@@ -169,7 +169,12 @@ gate is never worked around; a user-approved exception goes into
    push `research/benchmark/private/` — it stays gitignored, and holdout
    results appear only as aggregates in the reports. No remote → recommend
    the user add one, record the skip in the reflection, continue.
-6. **Soft gate.** Subtract the cycle's attempts from `authorized_attempts`:
+6. **Notify (optional).** After reflection and sync, invoke the configured
+   `cycle_end_hook` once for the completed cycle, following
+   `../cycle-end-hook.md`. Missing or empty means skip. Notify even when
+   attempts remain and the next cycle will start autonomously. Hook failures
+   are non-fatal; never retry automatically or change the attempt budget.
+7. **Soft gate.** Subtract the cycle's attempts from `authorized_attempts`:
    - if any remain, continue autonomously; choose the next cycle's actual size
      again from the recommendation, evidence, and remaining authorization;
    - if exhausted: stop and present the report — summarize in the
@@ -191,3 +196,7 @@ When the validator reports the GOAL.md bar met on dev instances, run
 `validate --instances holdout` once, report both results, set
 `stage: done`, and hand off to the user — write-up is out of scope for this
 skill (use write-paper).
+Before that handoff, complete reflection, sync, and the optional notification
+for the final cycle, even if it ended early. Do not notify twice if that
+cycle already passed step 6. Status-only requests, report regeneration, and
+interrupted cycles do not trigger the hook.

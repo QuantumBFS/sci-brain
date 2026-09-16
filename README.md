@@ -46,6 +46,11 @@ Export conversation history with `/dump-chat-history`: choose one or more harnes
 
 A typical path: `/survey` a field → `/brainstorm-ideas` with an optional [advisor](advisors/) → `/autoresearch` to run validator-scored attempts → `/write-paper` and `/write-slides`.
 
+Autoresearch supports an optional [cycle completion hook](skills/autoresearch/references/cycle-end-hook.md)
+to play a generated chime or run a notification command after each cycle.
+Set `cycle_end_hook: sound` in `research/STATE.md` to use an installed system player;
+notifications are disabled by default.
+
 Slide templates are maintained in [GiggleLiu/sci-brain-slides](https://github.com/GiggleLiu/sci-brain-slides). The `write-slides` skill uses its v0.1.0 release and documents the local Typst package setup.
 
 > **One-time setup** for PDF rendering: `python3 -m pip install --user pymupdf4llm`.
