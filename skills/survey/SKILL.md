@@ -78,7 +78,10 @@ Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-le
 - Check `CLAUDE.md`/`AGENTS.md` for a deliverables-location convention before choosing an output path.
 - Tailor technical depth to the user's role from `docs/discussion/user-profile.md` or available context.
 - Save to `articles/YYYY-MM-DD-<topic>-review.{md,typ,tex}` or a project-specific path if the user prefers.
-- For Typst, start from `skills/survey/template.typ` with `skills/survey/template.bib`. The scaffold provides `section_box`, `stage`, `proscons`, `compare_table`, and `problem_table`; delete unused helpers from the copied document.
+- For Typst, start from `skills/survey/template.typ` with `skills/survey/template.bib`. The scaffold provides `stage`, `proscons`, `compare_table`, and `problem_table`; delete unused helpers from the copied document.
+- Put only the review date beneath the title. Open with the single **Overview** described below, and end the body with **Open Problems**, followed by references. Do not add a separate scope block, assessment box, or closing "Next step" section.
+- Keep the template's dense, restrained layout: a plain title line, 10 pt justified body text, one accent color, and horizontal table rules. `compare_table` and `problem_table` accept custom `headers` and `columns`; choose them together, since a count mismatch fails the compile with a message. Write urgency labels as text. Keep long tables in the page flow so headers repeat across pages, and inspect the rendered result with realistic cell text.
+- The heading font can be changed with `--input heading-font="Your installed font"`. For a build using only Typst's bundled fonts, use `--input heading-font="Libertinus Serif"`.
 
 ### Gap-filling focus
 
@@ -93,17 +96,26 @@ When the source set comes from an existing, recent `NOTES.md` (the normal case),
 
 Organize the review **by technical approach**. State of the art and trade-offs live inside each approach, not in separate global sections. Do not add standalone global "Pros and Cons" or "State of the Art" sections.
 
-#### 1. What and Why
+#### 1. Overview
 
-Define the topic in 2–3 paragraphs for a new reader:
+Write two connected paragraphs for a new reader, without inline labels:
 
-- What it is and what problem it solves
-- Why it matters now
-- How it differs from the dominant or prior approach
+- Define the topic and problem, explain why it matters, and state the report's scope and intended audience. Distinguish it from the prior approach where that helps define the topic.
+- State the principal finding and its supporting evidence, then identify the unresolved constraint that motivates the key questions below. Cite the claims.
 
 Include a diagram only when it clarifies the architecture, data flow, or problem framing. Lay approaches side by side only when they solve the same task and are genuinely comparable; otherwise show their relationship or omit the figure.
 
-#### 2. Technical Approaches
+#### 2. Key Questions
+
+Give one subsection to each subtopic or open question the field is trying to settle (typically 2–5). For each, cover:
+
+- **The question** — one sentence, stated as a question.
+- **Why it matters** — what answering it gives: deeper understanding (what it would settle or unify) and/or practical value (what it would enable). Say which applies; a question with neither does not belong in the review.
+- **Where it stands** — the best partial answer and its limits, cited.
+
+Questions are ends, not means: do not give them strengths and limitations.
+
+#### 3. Technical Approaches
 
 Identify the main method families (typically 3–6) and give one subsection per approach. Optionally begin with a short field-wide timeline or landscape.
 
@@ -115,13 +127,13 @@ For each approach, cover:
 
 Optionally finish with a cross-approach comparison table when several approaches share meaningful criteria. Choose columns that actually discriminate this field (for example scalability, verifiability/cost, maturity, and best-fit use case). Skip it for a single-approach topic.
 
-#### 3. Open Problems
+#### 4. Open Problems
 
 End with a ranked table of 4–8 problems: number, problem, why it matters, who could solve it, and urgency (Critical / High / Medium). Cite the work that defines each gap or the closest existing result. Do not add business strategy, product fit, or investor sections to the neutral report.
 
 ### Visualization guidelines
 
-- Typst: use CeTZ for timelines and dependency diagrams; use native `grid`, `rect`, and fixed-width `box()` for text-heavy comparisons and role diagrams. See `skills/how-to-write-ideas-report/references/typst-reference.md`.
+- Typst: use CeTZ for timelines and dependency diagrams; use native `grid`, `block`, and fixed-width `box()` for text-heavy comparisons and role diagrams. See `skills/how-to-write-ideas-report/references/typst-reference.md`.
 - Use a native table for cross-approach comparisons.
 - Wrap multiline CeTZ content in a fixed-width box and use string identifiers for `name:`.
 - Compile after each figure; every claim in technical and open-problem tables needs at least one citation.

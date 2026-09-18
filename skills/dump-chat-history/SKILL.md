@@ -132,7 +132,11 @@ typst compile report.typ report.pdf
 
 The template uses A4, quiet phase bands, serif prose, sans-serif headings, and
 monospaced original text, with portable font fallbacks. It permits long messages
-to continue across pages. Add phases and concise annotations when useful; do not
+to continue across pages. Front matter is short: title, optional subtitle, and
+one date line, so the first prompt appears on the first page; scope, coverage,
+and sources sit at the end. Change fonts with `--input heading-font="..."` and
+`--input body-font="..."`; pass `Libertinus Serif` for both to build with only
+Typst's bundled fonts. Add phases and concise annotations when useful; do not
 force a fixed page count, prompt ranking, productivity ratio, or research taxonomy.
 Ground outcome claims in the adjacent conversation or verifiable artifacts;
 distinguish reported historical checks from checks performed now.
