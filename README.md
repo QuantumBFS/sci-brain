@@ -51,7 +51,7 @@ to play a generated chime or run a notification command after each cycle.
 Set `cycle_end_hook: sound` in `research/STATE.md` to use an installed system player;
 notifications are disabled by default.
 
-Slide templates are maintained in [GiggleLiu/sci-brain-slides](https://github.com/GiggleLiu/sci-brain-slides). The `write-slides` skill uses its v0.1.0 release and documents the local Typst package setup.
+Slide templates are maintained in [GiggleLiu/sci-brain-slides](https://github.com/GiggleLiu/sci-brain-slides). The `write-slides` skill uses the published Typst package `@preview/sci-brain-slides:0.1.0`; no template checkout is needed.
 
 > **One-time setup** for PDF rendering: `python3 -m pip install --user pymupdf4llm`.
 
