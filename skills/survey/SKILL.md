@@ -78,8 +78,8 @@ Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-le
 - Check `CLAUDE.md`/`AGENTS.md` for a deliverables-location convention before choosing an output path.
 - Tailor technical depth to the user's role from `docs/discussion/user-profile.md` or available context.
 - Save to `articles/YYYY-MM-DD-<topic>-review.{md,typ,tex}` or a project-specific path if the user prefers.
-- For Typst, start from `skills/survey/template.typ` with `skills/survey/template.bib`. The scaffold provides `section_box`, `stage`, `proscons`, `compare_table`, and `problem_table`; delete unused helpers from the copied document.
-- Keep the opening scope and evidence cutoff brief. Follow with an **Assessment in brief** paragraph stating the principal finding, its evidence, and the unresolved constraint. Close with the next measurement that would resolve that constraint, rather than repeating the opening.
+- For Typst, start from `skills/survey/template.typ` with `skills/survey/template.bib`. The scaffold provides `stage`, `proscons`, `compare_table`, and `problem_table`; delete unused helpers from the copied document.
+- Put only the review date beneath the title. Open with the single **Overview** described below, and end the body with **Open Problems**, followed by references. Do not add a separate scope block, assessment box, or closing "Next step" section.
 - Keep the template's dense, restrained layout: a plain title line, 10 pt justified body text, one accent color, and horizontal table rules. `compare_table` and `problem_table` accept custom `headers` and `columns`; choose them together, since a count mismatch fails the compile with a message. Write urgency labels as text. Keep long tables in the page flow so headers repeat across pages, and inspect the rendered result with realistic cell text.
 - The heading font can be changed with `--input heading-font="Your installed font"`. For a build using only Typst's bundled fonts, use `--input heading-font="Libertinus Serif"`.
 
@@ -98,11 +98,10 @@ Organize the review **by technical approach**. State of the art and trade-offs l
 
 #### 1. Overview
 
-Define the topic in 2–3 paragraphs for a new reader:
+Write two connected paragraphs for a new reader, without inline labels:
 
-- What it is and what problem it solves
-- Why it matters now
-- How it differs from the dominant or prior approach
+- Define the topic and problem, explain why it matters, and state the report's scope and intended audience. Distinguish it from the prior approach where that helps define the topic.
+- State the principal finding and its supporting evidence, then identify the unresolved constraint that motivates the key questions below. Cite the claims.
 
 Include a diagram only when it clarifies the architecture, data flow, or problem framing. Lay approaches side by side only when they solve the same task and are genuinely comparable; otherwise show their relationship or omit the figure.
 

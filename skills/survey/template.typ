@@ -4,7 +4,6 @@
 // Optional: --input heading-font="Your installed sans-serif font"
 
 #let title = [TODO: Review title]
-#let authors = "TODO: author / review draft"
 #let review_date = [TODO: YYYY-MM-DD]
 #let short_title = [Research review] // Short running title; keep to one line.
 #let serif = "Libertinus Serif"
@@ -15,7 +14,7 @@
 #let tint = rgb("f2f6f6")
 #let rule = rgb("cbd4d7")
 
-#set document(title: title, author: authors)
+#set document(title: title)
 #set page(
   paper: "a4", margin: (x: 18mm, y: 18mm),
   footer: context {
@@ -35,17 +34,6 @@
 #show link: set text(fill: accent)
 #show figure.caption: set text(size: 9pt, fill: muted)
 #set figure(gap: 6pt)
-
-// Short assessments only. Ordinary prose needs no container.
-#let section_box(title, body, fill: tint, stroke: accent) = block(
-  width: 100%, inset: 9pt, fill: fill,
-  stroke: (left: 2pt + stroke), breakable: true,
-)[
-  #block(sticky: true, below: 4pt)[
-    #text(font: sans, size: 9.5pt, weight: "bold", title)
-  ]
-  #body
-]
 
 // Cell for a flow, architecture, or timeline grid. Use arrows only for an
 // actual sequence or dependency. Names and descriptions must carry the
@@ -116,23 +104,19 @@
 #block(breakable: false, below: 10pt)[
   #text(font: sans, size: 18pt, weight: "bold", title)
   #v(5pt)
-  #text(font: sans, size: 9pt, fill: muted)[#authors #h(1em) #review_date]
+  #text(font: sans, size: 9pt, fill: muted)[#review_date]
 ]
-
-*Scope.* TODO: what this report assesses, who it is for, and what it excludes.
-State the evidence cutoff. Organize by technical approach.
-
-#section_box(
-  [Assessment in brief],
-  [TODO: the principal finding, the evidence supporting it, and the main unresolved constraint. Give the reader a reason to continue @Example2024.],
-)
 
 = Overview
 
-// 2–3 paragraphs: define the topic and problem, explain the stakes, then
-// distinguish it from the prior approach. Cite claims, not filler.
-TODO: define the topic for a new reader @Example2024.
+// Two connected paragraphs, without inline labels or an assessment box.
+TODO: define the topic and problem, explain why it matters, and state the
+report's scope and intended audience @Example2024.
 
+TODO: state the principal finding and its supporting evidence, then identify
+the unresolved constraint that motivates the key questions below @Example2025.
+
+// Optional: keep only when it clarifies the topic or relationships.
 #figure(
   grid(
     columns: (1fr, auto, 1fr, auto, 1fr), gutter: 6pt,
@@ -216,9 +200,5 @@ Value: TODO what it would enable in practice @Example2024.
   ([2], [TODO problem], [TODO why it matters @Example2025], [TODO who], [High]),
   ([3], [TODO problem], [TODO why it matters @Example2024], [TODO who], [Medium]),
 ))
-
-#v(6pt)
-*Next step.* TODO: the measurement or result that would resolve the most
-consequential uncertainty. Do not repeat the opening assessment.
 
 #bibliography("template.bib", title: "References", style: "ieee")
