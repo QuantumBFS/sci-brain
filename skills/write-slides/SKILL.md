@@ -37,36 +37,25 @@ deck; an already approved outline can be reused.
 
 ## 2. Initialize the upstream template
 
-The v0.1.0 GitHub release is available, but its public Typst registry package was
-not available when this workflow was verified. Install the tagged repository in
-an explicit local package directory. This uses Typst's native package mechanism:
+Initialize from the published Typst package. Typst downloads v0.1.0 and its
+pinned dependencies automatically:
 
 ```sh
-SLIDE_PACKAGES="${XDG_CACHE_HOME:-$HOME/.cache}/sci-brain/typst-packages"
-SLIDE_TEMPLATE="$SLIDE_PACKAGES/preview/sci-brain-slides/0.1.0"
-git clone --branch v0.1.0 --depth 1 \
-  https://github.com/GiggleLiu/sci-brain-slides.git "$SLIDE_TEMPLATE"
 mkdir -p slides
-typst init @preview/sci-brain-slides:0.1.0 slides/my-talk \
-  --package-path "$SLIDE_PACKAGES"
+typst init @preview/sci-brain-slides:0.1.0 slides/my-talk
 ```
 
-Set `SLIDE_PACKAGES` again in each new shell that compiles the deck. If the
-checkout already exists, verify its origin and revision before reusing it;
-v0.1.0 was verified at `ba4085986c422249a4f0a550656c8f9e26de2565`. Use a new deck
-directory rather than overwriting an existing talk. Record the package version
-and compile command alongside the deck so collaborators can repeat the setup.
-Once the same version is published in Typst's registry, the local checkout and
-`--package-path` are optional.
+Use a new deck directory rather than overwriting an existing talk. Record the
+package version and compile command alongside the deck so collaborators can
+repeat the setup. The first build needs network access; later builds can reuse
+Typst's package cache.
 
-Read `$SLIDE_TEMPLATE/docs/layout-patterns.md` and
-`$SLIDE_TEMPLATE/docs/style-tokens.md` for the API and design examples matching
-this release. Browse `$SLIDE_TEMPLATE/docs/gallery.pdf`, or compile the gallery:
-
-```sh
-typst compile "$SLIDE_TEMPLATE/gallery.typ" /tmp/sci-brain-slides-gallery.pdf \
-  --package-path "$SLIDE_PACKAGES" --input theme=academic
-```
+Read the v0.1.0 [layout guide](https://github.com/GiggleLiu/sci-brain-slides/blob/v0.1.0/docs/layout-patterns.md)
+and [style tokens](https://github.com/GiggleLiu/sci-brain-slides/blob/v0.1.0/docs/style-tokens.md)
+for the API and design examples matching this release. Browse the
+[gallery PDF](https://github.com/GiggleLiu/sci-brain-slides/blob/v0.1.0/docs/gallery.pdf)
+for component examples; the gallery is maintained upstream and is not included
+in the registry package.
 
 ## 3. Choose the theme and compose slides
 
@@ -120,8 +109,7 @@ remain accessible to the deck:
 
 ```sh
 typst compile slides/my-talk/main.typ slides/my-talk/main.pdf \
-  --root . --package-path "$SLIDE_PACKAGES" \
-  --input theme=academic --input text-size=22
+  --root . --input theme=academic --input text-size=22
 ```
 
 Inspect the rendered pages, including all reveals. Check that each title states
@@ -140,5 +128,8 @@ and any verification that could not be completed.
 Report template defects and propose component changes in
 [the upstream repository](https://github.com/GiggleLiu/sci-brain-slides).
 Keep template source and API documentation there rather than copying them into
-this skill. Existing talks with their own `zoo/` copy can still compile; migrate
+this skill. Talks already using `@preview/sci-brain-slides:0.1.0` can use the
+registry package without source changes: remove the old `--package-path`
+argument from their build command and any `TYPST_PACKAGE_PATH` override pointing
+to that checkout. Existing talks with their own `zoo/` copy can still compile; migrate
 those talks individually to the package import and `setup()` API when requested.
