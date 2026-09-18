@@ -5,14 +5,11 @@ description: Agentic trigger. Use when one hard, testable goal resists a direct 
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 
 # Flow
@@ -20,8 +17,7 @@ Shared writing files are bundled in `how-to-write-ideas-report/references/`.
 A deep-thinker that **conquers one hard problem by autonomous search**, modeled on a
 [CDCL](https://en.wikipedia.org/wiki/Conflict-driven_clause_learning)/DPLL SAT solver. Given a
 goal, it iterates — assume, follow consequences, hit walls, *learn from the walls*, jump back, and
-re-aim when truly stuck — until a solution emerges or it converges on an equally-valuable reachable
-goal.
+re-aim when truly stuck — until a solution emerges or the available budget and evidence justify reporting a partial result.
 
 **Scope.** Goal-locked, fully autonomous, domain-agnostic. This is **not** `brainstorm-ideas`
 (open-ended, collaborative, research-only). Use `how-to-flow` when you already have a *specific hard target*
@@ -54,24 +50,24 @@ Maintain these throughout (in the journal file, see below):
 
 ## Preflight (gate — pass before the loop)
 
-A solver loads every known fact before it searches. Before the first trial, ask yourself two
-questions and do not proceed until both are honestly answered:
+Before the first trial, establish the success test and gather facts needed for the
+first discriminating step. Do not make exhaustive reading a prerequisite:
 
 1. **Am I clear about the goal?** Can I state GOAL in one sentence *and* write a success test that
    would unambiguously tell me it is solved? If not — the goal is underspecified. Resolve it: derive
    the missing constraint from context if you can, otherwise ask the user **one** sharp clarifying
    question. A blurry goal makes every later distance estimate noise.
-2. **Have I gathered every piece of information I already have?** Sweep all available sources before
-   assuming anything:
+2. **Do I have the facts this step depends on?** Read relevant parts of the available
+   sources, expanding only when a concrete dependency requires it:
    - the **conversation context** (constraints, examples, prior attempts the user mentioned),
    - the **project knowledge base** if present (`<project>/.knowledge/INDEX.md` + `NOTES.md`, and
      relevant rendered papers) — these become facts/unit clauses on the TRAIL for free,
    - the **repository / files** when the goal is about code or a concrete artifact.
 
-   Anything you assume that was actually *knowable* up front is a self-inflicted dead-end. List what
-   you found in the journal's "Levers & facts" section.
+   Record established facts and unresolved assumptions separately in "Levers & facts".
+   Consult further files or papers when the next trial needs them.
 
-Only when GOAL is testable and the known facts are loaded do you enter Setup and the loop.
+Enter the loop when GOAL is testable and the first useful trial can be performed.
 
 ## Setup
 
@@ -93,7 +89,7 @@ Run autonomously, one **trial** per iteration, until SOLVED / PIVOTED-SOLVED / E
                · a promising untried lever exists      → WHAT-IF
                · you just made a decision              → SIMULATE
                · current branch is a dead-end/conflict → ANALYZE → NOTE → BACKJUMP
-               · no_progress ≥ 3                       → PIVOT
+               · no_progress ≥ 3                       → review strategy; consider PIVOT
 3. EXECUTE   Carry out the move (below).
 4. NOTE      Append a trial entry to the journal — ALWAYS, even on success.
 5. UPDATE    no_progress: reset to 0 if distance dropped, else +1.  Loop.
@@ -148,16 +144,20 @@ On a conflict:
 
 ### Move: pivot  (= meta-restart, NOTES kept)
 
-Trigger when `no_progress ≥ 3` across the whole search, or conflicts stop teaching anything new. Step
+Consider a pivot when `no_progress ≥ 3` or conflicts stop teaching anything new; record the evidence rather than treating the count alone as a reason to abandon the method. Step
 out of the search and ask, in order:
 
 1. **Feasibility** — is GOAL actually achievable with the available tools, facts, and time?
 2. **Re-aim** — is GOAL really what we want, or is there an *equally valuable* goal that is easier?
 3. **Relaxation** — can GOAL be weakened, split, or specialized into a version reachable *now*?
 
-Auto-select the most promising re-aimed/relaxed goal, **keep all NOTES** (they carry over — that is
-what makes this CDCL, not a fresh start), reset the TRAIL, update GOAL/GOAL_STACK, log the pivot
-rationale, and continue the loop.
+Change methods, assumptions, or intermediate subgoals autonomously while keeping
+the original success test. If the promising alternative weakens or replaces the
+requested outcome, propose it and wait for the user's decision before adopting
+it. Continue independent work on the original goal while that choice is pending.
+Keep all NOTES, log the reason and any explicit authorization, and reset the
+TRAIL for the chosen method. Preserve the original GOAL in the journal even when
+a different goal is authorized.
 
 ## Final check (verify the model before declaring SOLVED)
 
@@ -171,7 +171,7 @@ Take the proposed solution as the starting statement and run it forward, asking:
   it works."
 - **Actionable** — are the concrete steps / construction / proof spelled out, not just gestured at?
 - **Achieves the GOAL** — simulate it against the **success test** and against every NOTE (learned
-  clause): does any prior dead-end still apply? Does it meet the *original* goal, not a drifted one?
+  clause): does any prior dead-end still apply? Does it meet the original success test, or an explicitly authorized replacement? Report any gap to the original.
 
 If any answer is no, the check **is a conflict**: ANALYZE → NOTE the gap → BACKJUMP and keep
 searching (do not declare SOLVED). Only when all three hold do you settle. Record this final
@@ -181,7 +181,7 @@ verification as the last trial in the journal.
 
 - **SOLVED** — success test passes *and the final check confirms it*. Write the solution and a clean
   summary of the reasoning trail.
-- **PIVOTED-SOLVED** — a re-aimed goal was solved. Report what was achieved *versus the original*,
+- **PIVOTED-SOLVED** — a user-authorized replacement goal was solved. Report what was achieved *versus the original*,
   and what gap remains to the original GOAL.
 - **EXHAUSTED** — after **at most 3 pivots** still stuck. Stop (do not loop forever). Report: the best
   partial result, the **map of dead-ends** (the NOTES), the current best lever, and *what new fact or

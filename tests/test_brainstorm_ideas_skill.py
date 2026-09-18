@@ -5,6 +5,9 @@ BRAINSTORM_IDEAS_SKILL = Path(__file__).resolve().parents[1] / "skills" / "brain
 
 def test_brainstorm_ideas_skill_requires_advisor_subagent_workflow():
     text = BRAINSTORM_IDEAS_SKILL.read_text()
+    advisor_path = BRAINSTORM_IDEAS_SKILL.parent / "references" / "advisor.md"
+    assert "(references/advisor.md)" in text
+    text += advisor_path.read_text()
 
     required_phrases = [
         "launch a dedicated advisor subagent",
