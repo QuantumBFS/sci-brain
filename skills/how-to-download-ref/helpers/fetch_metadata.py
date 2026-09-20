@@ -180,7 +180,7 @@ def fetch_doi_pdf(doi: str, meta: dict, out: Path, email: str = "") -> str:
         if fetch_pdf(url, out):
             return "unpaywall"
     arxiv = (meta.get("externalIds") or {}).get("ArXiv")
-    if arxiv and fetch_pdf(f"https://arxiv.org/pdf/{arxiv}.pdf", out):
+    if arxiv and fetch_pdf(f"https://arxiv.org/pdf/{arxiv}", out):
         return "arxiv"
     return "miss"
 
@@ -271,7 +271,7 @@ def main() -> int:
             if valid_pdf(out):
                 print(f"  ok arxiv:{aid} (cached)")
                 continue
-            if fetch_pdf(f"https://arxiv.org/pdf/{aid}.pdf", out):
+            if fetch_pdf(f"https://arxiv.org/pdf/{aid}", out):
                 print(f"  ok arxiv:{aid}")
             else:
                 print(f"  FAIL arxiv:{aid}")
