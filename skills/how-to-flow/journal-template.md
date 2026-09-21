@@ -1,6 +1,7 @@
 # Flow journal — <goal-slug>
 
-**GOAL:** <crisp restatement>
+**GOAL:** <original requested outcome, retained throughout>
+**Authorized replacement (if any):** <new outcome and user decision, otherwise none>
 **Success test:** <how I will know it is solved>
 **Started:** <YYYY-MM-DD>
 **KB:** <path to .knowledge/ if used, else "none">
