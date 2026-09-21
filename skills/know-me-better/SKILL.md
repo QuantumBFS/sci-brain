@@ -5,14 +5,11 @@ description: User trigger. Use when you want the agent to learn your research st
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
 
@@ -21,11 +18,13 @@ Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of
 
 Turn an existing paper collection into a structured knowledge base under `<project>/.knowledge/` (or an advisor KB). The output uses the same KB format as the `survey` and `how-to-download-ref` skills — project and advisor KBs can coexist cleanly.
 
-**Step 1 — Identify the researcher and source.** First, ask whose papers to index:
+**Step 1 — Identify the researcher and source.** Reuse the researcher, collection,
+source path/URL, and target KB supplied by the user or calling skill. Ask only
+for missing information. When the researcher is unknown:
 
 > "Whose papers should I index? (Give me a name, or leave blank for your own collection.)"
 
-Then ask which source to use:
+When the source is unknown:
 
 > "Where are the papers?"
 > - **(a)** Zotero library
@@ -126,14 +125,11 @@ Write or extend `$KB/NOTES.md` with:
 
 Reference papers as `[@<cite-key>]`. If `NOTES.md` exists, extend rather than overwrite.
 
-## After know-me-better — transition checkpoint
+## Completion and handoff
 
-After Steps 3–6 complete, the KB is populated with metadata but PDFs aren't downloaded yet. Ask the user in chat:
-
-> "Index built. What next?"
-> - **(a)** Fetch PDFs for all refs — invokes `how-to-download-ref --from-bib $KB/references.bib --kb $KB` (bulk mode)
-> - **(b)** Add specific refs by ID — invokes `how-to-download-ref` with explicit IDs (single-shot, per-ref cite-key confirmation)
-> - **(c)** Continue to `brainstorm-ideas` — start brainstorming with the indexed literature loaded
-> - **(d)** Stop — leave the KB as-is
-
-For (a) and (b), see `skills/how-to-download-ref/SKILL.md`. For (c), invoke `brainstorm-ideas` in the current session.
+Report the indexed collection, skipped papers, KB paths, and missing full text.
+When invoked from `create-advisor` or `brainstorm-ideas`, return these results to
+the caller and continue its authorized workflow. If full text was requested,
+invoke `how-to-download-ref --from-bib $KB/references.bib --kb $KB` and carry
+forward the scope and source preferences. A standalone indexing request ends
+with the index; additional downloads or brainstorming are optional follow-ups.
