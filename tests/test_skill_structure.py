@@ -183,7 +183,8 @@ def test_brainstorm_ideas_loads_advisor_kb_from_dot_knowledge():
 def test_brainstorm_ideas_operational_instructions_use_resolved_kb_variables():
     text = _read("brainstorm-ideas")
     assert "Resolve the project KB via `KB=$(python3 \"$DOWNLOAD_REF_DIR/helpers/resolve_kb.py\")`" in text
-    assert "ADVISOR_KB=$(python3 \"$DOWNLOAD_REF_DIR/helpers/resolve_kb.py\" --advisor <slug>)" in text
+    advisor = (SKILLS / "brainstorm-ideas" / "references" / "advisor.md").read_text()
+    assert "ADVISOR_KB=$(python3 \"$DOWNLOAD_REF_DIR/helpers/resolve_kb.py\" --advisor <slug>)" in advisor
     assert "project knowledge base at `<project>/.knowledge/`" not in text
     assert "Ground ideas in loaded knowledge bases (`<project>/.knowledge/` and `advisors/<slug>/.knowledge/`)" not in text
 
