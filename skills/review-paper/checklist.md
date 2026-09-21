@@ -1,15 +1,15 @@
 # Paper-reviewer process checklist
 
-The review-only items behind `review-paper/SKILL.md`: the gate (6), fact and reference verification (8), journal fit (9), and delivery. The writing items (1–5, 7) live in `skills/how-to-technical-writing/checklist.md`, the single source of truth for the writing guide.
+The review-only items behind `review-paper/SKILL.md`: scope and context (6), fact and reference verification (8), journal fit (9), and delivery. The writing items (1–5, 7) live in `skills/how-to-technical-writing/checklist.md`, the single source of truth for the writing guide.
 
 ---
 
-## 6 — Read the whole paper first (the gate)
+## 6 — Scope and scientific context
 
-- [ ] The user was asked first which passes to run, with numbered options: 1 high-level story, 2 writing, 3 facts, references, and links, 4 journal fit. On a repeat review, the previous report was named and the default was option 2 only.
-- [ ] The whole manuscript and its bibliography were read before any critique.
-- [ ] A story brief was produced. It holds the story paragraph, the scientific question and its significance, the numbered key contributions, and the key results. Each key result is tied to a figure, table, or equation.
-- [ ] A one-line mission per section was produced.
+- [ ] Scope and revision authorization were taken from the request; clarification was limited to missing information that changes the review.
+- [ ] A full scientific review read the whole manuscript and bibliography; a local pass read the target and necessary dependencies.
+- [ ] A full review includes the story, question, contributions, results tied to evidence, and section missions. Local wording checks do not require a story brief.
+- [ ] The existing story was reused; only a material unresolved interpretation prompted a question.
 - [ ] When option 1 was selected, high-level comments were made on each of the items below.
   - The significance of the problem: who is blocked, what it unlocks, and the strongest prior attempt. `survey` is suggested when the manuscript or KB cannot justify it.
   - The significance of each contribution. It is stated as a verifiable property, verified by a result, and better than the strongest baseline on an axis the audience names.
@@ -18,19 +18,19 @@ The review-only items behind `review-paper/SKILL.md`: the gate (6), fact and ref
   - The main figure. It carries the central claim alone, or no such figure exists.
   - The supporting data. Claims without data, missing controls, baselines, and error bars are named. The evidence is strong enough for the claim as worded. General claims span systems or seeds. Improvements are separated from the baseline by error bars or a test. Scaling laws span enough decades. State-of-the-art claims are measured against the strongest baseline under the same conditions.
   - How the contributions are highlighted. They are named in the abstract, listed in the introduction, and each tied to its proving figure or equation. A better main figure, summary table, title sentence, or ordering is proposed when one exists.
-- [ ] **The story brief and high-level comments were confirmed with the user before findings were generated.**
+- [ ] The selected passes were completed before delivering the report, unless missing scientific input prevented an assessment.
 
 ## 8 — Fact & reference verification (new)
 
 - [ ] Skipped entirely, with a note in the report, when the user did not select option 3 in Phase 0. Otherwise:
-- [ ] `verify_bib.py` was run against the resolved bibliography. **Every entry**, including uncited entries, appears in its report.
-- [ ] Title, authors, year, venue or journal, volume, pages, and DOI were screened against cached and batched Semantic Scholar metadata.
+- [ ] For a full review or bibliography audit, `verify_bib.py` screened every entry, including uncited entries. For a targeted check, only requested claims and their supporting entries were verified directly, and the limited scope was reported.
+- [ ] Metadata fields in the checked scope were verified; full screening compares title, authors, year, venue or journal, volume, pages, and DOI against cached and batched Semantic Scholar metadata.
 - [ ] Every `unverifiable` record was confirmed by hand before reporting. So was every `mismatch` with a high or medium finding. The chain is CrossRef → Semantic Scholar → MCP → web fetch. Low-severity missing fields remain completion suggestions.
-- [ ] Every `\cite` key resolves to an entry in the bibliography that was actually used.
+- [ ] Every `\cite` key in the checked scope resolves to an entry in the bibliography that was actually used.
 - [ ] Broken, missing, or mismatched citations are flagged. Repair is offered via the `how-to-download-ref` skill.
 - [ ] Key claims attached to a citation are sanity-checked against the cited work. Uncertain ones are flagged, not asserted.
-- [ ] Standalone checkable factual or numerical claims are verified via web search. Uncertain ones are flagged.
-- [ ] Every URL and DOI link in the manuscript and bibliography is fetched once. Dead links, wrong redirects, and unresolvable DOIs are flagged.
+- [ ] Standalone checkable factual or numerical claims in scope are verified via web search. Uncertain ones are flagged.
+- [ ] Relevant URLs and DOI links were checked for a targeted request; every manuscript/bibliography link was checked for a full review. Dead links, wrong redirects, and unresolvable DOIs are flagged.
 - [ ] **No BibTeX invented from memory. No claim silently "corrected". No citation fabricated.**
 
 ## 9 — Journal fit (new)
@@ -47,19 +47,19 @@ The review-only items behind `review-paper/SKILL.md`: the gate (6), fact and ref
 
 ## Language-pass hunt table (guidelines 1, 3, 4, 5)
 
-The checkable items live in `skills/how-to-technical-writing/checklist.md`. The hunt-for / fix table lives in `skills/how-to-technical-writing/SKILL.md`, shared with `write-paper`. Each finding cites its row. Rows marked **comment only** are never applied as edits, even after approval.
+The checkable items live in `skills/how-to-technical-writing/checklist.md`. The hunt-for / fix table lives in `skills/how-to-technical-writing/SKILL.md`, shared with `write-paper`. Each finding cites its row. Rows marked **comment only** stay comments within a language pass; a separately requested substantive revision needs supporting evidence.
 
 ## Delivery & application
 
-- [ ] Findings are written to `articles/<slug>/review-YYYY-MM-DD.md`, grouped by guideline and ranked by severity.
-- [ ] A reference and fact-check table (cite key → status → note) is included.
+- [ ] Full-review findings are saved to the requested path or `articles/<slug>/review-YYYY-MM-DD.md`; a small excerpt review can be delivered inline. Findings are located and ranked by severity.
+- [ ] A reference and fact-check table is included when that pass applies.
 - [ ] A journal fit table (constraint → required → measured → status) with the guideline source is included. Otherwise a line says the pass was skipped.
 - [ ] A prioritized "top fixes" list is included.
-- [ ] The user was asked whether to see a marked diff first or apply directly. The marked diff is the default.
+- [ ] The chosen direct/diff mode was reused. Broad revision/polish without an established mode produced a marked proposal before changing the original. Explicit direct edits and accepted findings continued without another approval; an inline excerpt rewrite needed no application checkpoint.
 - [ ] In marked-diff mode, edits went to a `*.proposed.*` copy. `latexdiff` produced the marked version, or `git diff --word-diff` for Typst and Markdown. A numbered legend was handed over. Only the accepted numbers were merged. The proposed and diff files were deleted afterwards.
-- [ ] Edits were applied only after user approval, either all, by severity, or one by one.
+- [ ] Applied edits stayed within the existing user authorization; a review-only request did not modify the original.
 - [ ] LaTeX, Typst, and Markdown structure and macros are preserved. Author-judgment fixes are left as `% [reviewer]` comments.
 - [ ] Language edits changed how sentences are written, never what they say. No definition, theorem, claim, or field term was altered. Numbers and qualifiers were rechecked after every rewrite.
 - [ ] Fixes touching a quantifier, hedge, missing justification, paragraph deletion, or "not X but Y" contrast were left as `[reviewer]` comments, not applied.
-- [ ] The manuscript was re-compiled with `latexmk`, `pdflatex`, or `typst compile`, and the result was reported.
+- [ ] Changed document source was compiled and the result reported. Inline-text checks did not claim a document build.
 - [ ] A changelog was appended to the top of the review report.
