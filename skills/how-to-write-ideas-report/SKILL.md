@@ -5,14 +5,11 @@ description: Agentic trigger. Use when writing a proposal-style ideas report fro
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
-with `Path(path).resolve()` before locating resources; follow symlinks. Bare
-`helpers/`, `references/`, and template paths are relative to that real skill
-directory. A path written as `skills/<name>/...` means the installed `<name>`
-skill's directory from the agent's skill catalog, not a path in the user's project.
-Locate each dependency by its public skill name; copied skills need not be siblings.
-If a dependency is absent, report the missing skill and install it before that step.
-Shared writing files are bundled in `how-to-write-ideas-report/references/`.
+Keep the working directory at the user's project. Resolve this `SKILL.md` to its
+real path before locating bundled resources. `skills/<name>/...` refers to the
+installed skill found by public name, not the user's project; dependencies need
+not be siblings. Load only resources needed for the current task. If a required
+dependency is missing, report it before that dependent step.
 
 
 **Path conventions:** `docs/discussion/` and `articles/` resolve from the **project working directory**; resource paths follow Installed resources above.
@@ -26,13 +23,16 @@ Write a structured ideas report after a `brainstorm-ideas` session has converged
 Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-level prose rules. Follow `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
 - Primary source: `docs/discussion/*-brainstorm-ideas-log.md`. If multiple logs exist and the request does not identify one, ask which to use.
-- If no log exists, ask the user to brainstorm first or describe the chosen direction and reasoning to preserve.
+- If no log exists, use the chosen direction and reasoning already in the conversation or supplied notes. Ask only for substance needed to write the requested report.
 - Save to `articles/YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}` with a matching bibliography when citations are used.
 - When entering from `brainstorm-ideas` Phase 3, carry forward the active conversation log, user profile, chosen direction, key references, and concrete action plan without asking the user to repeat them.
 
 ### Report structure
 
-Draft each section, show it, and incorporate feedback:
+With a chosen direction and supporting material, draft the complete report and
+verify it before presenting it for review. Use section-by-section feedback only
+when the user requests collaborative drafting or an unresolved substantive
+choice prevents a coherent draft. Include the relevant parts below:
 
 - **Research Question** — one sentence
 - **Novelty Claim** — what is new and why it matters

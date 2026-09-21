@@ -9,8 +9,8 @@ Keep the working directory at the user's project. Resolve this `SKILL.md` with
 `Path(path).resolve()` to follow symlinks. Bare `helpers/`, `references/`, and
 template paths are relative to that real directory. `skills/<name>/...` refers
 to the installed skill found by public name in the agent's catalog, not the
-user's project. Dependencies need not be siblings; report and install missing
-skills before the dependent step. Shared writing files are bundled in
+user's project. Dependencies need not be siblings; report a missing required skill before
+its dependent step. Shared writing files are bundled in
 `how-to-write-ideas-report/references/`.
 
 # Writing style guide
@@ -56,7 +56,7 @@ Clarity outranks these rules. When they conflict, keep the clearer sentence.
 
 ## Hunt table
 
-Use for reviews and final language passes. Each finding cites its row; leave passages that match none untouched. **Comment only** fixes remain comments even after approval; the author writes the replacement.
+Use for reviews and final language passes. Each finding cites its row; leave passages that match none untouched. **Comment only** fixes remain comments within a language pass. A separately requested substantive revision needs its own evidence and scope; approval to polish does not authorize changing a claim.
 
 | Hunt for | Fix |
 |---|---|
@@ -83,6 +83,6 @@ Use for reviews and final language passes. Each finding cites its row; leave pas
 
 - **Change wording, never meaning.** Preserve definitions, theorems, claims, and field terms. Never add or remove a claim, figure, or derivation step as a language fix.
 - **Recheck every number, count, and qualifier** in each rewritten sentence before continuing.
-- **Comment on content changes; do not apply them.** This includes changing quantifiers or hedges, adding missing justifications, deleting paragraphs as digressions, or removing "not X but Y" contrasts. Use `[reviewer]` comments: `% [reviewer]` in LaTeX, `// [reviewer]` in Typst, or HTML comments in Markdown. The author writes the replacement.
+- **Comment on content changes; do not apply them.** This includes changing quantifiers or hedges, adding missing justifications, deleting paragraphs as digressions, or removing "not X but Y" contrasts. Use `[reviewer]` comments: `% [reviewer]` in LaTeX, `// [reviewer]` in Typst, or HTML comments in Markdown. Resolve these as a separate substantive revision only when requested and supported by evidence.
 - **Leave passing passages alone.** Every proposed rewrite names its rule; never rewrite merely to produce a diff.
 - **Prose rules never require figure detail.** Conceptual and overview figures may omit implementation and timing details. Use the Figure Rulebook in `write-paper` to judge figures against their stated purpose. Flag omissions only if they materially misrepresent the central mechanism or contradict a claim attributed to the figure. Prefer clarifying labels, captions, or nearby prose; weigh added graphics against readability. Diagrams need not depict every mechanism discussed in the text.

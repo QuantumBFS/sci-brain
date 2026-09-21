@@ -1,6 +1,6 @@
 # Writing checklist
 
-The checkable form of the rules in `SKILL.md`. Use it as the checklist for a `write-paper` language pass or a `review-paper` writing pass. The five sections below group items by topic; their numbers are not the guideline numbers in `review-paper/SKILL.md`. Sentence structure and wording cover guideline 1; paragraph focus and information flow bring together items from guidelines 1, 3, and 4; definitions and notation cover guideline 2; equations and figures bring together items from guidelines 1, 5, and 7. Guidelines 2, 5, and 7 apply the `write-paper` Notation and Figure Rulebooks. See `skills/write-paper/references.md` for the reasoning. Guidelines 6, 8, and 9 are review process and live in `skills/review-paper/checklist.md`.
+The checkable form of the rules in `SKILL.md`. Apply only items relevant to the requested scope; the guide's meaning-preservation rules take precedence over shorthand here. Use it as the checklist for a `write-paper` language pass or a `review-paper` writing pass. The five sections below group items by topic; their numbers are not the guideline numbers in `review-paper/SKILL.md`. Sentence structure and wording cover guideline 1; paragraph focus and information flow bring together items from guidelines 1, 3, and 4; definitions and notation cover guideline 2; equations and figures bring together items from guidelines 1, 5, and 7. Guidelines 2, 5, and 7 apply the `write-paper` Notation and Figure Rulebooks. See `skills/write-paper/references.md` for the reasoning. Guidelines 6, 8, and 9 are review process and live in `skills/review-paper/checklist.md`.
 
 ---
 
@@ -9,7 +9,7 @@ The checkable form of the rules in `SKILL.md`. Use it as the checklist for a `wr
 - [ ] No sentence introduces multiple new ideas at once. Long compound sentences are split.
 - [ ] Do not use concepts that target reader are not familiar with to explaining a concept
 - [ ] Parallel grammar appears only where the ideas already run in parallel. No prose is turned into lists.
-- [ ] Sentences run about 8-25 words. No semicolon chains, “and … so …” chains, paired em-dash asides, or paired-comma appositives.
+- [ ] Sentence length is a signal, not a target. Split overloaded clauses while retaining logical links; do not enforce a fixed word count.
 - [ ] A sentence that wraps a display equation or binds a hypothesis to its conclusion stays whole.
 
 ## 2 — Wording and tone
@@ -18,7 +18,7 @@ The checkable form of the rules in `SKILL.md`. Use it as the checklist for a `wr
 - [ ] No content-free openers, "Notice that", or empty meta-talk. Signposts that name a section's job or point to a result stay.
 - [ ] Simple words are used and every technical word is kept. No verb, quantifier, or adjective is swapped inside a mathematical statement.
 - [ ] No metaphor.
-- [ ] Avoid “X, not Y”. State X directly.
+- [ ] Remove an unmotivated contrast only when meaning is preserved; retain contrasts that express the result. Content changes remain comments in a language pass.
 - [ ] Replace vague abstract nouns (“property,” “system,” “structure,” ...) with the specific concept they refer to.
 - [ ] Use literal verbs. Do not use metaphorical verbs (“unlock”, “bridge”, "open", ...).
 
@@ -40,7 +40,7 @@ The checkable form of the rules in `SKILL.md`. Use it as the checklist for a `wr
 
 ## 4 — Definitions and notation
 
-- [ ] A symbol and notation table was built while reading.
+- [ ] Definitions and uses of symbols in the reviewed scope are consistent; build a notation table when it helps track them.
 - [ ] No symbol or concept is used before it is defined. No forward references.
 - [ ] No symbol is left never defined.
 - [ ] No term or symbol is defined before the argument needs it. Every definition is used later.
@@ -50,7 +50,7 @@ The checkable form of the rules in `SKILL.md`. Use it as the checklist for a `wr
 
 ## 5 — Equations and figures
 
-- [ ] Do not use inline calculations. Use a display instead.
+- [ ] Combine runs of inline computation into a display when it improves clarity; keep short routine algebra inline when no emphasis is needed.
 - [ ] Display equations are reserved for flagship results, non-obvious steps, key intermediates, or equations referenced by a figure.
 - [ ] Routine algebra that fits inline is not promoted to a display equation.
 - [ ] No equation with a referenced label is proposed for inlining or cutting. In a letter, algebra moves to the supplement rather than losing a reproducibility step.
