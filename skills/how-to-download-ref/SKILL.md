@@ -28,62 +28,19 @@ Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of
 Do NOT use:
 - For GitHub repos / web pages — those are too varied for a single-shot helper.
 
-## Preflight (run once per machine)
+## Setup
 
-Every helper runs under plain `python3`. Two of them want third-party packages:
-`render.py` needs **pymupdf4llm** (highest-fidelity output, preserves figures) and
-`scihub_download.py` needs **playwright**. Without them the renderer degrades to
-`markitdown` → `pdftotext`, which is text-only — *figures missing, equations
-mangled*. Verify before fetching:
+Every helper runs under plain `python3`. Metadata fetching needs nothing else.
+Rendering wants **pymupdf4llm** (without it the output is text-only: figures
+missing, equations mangled), APS JATS needs **pandoc**, and the Sci-Hub fallback
+needs **playwright**. Check the backend you are about to use:
 
 ```sh
 python3 -c "import pymupdf4llm; print('ok', pymupdf4llm.__version__)"
 ```
 
-If that errors, install it for the **same** `python3` the helpers will use:
-
-```sh
-python3 -m pip install --user pymupdf4llm
-# macOS / Homebrew, or any PEP 668 "externally managed" Python:
-python3 -m pip install --user --break-system-packages pymupdf4llm
-```
-
-Both scripts also carry [PEP 723](https://peps.python.org/pep-0723/) inline
-dependency metadata, so if you happen to have [uv](https://docs.astral.sh/uv/),
-`uv run "$DOWNLOAD_REF_DIR/helpers/render.py" ...` resolves those deps on its own and you can skip the
-install step entirely. That is an option, not a requirement — the metadata is
-inert comments to a plain interpreter.
-
-**Tesseract is not needed for normal papers.** arXiv and APS PDFs are born-digital,
-so `render.py` runs `pymupdf4llm` with `use_ocr=NEVER` and only retries with OCR
-when a PDF turns out to have no text layer at all — a scanned old paper, usually
-from the Sci-Hub tier. Install a language pack only if you hit that:
-`tesseract-data-eng` (Arch), `tesseract-ocr-eng` (Debian/Ubuntu), or
-`brew install tesseract-lang` (macOS).
-
-On Arch in particular, *any* `tesseract-data-*` satisfies the `tessdata`
-dependency, so it is easy to have `tesseract` installed with `eng` absent.
-
-The Sci-Hub fallback (Step 4b) additionally needs a Chromium for Playwright to
-clear the mirrors' DDoS-Guard challenge. Only required if you expect to hit
-paywalled DOIs:
-
-```sh
-python3 -m pip install --user playwright && python3 -m playwright install chromium
-```
-
-APS DOIs (`10.1103/*`) render from publisher JATS XML, which needs **pandoc**:
-
-```sh
-pandoc --version | head -1   # any 2.x/3.x works
-```
-
-If missing: `paru -S pandoc-cli` (Arch) / `apt install pandoc` / `brew install pandoc`.
-Without it, APS refs silently fall back to the arXiv/PDF tiers.
-
-For arXiv LaTeX sources (optional, Step 4 — only when the user opts in), `latexpand`
-(ships with TeX Live) gives the cleanest flattening; if absent, a built-in Python
-inliner is used — no action needed either way.
+Install commands, the text-only fallback chain, OCR, and `latexpand` are in
+[dependencies.md](references/dependencies.md); read only the part you need.
 
 ## Inputs
 
@@ -113,7 +70,10 @@ The canonical bib is `$KB/references.bib` — it lives inside the KB, beside `IN
 
 ### 1. Resolve the KB
 
-If the caller passes `--kb <abs-path>`, use that. Otherwise:
+First distinguish adding references from restoring existing caches. For the
+latter, resolve the KB and use Restore existing caches below without running the
+acquisition/render/append sequence. If the caller passes `--kb <abs-path>`, use
+that. Otherwise:
 
 ```sh
 KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")
@@ -140,14 +100,14 @@ creates another namespace for the same paper unless `--allow-duplicate` is set.
 Requests using an entry's existing namespace still acquire missing assets; this
 supports the survey handoff from abstract-only metadata to full-text rendering.
 Rendering and bibliography appends also avoid identity duplicates.
-To restore missing caches for existing entries, use **Regenerating a cloned KB** below.
+To restore missing caches for existing entries, use **Restore existing caches** below.
 
 ### 3. Build a manifest
 
 **3a. Direct input** (single-shot mode):
 
 ```sh
-TMP=/tmp/how-to-download-ref-manifest.json
+TMP=$(mktemp "${TMPDIR:-/tmp}/sci-brain-refs.XXXXXX")
 cat > "$TMP" <<'EOF'
 {"arxiv": ["1806.08734", "2006.10739"], "doi": []}
 EOF
@@ -156,11 +116,11 @@ EOF
 **3b. From an existing `references.bib`** (bulk mode, `--from-bib`):
 
 ```sh
-TMP=/tmp/how-to-download-ref-manifest.json
+TMP=$(mktemp "${TMPDIR:-/tmp}/sci-brain-refs.XXXXXX")
 python3 "$DOWNLOAD_REF_DIR/helpers/bibtex_to_manifest.py" "$KB/references.bib" > "$TMP"
 ```
 
-When in bulk mode, optionally ask the user:
+If the requested bulk scope is unclear, ask the user:
 
 > "I see 59 refs in the manifest. Render all, topic-filtered, or specific IDs?"
 > - **(a)** All — proceed with the full manifest
@@ -169,110 +129,30 @@ When in bulk mode, optionally ask the user:
 
 For (b) and (c), edit `$TMP` accordingly before continuing.
 
-### 4. Fetch metadata + arXiv PDFs
+### 4. Fetch metadata and full text
 
-Ask the user whether they want LaTeX sources too:
+Unless the user or the calling skill already said whether they want LaTeX
+sources, ask once:
 
 > "Fetch arXiv LaTeX sources as full text for these refs?"
 > - **(a)** PDF only (default) — bodies come from the PDF in Step 5.
-> - **(b)** Also fetch LaTeX sources — Step 4 adds `--download-arxiv-source`, Step 5 adds `--tex-source`; refs with source render `full_text: latex`.
+> - **(b)** Also fetch LaTeX sources — add `--download-arxiv-source` here and `--tex-source` in Step 5; refs with source render `full_text: latex`.
 
 Default command (option **a**):
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/fetch_metadata.py" \
-  --kb "$KB" \
-  --manifest "$TMP" \
-  --download-arxiv-pdfs
+  --kb "$KB" --manifest "$TMP" --download-arxiv-pdfs
 ```
 
-Option **(b)** adds the source fetch:
+Metadata comes from cached JSON, then Semantic Scholar, then Crossref; PDFs from
+open-access sources, then the arXiv preprint. APS (`10.1103/*`) publisher JATS
+is fetched automatically when the article is open. `--email` /
+`SCIBRAIN_CONTACT_EMAIL` enables Unpaywall.
 
-```sh
-python3 "$DOWNLOAD_REF_DIR/helpers/fetch_metadata.py" \
-  --kb "$KB" \
-  --manifest "$TMP" \
-  --download-arxiv-pdfs \
-  --download-arxiv-source
-```
-
-**APS DOIs are handled automatically.** For any `10.1103/*` DOI the helper first
-calls the [APS Harvest API](https://harvest.aps.org/docs/harvest-api), which serves
-the *publisher's own* JATS XML — real sections, MathML3 equations, a structured
-reference list — with **no API key and no institutional IP**. This is ground truth
-and strictly beats parsing the PDF. Coverage is per *article*, not per journal: you
-get `ok` for gold-OA titles (PRX, PRX Quantum, PRResearch, PRAB, PRPER), SCOAP3
-titles (PRC, PRD), and any individually CC-licensed article in PRL/PRA/PRB;
-`closed` (HTTP 401) falls through to the arXiv and PDF tiers below. Pass `--no-aps`
-to skip. The same request both tests access and delivers the text, so there is no
-separate open-access lookup to do.
-
-Metadata uses cached JSON, then Semantic Scholar batches of at most 500,
-then Crossref for missing DOIs, including deposited metadata normalized to usable
-BibTeX. PDF acquisition tries S2's OA URL, Unpaywall repository copies, then the
-arXiv preprint. Pass `--email <contact-address>` or set `SCIBRAIN_CONTACT_EMAIL`
-to enable Unpaywall and Crossref's polite pool; without an email, Unpaywall is
-skipped. API errors and HTML landing pages fall through to the next source.
-PDFs must have both a `%PDF` header and `%%EOF` trailer. A DOI miss continues to
-Step 4b. Service contracts: [Crossref](https://www.crossref.org/documentation/retrieve-metadata/rest-api/),
-[Unpaywall](https://unpaywall.org/products/api).
-
-
-`--download-arxiv-source` additionally fetches each arXiv paper's e-print
-LaTeX source, extracts it to `.raw/arxiv/<id>-src/`, flattens
-`\input`/`\include` into `.raw/arxiv/<id>.tex`, and copies the source tree's
-figure files into `.figures/arxiv__<id>/`. `src-miss` lines (PDF-only
-submissions, withdrawn papers, fetch failures) are fine — those refs fall
-back to PDF rendering in Step 5. DOI entries whose Semantic Scholar record
-names an arXiv preprint (`externalIds.ArXiv`) get the same treatment, into
-`.raw/doi/<safe>.tex` and `.figures/doi__<safe>/`.
-
-**Tip:** Set `SEMANTIC_SCHOLAR_API_KEY` in your environment to raise the Semantic Scholar rate limit from ~1 req/s to 100 req/s. Get a free key at https://www.semanticscholar.org/product/api#api-key-form.
-
-### 4b. Sci-Hub fallback for paywalled PDFs (script)
-
-If Step 4 reports `miss` for any DOI (no open-access PDF and no arXiv preprint),
-run the browser-based Sci-Hub helper. Pass the missed DOIs:
-
-```sh
-python3 "$DOWNLOAD_REF_DIR/helpers/scihub_download.py" --kb "$KB" \
-  --doi 10.1111/j.1467-9280.2006.01693.x \
-  --doi 10.3102/0034654316689306
-```
-
-It tries each mirror in `helpers/scihub_domains.toml` (in order) until one
-serves the PDF, solving the mirrors' DDoS-Guard JavaScript challenge with a
-headless browser, and saves to `$KB/.raw/doi/<safe>.pdf` (`<safe>` = DOI with
-`/` → `-`) — the same place Step 4 writes, so Step 5 (render) picks it up. It
-prints one `OK` / `MISS` / `SKIP` line per DOI.
-
-- **Requires Playwright** (see Preflight). curl/urllib cannot pass DDoS-Guard.
-- **Mirrors rotate.** If every DOI returns `MISS`, the domain list is likely
-  stale: web-search "working sci-hub mirror domains <year>" and edit
-  `helpers/scihub_domains.toml` (see its header), then re-run.
-- If a stricter challenge blocks the headless browser, retry with `--headed`.
-
-Skip this step if all PDFs were fetched in Step 4.
-
-### 4c. APS extras (optional)
-
-`aps_harvest.py` also runs standalone — useful for backfilling a KB built before
-this path existed, or for pulling figures and supplemental material:
-
-```sh
-# probe one DOI without writing anything -> prints open | closed | notfound
-python3 "$DOWNLOAD_REF_DIR/helpers/aps_harvest.py" --check 10.1103/PhysRevB.108.045101
-
-# backfill JATS for every APS DOI already in the KB
-python3 "$DOWNLOAD_REF_DIR/helpers/aps_harvest.py" --kb "$KB" --all
-
-# ...and pull the BagIt package too: published PDF, figures, supplemental material
-python3 "$DOWNLOAD_REF_DIR/helpers/aps_harvest.py" --kb "$KB" --all --bagit
-```
-
-`--bagit` is the only way to get **supplemental material**, which the arXiv
-preprint route cannot provide. It is much heavier (tens of MB per article), so
-use it per-DOI rather than across a whole KB.
+For source details, APS extras, or DOI misses requiring `scihub_download.py`,
+read only the applicable section of [acquisition.md](references/acquisition.md).
+Record unavailable assets and continue the remaining references.
 
 ### 5. Render PDF to markdown
 
@@ -286,7 +166,7 @@ Add `--only-missing` to skip papers that already have a rendered `.md` file (>50
 python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --only-missing
 ```
 
-When the user opted into LaTeX sources (Step 4, option **b**), add `--tex-source`:
+When LaTeX sources were requested, add `--tex-source`:
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --tex-source
@@ -294,21 +174,21 @@ python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --tex-source
 
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
 
-**Body priority: JATS > LaTeX > PDF.** A `.jats.xml` in `.raw/doi/` always wins —
-no flag needed — and renders `full_text: jats` plus a `## References` section built
-from the publisher's structured reference list (every cited DOI/arXiv id included,
-which is a citation graph for free). Below that,
-`--tex-source` is the only switch that prefers a flattened `.tex` (arXiv entries, and DOI entries with an arXiv preprint) as
-the full-text body (`full_text: latex` in frontmatter) — ground truth for
-equations, read natively by agents. Without it, every ref renders from its
-PDF, even when a `.tex` sits in `.raw/`. The PDF backends below apply to all
-refs not rendered from LaTeX:
+**Body priority: JATS > LaTeX > PDF.** A `.jats.xml` in `.raw/doi/` always wins
+(`full_text: jats`, plus a `## References` section from the publisher's list).
+`--tex-source` is the only switch that prefers a flattened `.tex`
+(`full_text: latex`); without it every ref renders from its PDF, even when a
+`.tex` sits in `.raw/`. Human frontmatter `note`, `tags`, and `rating` survives
+re-rendering; generated bodies refresh from source, so keep prose notes in
+NOTES.md. PDF backends: [dependencies.md](references/dependencies.md).
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 
 ### 6. Propose + confirm cite key (per ref, single-shot mode only)
 
-In single-shot mode (Step 3a), ask the user to confirm each new cite key. In bulk mode (Step 3b), the keys come from `references.bib` directly — skip this step.
+In single-shot mode (Step 3a), ask the user to confirm each new cite key. A
+calling skill that passes explicit keys skips the question; in bulk mode (Step
+3b) the keys come from `references.bib` directly, so skip this step entirely.
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" propose \
@@ -320,7 +200,7 @@ Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `au
 - Use a custom key (free-text)
 - Skip this entry
 
-Once confirmed:
+Once confirmed (the key below is an example):
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" append \
@@ -358,24 +238,17 @@ explicitly; the checker never merges or deletes references.
 
 Tell the user the new cite keys, rendered paths, full-text status, and remaining findings.
 
-## Regenerating a cloned KB
+## Restore existing caches
+
+For a fresh clone, or missing `.raw/` / `.figures/` assets on entries already
+tracked in the KB, run the sync helper instead of the acquisition steps above:
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/kb_sync.py" --kb "$KB"
 ```
 
-Requires `references.bib` and at least one rendered paper. This restores `.raw/`
-and `.figures/` using each tracked entry's declared identifier namespace. Bib-only
-references recover caches with a warning. It creates or rewrites no Markdown,
-INDEX.md, or bibliography files. Complete caches need no network on repeat runs;
-unavailable assets remain WARNs and can be retried. Invalid input or failed
-restoration produces FAIL and a nonzero exit.
-
-PDF figure restoration needs the same `pymupdf4llm` version used to render the
-entry so filenames match tracked image links. Missing dependencies and mismatched
-filenames are reported. LaTeX figures are restored from the cached source tree or
-a new source download. Publisher JATS is restored for `full_text: jats` entries.
-`--email` / `SCIBRAIN_CONTACT_EMAIL` enable Unpaywall here too.
+It never rewrites Markdown, INDEX.md, or the bibliography. Requirements and
+caveats are in [maintenance.md](references/maintenance.md).
 
 ## Human annotations
 
@@ -383,45 +256,24 @@ a new source download. Publisher JATS is restored for `full_text: jats` entries.
 including multiline values and lists. Generated metadata and body text refresh
 from source. Keep other prose notes in NOTES.md.
 
-## After download — continue to the survey report
+## Completion and handoff
 
-After the done checklist passes, offer the pipeline's final stage:
+Return cite keys, rendered paths, full-text status (`jats`, `latex`, `yes`, or
+`no`), and remaining findings. Remove the temporary manifest. If invoked by
+`survey`, `know-me-better`, `create-advisor`, or `brainstorm-ideas`, return to that
+workflow with its scope and authorization intact. Continue to a survey report
+only when that report is already requested; standalone acquisition ends here.
 
-> "Papers downloaded and rendered. Write the review?"
-> - **(a)** Write a review — invoke `survey` in Survey Report mode to produce a technology assessment from the rendered KB.
-> - **(b)** Done — stop here.
-
-## Integration with other skills
-
-- **`survey`** (upstream): writes/extends `$KB/NOTES.md`, appends to `$KB/references.bib`, regenerates `$KB/INDEX.md`, then hands off to `how-to-download-ref` to fetch PDFs and render full text. The survey's transition checkpoint offers this directly.
-- **`survey` report mode** (downstream): consumes the rendered KB (full-text `.md` files + `$KB/references.bib`) to produce a structured technology assessment report.
-- **`survey` / `know-me-better`**: write their own `.raw/` JSON via batched fetches and call `append_bibtex.py` directly (skipping the per-ref confirmation in Step 6). They invoke `index.py` at the end of their run.
-- **`brainstorm-ideas` end-of-session**: surfaces candidate IDs/DOIs from the conversation; for the user's selections, invokes `how-to-download-ref` in single-shot mode.
-- **`create-advisor`**: invokes `how-to-download-ref` (or `know-me-better`) targeting the advisor KB resolved by `python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py" --advisor <slug>`.
-
-## Common mistakes
-
-| Mistake | Fix |
-| --- | --- |
-| Passing a relative `--kb` | Always absolute. Helpers don't `cd`; figures depend on absolute paths. |
-| Forgetting `--download-arxiv-pdfs` in Step 4 | Without it, refs with no LaTeX source render `full_text: no` — the PDF is the only body for DOIs and PDF-only arXiv submissions. |
-| Using `arXiv:XXXX` with prefix or `vN` suffix | Strip both — manifest takes bare ids: `1806.08734`. |
-| Editing generated body text and losing it on re-render | Keep prose in NOTES.md. Human frontmatter `note`, `tags`, and `rating` survives re-rendering. |
-| Cite-key collision with different content | `append` skips silently. Propose with `--bib` so the key is disambiguated up front (next content word of the title). |
-| Drifting `--title` / `--source-note` between runs | `INDEX.md` regenerates wholesale; first-run values are canonical. Copy verbatim from existing `INDEX.md`. |
-| Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |
-| Rendered from PDF despite a `.tex` in `.raw/` | PDF is the default. To use LaTeX bodies, pass `--tex-source` in Step 5 (and `--download-arxiv-source` in Step 4). |
-| APS paper rendered from PDF, math mangled | `pandoc` is missing, or the article is genuinely `closed`. Check with `aps_harvest.py --check <doi>`. |
-| Reaching for MinerU/Marker on an APS DOI | Try Harvest first — a 401 is the only thing that justifies parsing a PDF at all. |
-| APS DOI reported `notfound` | Harvest matches the DOI suffix case-sensitively; `aps_harvest.canonical_doi` restores APS's capitalisation before the request. Add the journal to `APS_JOURNAL_TOKENS` if a new title 404s. |
+For unexpected helper output, consult
+[troubleshooting.md](references/troubleshooting.md).
 
 ## Done checklist
 
 - [ ] `.raw/{arxiv,doi}/<id>.json` exists for every requested id
 - [ ] `.raw/{arxiv,doi}/<id>.pdf` exists where the source allows (else recorded as miss)
-- [ ] For every `10.1103/*` DOI: either `.raw/doi/<safe>.jats.xml` exists (`full_text: jats`) or the fetch logged `closed`
-- [ ] One new `<id>_<slug>.md` per ref at `$KB/` root, with frontmatter
+- [ ] For every `10.1103/*` DOI: either publisher JATS exists (`full_text: jats`) or the actual access/fetch failure and fallback are reported
+- [ ] One `<id>_<slug>.md` per distinct paper at `$KB/` root, with frontmatter
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
 - [ ] `$KB/references.bib` has the new cite key (no duplicate)
-- [ ] User told cite keys, file names, and `full_text` latex/yes/no per ref
+- [ ] User told cite keys, file names, and `full_text` jats/latex/yes/no per ref
 - [ ] If the user requested LaTeX sources: `.raw/arxiv/<id>.tex` exists for every arXiv id, and `.raw/doi/<safe>.tex` for every DOI with an arXiv preprint (or the `src-miss` reported)
