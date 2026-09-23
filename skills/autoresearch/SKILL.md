@@ -38,6 +38,17 @@ Supporting references: `references/insights-template.md` (db),
 Optional cycle completion notifications use `helpers/cycle_end_hook.py`;
 configuration and sound examples: `references/cycle-end-hook.md`.
 
+## Choose the request
+
+- **Status or explanation:** read `<project>/research/STATE.md` and the
+  artifacts its recorded stage implies. Report the stage, gates passed,
+  attempts completed and remaining, and any expected artifact that is missing.
+  Then stop: do not create or repair STATE.md, advance a stage, run
+  experiments, or spend the attempt budget. Missing or corrupt state is a
+  finding to report, not permission to initialize a campaign.
+- **Start, resume, or run a named stage:** follow Procedure below with the
+  user's existing choices and authorization. The stage gates still apply.
+
 ## Procedure
 
 1. **Locate state.** Read `<project>/research/STATE.md`.
