@@ -26,7 +26,7 @@ Write a structured ideas report after a `brainstorm-ideas` session has converged
 Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-level prose rules. Follow `skills/how-to-write-ideas-report/references/writing-workflow.md` for context loading, citation handling, gap-filling research, output format, diagrams, and finish checks.
 
 - Primary source: `docs/discussion/*-brainstorm-ideas-log.md`. If multiple logs exist and the request does not identify one, ask which to use.
-- If no log exists, ask the user to brainstorm first or describe the chosen direction and reasoning to preserve.
+- If no log exists, use the chosen direction and reasoning already in the conversation or supplied notes. Ask only for substance needed to write the requested report.
 - Save to `articles/YYYY-MM-DD-<topic>-ideas-report.{md,typ,tex}` with a matching bibliography when citations are used.
 - When entering from `brainstorm-ideas` Phase 3, carry forward the active conversation log, user profile, chosen direction, key references, and concrete action plan without asking the user to repeat them.
 

@@ -6,11 +6,15 @@ Resolve the installed `how-to-download-ref` skill from the agent's catalog and s
 
 ## Context
 
-- Resolve the project KB with `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`.
-- If present, read `$KB/NOTES.md`, `$KB/INDEX.md`, and the canonical bib `$KB/references.bib`.
+Start from what the user supplied: text, source files, scope, format, and any
+authorization already given. A local prose edit needs the passage plus the
+definitions and citations it depends on, not the whole KB or conversation history.
+
+- Resolve the project KB when KB-backed context is needed: `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`.
+- Read `$KB/INDEX.md` and `$KB/NOTES.md` for the topic, then the relevant notes and bibliography entries. Screening the whole bibliography belongs to an explicitly selected review.
 - Read `docs/discussion/user-profile.md` when audience, background, or positioning matters.
-- For ideas/manuscripts, read relevant `docs/discussion/*-brainstorm-ideas-log.md`.
-- If the needed literature base is missing, suggest the `survey` skill or ask the user for explicit source files.
+- For ideas/manuscripts, read the relevant `docs/discussion/*-brainstorm-ideas-log.md`, starting from the wrap-up section.
+- Papers the user supplied and a manuscript-local bibliography are valid sources without a sci-brain KB. If the needed literature base is missing, suggest the `survey` skill or ask the user for explicit source files.
 
 The canonical bib is `$KB/references.bib`.
 
@@ -18,13 +22,13 @@ The canonical bib is `$KB/references.bib`.
 
 ## Scope the source set
 
-A write-up covers a *subset* of the bib — the references the relevant `NOTES.md` section(s) actually cite, not all 100+ accumulated entries. Determine that subset deterministically instead of by eye:
+For a KB-backed report, a write-up covers a *subset* of the bib — the references the relevant `NOTES.md` section(s) actually cite, not all 100+ accumulated entries. Determine that subset deterministically instead of by eye:
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/scope_refs.py" --notes "$KB/NOTES.md" --bib "$KB/references.bib"
 ```
 
-It prints the scoped cite keys (one per line) and exits non-zero if any `[@key]` anchor in the notes has no bib entry — fix dangling anchors before drafting. Use `--json` for `{scoped, missing, unused}`. Draft against the scoped keys; the `unused` list is out of scope unless the user asks to widen it.
+When the user supplied explicit sources instead, use those directly; do not require NOTES.md. The helper prints the scoped cite keys (one per line) and exits non-zero if any `[@key]` anchor in the notes has no bib entry — fix dangling anchors before drafting. Use `--json` for `{scoped, missing, unused}`. Draft against the scoped keys; the `unused` list is out of scope unless the user asks to widen it.
 
 ## References
 
@@ -61,11 +65,16 @@ For Typst, prefer native `grid` + `rect` + fixed-width `box()` for text-heavy la
 
 Run these checks before declaring the document done — do not eyeball them:
 
-- **Compile** the document (`typst compile <file>.typ`, or the LaTeX/Markdown equivalent) and confirm it exits cleanly.
-- **No dangling citations.** Grep the compile log for unresolved-reference warnings; for Typst, a missing key warns rather than errors, so an empty grep is the pass condition:
+- **Compile** the document and check both the exit status and the log. For Typst, a missing cite key only warns, so a clean exit alone is not a pass; the block below fails on a nonzero exit *or* on any warning, and prints the log either way (replace `main.typ` with the source file):
   ```sh
-  typst compile <file>.typ 2>&1 | grep -i "unresolved\|warning" || echo "clean"
+  LOG=$(mktemp)
+  typst compile main.typ >"$LOG" 2>&1; status=$?
+  cat "$LOG"
+  grep -Eiq 'unresolved|warning' "$LOG" && status=1
+  rm -f "$LOG"
+  [ "$status" -eq 0 ] && echo clean
   ```
+  Use the LaTeX/Markdown equivalent for other formats. Read every warning before calling the build clean.
 - **Every scoped claim is cited.** Confirm each `@key` in the prose resolves to a bib entry and that no scoped key was silently dropped (cross-check against `scope_refs.py` output).
 - **Non-empty bibliography** renders in the output.
 - Report the output path and any skipped verification.
