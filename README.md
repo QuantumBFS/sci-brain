@@ -118,7 +118,7 @@ The whole process is interactive — you review everything before it's published
 | `/survey` (KB-building step) | `/how-to-build-kb`, invoked by `/survey` |
 | `/brainstorm-ideas` (report mode) | `/how-to-write-ideas-report`, invoked by `/brainstorm-ideas` |
 
-> ⚠️ **Breaking change in v0.3.** Knowledge bases moved from per-topic registries (`~/.claude/survey/<topic>/` with `summary.md` + `references.bib`) to one `<project>/.knowledge/` per project, with `references.bib` living *inside* the KB. The `fetch-papers` skill was folded into `download-ref --from-bib`. See [`CLAUDE.md`](./CLAUDE.md) § "Migrating from the pre-0.3 layout" for `mv` commands.
+> ⚠️ **Breaking change in v0.3.** Knowledge bases moved from per-topic registries (`~/.claude/survey/<topic>/` with `summary.md` + `references.bib`) to one `<project>/.knowledge/` per project, with `references.bib` living *inside* the KB. The `fetch-papers` skill was folded into `download-ref --from-bib`. See [`docs/kb-migration.md`](./docs/kb-migration.md) for `mv` commands.
 
 Four internal stages became modes of their goal-level skill in v0.3:
 

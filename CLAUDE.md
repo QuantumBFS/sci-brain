@@ -19,10 +19,11 @@ for the current task. Public names match their containing directory.
   **how-to-analyze-dialog**, **how-to-flow**, **how-to-review-figure**,
   **how-to-technical-writing**, **how-to-write-ideas-report**.
 
-Descriptions start with `User trigger. Use when …` or, for `how-to-*`,
-`Agentic trigger. Use when …`. The validator enforces this prefix and tests keep
-the README descriptions aligned. Preserve public names and independent skill
-installation when reorganizing resources.
+Each description is one sentence starting with `User trigger. Use when …` or,
+for `how-to-*` skills, `Agentic trigger. Use when …`. `scripts/validate_skills.py`
+enforces the prefix; `tests/test_repository_consistency.py` enforces `how-to-*` ⇔
+agentic and keeps the README tables identical to the descriptions. When moving
+resources, keep public names stable and each skill installable on its own.
 
 **autoresearch** routes topics → db → validator → run from `research/STATE.md`.
 Its user-confirmed acceptance gates, attempt budgets, and sealed holdout are
