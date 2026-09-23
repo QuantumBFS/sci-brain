@@ -5,11 +5,14 @@ description: Agentic trigger. Use when writing a proposal-style ideas report fro
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this `SKILL.md` to its
-real path before locating bundled resources. `skills/<name>/...` refers to the
-installed skill found by public name, not the user's project; dependencies need
-not be siblings. Load only resources needed for the current task. If a required
-dependency is missing, report it before that dependent step.
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
 
 
 **Path conventions:** `docs/discussion/` and `articles/` resolve from the **project working directory**; resource paths follow Installed resources above.
@@ -29,10 +32,7 @@ Follow `skills/how-to-technical-writing/SKILL.md` for sentence- and paragraph-le
 
 ### Report structure
 
-With a chosen direction and supporting material, draft the complete report and
-verify it before presenting it for review. Use section-by-section feedback only
-when the user requests collaborative drafting or an unresolved substantive
-choice prevents a coherent draft. Include the relevant parts below:
+Draft each section, show it, and incorporate feedback:
 
 - **Research Question** — one sentence
 - **Novelty Claim** — what is new and why it matters

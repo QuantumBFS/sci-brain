@@ -6,19 +6,15 @@ Resolve the installed `how-to-download-ref` skill from the agent's catalog and s
 
 ## Context
 
-Start with the user's supplied text, source files, scope, format, and existing
-authorization. A local prose edit needs the passage and its relevant definitions
-or citations, not the whole literature library or conversation history.
+Start from what the user supplied: text, source files, scope, format, and any
+authorization already given. A local prose edit needs the passage plus the
+definitions and citations it depends on, not the whole KB or conversation history.
 
-- Resolve the project KB only when KB-backed context is needed, using
-  `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`.
-- Search INDEX.md/NOTES.md for the topic, then read relevant notes and bibliography
-  entries. Full bibliographic screening belongs to an explicitly selected review.
-- Read `docs/discussion/user-profile.md` when audience or positioning matters;
-  read only relevant brainstorming logs, starting with their wrap-up sections.
-- Supplied papers and a manuscript-local bibliography are valid source material
-  without a sci-brain KB. Fill evidence gaps within the requested task, asking
-  only for missing substance that cannot be established from the sources.
+- Resolve the project KB when KB-backed context is needed: `KB=$(python3 "$DOWNLOAD_REF_DIR/helpers/resolve_kb.py")`.
+- Read `$KB/INDEX.md` and `$KB/NOTES.md` for the topic, then the relevant notes and bibliography entries. Screening the whole bibliography belongs to an explicitly selected review.
+- Read `docs/discussion/user-profile.md` when audience, background, or positioning matters.
+- For ideas/manuscripts, read the relevant `docs/discussion/*-brainstorm-ideas-log.md`, starting from the wrap-up section.
+- Papers the user supplied and a manuscript-local bibliography are valid sources without a sci-brain KB. If the needed literature base is missing, suggest the `survey` skill or ask the user for explicit source files.
 
 The canonical bib is `$KB/references.bib`.
 
@@ -45,17 +41,15 @@ When the user supplied explicit sources instead, use those directly; do not requ
 
 Search only for gaps needed to support the document's main claims. Prefer the active KB first, then MCP/Semantic Scholar/arXiv/CrossRef/web search. Stop when the main claims have citations; completeness is not the goal.
 
-**Search according to the claim.** A recent NOTES.md can avoid repeating discovery,
-but its date does not establish that a volatile or SOTA claim is current. Verify
-such claims when the document relies on them or the user requests an update.
-Stable derivations and local language edits do not require a new field survey.
+**Recency gate — decide whether to search at all.** Read the build date in the `NOTES.md` header. If it is recent (≲ 4 weeks old), the literature base is fresh: skip discovery gap-filling entirely and only resolve *citation-level* gaps (a claim in the draft with no key to back it). Only when `NOTES.md` is older — or absent — run the recency search for SOTA results, active groups, and method families that may have superseded the notes.
 
 ## Output Format
 
-Reuse the user's format, the existing document, or the project's configured
-format. For a new standalone report with no convention, use Markdown. Use the
-venue's format when required, and Typst or LaTeX when requested or needed for a
-PDF. Ask only when the choice affects a requirement that remains unresolved.
+Check `CLAUDE.md`/`AGENTS.md` for a configured format. Otherwise ask:
+
+- Typst (`.typ`) — recommended when no venue template overrides it
+- LaTeX (`.tex`) — traditional academic format
+- Markdown (`.md`) — fastest, but citations remain inline unless rendered elsewhere
 
 ## Figures And Diagrams
 
@@ -69,36 +63,18 @@ For Typst, prefer native `grid` + `rect` + fixed-width `box()` for text-heavy la
 
 ## Finish
 
-Verify the requested output, not an unrelated full workflow:
+Run these checks before declaring the document done — do not eyeball them:
 
-- **Compile changed document source** and inspect the result when producing a
-  final PDF. A plain Markdown or inline-text request needs only its relevant
-  rendering/text checks; report when no build applies.
-- **Check both exit status and citation diagnostics.** For Typst, run from the
-  document directory (replace `main.typ` with the actual source):
-
+- **Compile** the document and check both the exit status and the log. For Typst, a missing cite key only warns, so a clean exit alone is not a pass; the block below fails on a nonzero exit *or* on any warning, and prints the log either way (replace `main.typ` with the source file):
   ```sh
-  BUILD_LOG=$(mktemp)
-  if typst compile main.typ >"$BUILD_LOG" 2>&1; then
-    cat "$BUILD_LOG"
-  else
-    cat "$BUILD_LOG" >&2
-    rm -f "$BUILD_LOG"
-    exit 1
-  fi
-  if grep -Ei 'unresolved|warning' "$BUILD_LOG"; then
-    rm -f "$BUILD_LOG"
-    exit 1
-  fi
-  rm -f "$BUILD_LOG"
+  LOG=$(mktemp)
+  typst compile main.typ >"$LOG" 2>&1; status=$?
+  cat "$LOG"
+  grep -Eiq 'unresolved|warning' "$LOG" && status=1
+  rm -f "$LOG"
+  [ "$status" -eq 0 ] && echo clean
   ```
-
-  A warning requires inspection before declaring completion; do not classify a
-  failed compiler as clean merely because its error lacks the word “warning”.
-- **Citations:** verify each used key resolves and that sources support the main
-  claims. A selected paper need not be cited when it does not support the final
-  argument. If citations are used, ensure the bibliography renders; do not
-  require one for an uncited excerpt.
-- Fix failures introduced by the requested changes and rerun affected checks.
-  Stop after they pass unless a concrete unresolved finding requires more work.
-- Deliver the requested artifact with verification and any remaining limitations.
+  Use the LaTeX/Markdown equivalent for other formats. Read every warning before calling the build clean.
+- **Every scoped claim is cited.** Confirm each `@key` in the prose resolves to a bib entry and that no scoped key was silently dropped (cross-check against `scope_refs.py` output).
+- **Non-empty bibliography** renders in the output.
+- Report the output path and any skipped verification.
