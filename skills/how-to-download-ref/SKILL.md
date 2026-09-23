@@ -5,11 +5,14 @@ description: Agentic trigger. Use when adding arXiv IDs or DOIs to a knowledge b
 
 ## Installed resources
 
-Keep the working directory at the user's project. Resolve this `SKILL.md` to its
-real path before locating bundled resources. `skills/<name>/...` refers to the
-installed skill found by public name, not the user's project; dependencies need
-not be siblings. Load only resources needed for the current task. If a required
-dependency is missing, report it before that dependent step.
+Keep the working directory at the user's project. Resolve this loaded `SKILL.md`
+with `Path(path).resolve()` before locating resources; follow symlinks. Bare
+`helpers/`, `references/`, and template paths are relative to that real skill
+directory. A path written as `skills/<name>/...` means the installed `<name>`
+skill's directory from the agent's skill catalog, not a path in the user's project.
+Locate each dependency by its public skill name; copied skills need not be siblings.
+If a dependency is absent, report the missing skill and install it before that step.
+Shared writing files are bundled in `how-to-write-ideas-report/references/`.
 
 Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of `how-to-download-ref`. Quote these variables as shown.
 
@@ -25,12 +28,19 @@ Before running the examples, set `DOWNLOAD_REF_DIR` to the absolute directory of
 Do NOT use:
 - For GitHub repos / web pages — those are too varied for a single-shot helper.
 
-## Runtime
+## Setup
 
-Use the configured Python environment. Before rendering, check the required
-backend; [dependencies.md](references/dependencies.md) covers setup or a missing
-backend. Read only the section for the chosen PDF/JATS/source path. Ordinary
-metadata acquisition does not require all render and browser dependencies.
+Every helper runs under plain `python3`. Metadata fetching needs nothing else.
+Rendering wants **pymupdf4llm** (without it the output is text-only: figures
+missing, equations mangled), APS JATS needs **pandoc**, and the Sci-Hub fallback
+needs **playwright**. Check the backend you are about to use:
+
+```sh
+python3 -c "import pymupdf4llm; print('ok', pymupdf4llm.__version__)"
+```
+
+Install commands, the text-only fallback chain, OCR, and `latexpand` are in
+[dependencies.md](references/dependencies.md); read only the part you need.
 
 ## Inputs
 
@@ -121,19 +131,24 @@ For (b) and (c), edit `$TMP` accordingly before continuing.
 
 ### 4. Fetch metadata and full text
 
-Use source preferences already provided by the user or caller. Default to the
-normal JATS/PDF path; fetch arXiv LaTeX sources when requested, without asking
-again about the same preference.
+Unless the user or the calling skill already said whether they want LaTeX
+sources, ask once:
+
+> "Fetch arXiv LaTeX sources as full text for these refs?"
+> - **(a)** PDF only (default) — bodies come from the PDF in Step 5.
+> - **(b)** Also fetch LaTeX sources — add `--download-arxiv-source` here and `--tex-source` in Step 5; refs with source render `full_text: latex`.
+
+Default command (option **a**):
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/fetch_metadata.py" \
   --kb "$KB" --manifest "$TMP" --download-arxiv-pdfs
 ```
 
-For requested LaTeX sources, add `--download-arxiv-source` here and `--tex-source`
-to rendering. Metadata lookup uses cached JSON, Semantic Scholar, and Crossref;
-PDF lookup tries open-access sources and arXiv. APS publisher JATS is automatic
-when available. `--email` / `SCIBRAIN_CONTACT_EMAIL` enables Unpaywall.
+Metadata comes from cached JSON, then Semantic Scholar, then Crossref; PDFs from
+open-access sources, then the arXiv preprint. APS (`10.1103/*`) publisher JATS
+is fetched automatically when the article is open. `--email` /
+`SCIBRAIN_CONTACT_EMAIL` enables Unpaywall.
 
 For source details, APS extras, or DOI misses requiring `scihub_download.py`,
 read only the applicable section of [acquisition.md](references/acquisition.md).
@@ -159,28 +174,33 @@ python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --tex-source
 
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
 
-**Body priority: JATS > requested LaTeX > PDF.** Existing human frontmatter
-`note`, `tags`, and `rating` survives rendering. Generated bodies refresh from
-source; keep prose notes in NOTES.md. Backend details are in
-[dependencies.md](references/dependencies.md).
+**Body priority: JATS > LaTeX > PDF.** A `.jats.xml` in `.raw/doi/` always wins
+(`full_text: jats`, plus a `## References` section from the publisher's list).
+`--tex-source` is the only switch that prefers a flattened `.tex`
+(`full_text: latex`); without it every ref renders from its PDF, even when a
+`.tex` sits in `.raw/`. Human frontmatter `note`, `tags`, and `rating` survives
+re-rendering; generated bodies refresh from source, so keep prose notes in
+NOTES.md. PDF backends: [dependencies.md](references/dependencies.md).
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 
-### 6. Append new cite keys (direct input)
+### 6. Propose + confirm cite key (per ref, single-shot mode only)
 
-Use caller-provided keys or the existing KB convention. Otherwise auto-accept the
-helper's collision-safe proposed key and report it at completion. Ask only for
-an ambiguous paper identity or when the user requested key review. In bulk mode
-(Step 3b), preserve the keys from `references.bib` and skip this append step.
+In single-shot mode (Step 3a), ask the user to confirm each new cite key. A
+calling skill that passes explicit keys skips the question; in bulk mode (Step
+3b) the keys come from `references.bib` directly, so skip this step entirely.
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" propose \
   --kb "$KB" --id 1806.08734 --type arxiv --bib "$KB/references.bib"
 ```
 
-The proposal includes `proposed_key`, title, authors, year, and BibTeX.
-With `--bib`, colliding keys are disambiguated; existing keys are never renamed.
-Append using the actual returned key (the following key is an example):
+Output JSON has `proposed_key` (form `lastname_year_firstkeyword`), `title`, `authors`, `year`, `bibtex_with_proposed_key`. With `--bib`, a key already present in the bib is disambiguated by walking to the next content word of the title (existing keys are never renamed). Show the user the proposed key and ask in chat:
+- Accept the proposed key
+- Use a custom key (free-text)
+- Skip this entry
+
+Once confirmed (the key below is an example):
 
 ```sh
 python3 "$DOWNLOAD_REF_DIR/helpers/append_bibtex.py" append \
@@ -220,9 +240,15 @@ Tell the user the new cite keys, rendered paths, full-text status, and remaining
 
 ## Restore existing caches
 
-For a cloned KB or missing assets on existing entries, use
-[maintenance.md](references/maintenance.md) and `helpers/kb_sync.py`. This mode
-restores caches without rewriting Markdown, INDEX.md, or bibliography files.
+For a fresh clone, or missing `.raw/` / `.figures/` assets on entries already
+tracked in the KB, run the sync helper instead of the acquisition steps above:
+
+```sh
+python3 "$DOWNLOAD_REF_DIR/helpers/kb_sync.py" --kb "$KB"
+```
+
+It never rewrites Markdown, INDEX.md, or the bibliography. Requirements and
+caveats are in [maintenance.md](references/maintenance.md).
 
 ## Human annotations
 
