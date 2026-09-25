@@ -48,6 +48,9 @@ configuration and sound examples: `references/cycle-end-hook.md`.
   finding to report, not permission to initialize a campaign.
 - **Start, resume, or run a named stage:** follow Procedure below with the
   user's existing choices and authorization. The stage gates still apply.
+- **Tidy up, pause, or close a campaign:** follow `references/tidy-up.md`.
+  It packs every attempt into its branch, removes the worktrees, and writes
+  `research/ATTEMPTS.md`; the stage is unchanged and the campaign can resume.
 
 ## Procedure
 

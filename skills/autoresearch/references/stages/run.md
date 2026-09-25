@@ -183,7 +183,8 @@ gate is never worked around; a user-approved exception goes into
      report, not a newly improvised list. State which one the agent recommends
      and why it outranks the alternatives. The user decides
      both **which direction(s)** to pursue and **how many attempts** to
-     authorize (a number; 0 = stop; the user's own directions and
+     authorize (a number; 0 = stop, then offer the tidy-up in
+     `../tidy-up.md`; the user's own directions and
      amendments welcome as free text). Attempts are the unit the user
      authorizes; never ask them to reason in rounds or cycles — those are
      internal bookkeeping. Insight promotions proposed in the report — including every

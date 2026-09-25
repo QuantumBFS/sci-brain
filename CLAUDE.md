@@ -27,7 +27,9 @@ resources, keep public names stable and each skill installable on its own.
 
 **autoresearch** routes topics → db → validator → run from `research/STATE.md`.
 Its user-confirmed acceptance gates, attempt budgets, and sealed holdout are
-research invariants. Status questions are read-only.
+research invariants. Status questions are read-only. A tidy-up
+(`references/tidy-up.md`, `helpers/tidy_attempts.py`) packs attempts into
+their branches and writes `research/ATTEMPTS.md` without ending the campaign.
 
 **brainstorm-ideas** keeps the main mentor and a selected advisor as separate
 roles. Advisor profiles and literature live in `advisors/<slug>/`; the selected

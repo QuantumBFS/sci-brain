@@ -19,6 +19,7 @@ keep them):
     - next_attempt: 1          # next .worktrees/attempt-NNN number
     - next_cycle: 1            # next reflection cycle number
     - cycle_end_hook: []       # sound, bell, or command argv; [] or absent disables it
+    - last_tidy: (none)        # date of the last tidy-up (references/tidy-up.md); absent = never
     - gates:
       - survey_gate: pending     # pending | passed YYYY-MM-DD
       - validator_gate: pending  # pending | passed YYYY-MM-DD
