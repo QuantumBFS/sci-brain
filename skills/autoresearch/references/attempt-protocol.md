@@ -35,6 +35,8 @@ Every attempt, no exceptions:
    never silently retried; retrying with a fix is a *new* attempt.
 6. **Commit and leave intact.** Commit everything on the worktree's
    `attempt-NNN` branch — the generated code, `LOG.md`, `report.json` —
-   and leave the worktree in place. Worktrees are the audit trail:
-   reflection reads their LOG.md files, and the cycle-end sync pushes the
-   `attempt-NNN` branches to the remote.
+   and leave the worktree in place until a tidy-up (`tidy-up.md`) packs it
+   away. Worktrees are the audit trail: reflection reads their LOG.md files,
+   and the cycle-end sync pushes the `attempt-NNN` branches to the remote.
+   After a tidy-up the branch is the audit trail; restore a worktree with
+   `git worktree add .worktrees/attempt-NNN attempt-NNN` when needed.
