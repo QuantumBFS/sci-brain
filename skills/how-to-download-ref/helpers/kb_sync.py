@@ -123,6 +123,12 @@ def main(argv=None) -> int:
                     warnings.append(f"JATS unavailable ({status})")
                 else:
                     assets.append("jats")
+            if fm.get("full_text") == "mineru":
+                if base.with_name(safe + ".mineru.md").exists():
+                    assets.append("mineru")
+                else:
+                    all_cached = False
+                    warnings.append("MinerU body/figures missing; run mineru_parse.py, then render.py --mineru")
             if fm.get("full_text") == "yes" and valid_pdf(pdf):
                 status = restore_pdf_figures(kb, pdf, subdir, path.read_text() if path else "")
                 all_cached &= status == "cached"

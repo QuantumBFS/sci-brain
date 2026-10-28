@@ -13,6 +13,8 @@ Reads:
   version, with exact TeX from MathML and a structured reference list)
 - .raw/{arxiv,doi}/<id>.tex — flattened arXiv LaTeX source (optional; used as the
   full-text body ONLY with --tex-source; otherwise PDF->markdown is the default)
+- .raw/{arxiv,doi}/<id>.mineru.md — MinerU parse of the PDF from mineru_parse.py
+  (optional; used as the full-text body ONLY with --mineru, after JATS and LaTeX)
 - .raw/repos/<owner>-<repo>/ — shallow clones (rendered as README + ls-tree)
 - .raw/web/<slug>.html or .raw/web/<slug>/ subdir — web page or local source dir
 - A manifest JSON describing web entries and bib stubs (titles/sources/notes)
@@ -26,6 +28,7 @@ Manifest schema (web/stub only — arxiv/doi/github are auto-discovered from .ra
 Usage:
     render.py --kb /abs/path/.knowledge --manifest manifest.json
     render.py --kb /abs/path/.knowledge --tex-source   # prefer LaTeX bodies when .tex exists
+    render.py --kb /abs/path/.knowledge --mineru       # prefer MinerU bodies when .mineru.md exists
 """
 from __future__ import annotations
 
@@ -188,7 +191,16 @@ def extract_pdf_text(pdf: Path, kb: Path | None = None, fig_subdir: str | None =
     return text.strip()
 
 
-def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = False) -> int:
+def mineru_body(json_path: Path) -> str:
+    """Return the cached mineru_parse.py body beside json_path, or ''."""
+    cached = json_path.with_suffix(".mineru.md")
+    if cached.exists() and cached.stat().st_size > 100:
+        return cached.read_text(encoding="utf-8", errors="replace").strip()
+    return ""
+
+
+def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = False,
+                 use_mineru: bool = False) -> int:
     n = 0
     arx_dir = raw / "arxiv"
     if not arx_dir.exists():
@@ -234,11 +246,16 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool 
         body += ["", "## Abstract", "", s2.get("abstract") or "_(abstract unavailable)_"]
         pdf = json_path.with_suffix(".pdf")
         tex = json_path.with_suffix(".tex")
+        mineru = mineru_body(json_path) if use_mineru else ""
         if use_tex and tex.exists() and tex.stat().st_size > 100:
             meta["full_text"] = "latex"
             body[0] = render_frontmatter(meta)
             body += ["", "## Full Text (LaTeX source)", "",
                      tex.read_text(encoding="utf-8", errors="replace").strip()]
+        elif mineru:
+            meta["full_text"] = "mineru"
+            body[0] = render_frontmatter(meta)
+            body += ["", "## Full Text (MinerU)", "", mineru]
         else:
             full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"arxiv__{json_path.stem}") if pdf.exists() else ""
             if full:
@@ -253,7 +270,8 @@ def render_arxiv(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool 
     return n
 
 
-def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = False) -> int:
+def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = False,
+               use_mineru: bool = False) -> int:
     n = 0
     doi_dir = raw / "doi"
     if not doi_dir.exists():
@@ -322,6 +340,10 @@ def render_doi(kb: Path, raw: Path, only_missing: bool = False, use_tex: bool = 
             body[0] = render_frontmatter(meta)
             body += ["", "## Full Text (LaTeX source)", "",
                      tex.read_text(encoding="utf-8", errors="replace").strip()]
+        elif use_mineru and (mineru := mineru_body(json_path)):
+            meta["full_text"] = "mineru"
+            body[0] = render_frontmatter(meta)
+            body += ["", "## Full Text (MinerU)", "", mineru]
         else:
             full = extract_pdf_text(pdf, kb=kb, fig_subdir=f"doi__{safe}") if pdf.exists() else ""
             if full:
@@ -455,12 +477,16 @@ def main() -> int:
     p.add_argument("--tex-source", action="store_true",
                    help="Render from flattened arXiv LaTeX source (.raw/*/<id>.tex) when available; "
                         "default is PDF->markdown for every ref")
+    p.add_argument("--mineru", action="store_true",
+                   help="Render from mineru_parse.py output (.raw/*/<id>.mineru.md) when available; "
+                        "JATS and --tex-source bodies still win")
     args = p.parse_args()
     raw = args.kb / ".raw"
     m = json.loads(args.manifest.read_text()) if args.manifest else {}
     om = args.only_missing
-    print(f"arxiv:  {render_arxiv(args.kb, raw, only_missing=om, use_tex=args.tex_source)}")
-    print(f"doi:    {render_doi(args.kb, raw, only_missing=om, use_tex=args.tex_source)}")
+    src = {"use_tex": args.tex_source, "use_mineru": args.mineru}
+    print(f"arxiv:  {render_arxiv(args.kb, raw, only_missing=om, **src)}")
+    print(f"doi:    {render_doi(args.kb, raw, only_missing=om, **src)}")
     print(f"github: {render_github(args.kb, raw)}")
     print(f"web:    {render_web(args.kb, raw, m)}")
     print(f"stub:   {render_stubs(args.kb, m)}")
