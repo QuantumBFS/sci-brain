@@ -174,13 +174,30 @@ python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --tex-source
 
 No manifest needed — renderer auto-discovers `.raw/{arxiv,doi}/*.json`. Renders new entries; overwrites existing.
 
-**Body priority: JATS > LaTeX > PDF.** A `.jats.xml` in `.raw/doi/` always wins
+For math-heavy or two-column papers without JATS or LaTeX, MinerU gives a much
+cleaner PDF body: inline and display math as LaTeX, tables as HTML, figures as
+local images. Parse first (remote service, no local GPU; about a minute per
+batch), then render with `--mineru`:
+
+```sh
+python3 "$DOWNLOAD_REF_DIR/helpers/mineru_parse.py" --kb "$KB"
+python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB" --mineru
+```
+
+`mineru_parse.py` caches `.raw/*/<id>.mineru.md` and skips PDFs already parsed
+(`--force` redoes, `--only <id>` narrows). It sends PDFs to a third-party
+service: arXiv papers as public arxiv.org URLs, DOI PDFs as uploads, so confirm
+with the user before uploading paywalled DOI PDFs. Setup and options:
+[dependencies.md](references/dependencies.md#mineru).
+
+**Body priority: JATS > LaTeX > MinerU > PDF.** A `.jats.xml` in `.raw/doi/` always wins
 (`full_text: jats`, plus a `## References` section from the publisher's list).
 `--tex-source` is the only switch that prefers a flattened `.tex`
-(`full_text: latex`); without it every ref renders from its PDF, even when a
-`.tex` sits in `.raw/`. Human frontmatter `note`, `tags`, and `rating` survives
-re-rendering; generated bodies refresh from source, so keep prose notes in
-NOTES.md. PDF backends: [dependencies.md](references/dependencies.md).
+(`full_text: latex`), and `--mineru` the only one that prefers a cached
+`.mineru.md` (`full_text: mineru`); without them every ref renders from its PDF,
+even when a `.tex` or `.mineru.md` sits in `.raw/`. Human frontmatter `note`,
+`tags`, and `rating` survives re-rendering; generated bodies refresh from
+source, so keep prose notes in NOTES.md. PDF backends: [dependencies.md](references/dependencies.md).
 
 `.raw/` and `.figures/` should stay out of git. Append to `.gitignore` if missing.
 
@@ -258,8 +275,8 @@ from source. Keep other prose notes in NOTES.md.
 
 ## Completion and handoff
 
-Return cite keys, rendered paths, full-text status (`jats`, `latex`, `yes`, or
-`no`), and remaining findings. Remove the temporary manifest. If invoked by
+Return cite keys, rendered paths, full-text status (`jats`, `latex`, `mineru`,
+`yes`, or `no`), and remaining findings. Remove the temporary manifest. If invoked by
 `survey`, `know-me-better`, `create-advisor`, or `brainstorm-ideas`, return to that
 workflow with its scope and authorization intact. Continue to a survey report
 only when that report is already requested; standalone acquisition ends here.
@@ -275,5 +292,5 @@ For unexpected helper output, consult
 - [ ] One `<id>_<slug>.md` per distinct paper at `$KB/` root, with frontmatter
 - [ ] `$KB/INDEX.md` regenerated, lists each new entry
 - [ ] `$KB/references.bib` has the new cite key (no duplicate)
-- [ ] User told cite keys, file names, and `full_text` jats/latex/yes/no per ref
+- [ ] User told cite keys, file names, and `full_text` jats/latex/mineru/yes/no per ref
 - [ ] If the user requested LaTeX sources: `.raw/arxiv/<id>.tex` exists for every arXiv id, and `.raw/doi/<safe>.tex` for every DOI with an arXiv preprint (or the `src-miss` reported)

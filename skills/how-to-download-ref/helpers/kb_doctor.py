@@ -24,8 +24,8 @@ def check_kb(kb: Path) -> list[tuple[str, str, str]]:
     md_keys = {}
     for path, meta in records:
         missing = [key for key in ("source", "type", "canonical_id", "title") if not meta.get(key)]
-        if meta.get("type") in ("arxiv", "doi") and meta.get("full_text") not in ("yes", "no", "latex", "jats"):
-            missing.append("full_text (yes/no/latex/jats)")
+        if meta.get("type") in ("arxiv", "doi") and meta.get("full_text") not in ("yes", "no", "latex", "jats", "mineru"):
+            missing.append("full_text (yes/no/latex/jats/mineru)")
         if missing:
             add("frontmatter-required", f"{path.name}: missing/invalid {', '.join(missing)}")
         if not isinstance(meta.get("type"), str) or meta["type"] not in TITLES:

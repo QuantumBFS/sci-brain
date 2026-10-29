@@ -16,5 +16,7 @@ paths use the installed `DOWNLOAD_REF_DIR` from SKILL.md.
 | Expecting `.figures/` images for `full_text: latex` refs to come from the PDF | They come from the source tarball; PDF image extraction runs only on the PDF path. |
 | Rendered from PDF despite a `.tex` in `.raw/` | PDF is the default. To use LaTeX bodies, pass `--tex-source` in Step 5 (and `--download-arxiv-source` in Step 4). |
 | APS paper rendered from PDF, math mangled | `pandoc` is missing, or the article is genuinely `closed`. Check with `aps_harvest.py --check <doi>`. |
+| Rendered from PDF despite a `.mineru.md` in `.raw/` | Pass `--mineru` to `render.py`; the cache is opt-in like `--tex-source`. |
+| `mineru_parse.py` DOI upload times out | Upstream bandwidth to mineru.net is slow from abroad. Retry later. arXiv entries never upload (they go as arxiv.org URLs), so only DOI PDFs hit this. |
 | Reaching for MinerU/Marker on an APS DOI | Try Harvest first — a 401 is the only thing that justifies parsing a PDF at all. |
 | APS DOI reported `notfound` | Harvest matches the DOI suffix case-sensitively; `aps_harvest.canonical_doi` restores APS's capitalisation before the request. Add the journal to `APS_JOURNAL_TOKENS` if a new title 404s. |

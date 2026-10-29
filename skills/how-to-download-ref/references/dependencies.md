@@ -54,3 +54,27 @@ Without it, APS refs silently fall back to the arXiv/PDF tiers.
 For arXiv LaTeX sources (optional, when LaTeX sources are requested), `latexpand`
 (ships with TeX Live) gives the cleanest flattening; if absent, a built-in Python
 inliner is used — no action needed either way.
+
+## MinerU
+
+`mineru_parse.py` is stdlib-only: it talks to MinerU's v1 parse API over HTTPS,
+so nothing needs installing and no local GPU is used. By default it calls the
+hosted service at `https://mineru.net/api`, which accepts anonymous jobs
+(about 200 pages per file; results are kept 30 days on the service). A key
+from <https://mineru.net/apiManage/token> raises the quota; the user exports it
+themselves, and it must never be written into the KB or the repo:
+
+```sh
+export MINERU_API_KEY=...   # optional
+```
+
+arXiv papers are submitted as `https://arxiv.org/pdf/<id>` URLs, so the service
+fetches them itself and the job returns in about a minute for a 60-page paper.
+DOI PDFs have to be uploaded to the service's storage, whose upstream bandwidth
+can be a few tens of KB/s from outside China, so a large DOI PDF can take minutes.
+
+`--tier flash|basic|standard` picks the parse model (default: the service
+decides, which on mineru.net is its VLM). To run MinerU on your own hardware
+instead, start `mineru-api --allow-local-source` (from `uv tool install mineru`)
+and point the helper at it with `--api-url http://127.0.0.1:8000` or
+`MINERU_API_URL`; it then reads the PDFs straight from `.raw/`.

@@ -64,7 +64,7 @@ The canonical bib is `$KB/references.bib` — inside the KB, beside `INDEX.md`/`
 
 `how-to-download-ref` owns `INDEX.md`, `references.bib` (via append), `.raw/`, `.figures/`, and the rendered `<id>_<slug>.md` files. `survey` / `know-me-better` / humans own `NOTES.md`.
 
-Acquisition checks DOI/arXiv identity across namespaces, falls back from Semantic Scholar to Crossref for DOI metadata, and optionally uses Unpaywall for PDFs when `SCIBRAIN_CONTACT_EMAIL` is set. Rendered frontmatter `note`, `tags`, and `rating` are human-owned and survive re-renders. `how-to-download-ref/helpers/kb_sync.py` restores clone-local caches without changing tracked text; `kb_doctor.py` checks KB consistency offline and can repair only INDEX.md with `--fix`. Full-text values include `jats`, `latex`, `yes`, and `no`.
+Acquisition checks DOI/arXiv identity across namespaces, falls back from Semantic Scholar to Crossref for DOI metadata, and optionally uses Unpaywall for PDFs when `SCIBRAIN_CONTACT_EMAIL` is set. Rendered frontmatter `note`, `tags`, and `rating` are human-owned and survive re-renders. `how-to-download-ref/helpers/kb_sync.py` restores clone-local caches without changing tracked text; `kb_doctor.py` checks KB consistency offline and can repair only INDEX.md with `--fix`. Full-text values include `jats`, `latex`, `mineru`, `yes`, and `no`.
 
 Each SKILL.md defines installed-resource resolution. Run helpers by their absolute installed paths while keeping the working directory at the user's project. Shared writing resources live inside the installable `how-to-write-ideas-report/references/` directory (`writing-workflow.md`: context loading, citations, output mechanics); the shared prose rules are the `how-to-technical-writing` skill itself.
 
