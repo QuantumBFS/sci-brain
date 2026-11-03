@@ -28,6 +28,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from kb_identity import cache_path, find_match, identities, identity_index, normalize, same_record
@@ -36,6 +37,13 @@ S2_FIELDS = "title,abstract,authors,year,venue,publicationVenue,journal,external
 S2_BATCH_URL = f"https://api.semanticscholar.org/graph/v1/paper/batch?fields={S2_FIELDS}"
 
 S2_API_KEY = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "")
+# Chemistry publishers (AIP, ACS, RSC) put article PDFs behind a Cloudflare human
+# check even on a subscribed network; misses there are listed for a person to open
+# and then picked up by import_pdfs.py.
+BOT_CHECKED_PREFIXES = ("10.1063/", "10.1021/", "10.1039/")
+PROXY_PREFIX = os.environ.get("SCIBRAIN_PROXY_PREFIX", "")
+ARXIV_API = "https://export.arxiv.org/api/query"
+ATOM = {"a": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
 
 
 def post_batch(ids: list[str]) -> list[dict | None]:
@@ -47,13 +55,15 @@ def post_batch(ids: list[str]) -> list[dict | None]:
     req = urllib.request.Request(
         S2_BATCH_URL, data=body, method="POST", headers=headers,
     )
-    backoff = 5
-    for attempt in range(6):
+    # The keyless S2 pool is often exhausted for minutes; fail fast and let
+    # lookup_metadata fall back to arXiv / Crossref instead of sleeping ~2.5 min.
+    backoff = 3
+    for attempt in range(3):
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
                 return json.loads(r.read())
         except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 502, 503) and attempt < 5:
+            if e.code in (429, 500, 502, 503) and attempt < 2:
                 print(f"  HTTP {e.code}, sleep {backoff}s", file=sys.stderr)
                 time.sleep(backoff)
                 backoff *= 2
@@ -137,6 +147,72 @@ def crossref_metadata(doi: str, email: str = "") -> dict | None:
         return None
 
 
+def arxiv_entries(params: dict) -> list:
+    url = ARXIV_API + "?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={"User-Agent": "sci-brain/0.5"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return ET.fromstring(r.read()).findall("a:entry", ATOM)
+
+
+def arxiv_record(entry) -> dict | None:
+    """Normalize one arXiv Atom entry into the S2-shaped record the KB stores."""
+    def text(tag):
+        return " ".join((entry.findtext(tag, "", ATOM) or "").split())
+    title, ident = text("a:title"), text("a:id")
+    if not title or "/abs/" not in ident:
+        return None
+    aid = normalize("arxiv", ident.rsplit("/abs/", 1)[1])
+    authors = [" ".join((a.findtext("a:name", "", ATOM) or "").split()) for a in entry.findall("a:author", ATOM)]
+    year = int(text("a:published")[:4]) if text("a:published")[:4].isdigit() else None
+    doi = text("arxiv:doi").lower()
+    fields = {"title": title, "author": " and ".join(authors), "year": year,
+              "eprint": aid, "archivePrefix": "arXiv", "doi": doi}
+    def escape(value):
+        return re.sub(r"[\\{}%&#_$]", lambda match: "\\" + match[0], str(value))
+    bib = "@misc{arxiv,\n" + "\n".join(
+        f"  {key} = {{{value if key == 'doi' else escape(value)}}}," for key, value in fields.items() if value) + "\n}"
+    return {"title": title, "authors": [{"name": a} for a in authors], "year": year, "venue": "arXiv",
+            "externalIds": {"ArXiv": aid, **({"DOI": doi} if doi else {})}, "abstract": text("a:summary"),
+            "citationStyles": {"bibtex": bib}, "metadata_source": "arxiv"}
+
+
+def arxiv_metadata(ids: list[str]) -> dict[str, dict]:
+    """Batch arXiv API lookup; one unknown ID empties a batch, so retry those singly."""
+    found: dict[str, dict] = {}
+    def query(batch):
+        try:
+            for entry in arxiv_entries({"id_list": ",".join(batch), "max_results": len(batch)}):
+                meta = arxiv_record(entry)
+                if meta:
+                    found[meta["externalIds"]["ArXiv"]] = meta
+        except (OSError, ET.ParseError, ValueError) as e:
+            print(f"  arXiv API miss {','.join(batch)}: {e}", file=sys.stderr)
+        time.sleep(3)
+    for start in range(0, len(ids), 100):
+        query(ids[start:start + 100])
+    for aid in [aid for aid in ids if aid not in found and len(ids) > 1]:
+        query([aid])
+    return found
+
+
+def arxiv_preprint(title: str) -> str | None:
+    """arXiv ID whose title matches exactly, so Crossref-only DOIs still get a free PDF."""
+    def key(value):
+        return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    try:
+        entries = arxiv_entries({"search_query": f'ti:"{key(title)}"', "max_results": 5})
+    except (OSError, ET.ParseError) as e:
+        print(f"  arXiv search miss {title[:60]!r}: {e}", file=sys.stderr)
+        return None
+    finally:
+        time.sleep(3)
+    for entry in entries:
+        meta = arxiv_record(entry)
+        if meta and key(meta["title"]) == key(title):
+            return meta["externalIds"]["ArXiv"]
+    return None
+
+
 def lookup_metadata(refs: list[tuple[str, str]], email: str = "") -> list[dict | None]:
     results = []
     for start in range(0, len(refs), 500):
@@ -146,13 +222,23 @@ def lookup_metadata(refs: list[tuple[str, str]], email: str = "") -> list[dict |
             if len(found) != len(batch):
                 raise ValueError("Semantic Scholar returned an incomplete batch")
         except (OSError, ValueError) as e:
-            print(f"  Semantic Scholar unavailable: {e}", file=sys.stderr)
+            hint = "" if S2_API_KEY else " (set SEMANTIC_SCHOLAR_API_KEY to avoid the shared rate limit)"
+            print(f"  Semantic Scholar unavailable: {e}; falling back to arXiv/Crossref{hint}", file=sys.stderr)
             found = [None] * len(batch)
-        for (kind, value), meta in zip(batch, found):
-            if meta is None and kind == "doi":
-                meta = crossref_metadata(value, email)
-                time.sleep(2)
-            results.append(meta)
+        results.extend(found)
+    missing = [value for (kind, value), meta in zip(refs, results) if meta is None and kind == "arxiv"]
+    from_arxiv = arxiv_metadata(missing) if missing else {}
+    for i, ((kind, value), meta) in enumerate(zip(refs, results)):
+        if meta is not None:
+            continue
+        if kind == "arxiv":
+            results[i] = from_arxiv.get(value)
+            continue
+        meta = crossref_metadata(value, email)
+        time.sleep(2)
+        if meta and (preprint := arxiv_preprint(meta["title"])):
+            meta["externalIds"]["ArXiv"] = preprint
+        results[i] = meta
     return results
 
 
@@ -246,8 +332,8 @@ def main() -> int:
     accepted.sort(key=lambda ref: ref[0] != "arxiv")
     for kind, value, meta in accepted:
         summarize(kind, value, meta)
-        if meta and meta.get("metadata_source") == "crossref":
-            print(f"ok {kind}:{value} (crossref)")
+        if meta and meta.get("metadata_source") in ("crossref", "arxiv"):
+            print(f"ok {kind}:{value} ({meta['metadata_source']})")
     arxiv_ids = [value for kind, value, _ in accepted if kind == "arxiv"]
     dois = [value for kind, value, _ in accepted if kind == "doi"]
     results = [meta for _, _, meta in accepted]
@@ -276,13 +362,22 @@ def main() -> int:
             else:
                 print(f"  FAIL arxiv:{aid}")
             time.sleep(2)
+        manual = []
         for doi, r in zip(dois, results[len(arxiv_ids):]):
             if r is None:
                 continue
             out = cache_path(args.kb, "doi", doi, ".pdf")
             status = fetch_doi_pdf(doi, r, out, args.email)
             print(f"  {'miss' if status == 'miss' else 'ok  '} doi:{doi} ({status})")
+            if status == "miss" and doi.startswith(BOT_CHECKED_PREFIXES):
+                manual.append(doi)
             time.sleep(2)
+        if manual:
+            where = "through SCIBRAIN_PROXY_PREFIX" if PROXY_PREFIX else "on your institution's network"
+            print(f"\n{len(manual)} chemistry-publisher PDF(s) need a human check: open each {where}, "
+                  "save the PDF, then run import_pdfs.py --kb <kb>")
+            for doi in manual:
+                print(f"  {PROXY_PREFIX}https://doi.org/{doi}")
 
     if args.download_arxiv_source:
         from tex_source import fetch_arxiv_source

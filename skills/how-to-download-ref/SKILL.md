@@ -145,13 +145,15 @@ python3 "$DOWNLOAD_REF_DIR/helpers/fetch_metadata.py" \
   --kb "$KB" --manifest "$TMP" --download-arxiv-pdfs
 ```
 
-Metadata comes from cached JSON, then Semantic Scholar, then Crossref; PDFs from
-open-access sources, then the arXiv preprint. APS (`10.1103/*`) publisher JATS
-is fetched automatically when the article is open. `--email` /
-`SCIBRAIN_CONTACT_EMAIL` enables Unpaywall.
+Metadata comes from cached JSON, then Semantic Scholar, then the arXiv API or
+Crossref when Semantic Scholar is rate-limited; PDFs from open-access sources,
+then the arXiv preprint (found by exact title for Crossref-only DOIs). APS
+(`10.1103/*`) publisher JATS is fetched automatically when the article is open.
+`--email` / `SCIBRAIN_CONTACT_EMAIL` enables Unpaywall.
 
-For source details, APS extras, or DOI misses requiring `scihub_download.py`,
-read only the applicable section of [acquisition.md](references/acquisition.md).
+For source details, APS extras, chemistry-publisher misses listed for
+`import_pdfs.py`, or DOI misses requiring `scihub_download.py`, read only the
+applicable section of [acquisition.md](references/acquisition.md).
 Record unavailable assets and continue the remaining references.
 
 ### 5. Render PDF to markdown

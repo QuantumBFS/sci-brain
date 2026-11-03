@@ -354,7 +354,7 @@ def _load_cache(path: Path) -> dict[str, Any] | None:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    if not isinstance(data, dict) or not data.get("title") or not (data.get("paperId") or data.get("metadata_source") == "crossref"):
+    if not isinstance(data, dict) or not data.get("title") or not (data.get("paperId") or data.get("metadata_source") in ("crossref", "arxiv")):
         return None
     return data
 

@@ -12,6 +12,7 @@ HELPERS = Path(__file__).resolve().parents[1] / 'skills/how-to-download-ref/help
 sys.path.insert(0, str(HELPERS))
 import append_bibtex as bib
 import fetch_metadata as fetch
+import import_pdfs
 import index
 import kb_doctor as doctor
 import kb_identity as identity
@@ -94,16 +95,68 @@ def test_batch_dedup_resolves_aliases_and_allows_explicit_override(tmp_path, mon
     assert error.value.code == 2
 
 
+class Response:
+    def __init__(self, body): self.body = body
+    def __enter__(self): return self
+    def __exit__(self, *args): pass
+    def read(self): return self.body
+
+
+def atom(*entries):
+    body = ''.join(f'''<entry><id>http://arxiv.org/abs/{aid}v2</id><title>{title}</title>
+        <published>2013-05-31T00:00:00Z</published><summary>Abstract.</summary>
+        <author><name>Daniel Kats</name></author>{f"<arxiv:doi>{doi}</arxiv:doi>" if doi else ""}</entry>'''
+        for aid, title, doi in entries)
+    return ('<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">'
+            + body + '</feed>').encode()
+
+
+def test_s2_rate_limit_fails_fast(monkeypatch):
+    sleeps, calls = [], []
+    def urlopen(req, **kwargs):
+        calls.append(req.full_url)
+        raise fetch.urllib.error.HTTPError(req.full_url, 429, 'Too Many Requests', {}, None)
+    monkeypatch.setattr(fetch.urllib.request, 'urlopen', urlopen)
+    monkeypatch.setattr(fetch.time, 'sleep', sleeps.append)
+    with pytest.raises(fetch.urllib.error.HTTPError):
+        fetch.post_batch(['DOI:' + DOI])
+    assert len(calls) == 3 and sum(sleeps) <= 10
+
+
+def test_arxiv_api_fallback_when_s2_unavailable(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(fetch, 'post_batch', lambda ids: (_ for _ in ()).throw(OSError('HTTP Error 429')))
+    calls = []
+    def urlopen(req, **kwargs):
+        calls.append(req.full_url)
+        return Response(atom((ARXIV, 'The distinguishable  cluster approximation', '10.1063/1.4813481')))
+    monkeypatch.setattr(fetch.urllib.request, 'urlopen', urlopen)
+    invoke_fetch(monkeypatch, tmp_path, {'arxiv': [ARXIV]})
+    meta = json.loads((tmp_path / f'.raw/arxiv/{ARXIV}.json').read_text())
+    assert meta['metadata_source'] == 'arxiv' and meta['title'] == 'The distinguishable cluster approximation'
+    assert meta['externalIds'] == {'ArXiv': ARXIV, 'DOI': '10.1063/1.4813481'} and meta['year'] == 2013
+    assert 'eprint = {2601.12345}' in meta['citationStyles']['bibtex']
+    assert len(calls) == 1 and 'id_list=' in calls[0]
+    assert f'ok arxiv:{ARXIV} (arxiv)' in capsys.readouterr().out
+
+
+def test_crossref_record_links_arxiv_preprint_by_exact_title(monkeypatch):
+    monkeypatch.setattr(fetch, 'post_batch', lambda ids: [None] * len(ids))
+    monkeypatch.setattr(fetch.time, 'sleep', lambda _: None)
+    monkeypatch.setattr(fetch, 'crossref_metadata', lambda doi, email: {'title': 'The distinguishable cluster approximation', 'externalIds': {'DOI': doi}})
+    monkeypatch.setattr(fetch.urllib.request, 'urlopen', lambda req, **kw: Response(atom(
+        ('1903.06932', 'On the distinguishable cluster approximation for triple excitations', None),
+        ('1305.7451', 'The Distinguishable Cluster Approximation', None))))
+    [meta] = fetch.lookup_metadata([('doi', '10.1063/1.4813481')])
+    assert meta['externalIds'] == {'DOI': '10.1063/1.4813481', 'ArXiv': '1305.7451'}
+
+
 def test_crossref_miss_fallback_reaches_render_and_bibliography(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(fetch, 'post_batch', lambda ids: [None] * len(ids))
     calls = []
-    class Response:
-        def __enter__(self): return self
-        def __exit__(self, *args): pass
-        def read(self): return json.dumps({'message': {'DOI': DOI, 'title': ['A & B'], 'author': [{'given': 'Test', 'family': 'Author'}], 'published': {'date-parts': [[2026]]}, 'container-title': ['Chemistry Journal'], 'type': 'journal-article'}}).encode()
+    crossref = json.dumps({'message': {'DOI': DOI, 'title': ['A & B'], 'author': [{'given': 'Test', 'family': 'Author'}], 'published': {'date-parts': [[2026]]}, 'container-title': ['Chemistry Journal'], 'type': 'journal-article'}}).encode()
     def urlopen(req, **kwargs):
         calls.append(req.full_url)
-        return Response()
+        return Response(atom() if 'arxiv.org' in req.full_url else crossref)
     monkeypatch.setattr(fetch.urllib.request, 'urlopen', urlopen)
     invoke_fetch(monkeypatch, tmp_path, {'doi': [DOI]}, '--email', 'reader@example.org')
     meta = json.loads((tmp_path / '.raw/doi/10.1234-example.json').read_text())
@@ -111,7 +164,8 @@ def test_crossref_miss_fallback_reaches_render_and_bibliography(tmp_path, monkey
     assert meta['authors'] == [{'name': 'Test Author'}]
     assert meta['metadata_source'] == 'crossref'
     assert '(crossref)' in capsys.readouterr().out
-    assert len(calls) == 1 and 'api.crossref.org/works/' in calls[0]
+    assert len(calls) == 2 and 'api.crossref.org/works/' in calls[0] and 'search_query=ti' in calls[1]
+    assert 'ArXiv' not in meta['externalIds']
     render.render_doi(tmp_path, tmp_path / '.raw')
     assert 'full_text: no' in (tmp_path / '10-1234-example.md').read_text()
     bib.cmd_append(SimpleNamespace(kb=str(tmp_path), type='doi', id=DOI, key='author_2026_test', bib=str(tmp_path / 'references.bib')))
@@ -351,3 +405,43 @@ def test_cache_free_clone_uses_tracked_image_case_not_s2_doi_case(tmp_path):
     shutil.rmtree(tmp_path / '.raw')
     assert identity.cache_path(tmp_path, 'doi', mixed) == dest
     assert identity.cache_path(tmp_path, 'doi', mixed, '.pdf') == dest.with_suffix('.pdf')
+
+
+def test_only_chemistry_publisher_misses_are_listed_for_a_person(tmp_path, monkeypatch, capsys):
+    chem, aps = '10.1063/1.4944087', '10.1103/physrevb.98.045103'
+    monkeypatch.setattr(fetch, 'post_batch', lambda ids: [dict(META, externalIds={'DOI': i.split(':', 1)[1]}) for i in ids])
+    monkeypatch.setattr(fetch, 'fetch_doi_pdf', lambda *args: 'miss')
+    monkeypatch.setattr(fetch, 'PROXY_PREFIX', 'https://proxy.example.edu/login?url=')
+    invoke_fetch(monkeypatch, tmp_path, {'doi': [chem, aps]}, '--download-arxiv-pdfs', '--allow-duplicate')
+    out = capsys.readouterr().out
+    assert '1 chemistry-publisher PDF(s) need a human check' in out
+    assert f'https://proxy.example.edu/login?url=https://doi.org/{chem}' in out
+    assert f'https://doi.org/{aps}' not in out
+
+
+def test_import_pdfs_matches_by_doi_then_title_and_skips_others(tmp_path, monkeypatch, capsys):
+    kb, downloads = tmp_path / 'kb', tmp_path / 'Downloads'
+    downloads.mkdir()
+    papers = {'10.1063/1.4944087': 'Assessing the distinguishable cluster approximation',
+              '10.1021/acs.jctc.2c00059': 'FCIQMC-tailored distinguishable cluster approach',
+              '10.1103/physrevb.98.045103': 'An APS paper that is never imported'}
+    for doi, title in papers.items():
+        fetch.save(identity.cache_path(kb, 'doi', doi), {'title': title, 'externalIds': {'DOI': doi}})
+    (downloads / '124117_1_online.pdf').write_bytes(PDF.replace(b'x' * 40, b'doi.org/10.1063/1.4944087.\nxxxxx', 1))
+    (downloads / 'acs.pdf').write_bytes(PDF)
+    (downloads / 'aps.pdf').write_bytes(PDF.replace(b'x' * 30, b'10.1103/PhysRevB.98.045103\nxxx', 1))
+    (downloads / 'notes.pdf').write_bytes(PDF)
+    real = import_pdfs.first_pages_text
+    def text(pdf):
+        title = b'FCIQMC-Tailored Distinguishable\nCluster Approach' if pdf.name == 'acs.pdf' else b''
+        return title + real(pdf)
+    monkeypatch.setattr(import_pdfs, 'first_pages_text', text)
+    monkeypatch.setattr(sys, 'argv', ['import_pdfs.py', '--kb', str(kb), '--from', str(downloads)])
+    assert import_pdfs.main() == 0
+    raw = kb / '.raw/doi'
+    assert (raw / '10.1063-1.4944087.pdf').read_bytes() == (downloads / '124117_1_online.pdf').read_bytes()
+    assert (raw / '10.1021-acs.jctc.2c00059.pdf').exists()
+    assert not (raw / '10.1103-physrevb.98.045103.pdf').exists()
+    out = capsys.readouterr().out
+    assert '2 imported' in out and 'notes.pdf' not in out
+    assert import_pdfs.pending(kb) == {}
