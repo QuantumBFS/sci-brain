@@ -38,6 +38,34 @@ names an arXiv preprint (`externalIds.ArXiv`) get the same treatment, into
 
 **Tip:** Set `SEMANTIC_SCHOLAR_API_KEY` in your environment to raise the Semantic Scholar rate limit from ~1 req/s to 100 req/s. Get a free key at https://www.semanticscholar.org/product/api#api-key-form.
 
+## Chemistry publishers behind a human check (AIP, ACS, RSC)
+
+AIP (`10.1063/*`, e.g. JCP), ACS (`10.1021/*`) and RSC (`10.1039/*`) answer
+scripts and headless browsers with a Cloudflare "Just a moment..." page even on a
+subscribed network, so their PDFs cannot be fetched automatically. APS is
+different: it serves PDFs to subscribed IPs directly, and most APS papers have
+arXiv preprints. When such a DOI misses, the fetch ends with a block of links:
+
+```
+2 chemistry-publisher PDF(s) need a human check: open each on your institution's network, ...
+  https://doi.org/10.1063/1.4944087
+```
+
+Give the user those links (off campus, set `SCIBRAIN_PROXY_PREFIX` to the
+library proxy, e.g. `https://proxy.library.nyu.edu/login?url=`, so the links go
+through it). Do not try to pass the check yourself. Once the user has saved the
+PDFs, import and re-render:
+
+```sh
+python3 "$DOWNLOAD_REF_DIR/helpers/import_pdfs.py" --kb "$KB"   # --from ~/Downloads --days 14
+python3 "$DOWNLOAD_REF_DIR/helpers/render.py" --kb "$KB"
+```
+
+`import_pdfs.py` scans recent PDFs under `--from`, matches each to a pending
+DOI by a DOI printed in it (or the exact title on its first pages), and copies
+it to `$KB/.raw/doi/<safe>.pdf`. Unmatched files are left alone. It uses
+`pdftotext` (poppler) or PyMuPDF when available.
+
 ## Sci-Hub fallback for paywalled PDFs (script)
 
 If the fetch reports `miss` for any DOI (no open-access PDF and no arXiv preprint),
