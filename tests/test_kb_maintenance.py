@@ -445,3 +445,30 @@ def test_import_pdfs_matches_by_doi_then_title_and_skips_others(tmp_path, monkey
     out = capsys.readouterr().out
     assert '2 imported' in out and 'notes.pdf' not in out
     assert import_pdfs.pending(kb) == {}
+
+
+def test_append_adds_identity_fields_to_preprint_bibtex(tmp_path, capsys):
+    # Semantic Scholar's bibtex for an arXiv-only preprint: no eprint, no doi,
+    # @Inproceedings without booktitle.  Appended verbatim, kb_doctor reports
+    # bib-md-sync "no rendered entry" and bib-required-keys "missing booktitle".
+    arxiv = '2611.03241'
+    meta = {'title': 'A preprint', 'authors': [{'name': 'Pre Print'}], 'year': 2026,
+            'abstract': 'An abstract. ' * 60, 'externalIds': {'ArXiv': arxiv},
+            'citationStyles': {'bibtex': '@Inproceedings{Print2026AP,\n author = {Pre Print},\n'
+                                         ' title = {A preprint},\n year = {2026}\n}\n'}}
+    fetch.save(tmp_path / f'.raw/arxiv/{arxiv}.json', meta)
+    render.render_arxiv(tmp_path, tmp_path / '.raw')
+    bib_path = tmp_path / 'references.bib'
+    bib.cmd_append(SimpleNamespace(kb=str(tmp_path), type='arxiv', id=arxiv, key='print_2026_preprint', bib=str(bib_path)))
+    assert 'appended' in capsys.readouterr().out
+    text = bib_path.read_text()
+    assert text.lstrip().startswith('@misc{print_2026_preprint,')
+    assert f'eprint = {{{arxiv}}}' in text and 'archiveprefix = {arXiv}' in text
+    index.main(['--kb', str(tmp_path), '--title', 'Reading list', '--source-note', ''])
+    assert doctor.check_kb(tmp_path) == []
+    # Re-running the append must recognise the paper by its new eprint field.
+    bib.cmd_append(SimpleNamespace(kb=str(tmp_path), type='arxiv', id=arxiv, key='other_key', bib=str(bib_path)))
+    assert 'skip: same paper' in capsys.readouterr().out
+    # Entries that already carry identifiers and a booktitle are left alone.
+    full = {**META, 'citationStyles': {'bibtex': '@inproceedings{k, title={T}, author={A}, booktitle={B}, year={2026}, doi={10.1234/example}, eprint={2601.12345}}'}}
+    assert bib.ensure_identity_fields(full['citationStyles']['bibtex'], full) == full['citationStyles']['bibtex']

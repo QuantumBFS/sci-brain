@@ -76,6 +76,37 @@ def replace_key(bibtex: str, new_key: str) -> str:
     return re.sub(r"^(@\w+\{)[^,]+,", rf"\g<1>{new_key},", bibtex, count=1)
 
 
+def ensure_identity_fields(bibtex: str, meta: dict) -> str:
+    """Add the identifier fields the KB uses to match a bib entry to its paper.
+
+    Semantic Scholar's ``citationStyles.bibtex`` for a preprint carries neither
+    ``eprint`` nor ``doi``, and types it ``@Inproceedings`` without a
+    ``booktitle``.  Appended verbatim, ``kb_doctor`` then reports the entry as
+    having no rendered paper (bib-md-sync) and missing required keys.  Inject
+    the identifiers known from the metadata and retype such entries ``@misc``.
+    """
+    from kb_identity import identities
+    from verify_bib import parse_bib, extract_arxiv, extract_doi
+    parsed = parse_bib(bibtex)
+    if not parsed:
+        return bibtex
+    fields = parsed[0]["fields"]
+    known = dict(identities(meta))
+    extra = []
+    if known.get("arxiv") and not extract_arxiv(fields):
+        extra.append(f" eprint = {{{known['arxiv']}}},")
+        if not (fields.get("archiveprefix") or fields.get("eprinttype")):
+            extra.append(" archiveprefix = {arXiv},")
+    if known.get("doi") and not extract_doi(fields):
+        extra.append(f" doi = {{{known['doi']}}},")
+    if extra:
+        bibtex = re.sub(r"^(@\w+\{[^,]+,)", lambda m: m.group(1) + "\n" + "\n".join(extra),
+                        bibtex, count=1, flags=re.M)
+    if parsed[0]["type"].lower() == "inproceedings" and not fields.get("booktitle"):
+        bibtex = re.sub(r"^@\w+\{", "@misc{", bibtex, count=1)
+    return bibtex
+
+
 def already_in_bib(bib_path: Path, key: str) -> bool:
     if not bib_path.exists():
         return False
@@ -94,7 +125,7 @@ def cmd_propose(args):
         "year": meta.get("year"),
         "venue": meta.get("venue", ""),
         "proposed_key": key,
-        "bibtex_with_proposed_key": replace_key(bib, key),
+        "bibtex_with_proposed_key": ensure_identity_fields(replace_key(bib, key), meta),
     }
     print(json.dumps(out, ensure_ascii=False, indent=2))
 
@@ -102,7 +133,7 @@ def cmd_propose(args):
 def cmd_append(args):
     meta = load_meta(Path(args.kb), args.type, args.id)
     bib = extract_bibtex(meta)
-    bib = replace_key(bib, args.key)
+    bib = ensure_identity_fields(replace_key(bib, args.key), meta)
     bib_path = Path(args.bib)
     from kb_identity import identities
     from verify_bib import parse_bib, extract_arxiv, extract_doi
